@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain;
+package com.becareful.becarefulserver.domain.caregiver.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,6 +12,7 @@ import com.becareful.becarefulserver.common.domain.BaseEntity;
 import com.becareful.becarefulserver.common.vo.Gender;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -45,4 +46,21 @@ public class Caregiver extends BaseEntity {
     private boolean isAgreedToReceiveMarketingInfo;
 
     private String profileImageUrl;
+
+    @Builder
+    private Caregiver(String name, Gender gender, String phoneNumber, String password,
+            boolean isHavingCar, boolean isCompleteDementiaEducation, boolean isAgreedToTerms,
+            boolean isAgreedToCollectPersonalInfo, boolean isAgreedToReceiveMarketingInfo,
+            String profileImageUrl) {
+        this.name = name;
+        this.gender = gender;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.isHavingCar = isHavingCar;
+        this.isCompleteDementiaEducation = isCompleteDementiaEducation;
+        this.isAgreedToTerms = isAgreedToTerms;
+        this.isAgreedToCollectPersonalInfo = isAgreedToCollectPersonalInfo;
+        this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
+        this.profileImageUrl = profileImageUrl;
+    }
 }
