@@ -8,8 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-import com.becareful.becarefulserver.common.domain.BaseEntity;
-import com.becareful.becarefulserver.common.vo.Gender;
+import com.becareful.becarefulserver.global.common.domain.BaseEntity;
+import com.becareful.becarefulserver.global.common.vo.Gender;
 
 import lombok.AccessLevel;
 import lombok.Builder;

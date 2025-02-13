@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.dto.request;
 
-import com.becareful.becarefulserver.common.vo.Gender;
+import com.becareful.becarefulserver.global.common.vo.Gender;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 
 public record CaregiverCreateRequest(

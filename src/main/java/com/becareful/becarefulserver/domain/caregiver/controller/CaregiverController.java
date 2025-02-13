@@ -19,7 +19,7 @@ public class CaregiverController {
 
     private final CaregiverService caregiverService;
 
-    @PostMapping
+    @PostMapping("/signup")
     public ResponseEntity<Void> createCaregiver(@RequestBody CaregiverCreateRequest request) {
         Long id = caregiverService.saveCaregiver(request);
         return ResponseEntity.created(URI.create("/caregiver/" + id)).build();
