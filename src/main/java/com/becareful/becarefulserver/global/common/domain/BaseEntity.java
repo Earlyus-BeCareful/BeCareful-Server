@@ -1,15 +1,18 @@
-package com.becareful.becarefulserver.common.domain;
+package com.becareful.becarefulserver.global.common.domain;
 
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import lombok.Getter;
 
-@MappedSuperclass
 @Getter
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
 
     @CreatedDate
