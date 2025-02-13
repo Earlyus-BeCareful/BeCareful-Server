@@ -10,3 +10,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  data:
+    redis:
+      host: "localhost"
+      port: "6379"
+
+sms:
+  api_key: "a"
+  api_secret: "a"
+  send_number: "01012345678"
