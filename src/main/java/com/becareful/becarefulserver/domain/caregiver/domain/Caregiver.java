@@ -1,6 +1,8 @@
 package com.becareful.becarefulserver.domain.caregiver.domain;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -8,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.vo.Address;
 import com.becareful.becarefulserver.global.common.domain.BaseEntity;
 import com.becareful.becarefulserver.global.common.vo.Gender;
 
@@ -35,6 +38,9 @@ public class Caregiver extends BaseEntity {
 
     private String password;
 
+    @Embedded
+    private Address address;
+
     private boolean isHavingCar;
 
     private boolean isCompleteDementiaEducation;
@@ -48,7 +54,7 @@ public class Caregiver extends BaseEntity {
     private String profileImageUrl;
 
     @Builder
-    private Caregiver(String name, Gender gender, String phoneNumber, String password,
+    private Caregiver(String name, Gender gender, String phoneNumber, String password, Address address,
             boolean isHavingCar, boolean isCompleteDementiaEducation, boolean isAgreedToTerms,
             boolean isAgreedToCollectPersonalInfo, boolean isAgreedToReceiveMarketingInfo,
             String profileImageUrl) {
@@ -56,6 +62,7 @@ public class Caregiver extends BaseEntity {
         this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.password = password;
+        this.address = address;
         this.isHavingCar = isHavingCar;
         this.isCompleteDementiaEducation = isCompleteDementiaEducation;
         this.isAgreedToTerms = isAgreedToTerms;
