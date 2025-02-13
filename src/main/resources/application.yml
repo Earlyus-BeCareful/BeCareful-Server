@@ -16,3 +16,4 @@ spring:
   profiles:
     include:
       - sms
+      - redis

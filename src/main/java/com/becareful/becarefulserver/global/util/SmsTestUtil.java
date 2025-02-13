@@ -1,0 +1,14 @@
+package com.becareful.becarefulserver.global.util;
+
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+@Profile("local")
+@Component
+public class SmsTestUtil implements SmsUtil {
+
+    @Override
+    public SmsSendResult sendMessage(String phoneNumber, String message) {
+        return new SmsSendResult("200", "전송 성공");
+    }
+}
