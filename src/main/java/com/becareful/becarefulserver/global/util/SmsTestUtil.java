@@ -3,7 +3,7 @@ package com.becareful.becarefulserver.global.util;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-@Profile("local")
+@Profile({"local", "test"})
 @Component
 public class SmsTestUtil implements SmsUtil {
 
