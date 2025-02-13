@@ -9,7 +9,7 @@ import com.becareful.becarefulserver.domain.sms.domain.SmsAuthentication;
 import com.becareful.becarefulserver.domain.sms.dto.SmsAuthenticateRequest;
 import com.becareful.becarefulserver.domain.sms.dto.SmsSendRequest;
 import com.becareful.becarefulserver.domain.sms.repository.SmsRepository;
-import com.becareful.becarefulserver.global.exception.SmsException;
+import com.becareful.becarefulserver.global.exception.exception.SmsException;
 import com.becareful.becarefulserver.global.util.SmsSendResult;
 import com.becareful.becarefulserver.global.util.SmsUtil;
 
