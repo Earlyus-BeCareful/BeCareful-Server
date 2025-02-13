@@ -37,7 +37,7 @@ public class SmsService {
         System.out.println(result.statusMessage());
         System.out.println(authNumber);
 
-        if (!result.statusCode().equals("200")) {
+        if (!result.isSuccessful()) {
             throw new SmsException(SMS_SEND_FAILED);
         }
     }

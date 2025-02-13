@@ -12,12 +12,16 @@ import net.nurigo.sdk.message.service.DefaultMessageService;
 
 import com.becareful.becarefulserver.global.properties.SmsProperties;
 
+import lombok.RequiredArgsConstructor;
+
 @Profile("prod")
 @Component
+@RequiredArgsConstructor
 public class SmsCoolSmsUtil implements SmsUtil {
 
+    private final SmsProperties smsProperties;
+
     private DefaultMessageService messageService;
-    private SmsProperties smsProperties;
 
     @PostConstruct
     public void init() {
@@ -37,6 +41,6 @@ public class SmsCoolSmsUtil implements SmsUtil {
 
         var response = messageService.sendOne(new SingleMessageSendingRequest(message));
 
-        return new SmsSendResult(response.getStatusCode(), response.getStatusMessage());
+        return SmsSendResult.from(response);
     }
 }

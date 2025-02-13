@@ -9,6 +9,6 @@ public class SmsTestUtil implements SmsUtil {
 
     @Override
     public SmsSendResult sendMessage(String phoneNumber, String message) {
-        return new SmsSendResult("200", "전송 성공");
+        return new SmsSendResult("2000", "전송 성공");
     }
 }
