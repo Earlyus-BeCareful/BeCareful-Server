@@ -25,8 +25,6 @@ public class SmsService {
 
     public void sendAuthNumber(SmsSendRequest request) {
         // TODO : Redis Transaction 설정
-
-        // TODO : status code API 명세에 맞게 설정
         String authNumber = generateAuthNumber();
         String content = "Becareful: 인증번호는 [" + authNumber + "] 입니다.";
         SmsSendResult result = smsUtil.sendMessage(request.phoneNumber(), content);
