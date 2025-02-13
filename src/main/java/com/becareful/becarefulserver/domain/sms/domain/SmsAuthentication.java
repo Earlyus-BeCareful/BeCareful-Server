@@ -5,6 +5,7 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.SMS_AU
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
+import com.becareful.becarefulserver.global.constant.SmsConstant;
 import com.becareful.becarefulserver.global.exception.SmsException;
 
 import lombok.AccessLevel;
@@ -12,7 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@RedisHash("smsAuthentication")
+@RedisHash(value = "smsAuthentication", timeToLive = SmsConstant.TTL)
 public class SmsAuthentication {
 
     @Id
