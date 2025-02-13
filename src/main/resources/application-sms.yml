@@ -1,0 +1,4 @@
+sms:
+  api_key: "${SMS_API_KEY}"
+  api_secret: "${SMS_API_SECRET}"
+  send_number: "${SMS_SEND_NUMBER}"
