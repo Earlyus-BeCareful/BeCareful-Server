@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.global.exception;
+package com.becareful.becarefulserver.global.exception.exception;
 
 public class SmsException extends RuntimeException {
 

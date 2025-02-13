@@ -8,6 +8,7 @@ public record CaregiverCreateRequest(
     String name,
     Gender gender,
     String phoneNumber,
+    String password,
     String streetAddress,
     String detailAddress,
     boolean isHavingCar,
@@ -16,20 +17,4 @@ public record CaregiverCreateRequest(
     boolean isAgreedToCollectPersonalInfo,
     boolean isAgreedToReceiveMarketingInfo,
     String profileImageUrl
-) {
-
-    public Caregiver toEntity() {
-        return Caregiver.builder()
-                .name(name)
-                .gender(gender)
-                .phoneNumber(phoneNumber)
-                .address(new Address(streetAddress, detailAddress))
-                .isHavingCar(isHavingCar)
-                .isCompleteDementiaEducation(isCompleteDementiaEducation)
-                .isAgreedToTerms(isAgreedToTerms)
-                .isAgreedToCollectPersonalInfo(isAgreedToCollectPersonalInfo)
-                .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
-                .profileImageUrl(profileImageUrl)
-                .build();
-    }
-}
+) {}

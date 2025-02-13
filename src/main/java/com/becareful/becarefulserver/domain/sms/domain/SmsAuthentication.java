@@ -6,7 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 import com.becareful.becarefulserver.global.constant.SmsConstant;
-import com.becareful.becarefulserver.global.exception.SmsException;
+import com.becareful.becarefulserver.global.exception.exception.SmsException;
 
 import lombok.AccessLevel;
 import lombok.Builder;

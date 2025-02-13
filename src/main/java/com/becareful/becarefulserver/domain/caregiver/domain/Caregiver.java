@@ -1,6 +1,5 @@
 package com.becareful.becarefulserver.domain.caregiver.domain;
 
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -54,7 +53,8 @@ public class Caregiver extends BaseEntity {
     private String profileImageUrl;
 
     @Builder
-    private Caregiver(String name, Gender gender, String phoneNumber, String password, Address address,
+    private Caregiver(String name, Gender gender, String phoneNumber, String password,
+            Address address,
             boolean isHavingCar, boolean isCompleteDementiaEducation, boolean isAgreedToTerms,
             boolean isAgreedToCollectPersonalInfo, boolean isAgreedToReceiveMarketingInfo,
             String profileImageUrl) {
@@ -69,5 +69,24 @@ public class Caregiver extends BaseEntity {
         this.isAgreedToCollectPersonalInfo = isAgreedToCollectPersonalInfo;
         this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public static Caregiver create(String name, String phoneNumber, String encodedPassword,
+            Gender gender, String streetAddress, String detailAddress, boolean isHavingCar,
+            boolean isCompleteDementiaEducation, boolean isAgreedToReceiveMarketingInfo,
+            String profileImageUrl) {
+        return Caregiver.builder()
+                .name(name)
+                .gender(gender)
+                .phoneNumber(phoneNumber)
+                .password(encodedPassword)
+                .address(new Address(streetAddress, detailAddress))
+                .isHavingCar(isHavingCar)
+                .isCompleteDementiaEducation(isCompleteDementiaEducation)
+                .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
+                .profileImageUrl(profileImageUrl)
+                .isAgreedToTerms(true)
+                .isAgreedToCollectPersonalInfo(true)
+                .build();
     }
 }
