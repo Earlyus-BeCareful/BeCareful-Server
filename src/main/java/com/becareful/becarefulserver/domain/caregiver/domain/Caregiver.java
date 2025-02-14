@@ -52,7 +52,7 @@ public class Caregiver extends BaseEntity {
 
     private String profileImageUrl;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     private Caregiver(String name, Gender gender, String phoneNumber, String password,
             Address address,
             boolean isHavingCar, boolean isCompleteDementiaEducation, boolean isAgreedToTerms,
@@ -88,5 +88,13 @@ public class Caregiver extends BaseEntity {
                 .isAgreedToTerms(true)
                 .isAgreedToCollectPersonalInfo(true)
                 .build();
+    }
+
+    /***
+     * Entity Method
+     * */
+
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 }
