@@ -23,7 +23,8 @@ public class SecurityConfig {
                         .requestMatchers("/caregiver/signup").permitAll()
                         .requestMatchers("/sms/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated()
+                        //.anyRequest().authenticated()
+                        .anyRequest().permitAll() // test
                 );
 
         return http.build();
