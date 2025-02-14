@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.Address;
+import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.global.common.domain.BaseEntity;
 import com.becareful.becarefulserver.global.common.vo.Gender;
 
@@ -40,9 +41,10 @@ public class Caregiver extends BaseEntity {
     @Embedded
     private Address address;
 
-    private boolean isHavingCar;
+    private String profileImageUrl;
 
-    private boolean isCompleteDementiaEducation;
+    @Embedded
+    private CaregiverInfo caregiverInfo;
 
     private boolean isAgreedToTerms;
 
@@ -50,41 +52,35 @@ public class Caregiver extends BaseEntity {
 
     private boolean isAgreedToReceiveMarketingInfo;
 
-    private String profileImageUrl;
-
     @Builder(access = AccessLevel.PRIVATE)
     private Caregiver(String name, Gender gender, String phoneNumber, String password,
-            Address address,
-            boolean isHavingCar, boolean isCompleteDementiaEducation, boolean isAgreedToTerms,
-            boolean isAgreedToCollectPersonalInfo, boolean isAgreedToReceiveMarketingInfo,
-            String profileImageUrl) {
+            String profileImageUrl, Address address, CaregiverInfo caregiverInfo,
+            boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo,
+            boolean isAgreedToReceiveMarketingInfo) {
         this.name = name;
         this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.password = password;
+        this.profileImageUrl = profileImageUrl;
         this.address = address;
-        this.isHavingCar = isHavingCar;
-        this.isCompleteDementiaEducation = isCompleteDementiaEducation;
+        this.caregiverInfo = caregiverInfo;
         this.isAgreedToTerms = isAgreedToTerms;
         this.isAgreedToCollectPersonalInfo = isAgreedToCollectPersonalInfo;
         this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
-        this.profileImageUrl = profileImageUrl;
     }
 
     public static Caregiver create(String name, String phoneNumber, String encodedPassword,
-            Gender gender, String streetAddress, String detailAddress, boolean isHavingCar,
-            boolean isCompleteDementiaEducation, boolean isAgreedToReceiveMarketingInfo,
-            String profileImageUrl) {
+            Gender gender, String streetAddress, String detailAddress, CaregiverInfo caregiverInfo,
+            boolean isAgreedToReceiveMarketingInfo, String profileImageUrl) {
         return Caregiver.builder()
                 .name(name)
                 .gender(gender)
                 .phoneNumber(phoneNumber)
                 .password(encodedPassword)
-                .address(new Address(streetAddress, detailAddress))
-                .isHavingCar(isHavingCar)
-                .isCompleteDementiaEducation(isCompleteDementiaEducation)
-                .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
                 .profileImageUrl(profileImageUrl)
+                .address(new Address(streetAddress, detailAddress))
+                .caregiverInfo(caregiverInfo)
+                .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
                 .isAgreedToTerms(true)
                 .isAgreedToCollectPersonalInfo(true)
                 .build();

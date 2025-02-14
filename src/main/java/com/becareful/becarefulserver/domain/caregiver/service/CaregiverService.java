@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
+import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
@@ -33,10 +34,19 @@ public class CaregiverService {
     public Long saveCaregiver(CaregiverCreateRequest request) {
         validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
 
+        CaregiverInfo caregiverInfo = CaregiverInfo.builder()
+                .isHavingCar(request.isHavingCar())
+                .isCompleteDementiaEducation(request.isCompleteDementiaEducation())
+                .caregiverCertificate(request.caregiverCertificate())
+                .socialWorkerCertificate(request.socialWorkerCertificate())
+                .nursingCareCertificate(request.nursingCareCertificate())
+                .build();
+
+        System.out.println(request.caregiverCertificate());
+
         Caregiver caregiver = Caregiver.create(
                 request.name(), request.phoneNumber(), getEncodedPassword(request.password()),
-                request.gender(), request.streetAddress(), request.detailAddress(),
-                request.isHavingCar(), request.isCompleteDementiaEducation(),
+                request.gender(), request.streetAddress(), request.detailAddress(), caregiverInfo,
                 request.isAgreedToReceiveMarketingInfo(),
                 request.profileImageUrl());
 

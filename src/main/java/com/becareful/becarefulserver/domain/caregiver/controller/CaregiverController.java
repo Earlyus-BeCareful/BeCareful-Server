@@ -1,17 +1,17 @@
 package com.becareful.becarefulserver.domain.caregiver.controller;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverProfileUploadRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
 import com.becareful.becarefulserver.domain.caregiver.service.CaregiverService;
 
@@ -28,9 +28,9 @@ public class CaregiverController {
 
     private final CaregiverService caregiverService;
 
-    @Operation(summary = "요양보호사 회원가입")
+    @Operation(summary = "요양보호사 회원가입", description = "사회복지사 (social worker), 간호조무사 (nursing care), 프로필 이미지 필드는 생략할 수 있습닏.")
     @PostMapping("/signup")
-    public ResponseEntity<Void> createCaregiver(@RequestBody CaregiverCreateRequest request) {
+    public ResponseEntity<Void> createCaregiver(@Valid @RequestBody CaregiverCreateRequest request) {
         Long id = caregiverService.saveCaregiver(request);
         return ResponseEntity.created(URI.create("/caregiver/" + id)).build();
     }
