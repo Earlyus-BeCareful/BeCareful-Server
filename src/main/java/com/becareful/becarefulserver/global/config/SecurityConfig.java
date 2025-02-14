@@ -34,7 +34,7 @@ public class SecurityConfig {
     UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(List.of("https://becareful.vercel.app/", "http://localhost:5173", "http://localhost:8080"));
+        configuration.setAllowedOrigins(List.of("https://becareful.vercel.app/", "http://localhost:5173", "http://localhost:8080", "https://blaybus.everdu.com"));
         configuration.setAllowedMethods(List.of("*"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
