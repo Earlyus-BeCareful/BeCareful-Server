@@ -19,3 +19,9 @@ sms:
   api_key: "a"
   api_secret: "a"
   send_number: "01012345678"
+
+cloud:
+  aws:
+    credentials:
+      access-key: "test"
+      secret-key: "test"
