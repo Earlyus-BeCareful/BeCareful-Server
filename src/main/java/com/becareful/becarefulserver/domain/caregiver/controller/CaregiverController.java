@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.controller;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,7 +36,7 @@ public class CaregiverController {
     }
 
     @Operation(summary = "요양보호사 프로필 사진 신규 업로드", description = "요양보호사 회원가입 과정에서만 사용하는 프로필 이미지 업로드 API 입니다.")
-    @PostMapping("/upload-profile-img")
+    @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CaregiverProfileUploadResponse> uploadProfileImg(
             @RequestPart MultipartFile file,
             @RequestPart String phoneNumber) {
