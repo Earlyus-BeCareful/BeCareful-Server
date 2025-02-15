@@ -11,9 +11,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverHomeResponse;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
+import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
 
 import java.io.IOException;
@@ -25,10 +27,12 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CaregiverService {
 
     private final CaregiverRepository caregiverRepository;
     private final FileUtil fileUtil;
+    private final AuthUtil authUtil;
 
     @Transactional
     public Long saveCaregiver(CaregiverCreateRequest request) {
@@ -63,6 +67,11 @@ public class CaregiverService {
         } catch (IOException e) {
             throw new CaregiverException(CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE);
         }
+    }
+
+    public CaregiverHomeResponse getHomeData() {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        return CaregiverHomeResponse.of(caregiver);
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms,
