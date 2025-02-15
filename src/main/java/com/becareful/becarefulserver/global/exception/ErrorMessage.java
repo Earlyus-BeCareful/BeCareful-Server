@@ -14,4 +14,7 @@ public class ErrorMessage {
     public static final String PASSWORD_NOT_MATCH = "비밀번호가 일치하지 않습니다.";
     public static final String INVALID_TOKEN_FORMAT = "엑세스 토큰 형식이 유효하지 않습니다.";
     public static final String INVALID_TOKEN = "엑세스 토큰이 유효하지 않습니다.";
+    public static final String SOCIALWORKER_REQUIRED_AGREEMENT = "필수 약관에 동의해야 합니다.";
+    public static final String NURSING_INSTITUTION_NOT_FOUND = "해당 ID의 요양 기관을 찾을 수 없습니다.";
+    public static final String INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
 }
