@@ -9,13 +9,22 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
+        Server dev_server = new Server();
+        dev_server.setUrl("https://blaybus.everdu.com");
+
+        Server local_server = new Server();
+        local_server.setUrl("http://localhost:8080");
+
         return new OpenAPI()
+                .servers(List.of(dev_server, local_server))
                 .addSecurityItem(securityRequirement())
                 .components(authSetting());
     }
