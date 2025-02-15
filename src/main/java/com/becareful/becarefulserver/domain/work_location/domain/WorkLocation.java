@@ -10,9 +10,11 @@ import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocati
 
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WorkLocation {
 
