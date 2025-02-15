@@ -30,4 +30,11 @@ public class AuthController {
         LoginResponse loginResponse = loginService.loginCaregiver(request);
         return ResponseEntity.ok(loginResponse);
     }
+
+    @PostMapping("/socialworker/login")
+    @Operation(summary = "사회복지사 로그인", description = "사회복지사 로그인 API 입니다.")
+    public ResponseEntity<LoginResponse> socialWorkerLogin(@Valid @RequestBody LoginRequest request) {
+        LoginResponse loginResponse = loginService.loginSocialWorker(request);
+        return ResponseEntity.ok(loginResponse);
+    }
 }
