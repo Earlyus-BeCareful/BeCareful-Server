@@ -25,3 +25,7 @@ cloud:
     credentials:
       access-key: "test"
       secret-key: "test"
+
+jwt:
+  secret: "test"
+  expiration_time: 108000000
