@@ -18,8 +18,11 @@ import com.becareful.becarefulserver.global.exception.exception.AuthException;
 import com.becareful.becarefulserver.global.util.JwtUtil;
 
 import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -35,7 +38,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             jwtUtil.validateToken(token);
             var auth = new UsernamePasswordAuthenticationToken(
                     jwtUtil.getPhoneNumber(token),
-                    null
+                    null,
+                    List.of()
             );
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
