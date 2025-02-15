@@ -33,6 +33,13 @@ public class LoginService {
         return new LoginResponse(accessToken);
     }
 
+    public LoginResponse loginSocialWorker(LoginRequest request) {
+        // TODO : 사회복지사 엔티티 생성 이후 비밀번호 검증 로직 추가
+
+        String accessToken = jwtUtil.generateToken(request.phoneNumber());
+        return new LoginResponse(accessToken);
+    }
+
     private void validatePassword(String requestPassword, String encodedPassword) {
         PasswordEncoder encoder = new BCryptPasswordEncoder();
         if (!encoder.matches(requestPassword, encodedPassword)) {
