@@ -25,7 +25,7 @@ public class AuthController {
     private final LoginService loginService;
 
     @PostMapping("/caregiver/login")
-    @Operation(description = "요양복지사 로그인 API 입니다.")
+    @Operation(summary = "요양복지사 로그인", description = "요양복지사 로그인 API 입니다.")
     public ResponseEntity<LoginResponse> caregiverLogin(@Valid @RequestBody LoginRequest request) {
         LoginResponse loginResponse = loginService.loginCaregiver(request);
         return ResponseEntity.ok(loginResponse);
