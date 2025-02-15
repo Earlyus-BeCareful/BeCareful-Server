@@ -71,4 +71,18 @@ public class CaregiverController {
         WorkApplicationResponse response = workApplicationService.getWorkApplication();
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "일자리 신청 활성화", description = "등록한 일자리 신청 내용을 기반으로 매칭을 활성화 합니다.")
+    @PostMapping("/work-applicatioin/active")
+    public ResponseEntity<Void> updateWorkApplicationActive() {
+        workApplicationService.updateWorkApplicationActive();
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "일자리 신청 비활성화", description = "일자리 매칭을 비활성화 합니다.")
+    @PostMapping("/work-applicatioin/inactive")
+    public ResponseEntity<Void> updateWorkApplicationInactive() {
+        workApplicationService.updateWorkApplicationInactive();
+        return ResponseEntity.ok().build();
+    }
 }

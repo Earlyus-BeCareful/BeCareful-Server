@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.caregiver.service;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_WORK_APPLICATION_NOT_EXISTS;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +15,7 @@ import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplication
 import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
 import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import com.becareful.becarefulserver.domain.work_location.repository.WorkLocationRepository;
+import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 
 import java.util.List;
@@ -59,6 +62,25 @@ public class WorkApplicationService {
                         }
                 );
     }
+
+    @Transactional
+    public void updateWorkApplicationActive() {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        WorkApplication application = workApplicationRepository.findByCaregiver(caregiver)
+                .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
+
+        application.activate();
+    }
+
+    @Transactional
+    public void updateWorkApplicationInactive() {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        WorkApplication application = workApplicationRepository.findByCaregiver(caregiver)
+                .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
+
+        application.inactivate();
+    }
+
 
 
     private void saveWorkLocations(List<WorkLocationDto> workLocations, WorkApplication workApplication) {
