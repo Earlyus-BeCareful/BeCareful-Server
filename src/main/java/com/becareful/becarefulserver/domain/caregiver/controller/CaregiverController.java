@@ -17,6 +17,7 @@ import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreat
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverHomeResponse;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
+import com.becareful.becarefulserver.domain.caregiver.dto.response.WorkApplicationResponse;
 import com.becareful.becarefulserver.domain.caregiver.service.CaregiverService;
 import com.becareful.becarefulserver.domain.caregiver.service.WorkApplicationService;
 
@@ -62,5 +63,12 @@ public class CaregiverController {
     public ResponseEntity<Void> updateWorkApplication(@Valid @RequestBody WorkApplicationUpdateRequest request) {
         workApplicationService.updateWorkApplication(request);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "일자리 신청 정보 조회", description = "신청 정보를 등록한 적이 없다면 빈 값을 반환합니다.")
+    @GetMapping("/work-application")
+    public ResponseEntity<WorkApplicationResponse> getWorkApplication() {
+        WorkApplicationResponse response = workApplicationService.getWorkApplication();
+        return ResponseEntity.ok(response);
     }
 }

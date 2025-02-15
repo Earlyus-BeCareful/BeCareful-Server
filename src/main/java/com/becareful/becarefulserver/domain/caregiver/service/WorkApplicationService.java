@@ -7,6 +7,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplicationWorkLocation;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.response.WorkApplicationResponse;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
 import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
@@ -19,12 +20,27 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class WorkApplicationService {
 
     private final WorkApplicationRepository workApplicationRepository;
     private final WorkLocationRepository workLocationRepository;
     private final WorkApplicationWorkLocationRepository workApplicationWorkLocationRepository;
     private final AuthUtil authUtil;
+
+    public WorkApplicationResponse getWorkApplication() {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+
+        return workApplicationRepository.findByCaregiver(caregiver)
+                .map(workApplication -> {
+                    List<WorkLocationDto> locations = workApplicationWorkLocationRepository.findAllByWorkApplication(
+                                    workApplication)
+                            .stream().map(data -> WorkLocationDto.from(data.getWorkLocation())).toList();
+
+                    return WorkApplicationResponse.of(locations, workApplication);
+                })
+                .orElse(WorkApplicationResponse.empty());
+    }
 
     @Transactional
     public void updateWorkApplication(WorkApplicationUpdateRequest request) {
