@@ -91,4 +91,16 @@ public class WorkApplication {
         this.workSalaryType = request.workSalaryType();
         this.workSalaryAmount = request.workSalaryAmount();
     }
+
+    /***
+     * Entity Method
+     */
+
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public void inactivate() {
+        this.isActive = false;
+    }
 }
