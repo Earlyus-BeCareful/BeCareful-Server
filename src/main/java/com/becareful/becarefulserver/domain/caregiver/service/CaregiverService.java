@@ -32,7 +32,8 @@ public class CaregiverService {
 
     @Transactional
     public Long saveCaregiver(CaregiverCreateRequest request) {
-        validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
+        validateEssentialAgreement(request.isAgreedToTerms(),
+                request.isAgreedToCollectPersonalInfo());
 
         CaregiverInfo caregiverInfo = CaregiverInfo.builder()
                 .isHavingCar(request.isHavingCar())
@@ -42,12 +43,10 @@ public class CaregiverService {
                 .nursingCareCertificate(request.nursingCareCertificate())
                 .build();
 
-        System.out.println(request.caregiverCertificate());
-
         Caregiver caregiver = Caregiver.create(
-                request.name(), request.phoneNumber(), getEncodedPassword(request.password()),
-                request.gender(), request.streetAddress(), request.detailAddress(), caregiverInfo,
-                request.isAgreedToReceiveMarketingInfo(),
+                request.name(), request.birthDate(), request.phoneNumber(),
+                getEncodedPassword(request.password()), request.gender(), request.streetAddress(),
+                request.detailAddress(), caregiverInfo, request.isAgreedToReceiveMarketingInfo(),
                 request.profileImageUrl());
 
         caregiverRepository.save(caregiver);
@@ -55,7 +54,8 @@ public class CaregiverService {
     }
 
     @Transactional
-    public CaregiverProfileUploadResponse uploadProfileImage(MultipartFile file, String phoneNumber) {
+    public CaregiverProfileUploadResponse uploadProfileImage(MultipartFile file,
+            String phoneNumber) {
         try {
             String fileName = generateProfileImageFileName(phoneNumber);
             String profileImageUrl = fileUtil.upload(file, fileName);
@@ -81,7 +81,7 @@ public class CaregiverService {
 
     private String generateProfileImageFileName(String phoneNumber) {
         try {
-            var md  = MessageDigest.getInstance("SHA-256");
+            var md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(phoneNumber.getBytes(StandardCharsets.UTF_8));
             return Base64.getUrlEncoder().encodeToString(hash);
         } catch (NoSuchAlgorithmException e) {

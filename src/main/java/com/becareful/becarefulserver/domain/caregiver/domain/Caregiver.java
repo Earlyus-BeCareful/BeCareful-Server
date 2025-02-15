@@ -14,6 +14,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.global.common.domain.BaseEntity;
 import com.becareful.becarefulserver.global.common.vo.Gender;
 
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,6 +31,8 @@ public class Caregiver extends BaseEntity {
     private Long id;
 
     private String name;
+
+    private LocalDate birthDate;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -53,11 +56,12 @@ public class Caregiver extends BaseEntity {
     private boolean isAgreedToReceiveMarketingInfo;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Caregiver(String name, Gender gender, String phoneNumber, String password,
+    private Caregiver(String name, LocalDate birthDate, Gender gender, String phoneNumber, String password,
             String profileImageUrl, Address address, CaregiverInfo caregiverInfo,
             boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo,
             boolean isAgreedToReceiveMarketingInfo) {
         this.name = name;
+        this.birthDate = birthDate;
         this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.password = password;
@@ -69,11 +73,12 @@ public class Caregiver extends BaseEntity {
         this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
     }
 
-    public static Caregiver create(String name, String phoneNumber, String encodedPassword,
+    public static Caregiver create(String name, LocalDate birthDate, String phoneNumber, String encodedPassword,
             Gender gender, String streetAddress, String detailAddress, CaregiverInfo caregiverInfo,
             boolean isAgreedToReceiveMarketingInfo, String profileImageUrl) {
         return Caregiver.builder()
                 .name(name)
+                .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber(phoneNumber)
                 .password(encodedPassword)

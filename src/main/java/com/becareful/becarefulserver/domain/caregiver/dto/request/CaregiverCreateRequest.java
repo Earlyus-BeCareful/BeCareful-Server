@@ -6,8 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.Certificate;
 import com.becareful.becarefulserver.global.common.vo.Gender;
 
+import java.time.LocalDate;
+
 public record CaregiverCreateRequest(
     @NotBlank String name,
+    @NotNull LocalDate birthDate,
     @NotNull Gender gender,
     @NotNull String phoneNumber,
     @NotNull String password,
