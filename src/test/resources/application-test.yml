@@ -27,5 +27,5 @@ cloud:
       secret-key: "test"
 
 jwt:
-  secret: "test"
+  secret: "testtesttesttesttesttesttesttesttesttesttestestset"
   expiration_time: 108000000
