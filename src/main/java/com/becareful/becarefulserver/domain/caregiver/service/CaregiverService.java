@@ -34,6 +34,11 @@ public class CaregiverService {
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
 
+    public CaregiverHomeResponse getHomeData() {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        return CaregiverHomeResponse.of(caregiver);
+    }
+
     @Transactional
     public Long saveCaregiver(CaregiverCreateRequest request) {
         validateEssentialAgreement(request.isAgreedToTerms(),
@@ -67,11 +72,6 @@ public class CaregiverService {
         } catch (IOException e) {
             throw new CaregiverException(CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE);
         }
-    }
-
-    public CaregiverHomeResponse getHomeData() {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        return CaregiverHomeResponse.of(caregiver);
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms,
