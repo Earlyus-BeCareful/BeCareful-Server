@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerResponse;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverHomeResponse;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.WorkApplicationResponse;
@@ -94,5 +95,12 @@ public class CaregiverController {
     public ResponseEntity<Void> updateCareer(@Valid @RequestBody CareerUpdateRequest request) {
         careerService.updateCareer(request);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "경력서 조회", description = "경력서가 없는 경우에는 null 과 빈 리스트를 반환합니다.")
+    @GetMapping("/career")
+    public ResponseEntity<CareerResponse> getCareer() {
+        CareerResponse response = careerService.getCareer();
+        return ResponseEntity.ok(response);
     }
 }

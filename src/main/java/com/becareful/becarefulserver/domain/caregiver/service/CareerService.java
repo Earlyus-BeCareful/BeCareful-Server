@@ -8,10 +8,13 @@ import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
 import com.becareful.becarefulserver.domain.caregiver.domain.CareerType;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerDetailResponse;
+import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerResponse;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerDetailRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,6 +25,19 @@ public class CareerService {
     private final CareerRepository careerRepository;
     private final CareerDetailRepository careerDetailRepository;
     private final AuthUtil authUtil;
+
+    public CareerResponse getCareer() {
+        Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
+        return careerRepository.findByCaregiver(loggedInCaregiver)
+                .map(career -> {
+                    List<CareerDetailResponse> careerDetailResponses = careerDetailRepository
+                            .findAllByCareer(career).stream()
+                            .map(CareerDetailResponse::from).toList();
+
+                    return CareerResponse.of(career, careerDetailResponses);
+                })
+                .orElseGet(CareerResponse::empty);
+    }
 
     @Transactional
     public void updateCareer(CareerUpdateRequest request) {
@@ -55,7 +71,8 @@ public class CareerService {
         }
     }
 
-    public void updateCareerAndCareerDetail(CareerUpdateRequest request, Career career) {
+
+    private void updateCareerAndCareerDetail(CareerUpdateRequest request, Career career) {
         career.updateCareer(request.title(), request.careerType(), request.introduce());
 
         careerDetailRepository.deleteAllByCareer(career);
