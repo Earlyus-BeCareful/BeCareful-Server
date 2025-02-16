@@ -29,6 +29,10 @@ public class SocialworkerService {
         NursingInstitution institution = nursingInstitutionRepository.findById(request.institutionId())
                 .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
 
+        if (socialworkerRepository.existsByPhoneNumber(request.phoneNumber())) {
+            throw new SocialworkerException(SOCIALWORKER_ALREADY_EXISTS);
+        }
+
         // Socialworker 엔티티 생성
         Socialworker socialworker = Socialworker.create(
                 request.name(), request.gender(), request.phoneNumber(),

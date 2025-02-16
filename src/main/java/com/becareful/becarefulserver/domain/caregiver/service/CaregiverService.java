@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.service;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_ALREADY_EXISTS;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_REQUIRED_AGREEMENT;
 
@@ -43,6 +44,10 @@ public class CaregiverService {
     public Long saveCaregiver(CaregiverCreateRequest request) {
         validateEssentialAgreement(request.isAgreedToTerms(),
                 request.isAgreedToCollectPersonalInfo());
+
+        if (caregiverRepository.existsByPhoneNumber(request.phoneNumber())) {
+            throw new CaregiverException(CAREGIVER_ALREADY_EXISTS);
+        }
 
         CaregiverInfo caregiverInfo = CaregiverInfo.builder()
                 .isHavingCar(request.isHavingCar())
