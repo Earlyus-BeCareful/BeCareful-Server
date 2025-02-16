@@ -19,7 +19,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +60,8 @@ public class NursingInstitutionService {
             byte[] hash = md.digest(institutionId.getBytes(StandardCharsets.UTF_8));
             return Base64.getUrlEncoder().encodeToString(hash);
         } catch (NoSuchAlgorithmException e) {
-            throw new NursingInstitutionException(INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE);
+            throw new NursingInstitutionException(
+                    NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE);
         }
     }
 
