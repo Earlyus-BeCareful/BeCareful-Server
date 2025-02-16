@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.caregiver.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplicationWorkLocation;
@@ -13,4 +14,9 @@ public interface WorkApplicationWorkLocationRepository extends
 
     void deleteAllByWorkApplication(WorkApplication workApplication);
     List<WorkApplicationWorkLocation> findAllByWorkApplication(WorkApplication workApplication);
+
+    @Query("SELECT w "
+            + "FROM WorkApplicationWorkLocation w "
+            + "WHERE w.workApplication.isActive")
+    List<WorkApplicationWorkLocation> findAllActiveWorkApplication();
 }
