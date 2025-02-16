@@ -1,8 +1,12 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.INSTITUTION_DEFAULT_PROFILE_IMAGE_URL;
+
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.Address;
+
 import jakarta.persistence.*;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +18,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NursingInstitution extends BaseEntity {
+
     @Id
     @Column(name = "nursing_institution_id")
     private String id;
@@ -27,7 +32,8 @@ public class NursingInstitution extends BaseEntity {
     private String profileImageUrl;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private NursingInstitution(String id, String name, Address address, LocalDateTime openDate, String institutionPhoneNumber, boolean isHavingBathCar, String profileImageUrl){
+    private NursingInstitution(String id, String name, Address address, LocalDateTime openDate,
+            String institutionPhoneNumber, boolean isHavingBathCar, String profileImageUrl) {
         this.id = id;
         this.name = name;
         this.address = address;
@@ -37,7 +43,9 @@ public class NursingInstitution extends BaseEntity {
         this.profileImageUrl = profileImageUrl;
     }
 
-    public static NursingInstitution create(String id, String name, String streetAddress, String detailAddress, String institutionPhoneNumber, boolean isHavingBathCar, LocalDateTime openDate, String profileImageUrl){
+    public static NursingInstitution create(String id, String name, String streetAddress,
+            String detailAddress, String institutionPhoneNumber, boolean isHavingBathCar,
+            LocalDateTime openDate, String profileImageUrl) {
         return NursingInstitution.builder()
                 .id(id)
                 .name(name)
@@ -45,7 +53,11 @@ public class NursingInstitution extends BaseEntity {
                 .institutionPhoneNumber(institutionPhoneNumber)
                 .isHavingBathCar(isHavingBathCar)
                 .openDate(openDate)
-                .profileImageUrl(profileImageUrl)
+                .profileImageUrl(
+                        profileImageUrl == null || profileImageUrl.isBlank()
+                                ? INSTITUTION_DEFAULT_PROFILE_IMAGE_URL
+                                : profileImageUrl
+                )
                 .build();
     }
 

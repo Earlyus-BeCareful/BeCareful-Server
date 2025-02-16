@@ -15,7 +15,6 @@ import com.becareful.becarefulserver.domain.caregiver.domain.vo.Address;
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
-import com.becareful.becarefulserver.global.constant.StaticResourceConstant;
 
 import java.time.LocalDate;
 import java.util.List;
