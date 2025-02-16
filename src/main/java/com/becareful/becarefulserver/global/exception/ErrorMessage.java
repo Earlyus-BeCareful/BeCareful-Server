@@ -15,4 +15,5 @@ public class ErrorMessage {
     public static final String PASSWORD_NOT_MATCH = "비밀번호가 일치하지 않습니다.";
     public static final String INVALID_TOKEN_FORMAT = "엑세스 토큰 형식이 유효하지 않습니다.";
     public static final String INVALID_TOKEN = "엑세스 토큰이 유효하지 않습니다.";
+    public static final String TOKEN_NOT_CONTAINED = "요청에 토큰이 포함되지 않았습니다.";
 }
