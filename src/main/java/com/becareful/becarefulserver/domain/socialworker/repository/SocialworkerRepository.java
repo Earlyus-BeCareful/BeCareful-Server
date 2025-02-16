@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface SocialworkerRepository extends JpaRepository<Socialworker, Long> {
 
     Optional<Socialworker> findByPhoneNumber(String phoneNumber);
+    boolean existsByPhoneNumber(String phoneNumber);
 }
