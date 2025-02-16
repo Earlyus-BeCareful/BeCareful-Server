@@ -18,6 +18,7 @@ import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreat
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerResponse;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverHomeResponse;
+import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverMyPageHomeResponse;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.WorkApplicationResponse;
 import com.becareful.becarefulserver.domain.caregiver.service.CareerService;
@@ -101,6 +102,13 @@ public class CaregiverController {
     @GetMapping("/career")
     public ResponseEntity<CareerResponse> getCareer() {
         CareerResponse response = careerService.getCareer();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "요양보호사 마이페이지 홈 화면 데이터 조회")
+    @GetMapping("/my")
+    public ResponseEntity<CaregiverMyPageHomeResponse> getMyPageHomeData() {
+        CaregiverMyPageHomeResponse response = caregiverService.getMyPageHomeData();
         return ResponseEntity.ok(response);
     }
 }

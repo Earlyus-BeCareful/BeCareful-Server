@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
 
+import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.Rank;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 import jakarta.persistence.*;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Socialworker{
+public class Socialworker extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
