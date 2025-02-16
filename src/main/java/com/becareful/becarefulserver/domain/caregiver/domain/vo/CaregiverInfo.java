@@ -6,6 +6,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,4 +45,27 @@ public class CaregiverInfo {
             @AttributeOverride(name = "certificateNumber", column = @Column(name = "nursing_care_certificate_number"))
     })
     private Certificate nursingCareCertificate;
+
+    /**
+     * entity method
+     */
+
+    public List<String> getCertificateNames() {
+        List<String> result = new ArrayList<>();
+        if (caregiverCertificate != null) {
+            result.add("요양보호사");
+        }
+
+        if (socialWorkerCertificate != null) {
+            String grade = socialWorkerCertificate.getGrade().getValue();
+            result.add("사회복지사 " + grade);
+        }
+
+        if (nursingCareCertificate != null) {
+            String grade = socialWorkerCertificate.getGrade().getValue();
+            result.add("간호지원사 " + grade);
+        }
+
+        return result;
+    }
 }

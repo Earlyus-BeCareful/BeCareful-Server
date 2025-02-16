@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
+import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.Address;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class NursingInstitution {
+public class NursingInstitution extends BaseEntity {
     @Id
     @Column(name = "nursing_institution_id")
     private String id;

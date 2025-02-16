@@ -15,6 +15,7 @@ import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 
 import java.time.LocalDate;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -97,5 +98,9 @@ public class Caregiver extends BaseEntity {
 
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public List<String> getCertificateNames() {
+        return this.getCaregiverInfo().getCertificateNames();
     }
 }
