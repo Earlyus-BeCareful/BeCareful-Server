@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.global.common.domain;
+package com.becareful.becarefulserver.domain.common.domain;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

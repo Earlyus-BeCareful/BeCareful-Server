@@ -12,32 +12,41 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.becareful.becarefulserver.global.security.JwtAuthenticationFilter;
+import com.becareful.becarefulserver.global.security.JwtExceptionHandlingFilter;
 
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtExceptionHandlingFilter jwtExceptionHandlingFilter;
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/caregiver/signup", "caregiver/upload-profile-img").permitAll()
+                        .requestMatchers("/caregiver/signup", "/caregiver/upload-profile-img").permitAll()
+                        .requestMatchers("/nursingInstitution/{institutionId}/exists", "/nursingInstitution/register","/nursingInstitution/upload-profile-img").permitAll()
+                        .requestMatchers("/socialworker/signup").permitAll()
                         .requestMatchers("/sms/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);;
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtExceptionHandlingFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
-    UrlBasedCorsConfigurationSource corsConfigurationSource() {
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(List.of("https://becareful.vercel.app/", "http://localhost:5173", "http://localhost:8080", "https://blaybus.everdu.com"));

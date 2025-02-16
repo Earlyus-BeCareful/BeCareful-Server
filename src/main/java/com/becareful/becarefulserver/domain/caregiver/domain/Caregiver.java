@@ -11,8 +11,8 @@ import jakarta.persistence.Id;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.Address;
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
-import com.becareful.becarefulserver.global.common.domain.BaseEntity;
-import com.becareful.becarefulserver.global.common.vo.Gender;
+import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.domain.common.vo.Gender;
 
 import java.time.LocalDate;
 import lombok.AccessLevel;
