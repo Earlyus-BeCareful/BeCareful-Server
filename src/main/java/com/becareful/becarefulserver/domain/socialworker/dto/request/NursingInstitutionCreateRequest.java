@@ -11,7 +11,7 @@ public record NursingInstitutionCreateRequest (
     @NotBlank String streetAddress,
     String detailAddress,
     String phoneNumber,
-    @NotBlank LocalDateTime opendDate,
-    @NotBlank boolean isHavingBathCar,
+    LocalDateTime openDate,
+    Boolean isHavingBathCar,
     String profileImageUrl
 ){}

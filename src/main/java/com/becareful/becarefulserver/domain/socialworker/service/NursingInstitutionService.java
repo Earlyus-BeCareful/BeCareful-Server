@@ -37,7 +37,7 @@ public class NursingInstitutionService {
                 request.institutionName(),
                 request.streetAddress(), request.detailAddress(),
                 request.phoneNumber(), request.isHavingBathCar(),
-                request.opendDate(), request.profileImageUrl()
+                request.openDate(), request.profileImageUrl()
         );
 
         nursingInstitutionRepository.save(newInstitution);

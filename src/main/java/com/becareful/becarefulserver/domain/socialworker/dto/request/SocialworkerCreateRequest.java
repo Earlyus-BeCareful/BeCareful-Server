@@ -10,14 +10,13 @@ import java.time.LocalDateTime;
 
 public record SocialworkerCreateRequest(
     @NotBlank String name,
-    @NotBlank Gender gender,
+    Gender gender,
     @NotBlank String phoneNumber,
     @NotNull String password,
     @NotNull String institutionId,
     @NotNull Rank rank,
-    @NotNull boolean isAgreedToTerms,
-    @NotNull boolean isAgreedToCollectPersonalInfo,
-    @NotNull boolean isAgreedToReceiveMarketingInfo
-
-){}
+    boolean isAgreedToTerms,
+    boolean isAgreedToCollectPersonalInfo,
+    boolean isAgreedToReceiveMarketingInfo
+) {}
 
