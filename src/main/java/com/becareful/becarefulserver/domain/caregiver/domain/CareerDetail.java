@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,4 +31,19 @@ public class CareerDetail {
     @JoinColumn(name = "career_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Career career;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    private CareerDetail(String workInstitution, Integer workYear, Career career) {
+        this.workInstitution = workInstitution;
+        this.workYear = workYear;
+        this.career = career;
+    }
+
+    public static CareerDetail create(String workInstitution, Integer workYear, Career career) {
+        return CareerDetail.builder()
+                .workInstitution(workInstitution)
+                .workYear(workYear)
+                .career(career)
+                .build();
+    }
 }
