@@ -19,6 +19,16 @@ public class Certificate {
     private String certificateNumber;
 
     public enum CertificateGrade{
-        FIRST, SECOND
+        FIRST("1급"), SECOND("2급");
+
+        private final String value;
+
+        CertificateGrade(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return this.value;
+        }
     }
 }

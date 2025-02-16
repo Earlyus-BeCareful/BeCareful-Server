@@ -33,7 +33,7 @@ public enum DetailCareType {
     @JsonCreator //JSON -> Enum 변환 시 사용
     public static DetailCareType fromString(String value){
         return Arrays.stream(DetailCareType.values())
-                .filter(detailCareType -> detailCareType.displayName.equalsIgnoreCase(value))
+                .filter(item -> item.displayName.equalsIgnoreCase(value))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unknown value: " + value));
     }

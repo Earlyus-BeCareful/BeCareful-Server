@@ -17,6 +17,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeS
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.WorkTimeSetConverter;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
+import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 
 import java.time.DayOfWeek;
 import java.util.EnumSet;
@@ -29,7 +30,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class WorkApplication {
+public class WorkApplication extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -70,7 +71,6 @@ public class WorkApplication {
     }
 
     public static WorkApplication create(WorkApplicationUpdateRequest request, Caregiver caregiver) {
-        System.out.println(request);
         return WorkApplication.builder()
                 .workCareTypes(EnumSet.copyOf(request.careTypes()))
                 .workDays(EnumSet.copyOf(request.workDays()))
