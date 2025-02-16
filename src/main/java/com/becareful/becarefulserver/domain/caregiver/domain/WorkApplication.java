@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.domain;
 
+import com.becareful.becarefulserver.domain.common.domain.CareType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -18,11 +19,8 @@ import com.becareful.becarefulserver.domain.caregiver.domain.converter.WorkTimeS
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
 
 import java.time.DayOfWeek;
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

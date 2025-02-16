@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.dto.response;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.CareType;
+import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 
 import io.swagger.v3.oas.annotations.media.Schema;
