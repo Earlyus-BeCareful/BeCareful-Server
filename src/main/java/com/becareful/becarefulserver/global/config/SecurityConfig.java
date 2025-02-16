@@ -32,6 +32,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/caregiver/signup", "/caregiver/upload-profile-img").permitAll()
+                        .requestMatchers("/nursingInstitution/{institutionId}/exists", "/nursingInstitution/register","/nursingInstitution/upload-profile-img").permitAll()
+                        .requestMatchers("/socialworker/signup").permitAll()
                         .requestMatchers("/sms/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
