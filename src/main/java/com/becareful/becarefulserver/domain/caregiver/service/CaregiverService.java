@@ -9,12 +9,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.Career;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverHomeResponse;
+import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverMyPageHomeResponse;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
+import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
+import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
+import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
+import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
@@ -24,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,12 +40,25 @@ import lombok.RequiredArgsConstructor;
 public class CaregiverService {
 
     private final CaregiverRepository caregiverRepository;
+    private final CareerRepository careerRepository;
+    private final WorkApplicationRepository workApplicationRepository;
+    private final WorkApplicationWorkLocationRepository workApplicationWorkLocationRepository;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         return CaregiverHomeResponse.of(caregiver);
+    }
+
+    public CaregiverMyPageHomeResponse getMyPageHomeData() {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        Career career = careerRepository.findByCaregiver(caregiver).orElse(null);
+        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver).orElse(null);
+        List<WorkLocationDto> locations = workApplicationWorkLocationRepository.findAllByWorkApplication(
+                        workApplication)
+                .stream().map(data -> WorkLocationDto.from(data.getWorkLocation())).toList();
+        return CaregiverMyPageHomeResponse.of(caregiver, career, workApplication, locations);
     }
 
     @Transactional

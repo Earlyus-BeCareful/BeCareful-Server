@@ -13,11 +13,15 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerResponse;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverHomeResponse;
+import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverMyPageHomeResponse;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.WorkApplicationResponse;
+import com.becareful.becarefulserver.domain.caregiver.service.CareerService;
 import com.becareful.becarefulserver.domain.caregiver.service.CaregiverService;
 import com.becareful.becarefulserver.domain.caregiver.service.WorkApplicationService;
 
@@ -34,6 +38,7 @@ public class CaregiverController {
 
     private final CaregiverService caregiverService;
     private final WorkApplicationService workApplicationService;
+    private final CareerService careerService;
 
     @Operation(summary = "요양보호사 회원가입", description = "사회복지사 (social worker), 간호조무사 (nursing care), 프로필 이미지 필드는 생략할 수 있습니다.")
     @PostMapping("/signup")
@@ -84,5 +89,26 @@ public class CaregiverController {
     public ResponseEntity<Void> updateWorkApplicationInactive() {
         workApplicationService.updateWorkApplicationInactive();
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "경력서 등록/수정")
+    @PutMapping("/career")
+    public ResponseEntity<Void> updateCareer(@Valid @RequestBody CareerUpdateRequest request) {
+        careerService.updateCareer(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "경력서 조회", description = "경력서가 없는 경우에는 null 과 빈 리스트를 반환합니다.")
+    @GetMapping("/career")
+    public ResponseEntity<CareerResponse> getCareer() {
+        CareerResponse response = careerService.getCareer();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "요양보호사 마이페이지 홈 화면 데이터 조회")
+    @GetMapping("/my")
+    public ResponseEntity<CaregiverMyPageHomeResponse> getMyPageHomeData() {
+        CaregiverMyPageHomeResponse response = caregiverService.getMyPageHomeData();
+        return ResponseEntity.ok(response);
     }
 }
