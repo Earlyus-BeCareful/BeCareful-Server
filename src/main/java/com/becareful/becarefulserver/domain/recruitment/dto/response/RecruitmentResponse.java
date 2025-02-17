@@ -5,7 +5,7 @@ import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.swing.text.html.HTML.Tag;
 
@@ -14,8 +14,8 @@ public record RecruitmentResponse(
         List<Tag> tags,
         List<CareType> careTypes,
         List<DayOfWeek> workDays,
-        LocalTime workStartTime,
-        LocalTime workEndTime,
+        String workStartTime,
+        String workEndTime,
         WorkSalaryType workSalaryType,
         Integer workSalaryAmount,
         boolean isRecruiting,
@@ -29,8 +29,8 @@ public record RecruitmentResponse(
                 List.of(),
                 recruitment.getCareTypes().stream().toList(),
                 recruitment.getWorkDays().stream().toList(),
-                recruitment.getWorkStartTime(),
-                recruitment.getWorkEndTime(),
+                recruitment.getWorkStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                recruitment.getWorkEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 recruitment.getWorkSalaryType(),
                 recruitment.getWorkSalaryAmount(),
                 recruitment.isRecruiting(),

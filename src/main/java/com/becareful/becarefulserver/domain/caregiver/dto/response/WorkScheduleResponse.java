@@ -5,14 +5,15 @@ import com.becareful.becarefulserver.domain.common.vo.Gender;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record WorkScheduleResponse(
-        LocalTime workStartTime,
-        LocalTime workEndTime,
+        String workStartTime,
+        String workEndTime,
         String seniorName,
         Gender seniorGender,
         Integer seniorAge,
@@ -23,8 +24,8 @@ public record WorkScheduleResponse(
 ) {
     public static WorkScheduleResponse createDummy() {
         return WorkScheduleResponse.builder()
-                .workStartTime(LocalTime.of(8, 20))
-                .workEndTime(LocalTime.of(17, 20))
+                .workStartTime(LocalTime.of(8, 20).format(DateTimeFormatter.ofPattern("HH:mm")))
+                .workEndTime(LocalTime.of(17, 20).format(DateTimeFormatter.ofPattern("HH:mm")))
                 .seniorName("박순자")
                 .seniorGender(Gender.FEMALE)
                 .seniorAge(65)
