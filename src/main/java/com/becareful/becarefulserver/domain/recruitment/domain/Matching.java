@@ -4,6 +4,7 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHI
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_CANNOT_REJECT;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,9 +17,12 @@ import jakarta.persistence.ManyToOne;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.domain.recruitment.domain.converter.MediationTypeSetConverter;
+import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 
 import java.time.LocalDate;
+import java.util.EnumSet;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,6 +42,11 @@ public class Matching extends BaseEntity {
     private MatchingStatus matchingStatus;
 
     private LocalDate applicationDate;
+
+    @Convert(converter = MediationTypeSetConverter.class)
+    private EnumSet<MediationType> mediationTypes;
+
+    private String mediationDescription;
 
     @JoinColumn(name = "recruitment_id")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -68,17 +77,27 @@ public class Matching extends BaseEntity {
      */
 
     public void apply() {
-        if (!this.matchingStatus.equals(MatchingStatus.미지원)) {
-            throw new RecruitmentException(MATCHING_CANNOT_APPLY);
-        }
+        validateMatchingUpdatable();
         this.matchingStatus = MatchingStatus.지원;
         this.applicationDate = LocalDate.now();
     }
 
     public void reject() {
+        validateMatchingUpdatable();
+        this.matchingStatus = MatchingStatus.거절;
+    }
+
+    public void mediate(RecruitmentMediateRequest request) {
+        validateMatchingUpdatable();
+        this.matchingStatus = MatchingStatus.지원;
+        this.applicationDate = LocalDate.now();
+        this.mediationTypes = EnumSet.copyOf(request.mediationTypes());
+        this.mediationDescription = request.mediationDescription();
+    }
+
+    private void validateMatchingUpdatable() {
         if (!this.matchingStatus.equals(MatchingStatus.미지원)) {
             throw new RecruitmentException(MATCHING_CANNOT_REJECT);
         }
-        this.matchingStatus = MatchingStatus.거절;
     }
 }
