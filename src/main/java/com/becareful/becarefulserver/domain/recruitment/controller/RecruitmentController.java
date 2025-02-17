@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentCreateRequest;
+import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentResponse;
 import com.becareful.becarefulserver.domain.recruitment.service.RecruitmentService;
@@ -62,6 +63,13 @@ public class RecruitmentController {
     @PostMapping("/{recruitmentId}/reject")
     public ResponseEntity<Void> rejectMatching(@PathVariable("recruitmentId") Long recruitmentId) {
         recruitmentService.rejectMatching(recruitmentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "근무 조건 조율 (요양보호사 일자리 조율 지원)")
+    @PostMapping("/{recruitmentId}/mediate")
+    public ResponseEntity<Void> mediateMatching(@PathVariable("recruitmentId") Long recruitmentId, @RequestBody RecruitmentMediateRequest request) {
+        recruitmentService.mediateMatching(recruitmentId, request);
         return ResponseEntity.ok().build();
     }
 }
