@@ -47,7 +47,9 @@ public class Elderly extends BaseEntity {
     CareLevel careLevel;
 
     @Embedded
-    private ResidentialAddress address;
+    private ResidentialAddress residentialAddress;
+
+    String detailAddress;
 
     private String profileImageUrl;
 
@@ -57,13 +59,15 @@ public class Elderly extends BaseEntity {
     private EnumSet<DetailCareType> detailCareTypes;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Elderly(Long id, String name,LocalDate birthday,  Gender gender,
+    private Elderly(Long id, String name,LocalDate birthday,  Gender gender, ResidentialAddress residentialAddress, String detailAddress,
                     Boolean inmate, Boolean pet, NursingInstitution institution, String profileImageUrl,
                     CareLevel careLevel, String healthCondition, EnumSet<DetailCareType> detailCareTypes){
         this.id = id;
         this.name = name;
         this.birthday = birthday;
         this.gender = gender;
+        this.residentialAddress = residentialAddress;
+        this.detailAddress = detailAddress;
         this.inmate = inmate;
         this.pet = pet;
         this.nursingInstitution = institution;
@@ -74,13 +78,15 @@ public class Elderly extends BaseEntity {
     }
 
     public static Elderly create(String name,LocalDate birthday,  Gender gender,
+                                 String siDo, String siGuGun, String eupMyeonDong, String detailAddress,
                                  boolean inmate, boolean pet,  String profileImageUrl, NursingInstitution institution,
                                  CareLevel careLevel, String healthCondition, EnumSet<DetailCareType> detailCareTypes){
         return Elderly.builder()
                 .name(name)
                 .birthday(birthday)
                 .gender(gender)
-                .inmate(inmate)
+                .residentialAddress(new ResidentialAddress(siDo, siGuGun, eupMyeonDong))
+                .detailAddress(detailAddress)
                 .pet(pet)
                 .profileImageUrl(profileImageUrl == null || profileImageUrl.isBlank()
                         ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
@@ -93,10 +99,59 @@ public class Elderly extends BaseEntity {
     }
 
     public void updateProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
+        this.profileImageUrl = (profileImageUrl == null || profileImageUrl.isBlank())
+                ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
+                : profileImageUrl;
     }
 
     public Integer getAge() {
         return LocalDate.now().getYear() - birthday.getYear() + 1;
+    }
+
+    public void updateName(String name) {
+        if (name != null) this.name = name;
+    }
+
+    public void updateBirthday(LocalDate birthday) {
+        if (birthday != null) this.birthday = birthday;
+    }
+
+    public void updateInmate(Boolean inmate) {
+        if (inmate != null) this.inmate = inmate;
+    }
+
+    public void updatePet(Boolean pet) {
+        if (pet != null) this.pet = pet;
+    }
+
+    public void updateGender(Gender gender) {
+        if (gender != null) this.gender = gender;
+    }
+
+    public void updateCareLevel(CareLevel careLevel) {
+        if (careLevel != null) this.careLevel = careLevel;
+    }
+
+    public void updateResidentialAddress(String siDo, String siGuGun, String eupMyeonDong) {
+        if (siDo != null || siGuGun != null || eupMyeonDong != null) {
+            this.residentialAddress = new ResidentialAddress(
+                    siDo != null ? siDo : this.residentialAddress.getSiDo(),
+                    siGuGun != null ? siGuGun : this.residentialAddress.getSiGuGun(),
+                    eupMyeonDong != null ? eupMyeonDong : this.residentialAddress.getEupMyeonDong()
+            );
+        }
+    }
+
+    public void updateDetailAddress(String detailAddress) {
+        if (detailAddress != null) this.detailAddress = detailAddress;
+    }
+
+
+    public void updateHealthCondition(String healthCondition) {
+        if (healthCondition != null) this.healthCondition = healthCondition;
+    }
+
+    public void updateDetailCareTypes( EnumSet<DetailCareType> detailCareTypes) {
+        if (detailCareTypes != null) this.detailCareTypes = detailCareTypes;
     }
 }

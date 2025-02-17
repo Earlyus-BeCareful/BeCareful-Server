@@ -22,6 +22,7 @@ public record ElderlyCreateRequest (
     @NotBlank String siDo,
     @NotBlank String siGuGun,
     @NotBlank String eupMyeonDong,
+    String detailAddress,
     String profileImageUrl,
     @NotBlank String healthCondition,
     @Size(min = 1) List<DetailCareType> detailCareTypeList
