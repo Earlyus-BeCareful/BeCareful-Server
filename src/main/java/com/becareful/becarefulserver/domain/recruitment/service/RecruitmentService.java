@@ -1,21 +1,28 @@
 package com.becareful.becarefulserver.domain.recruitment.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_NOT_EXISTS;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.WORK_APPLICATION_NOT_EXISTS;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplicationWorkLocation;
+import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
 import com.becareful.becarefulserver.domain.recruitment.domain.Matching;
 import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentCreateRequest;
+import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentResponse;
 import com.becareful.becarefulserver.domain.recruitment.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.recruitment.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
+import com.becareful.becarefulserver.global.util.AuthUtil;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,6 +34,19 @@ public class RecruitmentService {
     private final WorkApplicationWorkLocationRepository workApplicationWorkLocationRepository;
     private final ElderlyRepository elderlyRepository;
     private final MatchingRepository matchingRepository;
+    private final AuthUtil authUtil;
+    private final WorkApplicationRepository workApplicationRepository;
+
+    public List<RecruitmentResponse> getRecruitmentList() {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver)
+                .orElseThrow(() -> new RecruitmentException(WORK_APPLICATION_NOT_EXISTS));
+
+        // TODO : 일자리 신청서가 비활성화 된 경우 처리 로직 문의
+
+        return matchingRepository.findAllRecruitmentByWorkApplication(workApplication)
+                .stream().map(RecruitmentResponse::from).toList();
+    }
 
     @Transactional
     public void createRecruitment(RecruitmentCreateRequest request) {
