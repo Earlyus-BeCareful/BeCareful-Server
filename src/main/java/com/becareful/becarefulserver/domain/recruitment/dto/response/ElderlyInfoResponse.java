@@ -26,7 +26,7 @@ public record ElderlyInfoResponse(
     public static ElderlyInfoResponse from(Elderly elderly) {
         return new ElderlyInfoResponse(
                 elderly.getName(),
-                elderly.getAddress().getFullAddress(),
+                elderly.getResidentialAddress().getFullAddress(),
                 elderly.getGender(),
                 elderly.getAge(),
                 elderly.isInmate(),
