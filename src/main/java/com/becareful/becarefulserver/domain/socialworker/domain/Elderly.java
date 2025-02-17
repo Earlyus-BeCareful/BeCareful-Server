@@ -39,7 +39,7 @@ public class Elderly extends BaseEntity {
     @Enumerated(EnumType.STRING)
     Gender gender;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     CareLevel careLevel;
 
     @Embedded
@@ -90,5 +90,9 @@ public class Elderly extends BaseEntity {
 
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public Integer getAge() {
+        return LocalDate.now().getYear() - birthday.getYear() + 1;
     }
 }
