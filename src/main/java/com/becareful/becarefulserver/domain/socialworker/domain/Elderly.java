@@ -12,8 +12,12 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import lombok.NoArgsConstructor;
+
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
 
 @Getter
 @Entity
@@ -28,9 +32,9 @@ public class Elderly extends BaseEntity {
 
     LocalDate birthday;
 
-    Boolean inmate;
+    boolean inmate;
 
-    Boolean pet;
+    boolean pet;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nursing_institution_id")
@@ -39,7 +43,7 @@ public class Elderly extends BaseEntity {
     @Enumerated(EnumType.STRING)
     Gender gender;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     CareLevel careLevel;
 
     @Embedded
@@ -50,13 +54,12 @@ public class Elderly extends BaseEntity {
     private String healthCondition;
 
     @Convert(converter = DetailCareTypeConverter.class)
-    @Column(columnDefinition = "JSON")
-    private Set<DetailCareType> detailCareTypes;
+    private EnumSet<DetailCareType> detailCareTypes;
 
     @Builder(access = AccessLevel.PRIVATE)
     private Elderly(Long id, String name,LocalDate birthday,  Gender gender,
                     Boolean inmate, Boolean pet, NursingInstitution institution, String profileImageUrl,
-                    CareLevel careLevel, String healthCondition, Set<DetailCareType> detailCareTypes){
+                    CareLevel careLevel, String healthCondition, EnumSet<DetailCareType> detailCareTypes){
         this.id = id;
         this.name = name;
         this.birthday = birthday;
@@ -70,17 +73,18 @@ public class Elderly extends BaseEntity {
         this.detailCareTypes =detailCareTypes;
     }
 
-    public static Elderly create(Long id, String name,LocalDate birthday,  Gender gender,
-                                 Boolean inmate, Boolean pet, NursingInstitution institution, String profileImageUrl,
-                                 CareLevel careLevel, String healthCondition, Set<DetailCareType> detailCareTypes){
+    public static Elderly create(String name,LocalDate birthday,  Gender gender,
+                                 boolean inmate, boolean pet,  String profileImageUrl, NursingInstitution institution,
+                                 CareLevel careLevel, String healthCondition, EnumSet<DetailCareType> detailCareTypes){
         return Elderly.builder()
-                .id(id)
                 .name(name)
                 .birthday(birthday)
                 .gender(gender)
                 .inmate(inmate)
                 .pet(pet)
-                .profileImageUrl(profileImageUrl)
+                .profileImageUrl(profileImageUrl == null || profileImageUrl.isBlank()
+                        ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
+                        : profileImageUrl)
                 .institution(institution)
                 .careLevel(careLevel)
                 .healthCondition(healthCondition)

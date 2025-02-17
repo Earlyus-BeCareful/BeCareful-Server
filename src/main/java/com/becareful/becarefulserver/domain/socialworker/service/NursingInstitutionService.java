@@ -1,10 +1,9 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.NursingInstitutionCreateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.NursingInstitutionProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.NursingInstitutionRepository;
-import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
 import com.becareful.becarefulserver.global.util.FileUtil;
 import lombok.RequiredArgsConstructor;
@@ -45,13 +44,13 @@ public class NursingInstitutionService {
     }
 
     @Transactional
-    public CaregiverProfileUploadResponse uploadProfileImage(MultipartFile file, String institutionId) {
+    public NursingInstitutionProfileUploadResponse uploadProfileImage(MultipartFile file, String institutionId) {
         try {
             String fileName = generateProfileImageFileName(institutionId);
             String profileImageUrl = fileUtil.upload(file, fileName);
-            return new CaregiverProfileUploadResponse(profileImageUrl);
+            return new NursingInstitutionProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
-            throw new CaregiverException(CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE);
+            throw new NursingInstitutionException(NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE);
         }
     }
     private String generateProfileImageFileName(String institutionId) {
