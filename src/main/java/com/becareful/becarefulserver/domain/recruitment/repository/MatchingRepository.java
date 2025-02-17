@@ -14,7 +14,8 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
     @Query("SELECT m.recruitment "
             + "FROM Matching m "
-            + "WHERE m.workApplication = :workApplication")
+            + "WHERE m.workApplication = :workApplication "
+            + "AND m.matchingStatus = '미지원'")
     List<Recruitment> findAllRecruitmentByWorkApplication(WorkApplication workApplication);
 
     Optional<Matching> findByWorkApplicationAndRecruitment(WorkApplication workApplication, Recruitment recruitment);
