@@ -1,9 +1,6 @@
 package com.becareful.becarefulserver.domain.recruitment.dto.response;
 
-import static java.util.stream.Collectors.groupingBy;
-
 import com.becareful.becarefulserver.domain.common.domain.CareType;
-import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
@@ -19,8 +16,7 @@ public record ElderlyInfoResponse(
         boolean hasPet,
         String profileImageUrl,
         CareLevel careLevel,
-        String healthCondition,
-        List<CareInfoResponse> careInfoList
+        String healthCondition
 ) {
     public record CareInfoResponse(
             CareType careType,
@@ -33,20 +29,11 @@ public record ElderlyInfoResponse(
                 elderly.getAddress().getFullAddress(),
                 elderly.getGender(),
                 elderly.getAge(),
-                elderly.getInmate(),
-                elderly.getPet(),
+                elderly.isInmate(),
+                elderly.isPet(),
                 elderly.getProfileImageUrl(),
                 elderly.getCareLevel(),
-                elderly.getHealthCondition(),
-                elderly.getDetailCareTypes().stream()
-                        .collect(groupingBy(DetailCareType::getCareType))
-                        .entrySet().stream()
-                        .map(entry -> new CareInfoResponse(
-                                    entry.getKey(),
-                                    entry.getValue().stream()
-                                            .map(DetailCareType::getDisplayName)
-                                            .toList()))
-                        .toList()
+                elderly.getHealthCondition()
         );
     }
 }

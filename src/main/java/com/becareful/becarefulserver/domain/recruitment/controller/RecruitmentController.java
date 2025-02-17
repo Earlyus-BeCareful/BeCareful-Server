@@ -17,6 +17,7 @@ import com.becareful.becarefulserver.domain.recruitment.service.RecruitmentServi
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
@@ -31,8 +32,8 @@ public class RecruitmentController {
     @Operation(summary = "매칭 공고 등록 (사회복지사 호출)")
     @PostMapping
     public ResponseEntity<Void> createRecruitment(@Valid @RequestBody RecruitmentCreateRequest request) {
-        recruitmentService.createRecruitment(request);
-        return ResponseEntity.ok().build();
+        Long recruitmentId = recruitmentService.createRecruitment(request);
+        return ResponseEntity.created(URI.create("/recruitment/" + recruitmentId)).build();
     }
 
     @Operation(summary = "매칭 공고 리스트 조회 (요양보호사 일자리 리스트 조회)")

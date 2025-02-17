@@ -60,7 +60,7 @@ public class RecruitmentService {
     }
 
     @Transactional
-    public void createRecruitment(RecruitmentCreateRequest request) {
+    public Long createRecruitment(RecruitmentCreateRequest request) {
         Elderly elderly = elderlyRepository.findById(request.elderlyId())
                 .orElseThrow((() -> new RecruitmentException(ELDERLY_NOT_EXISTS)));
 
@@ -68,6 +68,8 @@ public class RecruitmentService {
         recruitmentRepository.save(recruitment);
 
         matchingWith(recruitment);
+
+        return recruitment.getId();
     }
 
     private void matchingWith(Recruitment recruitment) {

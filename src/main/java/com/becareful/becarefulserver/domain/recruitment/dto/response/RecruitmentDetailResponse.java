@@ -23,7 +23,7 @@ public record RecruitmentDetailResponse(
         NursingInstitution institution = elderly.getNursingInstitution();
 
         return new RecruitmentDetailResponse(
-                RecruitmentInfoResponse.from(recruitment),
+                RecruitmentInfoResponse.from(recruitment, elderly),
                 ElderlyInfoResponse.from(elderly),
                 InstitutionInfoResponse.from(institution),
                 isHotRecruitment,
