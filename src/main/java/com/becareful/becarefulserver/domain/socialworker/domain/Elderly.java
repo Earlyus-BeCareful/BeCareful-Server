@@ -10,33 +10,45 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import org.hibernate.annotations.CollectionId;
 
 import java.time.LocalDate;
 import java.util.Set;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Elderly extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
     String name;
+
     LocalDate birthday;
+
     Boolean inmate;
+
     Boolean pet;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nursing_institution_id")
     private NursingInstitution nursingInstitution;
 
+    @Enumerated(EnumType.STRING)
     Gender gender;
+
     @Enumerated
     CareLevel careLevel;
 
     @Embedded
     private ResidentialAddress address;
+
     private String profileImageUrl;
+
     private String healthCondition;
+
     @Convert(converter = DetailCareTypeConverter.class)
     @Column(columnDefinition = "JSON")
     private Set<DetailCareType> detailCareTypes;
@@ -75,8 +87,8 @@ public class Elderly extends BaseEntity {
                 .detailCareTypes(detailCareTypes)
                 .build();
     }
+
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }
-
 }
