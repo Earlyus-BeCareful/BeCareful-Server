@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.recruitment.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_WORK_APPLICATION_NOT_EXISTS;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_NOT_EXISTS;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_NOT_EXISTS;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.RECRUITMENT_NOT_EXISTS;
 
 import org.springframework.stereotype.Service;
@@ -41,13 +42,10 @@ public class RecruitmentService {
 
     public List<RecruitmentResponse> getRecruitmentList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver)
-                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
-
-        // TODO : 일자리 신청서가 비활성화 된 경우 처리 로직 문의
-
-        return matchingRepository.findAllRecruitmentByWorkApplication(workApplication)
-                .stream().map(RecruitmentResponse::from).toList();
+        return workApplicationRepository.findByCaregiver(caregiver)
+                .map(workApplication -> matchingRepository.findAllRecruitmentByWorkApplication(workApplication)
+                        .stream().map(RecruitmentResponse::from).toList())
+                .orElse(null);
     }
 
     public RecruitmentDetailResponse getRecruitmentDetail(Long recruitmentId) {
@@ -57,6 +55,34 @@ public class RecruitmentService {
 
         // TODO : recruit 매칭 적합도 및 태그 부여 판단
         return RecruitmentDetailResponse.from(recruitment, false, false, 98);
+    }
+
+    @Transactional
+    public void rejectMatching(Long recruitmentId) {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver)
+                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
+
+        Matching matching = matchingRepository.findByWorkApplicationAndRecruitment(workApplication, recruitment)
+                .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
+
+        matching.reject();
+    }
+
+    @Transactional
+    public void applyRecruitment(Long recruitmentId) {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver)
+                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
+
+        Matching matching = matchingRepository.findByWorkApplicationAndRecruitment(workApplication, recruitment)
+                .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
+
+        matching.apply();
     }
 
     @Transactional

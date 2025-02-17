@@ -1,5 +1,8 @@
 package com.becareful.becarefulserver.domain.recruitment.domain;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_CANNOT_APPLY;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_CANNOT_REJECT;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,7 +16,9 @@ import jakarta.persistence.ManyToOne;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,6 +36,8 @@ public class Matching extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private MatchingStatus matchingStatus;
+
+    private LocalDate applicationDate;
 
     @JoinColumn(name = "recruitment_id")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -54,5 +61,24 @@ public class Matching extends BaseEntity {
                 .recruitment(recruitment)
                 .workApplication(application)
                 .build();
+    }
+
+    /**
+     * Entity Method
+     */
+
+    public void apply() {
+        if (!this.matchingStatus.equals(MatchingStatus.미지원)) {
+            throw new RecruitmentException(MATCHING_CANNOT_APPLY);
+        }
+        this.matchingStatus = MatchingStatus.지원;
+        this.applicationDate = LocalDate.now();
+    }
+
+    public void reject() {
+        if (!this.matchingStatus.equals(MatchingStatus.미지원)) {
+            throw new RecruitmentException(MATCHING_CANNOT_REJECT);
+        }
+        this.matchingStatus = MatchingStatus.거절;
     }
 }
