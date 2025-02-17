@@ -27,5 +27,5 @@ public class ErrorMessage {
     public static final String ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
     public static final String ELDERLY_NOT_EXISTS = "존재하지 않는 어르신입니다.";
 
-    public static final String WORK_APPLICATION_NOT_EXISTS = "작성한 일자리 신청서가 없습니다.";
+    public static final String RECRUITMENT_NOT_EXISTS = "매칭 공고가 존재하지 않습니다.";
 }

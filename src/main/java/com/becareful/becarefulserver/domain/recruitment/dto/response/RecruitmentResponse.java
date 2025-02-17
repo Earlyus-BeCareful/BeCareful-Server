@@ -7,11 +7,10 @@ import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
 import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import javax.swing.text.html.HTML.Tag;
 
 public record RecruitmentResponse(
+        Long recruitmentId,
         String title,
-        List<Tag> tags,
         List<CareType> careTypes,
         List<DayOfWeek> workDays,
         String workStartTime,
@@ -20,13 +19,15 @@ public record RecruitmentResponse(
         Integer workSalaryAmount,
         boolean isRecruiting,
         String institutionName,
-        Integer matchRate
+        Integer matchRate,
+        boolean isHotRecruitment,
+        boolean isHourlySalaryTop
 ) {
 
     public static RecruitmentResponse from(Recruitment recruitment) {
         return new RecruitmentResponse(
+                recruitment.getId(),
                 recruitment.getTitle(),
-                List.of(),
                 recruitment.getCareTypes().stream().toList(),
                 recruitment.getWorkDays().stream().toList(),
                 recruitment.getWorkStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
@@ -35,7 +36,9 @@ public record RecruitmentResponse(
                 recruitment.getWorkSalaryAmount(),
                 recruitment.isRecruiting(),
                 recruitment.getElderly().getNursingInstitution().getName(),
-                98 // TODO : 매칭율 계산
+                98, // TODO : 매칭율 계산
+                false,
+                false
         );
     }
 }

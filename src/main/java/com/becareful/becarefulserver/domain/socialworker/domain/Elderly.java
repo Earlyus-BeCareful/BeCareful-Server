@@ -95,4 +95,8 @@ public class Elderly extends BaseEntity {
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }
+
+    public Integer getAge() {
+        return LocalDate.now().getYear() - birthday.getYear() + 1;
+    }
 }
