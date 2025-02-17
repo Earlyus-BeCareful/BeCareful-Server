@@ -47,7 +47,51 @@ public class RecruitmentService {
     }
 
     private boolean isMatched(Recruitment recruitment, WorkApplicationWorkLocation workApplicationWorkLocation) {
-        // TODO : 테스트 데이터 제대로 넣기
+        if (isNotMatchedWithWorkTime()) {
+            return false;
+        }
+
+        if (isNotMatchedWithDaysOfWeek()) {
+            return false;
+        }
+
+        if (isNotMatchedWithWorkSalary()) {
+            return false;
+        }
+
+        if (isNotMatchedWithWorkLocation()) {
+            return false;
+        }
+
+        if (isNotMatchedWithCareType()) {
+            return false;
+        }
+
         return true;
+    }
+
+    private boolean isNotMatchedWithDaysOfWeek() {
+        // TODO
+        return false;
+    }
+
+    private boolean isNotMatchedWithWorkTime() {
+        // TODO
+        return false;
+    }
+
+    private boolean isNotMatchedWithWorkLocation() {
+        // TODO
+        return false;
+    }
+
+    private boolean isNotMatchedWithWorkSalary() {
+        // TODO
+        return false;
+    }
+
+    private boolean isNotMatchedWithCareType() {
+        // TODO
+        return false;
     }
 }
