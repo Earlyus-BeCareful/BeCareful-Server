@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.NursingInstitutionCreateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.NursingInstitutionProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.service.NursingInstitutionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,9 +34,9 @@ public class NursingInstitutionController {
         return ResponseEntity.created(URI.create("/nursingInstitution/" + id)).build();
     }
 
-    @Operation(summary = "요양 기관 프로필 사진 업로드", description = "사회복지사 회원가입 시 마지막에 뜨는 창.")
+    @Operation(summary = "요양 기관 프로필 사진 업로드", description = "사회복지사 회원가입 시 프로필 이미지 저장 API.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CaregiverProfileUploadResponse> uploadProfileImg(
+    public ResponseEntity<NursingInstitutionProfileUploadResponse> uploadProfileImg(
             @RequestPart MultipartFile file,
             @RequestPart String phoneNumber) {
         var response = nursingInstitutionService.uploadProfileImage(file, phoneNumber);

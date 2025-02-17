@@ -3,6 +3,9 @@ package com.becareful.becarefulserver.domain.socialworker.domain.vo;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 import java.util.Arrays;
 
@@ -22,8 +25,14 @@ public enum CareLevel {
     @JsonCreator //JSON -> Enum 변환 시 사용
     public static CareLevel fromString(String value){
         return Arrays.stream(CareLevel.values())
-                .filter(careLevel -> careLevel.displayName.equalsIgnoreCase(value))
+                .filter(careLevel -> careLevel.displayName.equals(value))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unknown value: " + value));
     }
+
+    @Enumerated(EnumType.STRING) // DB에 문자열로 저장
+    public String toString() {
+        return this.name(); // enum 이름을 사용
+    }
+
 }

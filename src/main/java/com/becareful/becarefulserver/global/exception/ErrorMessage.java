@@ -20,10 +20,11 @@ public class ErrorMessage {
 
     public static final String SOCIALWORKER_REQUIRED_AGREEMENT = "필수 약관에 동의해야 합니다.";
     public static final String SOCIALWORKER_ALREADY_EXISTS = "이미 가입된 전화번호 입니다.";
-    public static final String SOCIALWORKER_NOT_EXISTS = "존재하지 않는 전화번호입니다.";
+    public static final String SOCIALWORKER_NOT_EXISTS = "해당하는 사회복지사가 없습니다.";
     public static final String NURSING_INSTITUTION_NOT_FOUND = "해당 ID의 요양 기관을 찾을 수 없습니다.";
     public static final String NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
 
+    public static final String ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
     public static final String ELDERLY_NOT_EXISTS = "존재하지 않는 어르신입니다.";
 
     public static final String RECRUITMENT_NOT_EXISTS = "매칭 공고가 존재하지 않습니다.";
