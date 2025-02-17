@@ -15,4 +15,8 @@ public class Address {
 
     String streetAddress;
     String detailAddress;
+
+    public String getFullAddress() {
+        return streetAddress + " " + detailAddress;
+    }
 }

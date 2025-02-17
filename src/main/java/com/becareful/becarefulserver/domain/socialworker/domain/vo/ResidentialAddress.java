@@ -16,4 +16,8 @@ public class ResidentialAddress {
     private String siGuGun;
 
     private String eupMyeonDong;
+
+    public String getFullAddress() {
+        return siDo + " " + siGuGun + " " + eupMyeonDong;
+    }
 }
