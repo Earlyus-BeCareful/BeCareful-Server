@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Set;
 import lombok.NoArgsConstructor;
 
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
+
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -30,9 +32,9 @@ public class Elderly extends BaseEntity {
 
     LocalDate birthday;
 
-    Boolean inmate;
+    boolean inmate;
 
-    Boolean pet;
+    boolean pet;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nursing_institution_id")
@@ -41,7 +43,7 @@ public class Elderly extends BaseEntity {
     @Enumerated(EnumType.STRING)
     Gender gender;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     CareLevel careLevel;
 
     @Embedded
@@ -72,7 +74,7 @@ public class Elderly extends BaseEntity {
     }
 
     public static Elderly create(String name,LocalDate birthday,  Gender gender,
-                                 Boolean inmate, Boolean pet,  String profileImageUrl, NursingInstitution institution,
+                                 boolean inmate, boolean pet,  String profileImageUrl, NursingInstitution institution,
                                  CareLevel careLevel, String healthCondition, EnumSet<DetailCareType> detailCareTypes){
         return Elderly.builder()
                 .name(name)
@@ -80,7 +82,9 @@ public class Elderly extends BaseEntity {
                 .gender(gender)
                 .inmate(inmate)
                 .pet(pet)
-                .profileImageUrl(profileImageUrl)
+                .profileImageUrl(profileImageUrl == null || profileImageUrl.isBlank()
+                        ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
+                        : profileImageUrl)
                 .institution(institution)
                 .careLevel(careLevel)
                 .healthCondition(healthCondition)

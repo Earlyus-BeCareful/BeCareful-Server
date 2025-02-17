@@ -4,6 +4,7 @@ import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProf
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
@@ -42,6 +43,7 @@ public class ElderlyService {
 
         NursingInstitution institution = nursingInstitutionRepository.findById(request.institutionId())
                 .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
+
 
 
         Elderly elderly = Elderly.create(

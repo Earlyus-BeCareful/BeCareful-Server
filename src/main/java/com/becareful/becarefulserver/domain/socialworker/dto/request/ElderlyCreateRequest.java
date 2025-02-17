@@ -5,6 +5,7 @@ import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.socialworker.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
@@ -12,12 +13,12 @@ import java.util.List;
 
 public record ElderlyCreateRequest (
     @NotBlank String name,
-    @NotBlank LocalDate birthday,
-    @NotBlank Boolean inmate,
-    @NotBlank Boolean pet,
+    @NotNull LocalDate birthday,
+    @NotNull boolean inmate,
+    @NotNull boolean pet,
     @NotBlank String institutionId,
-    @NotBlank Gender gender,
-    @NotBlank CareLevel careLevel,
+    @NotNull Gender gender,
+    @NotNull CareLevel careLevel,
     @NotBlank String siDo,
     @NotBlank String siGuGun,
     @NotBlank String eupMyeonDong,
