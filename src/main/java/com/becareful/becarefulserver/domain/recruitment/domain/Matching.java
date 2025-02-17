@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,6 +32,8 @@ public class Matching extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private MatchingStatus matchingStatus;
+
+    private LocalDate applicationDate;
 
     @JoinColumn(name = "recruitment_id")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -54,5 +57,14 @@ public class Matching extends BaseEntity {
                 .recruitment(recruitment)
                 .workApplication(application)
                 .build();
+    }
+
+    /**
+     * Entity Method
+     */
+
+    public void apply() {
+        this.matchingStatus = MatchingStatus.지원;
+        this.applicationDate = LocalDate.now();
     }
 }

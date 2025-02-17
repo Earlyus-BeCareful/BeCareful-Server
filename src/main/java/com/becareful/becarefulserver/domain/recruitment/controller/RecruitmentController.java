@@ -49,4 +49,11 @@ public class RecruitmentController {
         RecruitmentDetailResponse response = recruitmentService.getRecruitmentDetail(recruitmentId);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "매칭 공고 지원 (요양보호사 일자리 지원)")
+    @PostMapping("/{recruitmentId}/apply")
+    public ResponseEntity<Void> applyRecruitment(@PathVariable("recruitmentId") Long recruitmentId) {
+        recruitmentService.applyRecruitment(recruitmentId);
+        return ResponseEntity.ok().build();
+    }
 }

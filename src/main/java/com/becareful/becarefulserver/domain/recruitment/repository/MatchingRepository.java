@@ -8,6 +8,7 @@ import com.becareful.becarefulserver.domain.recruitment.domain.Matching;
 import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
@@ -15,4 +16,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
             + "FROM Matching m "
             + "WHERE m.workApplication = :workApplication")
     List<Recruitment> findAllRecruitmentByWorkApplication(WorkApplication workApplication);
+
+    Optional<Matching> findByWorkApplicationAndRecruitment(WorkApplication workApplication, Recruitment recruitment);
 }

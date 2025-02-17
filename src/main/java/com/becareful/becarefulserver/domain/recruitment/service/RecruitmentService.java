@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.recruitment.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_WORK_APPLICATION_NOT_EXISTS;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_NOT_EXISTS;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_NOT_EXISTS;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.RECRUITMENT_NOT_EXISTS;
 
 import org.springframework.stereotype.Service;
@@ -57,6 +58,20 @@ public class RecruitmentService {
 
         // TODO : recruit 매칭 적합도 및 태그 부여 판단
         return RecruitmentDetailResponse.from(recruitment, false, false, 98);
+    }
+
+    @Transactional
+    public void applyRecruitment(Long recruitmentId) {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver)
+                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
+
+        Matching matching = matchingRepository.findByWorkApplicationAndRecruitment(workApplication, recruitment)
+                .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
+
+        matching.apply();
     }
 
     @Transactional
