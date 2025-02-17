@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.recruitment.controller;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,6 +55,13 @@ public class RecruitmentController {
     @PostMapping("/{recruitmentId}/apply")
     public ResponseEntity<Void> applyRecruitment(@PathVariable("recruitmentId") Long recruitmentId) {
         recruitmentService.applyRecruitment(recruitmentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "매칭 공고 거절 (요양보호사 일자리 거절)")
+    @PostMapping("/{recruitmentId}/reject")
+    public ResponseEntity<Void> rejectMatching(@PathVariable("recruitmentId") Long recruitmentId) {
+        recruitmentService.rejectMatching(recruitmentId);
         return ResponseEntity.ok().build();
     }
 }

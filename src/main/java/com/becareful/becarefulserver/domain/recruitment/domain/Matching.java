@@ -1,5 +1,8 @@
 package com.becareful.becarefulserver.domain.recruitment.domain;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_CANNOT_APPLY;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_CANNOT_REJECT;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 
 import java.time.LocalDate;
 import lombok.AccessLevel;
@@ -64,7 +68,17 @@ public class Matching extends BaseEntity {
      */
 
     public void apply() {
+        if (!this.matchingStatus.equals(MatchingStatus.미지원)) {
+            throw new RecruitmentException(MATCHING_CANNOT_APPLY);
+        }
         this.matchingStatus = MatchingStatus.지원;
         this.applicationDate = LocalDate.now();
+    }
+
+    public void reject() {
+        if (!this.matchingStatus.equals(MatchingStatus.미지원)) {
+            throw new RecruitmentException(MATCHING_CANNOT_REJECT);
+        }
+        this.matchingStatus = MatchingStatus.거절;
     }
 }
