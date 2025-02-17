@@ -42,13 +42,10 @@ public class RecruitmentService {
 
     public List<RecruitmentResponse> getRecruitmentList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver)
-                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
-
-        // TODO : 일자리 신청서가 비활성화 된 경우 처리 로직 문의
-
-        return matchingRepository.findAllRecruitmentByWorkApplication(workApplication)
-                .stream().map(RecruitmentResponse::from).toList();
+        return workApplicationRepository.findByCaregiver(caregiver)
+                .map(workApplication -> matchingRepository.findAllRecruitmentByWorkApplication(workApplication)
+                        .stream().map(RecruitmentResponse::from).toList())
+                .orElse(null);
     }
 
     public RecruitmentDetailResponse getRecruitmentDetail(Long recruitmentId) {
