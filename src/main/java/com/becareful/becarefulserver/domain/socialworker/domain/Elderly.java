@@ -13,6 +13,8 @@ import lombok.Getter;
 import org.hibernate.annotations.CollectionId;
 
 import java.time.LocalDate;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -38,13 +40,12 @@ public class Elderly extends BaseEntity {
     private String profileImageUrl;
     private String healthCondition;
     @Convert(converter = DetailCareTypeConverter.class)
-    @Column(columnDefinition = "JSON")
-    private Set<DetailCareType> detailCareTypes;
+    private EnumSet<DetailCareType> detailCareTypes;
 
     @Builder(access = AccessLevel.PRIVATE)
     private Elderly(Long id, String name,LocalDate birthday,  Gender gender,
                     Boolean inmate, Boolean pet, NursingInstitution institution, String profileImageUrl,
-                    CareLevel careLevel, String healthCondition, Set<DetailCareType> detailCareTypes){
+                    CareLevel careLevel, String healthCondition, EnumSet<DetailCareType> detailCareTypes){
         this.id = id;
         this.name = name;
         this.birthday = birthday;
@@ -58,11 +59,10 @@ public class Elderly extends BaseEntity {
         this.detailCareTypes =detailCareTypes;
     }
 
-    public static Elderly create(Long id, String name,LocalDate birthday,  Gender gender,
-                                 Boolean inmate, Boolean pet, NursingInstitution institution, String profileImageUrl,
-                                 CareLevel careLevel, String healthCondition, Set<DetailCareType> detailCareTypes){
+    public static Elderly create(String name,LocalDate birthday,  Gender gender,
+                                 Boolean inmate, Boolean pet,  String profileImageUrl, NursingInstitution institution,
+                                 CareLevel careLevel, String healthCondition, EnumSet<DetailCareType> detailCareTypes){
         return Elderly.builder()
-                .id(id)
                 .name(name)
                 .birthday(birthday)
                 .gender(gender)
