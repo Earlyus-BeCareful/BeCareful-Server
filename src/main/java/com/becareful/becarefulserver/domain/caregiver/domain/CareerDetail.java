@@ -28,20 +28,20 @@ public class CareerDetail extends BaseEntity {
 
     private String workInstitution;
 
-    private Integer workYear;
+    private String workYear;
 
     @JoinColumn(name = "career_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Career career;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private CareerDetail(String workInstitution, Integer workYear, Career career) {
+    private CareerDetail(String workInstitution, String workYear, Career career) {
         this.workInstitution = workInstitution;
         this.workYear = workYear;
         this.career = career;
     }
 
-    public static CareerDetail create(String workInstitution, Integer workYear, Career career) {
+    public static CareerDetail create(String workInstitution, String workYear, Career career) {
         return CareerDetail.builder()
                 .workInstitution(workInstitution)
                 .workYear(workYear)

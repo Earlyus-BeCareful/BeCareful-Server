@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.caregiver.dto.response;
 import com.becareful.becarefulserver.domain.caregiver.domain.Career;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
+import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import java.util.List;
 
 public record CaregiverMyPageHomeResponse(
         String name,
+        Gender gender,
         String phoneNumber,
         String profileImageUrl,
         List<String> certificateNames,
@@ -25,6 +27,7 @@ public record CaregiverMyPageHomeResponse(
     public static CaregiverMyPageHomeResponse of(Caregiver caregiver, Career career, WorkApplication workApplication, List<WorkLocationDto> locations) {
         return new CaregiverMyPageHomeResponse(
                 caregiver.getName(),
+                caregiver.getGender(),
                 caregiver.getPhoneNumber(),
                 caregiver.getProfileImageUrl(),
                 caregiver.getCaregiverInfo().getCertificateNames(),
