@@ -18,6 +18,7 @@ import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentMediateRequest;
+import com.becareful.becarefulserver.domain.recruitment.dto.response.MyRecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.MyRecruitmentResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentResponse;
@@ -67,6 +68,21 @@ public class RecruitmentService {
                         .map(matching -> MyRecruitmentResponse.of(matching.getRecruitment(), matching.getMatchingStatus()))
                         .toList())
                 .orElse(List.of());
+    }
+
+    public MyRecruitmentDetailResponse getMyRecruitmentDetail(Long recruitmentId) {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver)
+                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
+
+        Matching matching = matchingRepository.findByWorkApplicationAndRecruitment(workApplication, recruitment)
+                .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
+
+        // TODO : recruit 매칭 적합도 및 태그 부여 판단
+        return MyRecruitmentDetailResponse.of(
+                recruitment, false, false, 98, matching.getApplicationDate());
     }
 
     @Transactional
