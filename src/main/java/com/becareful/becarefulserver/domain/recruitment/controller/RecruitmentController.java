@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentMediateRequest;
+import com.becareful.becarefulserver.domain.recruitment.dto.response.MyRecruitmentResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentResponse;
 import com.becareful.becarefulserver.domain.recruitment.service.RecruitmentService;
@@ -71,5 +73,13 @@ public class RecruitmentController {
     public ResponseEntity<Void> mediateMatching(@PathVariable("recruitmentId") Long recruitmentId, @RequestBody RecruitmentMediateRequest request) {
         recruitmentService.mediateMatching(recruitmentId, request);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "지원 현황 조회 (요양보호사 나의 지원현황 조회)", description = "일자리 신청서가 없거나, 지원 내역이 없다면 빈 리스트를 응답합니다. '거절'은 요양보호사가 지원 거절한 경우이므로, 관리자가 거절한 경우에는 '불합격' 상태로 조회해야 합니다.")
+    @GetMapping("/my/recruitment/{recruitmentStatus}")
+    public ResponseEntity<List<MyRecruitmentResponse>> getMyRecruitment(@PathVariable("recruitmentStatus")
+            MatchingStatus matchingStatus) {
+        List<MyRecruitmentResponse> response = recruitmentService.getMyRecruitment(matchingStatus);
+        return ResponseEntity.ok(response);
     }
 }
