@@ -4,7 +4,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
 
 public record CareerDetailResponse(
         String workInstitution,
-        Integer workYear
+        String workYear
 ) {
 
     public static CareerDetailResponse from(CareerDetail careerDetail) {
