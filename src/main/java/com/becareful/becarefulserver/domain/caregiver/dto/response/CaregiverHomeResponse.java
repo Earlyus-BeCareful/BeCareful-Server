@@ -13,7 +13,8 @@ public record CaregiverHomeResponse(
         Integer applicationCount,
         Integer recruitmentCount,
         @Schema(description = "더미 데이터이므로 변경될 수 있습니다.")
-        List<WorkScheduleResponse> workScheduleList
+        List<WorkScheduleResponse> workScheduleList,
+        boolean isWorking
 ) {
     public static CaregiverHomeResponse of(Caregiver caregiver) {
         return CaregiverHomeResponse.builder()
@@ -23,6 +24,7 @@ public record CaregiverHomeResponse(
                 .workScheduleList(List.of(
                         WorkScheduleResponse.createDummy(),
                         WorkScheduleResponse.createDummy()))
+                .isWorking(false) // TODO : 더미 데이터에서 실제 데이터로 변경 필요
                 .build();
     }
 }
