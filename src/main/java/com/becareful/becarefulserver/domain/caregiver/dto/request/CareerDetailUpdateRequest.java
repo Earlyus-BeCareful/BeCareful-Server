@@ -5,4 +5,4 @@ import jakarta.validation.constraints.NotNull;
 
 public record CareerDetailUpdateRequest(
         @NotBlank String workInstitution,
-        @NotNull Integer workYear) {}
+        @NotBlank String workYear) {}
