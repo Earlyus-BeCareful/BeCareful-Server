@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.recruitment.domain.Matching;
+import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     List<Recruitment> findAllRecruitmentByWorkApplication(WorkApplication workApplication);
 
     Optional<Matching> findByWorkApplicationAndRecruitment(WorkApplication workApplication, Recruitment recruitment);
+
+    List<Matching> findByWorkApplicationAndMatchingStatus(WorkApplication workApplication, MatchingStatus matchingStatus);
 }
