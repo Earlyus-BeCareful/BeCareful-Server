@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.caregiver.dto.response;
 
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
+import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalTime;
@@ -17,11 +18,22 @@ public record WorkScheduleResponse(
         String seniorName,
         Gender seniorGender,
         Integer seniorAge,
-        @Schema(description = "더미 형식이므로 변경될 수 있습니다.")
         List<CareType> seniorCareType,
         @Schema(description = "더미 형식이므로 변경될 수 있습니다.")
         String workLocation
 ) {
+    public static WorkScheduleResponse of(Elderly elderly) {
+        return WorkScheduleResponse.builder()
+                .workStartTime(LocalTime.of(8, 20).format(DateTimeFormatter.ofPattern("HH:mm")))
+                .workEndTime(LocalTime.of(17, 20).format(DateTimeFormatter.ofPattern("HH:mm")))
+                .seniorName(elderly.getName())
+                .seniorGender(elderly.getGender())
+                .seniorAge(elderly.getAge())
+                .seniorCareType(elderly.getCareTypes())
+                .workLocation("노원구 상계동")
+                .build();
+    }
+
     public static WorkScheduleResponse createDummy() {
         return WorkScheduleResponse.builder()
                 .workStartTime(LocalTime.of(8, 20).format(DateTimeFormatter.ofPattern("HH:mm")))

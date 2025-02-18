@@ -1,12 +1,15 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.socialworker.domain.converter.DetailCareTypeConverter;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.ResidentialAddress;
 import jakarta.persistence.*;
+
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -106,6 +109,13 @@ public class Elderly extends BaseEntity {
 
     public Integer getAge() {
         return LocalDate.now().getYear() - birthday.getYear() + 1;
+    }
+
+    public List<CareType> getCareTypes() {
+        return detailCareTypes.stream()
+                .collect(Collectors.groupingBy(DetailCareType::getCareType))
+                .keySet().stream()
+                .toList();
     }
 
     public void updateName(String name) {

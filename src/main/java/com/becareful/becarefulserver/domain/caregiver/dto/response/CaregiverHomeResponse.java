@@ -16,7 +16,7 @@ public record CaregiverHomeResponse(
         List<WorkScheduleResponse> workScheduleList,
         boolean isWorking
 ) {
-    public static CaregiverHomeResponse of(Caregiver caregiver) {
+    public static CaregiverHomeResponse createNotHavingWorkApplication(Caregiver caregiver) {
         return CaregiverHomeResponse.builder()
                 .name(caregiver.getName())
                 .applicationCount(0)
@@ -24,7 +24,19 @@ public record CaregiverHomeResponse(
                 .workScheduleList(List.of(
                         WorkScheduleResponse.createDummy(),
                         WorkScheduleResponse.createDummy()))
-                .isWorking(false) // TODO : 더미 데이터에서 실제 데이터로 변경 필요
+                .isWorking(false)
+                .build();
+    }
+
+    public static CaregiverHomeResponse of(Caregiver caregiver, Integer applicationCount, Integer recruitmentCount, boolean isWorking) {
+        return CaregiverHomeResponse.builder()
+                .name(caregiver.getName())
+                .applicationCount(applicationCount)
+                .recruitmentCount(recruitmentCount)
+                .workScheduleList(List.of(
+                        WorkScheduleResponse.createDummy(),
+                        WorkScheduleResponse.createDummy()))
+                .isWorking(isWorking)
                 .build();
     }
 }

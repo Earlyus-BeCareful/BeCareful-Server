@@ -21,6 +21,8 @@ import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepositor
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
+import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
+import com.becareful.becarefulserver.domain.recruitment.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
@@ -43,12 +45,18 @@ public class CaregiverService {
     private final CareerRepository careerRepository;
     private final WorkApplicationRepository workApplicationRepository;
     private final WorkApplicationWorkLocationRepository workApplicationWorkLocationRepository;
+    private final MatchingRepository matchingRepository;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        return CaregiverHomeResponse.of(caregiver);
+        return workApplicationRepository.findByCaregiver(caregiver)
+                .map(workApplication -> {
+                    Integer recruitmentCount = matchingRepository.countByWorkApplicationAndMatchingStatus(workApplication, MatchingStatus.미지원);
+                    Integer applicationCount = matchingRepository.countByWorkApplicationAndMatchingStatus(workApplication, MatchingStatus.지원);
+                    return CaregiverHomeResponse.of(caregiver, applicationCount, recruitmentCount, false);})
+                .orElse(CaregiverHomeResponse.createNotHavingWorkApplication(caregiver));
     }
 
     public CaregiverMyPageHomeResponse getMyPageHomeData() {
