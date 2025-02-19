@@ -18,7 +18,7 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
             + "AND m.matchingStatus = '미지원'")
     List<Matching> findAllByWorkApplication(WorkApplication workApplication);
 
-    List<Matching> findByRecruitmentId(Long recruitmentId);
+    List<Matching> findByRecruitment(Recruitment recruitment);
     int countByRecruitmentAndMatchingStatusNot(Recruitment recruitment, MatchingStatus matchingStatus);
     int countByRecruitmentAndMatchingStatus(Recruitment recruitment, MatchingStatus matchingStatus);
 

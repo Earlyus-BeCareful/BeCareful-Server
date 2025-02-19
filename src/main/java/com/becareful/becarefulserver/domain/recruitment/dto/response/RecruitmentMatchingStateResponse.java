@@ -20,6 +20,7 @@ public record RecruitmentMatchingStateResponse(
         List<CaregiverDetail> appliedCaregivers
 ) {
     public record CaregiverDetail(
+            Long caregiverId,
             String profileImageUrl,
             String name,
             String resumeTitle
