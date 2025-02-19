@@ -5,6 +5,7 @@ import com.becareful.becarefulserver.domain.recruitment.dto.response.Recruitment
 import com.becareful.becarefulserver.domain.recruitment.service.ContractService;
 import com.becareful.becarefulserver.domain.recruitment.service.RecruitmentService;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialworkerCreateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import com.becareful.becarefulserver.domain.socialworker.service.SocialworkerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,6 +55,13 @@ public class SocialworkerController {
     public ResponseEntity<RecruitmentMatchingStateResponse> getRecruitmentMatchingState(@PathVariable Long recruitmentId) {
         RecruitmentMatchingStateResponse recruitmentMatchingStateResponse = recruitmentService.getRecruitmentMatchingState(recruitmentId);
         return ResponseEntity.ok(recruitmentMatchingStateResponse);
+    }
+
+    @Operation(summary = "사회복지사 채팅 목록")
+    @GetMapping("/chat/list")
+    public ResponseEntity<ChatList> getChatInfoList(){
+        ChatList response = socialworkerService.getChatList();
+        return ResponseEntity.ok(response);
     }
 
 
