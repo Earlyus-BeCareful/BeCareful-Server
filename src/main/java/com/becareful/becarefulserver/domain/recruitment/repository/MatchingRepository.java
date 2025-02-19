@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.recruitment.repository;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.recruitment.domain.Matching;
 import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
@@ -25,8 +26,17 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     JOIN m.recruitment r
     JOIN r.elderly e
     WHERE e.nursingInstitution = :nursingInstitution
-""")
+    AND m.matchingStatus = '합격'
+    """)
     List<Matching> findByNursingInstitution(@Param("nursingInstitution") NursingInstitution nursingInstitution);
+
+    @Query("""
+    SELECT m FROM Matching m
+    JOIN m.workApplication w
+    WHERE w.caregiver = :caregiver
+    AND m.matchingStatus = '합격'
+    """)
+    List<Matching> findByCaregiver(@Param("caregiver")Caregiver caregiver);
 
     List<Matching> findByRecruitmentId(Long recruitmentId);
     int countByRecruitmentIdAndMatchingStatusNot(Long recruitmentId, String matchingStatus);
