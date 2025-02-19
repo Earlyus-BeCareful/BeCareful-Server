@@ -108,7 +108,6 @@ public class SocialworkerService {
                 ((double) wholeApplierCountForCompletedRecruitment / wholeCompletedMatchingCount) * 100,
                 elderlyList);
     }
-    private final AuthUtil authUtil;
 
 
     @Transactional
