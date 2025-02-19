@@ -1,18 +1,14 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
-import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
+import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpdateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.domain.socialworker.repository.NursingInstitutionRepository;
-import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
-import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
+import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,11 +21,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_NOT_EXISTS;
 
 @Service
 @RequiredArgsConstructor
@@ -37,21 +31,22 @@ public class ElderlyService {
     private final ElderlyRepository elderlyRepository;
     private final NursingInstitutionRepository nursingInstitutionRepository;
     private final FileUtil fileUtil;
-
+    private final AuthUtil authUtil;
 
     @Transactional
     public Long saveElderly(ElderlyCreateRequest request) {
-
+        Socialworker socialworker = authUtil.getLoggedInSocialWorker();
+        /*
         NursingInstitution institution = nursingInstitutionRepository.findById(request.institutionId())
                 .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
-
+        */
 
 
         Elderly elderly = Elderly.create(
                 request.name(), request.birthday(), request.gender(),
                 request.siDo(), request.siGuGun(), request.eupMyeonDong(), request.detailAddress(),
                 request.inmate(), request.pet(), request.profileImageUrl(),
-                institution, request.careLevel(), request.healthCondition(), EnumSet.copyOf(request.detailCareTypeList()
+                socialworker.getNursingInstitution(), request.careLevel(), request.healthCondition(), EnumSet.copyOf(request.detailCareTypeList()
                 ));
 
         elderlyRepository.save(elderly);

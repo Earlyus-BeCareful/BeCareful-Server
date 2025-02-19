@@ -2,7 +2,6 @@ package com.becareful.becarefulserver.domain.socialworker.dto.request;
 
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
-import com.becareful.becarefulserver.domain.socialworker.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +15,6 @@ public record ElderlyCreateRequest (
     @NotNull LocalDate birthday,
     @NotNull boolean inmate,
     @NotNull boolean pet,
-    @NotBlank String institutionId,
     @NotNull Gender gender,
     @NotNull CareLevel careLevel,
     @NotBlank String siDo,
