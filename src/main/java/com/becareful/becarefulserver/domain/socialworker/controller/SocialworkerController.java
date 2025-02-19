@@ -1,10 +1,8 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
 
-import com.becareful.becarefulserver.domain.recruitment.dto.response.NursingInstitutionRecruitmentStateResponse;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentMatchingStateResponse;
 import com.becareful.becarefulserver.domain.recruitment.service.ContractService;
-import com.becareful.becarefulserver.domain.recruitment.service.RecruitmentService;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialworkerCreateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
 import com.becareful.becarefulserver.domain.socialworker.service.SocialworkerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +22,6 @@ public class SocialworkerController {
 
     private final SocialworkerService socialworkerService;
     private final ContractService contractService;
-    private final RecruitmentService recruitmentService;
 
     @Operation(summary = "사회복지사 회원가입", description = "요양기관 ID 필수")
     @PostMapping("/signup")
@@ -34,11 +30,17 @@ public class SocialworkerController {
         return ResponseEntity.created(URI.create("/socialworker/" + id)).build();
     }
 
-    //TODO - 채용하기 버튼 누르면 계약서 자동 생성
     @Operation(summary = "채용하기", description = "근무 시작일 선택 후 근무조건 생성")
     @PostMapping("/matching/hire/{matchingId}")
     public ResponseEntity<Void> createContract(@PathVariable("matchingId") Long matchingId, @RequestParam LocalDate workStartDate) {
         contractService.createContract(matchingId, workStartDate);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "사회복지사 홈화면 조회")
+    @GetMapping("/home")
+    public ResponseEntity<SocialWorkerHomeResponse> getHomeData() {
+        SocialWorkerHomeResponse response = socialworkerService.getHomeData();
+        return ResponseEntity.ok(response);
     }
 }

@@ -44,7 +44,6 @@ public class RecruitmentController {
         return ResponseEntity.ok(recruitmentId);
     }
 
-    //TODO
     @Operation(summary = "매칭 현황 상세조회 (사회복지사 호출)", description = "매칭 현황 데이터의 상세화면을 조회합니다. 매칭된 요양보호사와 지원한 요양보호사 정보가 있습니다.")
     @GetMapping("/{recruitmentId}")
     public ResponseEntity<RecruitmentMatchingStateResponse> getMatchingListDetail(@PathVariable Long recruitmentId) {

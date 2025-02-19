@@ -7,6 +7,7 @@ import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import io.lettuce.core.dynamic.annotation.Param;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,4 +25,9 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     Optional<Matching> findByWorkApplicationAndRecruitment(WorkApplication workApplication, Recruitment recruitment);
 
     List<Matching> findByWorkApplicationAndMatchingStatus(WorkApplication workApplication, MatchingStatus matchingStatus);
+
+    @Query("SELECT m "
+            + "FROM Matching m "
+            + "WHERE m.recruitment.elderly.id IN :elderlyIds ")
+    List<Matching> findAllMatchingByElderlyIds(@Param("elderlyIds") List<Long> elderlyIds);
 }
