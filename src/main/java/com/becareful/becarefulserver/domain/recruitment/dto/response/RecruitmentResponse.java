@@ -2,7 +2,9 @@ package com.becareful.becarefulserver.domain.recruitment.dto.response;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryType;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
+import com.becareful.becarefulserver.domain.recruitment.domain.Matching;
 import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
+import com.becareful.becarefulserver.domain.recruitment.domain.vo.MatchingInfo;
 
 import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
@@ -24,7 +26,8 @@ public record RecruitmentResponse(
         boolean isHourlySalaryTop
 ) {
 
-    public static RecruitmentResponse from(Recruitment recruitment) {
+    public static RecruitmentResponse from(Matching matching) {
+        Recruitment recruitment = matching.getRecruitment();
         return new RecruitmentResponse(
                 recruitment.getId(),
                 recruitment.getTitle(),
@@ -36,9 +39,17 @@ public record RecruitmentResponse(
                 recruitment.getWorkSalaryAmount(),
                 recruitment.isRecruiting(),
                 recruitment.getElderly().getNursingInstitution().getName(),
-                98, // TODO : 매칭율 계산
+                calculateAverageMatchingRate(matching.getCaregiverMatchingInfo()).intValue(),
                 false,
                 false
         );
+    }
+
+    private static Double calculateAverageMatchingRate(MatchingInfo caregiverMatchingInfo) {
+        return (caregiverMatchingInfo.getWorkCareTypeMatchingRate()
+                + caregiverMatchingInfo.getWorkSalaryMatchingRate()
+                + caregiverMatchingInfo.getWorkTimeMatchingRate()
+                + caregiverMatchingInfo.getWorkDayMatchingRate()
+                + caregiverMatchingInfo.getWorkLocationMatchingRate()) / 5;
     }
 }

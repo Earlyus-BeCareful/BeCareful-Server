@@ -12,11 +12,11 @@ import java.util.Optional;
 
 public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
-    @Query("SELECT m.recruitment "
+    @Query("SELECT m "
             + "FROM Matching m "
             + "WHERE m.workApplication = :workApplication "
             + "AND m.matchingStatus = '미지원'")
-    List<Recruitment> findAllRecruitmentByWorkApplication(WorkApplication workApplication);
+    List<Matching> findAllByWorkApplication(WorkApplication workApplication);
 
     List<Matching> findByRecruitmentId(Long recruitmentId);
     int countByRecruitmentIdAndMatchingStatusNot(Long recruitmentId, String matchingStatus);
