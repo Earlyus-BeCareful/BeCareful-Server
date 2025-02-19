@@ -54,8 +54,9 @@ public class RecruitmentService {
     public List<RecruitmentResponse> getRecruitmentList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         return workApplicationRepository.findByCaregiver(caregiver)
-                .map(workApplication -> matchingRepository.findAllRecruitmentByWorkApplication(workApplication)
-                        .stream().map(RecruitmentResponse::from).toList())
+                .map(workApplication -> matchingRepository.findAllByWorkApplication(workApplication).stream()
+                        .map(RecruitmentResponse::from)
+                        .toList())
                 .orElse(null);
     }
 
