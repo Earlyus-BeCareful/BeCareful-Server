@@ -120,4 +120,13 @@ public class CaregiverController {
         completedMatchingService.editNote(completedMatchingId, request);
         return ResponseEntity.ok().build();
     }
+
+
+    @Operation(summary = "요양보호사 채팅 목록")
+    @GetMapping("/chat/list")
+    public ResponseEntity<ChatList> getChatInfoList(){
+        ChatList response = caregiverService.getChatList();
+        return ResponseEntity.ok(response);
+    }
+
 }
