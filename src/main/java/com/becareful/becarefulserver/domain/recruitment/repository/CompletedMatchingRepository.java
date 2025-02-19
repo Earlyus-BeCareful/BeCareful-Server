@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface CompletedMatchingRepository extends JpaRepository<CompletedMatching, Long> {
 
-    @Query("SELECT COUNT(DISTINCT cm.caregiver) FROM CompletedMatching cm WHERE cm.elderly = :elderly")
+    @Query("SELECT COUNT(DISTINCT cm.caregiver) FROM CompletedMatching cm WHERE cm.contract.matching.recruitment.elderly = :elderly")
     int countDistinctCaregiversByElderly(@Param("elderly") Elderly elderly);
 
     @Query("""

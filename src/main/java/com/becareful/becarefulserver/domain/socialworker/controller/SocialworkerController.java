@@ -1,7 +1,5 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
 
-import com.becareful.becarefulserver.domain.recruitment.dto.response.NursingInstitutionRecruitmentStateResponse;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentMatchingStateResponse;
 import com.becareful.becarefulserver.domain.recruitment.service.ContractService;
 import com.becareful.becarefulserver.domain.recruitment.service.RecruitmentService;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialworkerCreateRequest;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,29 +40,10 @@ public class SocialworkerController {
         return ResponseEntity.ok().build();
     }
 
-
-    //TODO //매칭현황
-    @Operation(summary = "매칭현황", description = "공고별 매칭 현황 리스트 반환")
-    @PostMapping("/matching/state")
-    public ResponseEntity<List<NursingInstitutionRecruitmentStateResponse>> getMatchingStateByInstitution() {
-        List<NursingInstitutionRecruitmentStateResponse> matchingStates = recruitmentService.getMatchingState();
-        return ResponseEntity.ok(matchingStates);
-    }
-
-    //TODO
-    @Operation(summary = "매칭정보", description = "특정 공고의 매칭 상세 정보 반환")
-    @GetMapping("/{recruitmentId}")
-    public ResponseEntity<RecruitmentMatchingStateResponse> getRecruitmentMatchingState(@PathVariable Long recruitmentId) {
-        RecruitmentMatchingStateResponse recruitmentMatchingStateResponse = recruitmentService.getRecruitmentMatchingState(recruitmentId);
-        return ResponseEntity.ok(recruitmentMatchingStateResponse);
-    }
-
     @Operation(summary = "사회복지사 채팅 목록")
     @GetMapping("/chat/list")
     public ResponseEntity<ChatList> getChatInfoList(){
         ChatList response = socialworkerService.getChatList();
         return ResponseEntity.ok(response);
     }
-
-
 }
