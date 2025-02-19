@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.becareful.becarefulserver.domain.recruitment.dto.response.CaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentMediateRequest;
@@ -104,6 +105,13 @@ public class RecruitmentController {
     @GetMapping("/my/recruitment/{recruitmentId}")
     public ResponseEntity<MyRecruitmentDetailResponse> getMyRecruitmentDetail(@PathVariable("recruitmentId") Long recruitmentId) {
         MyRecruitmentDetailResponse response = recruitmentService.getMyRecruitmentDetail(recruitmentId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "요양보호사 지원 정보 상세 조회 (사회복지사 호출)", description = "요양보호사의 지원 정보를 자세히 조회합니다.")
+    @GetMapping("/{recruitmentId}/caregiver/{caregiverId}")
+    public ResponseEntity<CaregiverDetailResponse> getCaregiverDetailInfo(@PathVariable(name = "recruitmentId") Long recruitmentId, @PathVariable(name = "caregiverId") Long caregiverId) {
+        CaregiverDetailResponse response = recruitmentService.getCaregiverDetailInfo(recruitmentId, caregiverId);
         return ResponseEntity.ok(response);
     }
 }
