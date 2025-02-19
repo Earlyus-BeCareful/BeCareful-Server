@@ -17,6 +17,9 @@ public class CompletedMatching {
     @Column(name = "completed_matching_id")
     private Long id;
 
+    @JoinColumn(name = "contract_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    private Contract contract;
 
     @JoinColumn(name = "caregiver_id")
     @ManyToOne(fetch = FetchType.LAZY)
