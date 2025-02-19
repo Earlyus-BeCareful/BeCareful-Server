@@ -5,44 +5,40 @@ import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeS
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import jakarta.persistence.*;
+
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.EnumSet;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CompletedMatching {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "completed_matching_id")
     private Long id;
 
+    private String note;
 
     @JoinColumn(name = "caregiver_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Caregiver caregiver;
 
-    @JoinColumn(name = "elderly_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Elderly elderly;
-
-
-    private String workDays;//계약서
-    private String workStartTime;//계약서
-    private String workEndTime;//계약서
-
-    private String workSalaryType;//계약서
-    private int workSalaryAmount;//계약서
-    private String workAddress;//계약서 -> 매칭 -> 매칭 공고 -> 어르신 -> 주소
-    @Convert(converter = CareTypeSetConverter.class)
-    private EnumSet<CareType> workCareTypes;
-
-    private String institutionName;
-    private String institutionAddress;
-    private String note;
-
+    @JoinColumn(name = "contract_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    private Contract contract;
 
     public void updateNote(String note) {
         this.note = note;
+    }
+
+    public CompletedMatching(Caregiver caregiver, Contract contract) {
+        this.caregiver = caregiver;
+        this.contract = contract;
     }
 }

@@ -5,7 +5,9 @@ import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.recruitment.domain.CompletedMatching;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 
+import java.time.DayOfWeek;
 import java.util.EnumSet;
+import java.util.List;
 
 public record CompletedMatchingInfoResponse(
         Long id,
@@ -13,26 +15,28 @@ public record CompletedMatchingInfoResponse(
         Integer elderlyAge,
         Gender elderlyGender,
         String elderlyProfileImageUrl,
-        String workDays,
+        List<DayOfWeek> workDays,
         String workAddress,
-        EnumSet<CareType>careTypes,
+        List<CareType> careTypes,
         String healthCondition,
         String institutionName,
         String note
 ) {
-    public static CompletedMatchingInfoResponse form(CompletedMatching completedMatching, Elderly elderly){
+    public static CompletedMatchingInfoResponse from(CompletedMatching completedMatching){
+        Elderly elderly = completedMatching.getContract().getMatching().getRecruitment().getElderly();
+
         return new CompletedMatchingInfoResponse(
-        completedMatching.getId(),
-        elderly.getName(),
-        elderly.getAge(),
-        elderly.getGender(),
-        elderly.getProfileImageUrl(),
-        completedMatching.getWorkDays(),
-        completedMatching.getWorkAddress(),
-        completedMatching.getWorkCareTypes(),
-        elderly.getHealthCondition(),
-        completedMatching.getInstitutionName(),
-        completedMatching.getNote()
+            completedMatching.getId(),
+            elderly.getName(),
+            elderly.getAge(),
+            elderly.getGender(),
+            elderly.getProfileImageUrl(),
+            completedMatching.getContract().getWorkDays().stream().toList(),
+            elderly.getResidentialAddress().getFullAddress(),
+            completedMatching.getContract().getCareTypes().stream().toList(),
+            elderly.getHealthCondition(),
+            elderly.getNursingInstitution().getName(),
+            completedMatching.getNote()
         );
     }
 }
