@@ -22,7 +22,6 @@ public class ContractController {
 
     //계약서 생성은 사회복지사 controller에 있음
 
-    //TODO
     @Operation(summary = "계약서(근무조건) 리스트", description = "채팅화면에 계약서 반환")
     @GetMapping("/contract/list/{matchingId}")
 
@@ -31,7 +30,6 @@ public class ContractController {
         return ResponseEntity.ok(response);
     }
 
-    //TODO
     //계약서 상세 정보 불러오기(수정할때 사용)
     @Operation(summary = "근무조건 상세 내용 반환", description = "근무조건 수정시 이전 조건 내용을 불러오는데 사용하는 API.")
     @GetMapping("/contract/{contractId}/detail")
