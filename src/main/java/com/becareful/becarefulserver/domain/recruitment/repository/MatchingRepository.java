@@ -1,12 +1,11 @@
 package com.becareful.becarefulserver.domain.recruitment.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.recruitment.domain.Matching;
 import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +17,10 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
             + "WHERE m.workApplication = :workApplication "
             + "AND m.matchingStatus = '미지원'")
     List<Recruitment> findAllRecruitmentByWorkApplication(WorkApplication workApplication);
+
+    List<Matching> findByRecruitmentId(Long recruitmentId);
+    int countByRecruitmentIdAndMatchingStatusNot(Long recruitmentId, String matchingStatus);
+    int countByRecruitmentIdAndMatchingStatus(Long recruitmentId, String matchingStatus);
 
     Optional<Matching> findByWorkApplicationAndRecruitment(WorkApplication workApplication, Recruitment recruitment);
 
