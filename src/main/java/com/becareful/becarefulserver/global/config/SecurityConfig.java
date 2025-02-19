@@ -1,5 +1,8 @@
 package com.becareful.becarefulserver.global.config;
 
+import com.becareful.becarefulserver.global.security.JwtAuthenticationFilter;
+import com.becareful.becarefulserver.global.security.JwtExceptionHandlingFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -13,11 +16,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.becareful.becarefulserver.global.security.JwtAuthenticationFilter;
-import com.becareful.becarefulserver.global.security.JwtExceptionHandlingFilter;
-
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
@@ -35,7 +34,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/caregiver/signup", "/caregiver/upload-profile-img").permitAll()
-                        .requestMatchers("/nursingInstitution/{institutionId}/exists", "/nursingInstitution/register","/nursingInstitution/upload-profile-img").permitAll()
+                        .requestMatchers("/nursingInstitution/**").permitAll()
                         .requestMatchers("/socialworker/signup").permitAll()
                         .requestMatchers("/sms/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
