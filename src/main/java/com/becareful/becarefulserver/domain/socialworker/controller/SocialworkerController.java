@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.socialworker.controller;
 import com.becareful.becarefulserver.domain.recruitment.service.ContractService;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialworkerCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import com.becareful.becarefulserver.domain.socialworker.service.SocialworkerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,6 +42,13 @@ public class SocialworkerController {
     @GetMapping("/home")
     public ResponseEntity<SocialWorkerHomeResponse> getHomeData() {
         SocialWorkerHomeResponse response = socialworkerService.getHomeData();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "사회복지사 채팅 목록")
+    @GetMapping("/chat/list")
+    public ResponseEntity<ChatList> getChatInfoList(){
+        ChatList response = socialworkerService.getChatList();
         return ResponseEntity.ok(response);
     }
 }
