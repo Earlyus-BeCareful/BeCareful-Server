@@ -37,7 +37,7 @@ public class SocialworkerController {
     //TODO - 채용하기 버튼 누르면 계약서 자동 생성
     @Operation(summary = "채용하기", description = "근무 시작일 선택 후 근무조건 생성")
     @PostMapping("/matching/hire/{matchingId}")
-    public ResponseEntity<Void> createContract(@PathVariable Long matchingId, @RequestParam LocalDate workStartDate) {
+    public ResponseEntity<Void> createContract(@PathVariable("matchingId") Long matchingId, @RequestParam LocalDate workStartDate) {
         contractService.createContract(matchingId, workStartDate);
         return ResponseEntity.ok().build();
     }
