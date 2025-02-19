@@ -85,6 +85,7 @@ public class Elderly extends BaseEntity {
                 .name(name)
                 .birthday(birthday)
                 .gender(gender)
+                .inmate(inmate)
                 .residentialAddress(new ResidentialAddress(siDo, siGuGun, eupMyeonDong))
                 .detailAddress(detailAddress)
                 .pet(pet)

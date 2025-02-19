@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.ResidentialAddress;
 import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 
 import lombok.AccessLevel;
@@ -43,5 +44,20 @@ public class WorkLocation extends BaseEntity {
                 .siGuGun(workLocationDto.siGuGun())
                 .eupMyeonDong(workLocationDto.dongEupMyeon())
                 .build();
+    }
+
+    public Double calculateMatchingRate(ResidentialAddress address) {
+        if (!address.getSiDo().equals(siDo)) {
+            return 0.0;
+        }
+
+        if (siGuGun.equals("전체") || address.getSiGuGun().equals("전체") || siGuGun.equals(address.getSiGuGun())) {
+            if (eupMyeonDong.equals("전체") || address.getEupMyeonDong().equals("전체") || eupMyeonDong.equals(address.getEupMyeonDong())) {
+                return 100.0;
+            }
+            return 50.0;
+        }
+
+        return 0.0;
     }
 }

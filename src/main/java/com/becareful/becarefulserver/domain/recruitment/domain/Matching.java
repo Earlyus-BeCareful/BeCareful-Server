@@ -3,8 +3,11 @@ package com.becareful.becarefulserver.domain.recruitment.domain;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_CANNOT_APPLY;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_CANNOT_REJECT;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -18,6 +21,7 @@ import jakarta.persistence.ManyToOne;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.recruitment.domain.converter.MediationTypeSetConverter;
+import com.becareful.becarefulserver.domain.recruitment.domain.vo.MatchingInfo;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 
@@ -27,7 +31,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+@ToString
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -48,6 +54,28 @@ public class Matching extends BaseEntity {
 
     private String mediationDescription;
 
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "workDayMatchingRate", column = @Column(name = "caregiver_work_day_matching_rate")),
+            @AttributeOverride(name = "workTimeMatchingRate", column = @Column(name = "caregiver_work_time_matching_rate")),
+            @AttributeOverride(name = "workLocationMatchingRate", column = @Column(name = "caregiver_work_location_matching_rate")),
+            @AttributeOverride(name = "workCareTypeMatchingRate", column = @Column(name = "caregiver_work_care_type_matching_rate")),
+            @AttributeOverride(name = "workSalaryMatchingRate", column = @Column(name = "caregiver_work_salary_matching_rate")),
+            @AttributeOverride(name = "workSalaryDifference", column = @Column(name = "caregiver_salary_difference_amount"))
+    })
+    private MatchingInfo caregiverMatchingInfo;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "workDayMatchingRate", column = @Column(name = "social_worker_work_day_matching_rate")),
+            @AttributeOverride(name = "workTimeMatchingRate", column = @Column(name = "social_worker_work_time_matching_rate")),
+            @AttributeOverride(name = "workLocationMatchingRate", column = @Column(name = "social_worker_work_location_matching_rate")),
+            @AttributeOverride(name = "workCareTypeMatchingRate", column = @Column(name = "social_worker_work_care_type_matching_rate")),
+            @AttributeOverride(name = "workSalaryMatchingRate", column = @Column(name = "social_worker_work_salary_matching_rate")),
+            @AttributeOverride(name = "workSalaryDifference", column = @Column(name = "social_worker_salary_difference_amount"))
+    })
+    private MatchingInfo socialWorkerMatchingInfo;
+
     @JoinColumn(name = "recruitment_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Recruitment recruitment;
@@ -58,17 +86,21 @@ public class Matching extends BaseEntity {
 
     @Builder(access = AccessLevel.PRIVATE)
     private Matching(MatchingStatus matchingStatus, Recruitment recruitment,
-            WorkApplication workApplication) {
+            WorkApplication workApplication, MatchingInfo caregiverMatchingInfo, MatchingInfo socialWorkerMatchingInfo) {
         this.matchingStatus = matchingStatus;
         this.recruitment = recruitment;
         this.workApplication = workApplication;
+        this.caregiverMatchingInfo = caregiverMatchingInfo;
+        this.socialWorkerMatchingInfo = socialWorkerMatchingInfo;
     }
 
-    public static Matching create(Recruitment recruitment, WorkApplication application) {
+    public static Matching create(Recruitment recruitment, WorkApplication application, MatchingInfo caregiverMatchingInfo, MatchingInfo socialWorkerMatchingInfo) {
         return Matching.builder()
                 .matchingStatus(MatchingStatus.미지원)
                 .recruitment(recruitment)
                 .workApplication(application)
+                .caregiverMatchingInfo(caregiverMatchingInfo)
+                .socialWorkerMatchingInfo(socialWorkerMatchingInfo)
                 .build();
     }
 
