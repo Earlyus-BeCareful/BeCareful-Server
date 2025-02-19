@@ -56,7 +56,6 @@ public class RecruitmentService {
         return workApplicationRepository.findByCaregiver(caregiver)
                 .map(workApplication -> matchingRepository.findAllByWorkApplication(workApplication).stream()
                         .map(RecruitmentResponse::from)
-                        .sorted(response -> response.matchRate())
                         .toList())
                 .orElse(null);
     }
