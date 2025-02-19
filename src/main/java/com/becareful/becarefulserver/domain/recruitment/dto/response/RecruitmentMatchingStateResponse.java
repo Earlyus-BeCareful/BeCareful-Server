@@ -4,6 +4,7 @@ import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 
 import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -13,15 +14,15 @@ public record RecruitmentMatchingStateResponse(
         int elderlyAge,
         Gender gender,
         EnumSet<DayOfWeek> workDays,
-        java.time.LocalTime workStartTime,
-        java.time.LocalTime workEndTime,
+        LocalTime workStartTime,
+        LocalTime workEndTime,
         List<CaregiverDetail> unAppliedCaregivers,
         List<CaregiverDetail> appliedCaregivers
-)
-{
-public record CaregiverDetail(
-        String profileImageUrl,
-        String name,
-        String resumeTitle
-) {}
+) {
+    public record CaregiverDetail(
+            Long caregiverId,
+            String profileImageUrl,
+            String name,
+            String resumeTitle
+    ) {}
 }

@@ -23,9 +23,11 @@ import java.util.List;
 @RequestMapping("/socialworker")
 @Tag(name = "socialworker", description = "사회복지사 관련 API 입니다.")
 public class SocialworkerController {
-   private final SocialworkerService socialworkerService;
+
+    private final SocialworkerService socialworkerService;
     private final ContractService contractService;
     private final RecruitmentService recruitmentService;
+
     @Operation(summary = "사회복지사 회원가입", description = "요양기관 ID 필수")
     @PostMapping("/signup")
     public ResponseEntity<Void> createSocialworker(@Valid @RequestBody SocialworkerCreateRequest request){
@@ -40,6 +42,7 @@ public class SocialworkerController {
         contractService.createContract(matchingId, workStartDate);
         return ResponseEntity.ok().build();
     }
+
 
     //TODO //매칭현황
     @Operation(summary = "매칭현황", description = "공고별 매칭 현황 리스트 반환")

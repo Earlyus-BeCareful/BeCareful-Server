@@ -20,6 +20,7 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
             + "AND m.matchingStatus = '미지원'")
     List<Matching> findAllByWorkApplication(WorkApplication workApplication);
 
+
     @Query("""
     SELECT m FROM Matching m
     JOIN m.recruitment r
@@ -31,6 +32,10 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     List<Matching> findByRecruitmentId(Long recruitmentId);
     int countByRecruitmentIdAndMatchingStatusNot(Long recruitmentId, String matchingStatus);
     int countByRecruitmentIdAndMatchingStatus(Long recruitmentId, String matchingStatus);
+
+    List<Matching> findByRecruitment(Recruitment recruitment);
+    int countByRecruitmentAndMatchingStatus(Recruitment recruitment, MatchingStatus matchingStatus);
+
 
     Optional<Matching> findByWorkApplicationAndRecruitment(WorkApplication workApplication, Recruitment recruitment);
 

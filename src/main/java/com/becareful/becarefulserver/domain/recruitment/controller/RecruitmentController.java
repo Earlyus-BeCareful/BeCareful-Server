@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.recruitment.controller;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,12 +11,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.becareful.becarefulserver.domain.recruitment.dto.response.CaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.MyRecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.MyRecruitmentResponse;
+import com.becareful.becarefulserver.domain.recruitment.dto.response.NursingInstitutionRecruitmentStateResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentDetailResponse;
+import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentMatchingStateResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentResponse;
 import com.becareful.becarefulserver.domain.recruitment.service.RecruitmentService;
 
@@ -42,11 +44,26 @@ public class RecruitmentController {
         return ResponseEntity.created(URI.create("/recruitment/" + recruitmentId)).build();
     }
 
+    //TODO
+    @Operation(summary = "매칭 현황 상세조회 (사회복지사 호출)", description = "매칭 현황 데이터의 상세화면을 조회합니다. 매칭된 요양보호사와 지원한 요양보호사 정보가 있습니다.")
+    @GetMapping("/{recruitmentId}")
+    public ResponseEntity<RecruitmentMatchingStateResponse> getMatchingListDetail(@PathVariable Long recruitmentId) {
+        RecruitmentMatchingStateResponse recruitmentMatchingStateResponse = recruitmentService.getMatchingListDetail(recruitmentId);
+        return ResponseEntity.ok(recruitmentMatchingStateResponse);
+    }
+
     @Operation(summary = "매칭 공고 리스트 조회 (요양보호사 일자리 리스트 조회)")
     @GetMapping("/list")
     public ResponseEntity<List<RecruitmentResponse>> getRecruitmentList() {
         List<RecruitmentResponse> responses = recruitmentService.getRecruitmentList();
         return ResponseEntity.ok(responses);
+    }
+
+    @Operation(summary = "매칭 현황 조회 (사회복지사 매칭 현황 조회)")
+    @GetMapping("/matching-list")
+    public ResponseEntity<List<NursingInstitutionRecruitmentStateResponse>> getMatchingList() {
+        List<NursingInstitutionRecruitmentStateResponse> matchingStates = recruitmentService.getMatchingList();
+        return ResponseEntity.ok(matchingStates);
     }
 
     @Operation(summary = "매칭 공고 상세 조회 (요양보호사 일자리 상세 조회)")
@@ -88,6 +105,13 @@ public class RecruitmentController {
     @GetMapping("/my/recruitment/{recruitmentId}")
     public ResponseEntity<MyRecruitmentDetailResponse> getMyRecruitmentDetail(@PathVariable("recruitmentId") Long recruitmentId) {
         MyRecruitmentDetailResponse response = recruitmentService.getMyRecruitmentDetail(recruitmentId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "요양보호사 지원 정보 상세 조회 (사회복지사 호출)", description = "요양보호사의 지원 정보를 자세히 조회합니다.")
+    @GetMapping("/{recruitmentId}/caregiver/{caregiverId}")
+    public ResponseEntity<CaregiverDetailResponse> getCaregiverDetailInfo(@PathVariable(name = "recruitmentId") Long recruitmentId, @PathVariable(name = "caregiverId") Long caregiverId) {
+        CaregiverDetailResponse response = recruitmentService.getCaregiverDetailInfo(recruitmentId, caregiverId);
         return ResponseEntity.ok(response);
     }
 }
