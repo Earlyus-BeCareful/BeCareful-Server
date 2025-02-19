@@ -5,8 +5,8 @@ import java.util.List;
 public class SecurityConstant {
 
     public static List<String> passFilterStaticUrl = List.of(
-            "/caregiver/signup", "/caregiver/upload-profile-img",
-            "/nursingInstitution/{institutionId}/exists", "/nursingInstitution/register","/nursingInstitution/upload-profile-img",
+            "/caregiver/signup", "/caregiver/upload-profile-img"
+           , "/nursingInstitution/register","/nursingInstitution/upload-profile-img",
             "/socialworker/signup"
     );
 
@@ -14,6 +14,7 @@ public class SecurityConstant {
             "/sms",
             "/auth",
             "/swagger-ui",
-            "/v3/api-docs"
+            "/v3/api-docs",
+            "/nursingInstitution"
     );
 }
