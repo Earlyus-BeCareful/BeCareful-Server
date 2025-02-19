@@ -1,17 +1,10 @@
 package com.becareful.becarefulserver.domain.recruitment.service;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_WORK_APPLICATION_NOT_EXISTS;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_NOT_EXISTS;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_NOT_EXISTS;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.RECRUITMENT_NOT_EXISTS;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplicationWorkLocation;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
+import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
@@ -21,23 +14,26 @@ import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
 import com.becareful.becarefulserver.domain.recruitment.domain.vo.MatchingInfo;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentMediateRequest;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.MyRecruitmentDetailResponse;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.MyRecruitmentResponse;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentDetailResponse;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentResponse;
+import com.becareful.becarefulserver.domain.recruitment.dto.response.*;
 import com.becareful.becarefulserver.domain.recruitment.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.recruitment.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
+import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.ResidentialAddress;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.util.EnumSet;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import java.util.stream.Collectors;
+
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +46,7 @@ public class RecruitmentService {
     private final MatchingRepository matchingRepository;
     private final AuthUtil authUtil;
     private final WorkApplicationRepository workApplicationRepository;
+    private final CareerRepository careerRepository;
 
     public List<RecruitmentResponse> getRecruitmentList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -148,6 +145,62 @@ public class RecruitmentService {
 
         return recruitment.getId();
     }
+
+
+    //매칭 현황 - 공고 리스트 반환
+    public List<NursingInstitutionRecruitmentStateResponse> getMatchingState() {
+        Socialworker socialworker = authUtil.getLoggedInSocialWorker();
+        String institutionId = socialworker.getNursingInstitution().getId();
+        List<Recruitment> recruitments = recruitmentRepository.findByElderly_NursingInstitution_Id(institutionId);
+        return recruitments.stream().map(recruitment -> {
+            int totalMatchings = matchingRepository.countByRecruitmentIdAndMatchingStatusNot(recruitment.getId(), "거절"); //거절 제거 할래말래
+            int appliedMatchings = matchingRepository.countByRecruitmentIdAndMatchingStatus(recruitment.getId(), "지원");
+            return new NursingInstitutionRecruitmentStateResponse(
+                    recruitment.getId(),
+                    recruitment.getElderly().getName(),
+                    recruitment.getElderly().getAge(),
+                    recruitment.getElderly().getGender(),
+                    recruitment.getElderly().getProfileImageUrl(),
+                    totalMatchings,
+                    appliedMatchings
+            );
+        }).collect(Collectors.toList());
+    }
+
+    //매칭 상세 - 공고 상세 페이지
+    public RecruitmentMatchingStateResponse getRecruitmentMatchingState(Long recruitmentId) {
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow();
+        List<Matching> matchings = matchingRepository.findByRecruitmentId(recruitmentId);
+
+        List<RecruitmentMatchingStateResponse.CaregiverDetail> unAppliedCaregivers = matchings.stream()
+                .filter(matching -> matching.getMatchingStatus() == MatchingStatus.미지원)
+                .map(matching -> new RecruitmentMatchingStateResponse.CaregiverDetail(
+                        matching.getWorkApplication().getCaregiver().getProfileImageUrl(),
+                        matching.getWorkApplication().getCaregiver().getName(),
+                        careerRepository.findByCaregiver(matching.getWorkApplication().getCaregiver()).get().getTitle()
+                )).collect(Collectors.toList());
+
+        List<RecruitmentMatchingStateResponse.CaregiverDetail> appliedCaregivers = matchings.stream()
+                .filter(matching -> matching.getMatchingStatus() == MatchingStatus.지원)
+                .map(matching -> new RecruitmentMatchingStateResponse.CaregiverDetail(
+                        matching.getWorkApplication().getCaregiver().getProfileImageUrl(),
+                        matching.getWorkApplication().getCaregiver().getName(),
+                        careerRepository.findByCaregiver(matching.getWorkApplication().getCaregiver()).get().getTitle()
+                )).collect(Collectors.toList());
+
+        return new RecruitmentMatchingStateResponse(
+                recruitment.getElderly().getName(),
+                recruitment.getCareTypes(),
+                recruitment.getElderly().getAge(),
+                recruitment.getElderly().getGender(),
+                recruitment.getWorkDays(),
+                recruitment.getWorkStartTime(),
+                recruitment.getWorkEndTime(),
+                unAppliedCaregivers,
+                appliedCaregivers
+        );
+    }
+
 
     private void matchingWith(Recruitment recruitment) {
         workApplicationRepository.findAllActiveWorkApplication().stream()

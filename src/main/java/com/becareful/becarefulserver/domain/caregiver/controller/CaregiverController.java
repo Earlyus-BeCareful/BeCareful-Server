@@ -1,34 +1,26 @@
 package com.becareful.becarefulserver.domain.caregiver.controller;
 
-import jakarta.validation.Valid;
-
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerResponse;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverHomeResponse;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverMyPageHomeResponse;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.WorkApplicationResponse;
+import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.service.CareerService;
 import com.becareful.becarefulserver.domain.caregiver.service.CaregiverService;
 import com.becareful.becarefulserver.domain.caregiver.service.WorkApplicationService;
-
+import com.becareful.becarefulserver.domain.recruitment.dto.request.EditCompletedMatchingNoteRequest;
+import com.becareful.becarefulserver.domain.recruitment.dto.response.CompletedMatchingInfoResponse;
+import com.becareful.becarefulserver.domain.recruitment.service.CompletedMatchingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.net.URI;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,6 +31,7 @@ public class CaregiverController {
     private final CaregiverService caregiverService;
     private final WorkApplicationService workApplicationService;
     private final CareerService careerService;
+    private final CompletedMatchingService completedMatchingService;
 
     @Operation(summary = "요양보호사 회원가입", description = "사회복지사 (social worker), 간호조무사 (nursing care), 프로필 이미지 필드는 생략할 수 있습니다.")
     @PostMapping("/signup")
@@ -110,5 +103,21 @@ public class CaregiverController {
     public ResponseEntity<CaregiverMyPageHomeResponse> getMyPageHomeData() {
         CaregiverMyPageHomeResponse response = caregiverService.getMyPageHomeData();
         return ResponseEntity.ok(response);
+    }
+
+    //TODO
+    @Operation(summary = "확정된 일자리의 리스트가 반환됩니다.")
+    @GetMapping("/my/completed-matching-list")
+    public ResponseEntity<List<CompletedMatchingInfoResponse>> getCompletedMatchingsByCaregiverId() {
+            List<CompletedMatchingInfoResponse> responseList = completedMatchingService.getCompletedMatchings();
+            return ResponseEntity.ok(responseList);
+        }
+
+    //TODO
+    @Operation(summary = "나의 일자리 화면에서 메모 수정")
+    @PutMapping("/my/complete-matching-list/{completedMatchingId}")
+    public ResponseEntity<Void> editCompletedMatchingMemo(@PathVariable Long completedMatchingId, @RequestBody EditCompletedMatchingNoteRequest request){
+        completedMatchingService.editNote(completedMatchingId, request);
+        return ResponseEntity.ok().build();
     }
 }
