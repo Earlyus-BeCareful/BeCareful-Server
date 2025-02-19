@@ -39,9 +39,9 @@ public class RecruitmentController {
 
     @Operation(summary = "매칭 공고 등록 (사회복지사 호출)")
     @PostMapping
-    public ResponseEntity<Void> createRecruitment(@Valid @RequestBody RecruitmentCreateRequest request) {
+    public ResponseEntity<Long> createRecruitment(@Valid @RequestBody RecruitmentCreateRequest request) {
         Long recruitmentId = recruitmentService.createRecruitment(request);
-        return ResponseEntity.created(URI.create("/recruitment/" + recruitmentId)).build();
+        return ResponseEntity.ok(recruitmentId);
     }
 
     //TODO
