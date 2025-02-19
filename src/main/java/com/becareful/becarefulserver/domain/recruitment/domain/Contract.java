@@ -15,11 +15,17 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.EnumSet;
 import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Contract extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "contract_id")
     Long id;
 
     @JoinColumn(name = "matching_id")
