@@ -252,7 +252,8 @@ public class RecruitmentService {
 
                     return Matching.create(recruitment, application, caregiverMatchingInfo, socialworkerMatchingInfo);
                 })
-                .filter((matching -> isMatchedWithSocialWorker(matching.getSocialWorkerMatchingInfo())))
+                // TODO : 매칭 알고리즘 해제하기.
+                //.filter((matching -> isMatchedWithSocialWorker(matching.getSocialWorkerMatchingInfo())))
                 .forEach(matchingRepository::save);
     }
 
