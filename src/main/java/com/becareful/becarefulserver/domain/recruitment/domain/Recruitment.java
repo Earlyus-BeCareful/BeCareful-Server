@@ -122,4 +122,8 @@ public class Recruitment extends BaseEntity {
         return (workStartTime.isBefore(endTime) && startTime.isAfter(workEndTime))
                 || (startTime.isBefore(workEndTime) && workStartTime.isBefore(endTime));
     }
+
+    public void complete() {
+        this.isRecruiting = false;
+    }
 }

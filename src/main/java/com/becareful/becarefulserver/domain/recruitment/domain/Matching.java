@@ -127,6 +127,22 @@ public class Matching extends BaseEntity {
         this.mediationDescription = request.mediationDescription();
     }
 
+    public void hire() {
+        validateMatchingCompletable();
+        this.matchingStatus = MatchingStatus.합격;
+    }
+
+    public void failed() {
+        validateMatchingCompletable();
+        this.matchingStatus = MatchingStatus.불합격;
+    }
+
+    private void validateMatchingCompletable() {
+        if (!this.matchingStatus.equals(MatchingStatus.지원)) {
+            throw new RecruitmentException("지원한 경우에만 합격, 불합격 처리할 수 있습니다.");
+        }
+    }
+
     private void validateMatchingUpdatable() {
         if (!this.matchingStatus.equals(MatchingStatus.미지원)) {
             throw new RecruitmentException(MATCHING_CANNOT_REJECT);

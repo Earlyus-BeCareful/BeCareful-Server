@@ -2,11 +2,15 @@ package com.becareful.becarefulserver.domain.recruitment.service;
 
 import com.becareful.becarefulserver.domain.recruitment.domain.Contract;
 import com.becareful.becarefulserver.domain.recruitment.domain.Matching;
+import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
+import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.ContractEditRequest;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.ContractDetailResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.ContractInfoResponse;
 import com.becareful.becarefulserver.domain.recruitment.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.recruitment.repository.MatchingRepository;
+import com.becareful.becarefulserver.domain.recruitment.repository.RecruitmentRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,15 +24,31 @@ import java.util.List;
 public class ContractService {
     private final ContractRepository contractRepository;
     private final MatchingRepository matchingRepository;
+    private final RecruitmentRepository recruitmentRepository;
 
     @Transactional
     public void createContract(Long matchingId,  LocalDate workStartDate) {
         Matching matching = matchingRepository.findById(matchingId)
                 .orElseThrow(() -> new IllegalArgumentException("Matching not found"));
 
+        matching.hire();
+        matchingRepository.save(matching);
+
+        Recruitment recruitment = matching.getRecruitment();
+        recruitment.complete();
+        recruitmentRepository.save(recruitment);
+
+        matchingRepository.findByRecruitment(recruitment).stream()
+                .filter(match -> match.getMatchingStatus().equals(MatchingStatus.지원))
+                .forEach(match -> {
+                    match.failed();
+                    matchingRepository.save(match);
+                });
+
         Contract contract = Contract.create(matching, matching.getRecruitment(), workStartDate);
         contractRepository.save(contract);
     }
+
     @Transactional(readOnly = true)
     public List<ContractInfoResponse> getContractListAndInfo(Long matchingId){
         List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matchingId);
