@@ -20,7 +20,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
             + "AND m.matchingStatus = '미지원'")
     List<Matching> findAllByWorkApplication(WorkApplication workApplication);
 
-
     @Query("""
     SELECT m FROM Matching m
     JOIN m.recruitment r

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 @Service
 @RequiredArgsConstructor
 public class SocialworkerService {
@@ -155,6 +156,4 @@ public class SocialworkerService {
 
         throw new SocialworkerException(SOCIALWORKER_REQUIRED_AGREEMENT);
     }
-
-
 }
