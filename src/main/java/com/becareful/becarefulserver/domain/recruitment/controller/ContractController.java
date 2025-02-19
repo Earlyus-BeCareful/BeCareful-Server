@@ -2,15 +2,13 @@ package com.becareful.becarefulserver.domain.recruitment.controller;
 
 import com.becareful.becarefulserver.domain.recruitment.dto.request.ContractEditRequest;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.ContractDetailResponse;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.ContractInfoResponse;
+import com.becareful.becarefulserver.domain.recruitment.dto.response.ContractInfoResponseList;
 import com.becareful.becarefulserver.domain.recruitment.service.ContractService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +23,7 @@ public class ContractController {
     @Operation(summary = "계약서(근무조건) 리스트", description = "채팅화면에 계약서 반환")
     @GetMapping("/contract/list/{matchingId}")
 
-    public ResponseEntity<List<ContractInfoResponse>> getContractListAndInfo(@PathVariable Long matchingId){
+    public ResponseEntity<ContractInfoResponseList> getContractListAndInfo(@PathVariable Long matchingId){
         var response = contractService.getContractListAndInfo(matchingId);
         return ResponseEntity.ok(response);
     }

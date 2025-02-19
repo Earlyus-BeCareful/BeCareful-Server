@@ -6,11 +6,11 @@ import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.ContractEditRequest;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.ContractDetailResponse;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.ContractInfoResponse;
+import com.becareful.becarefulserver.domain.recruitment.dto.response.ContractInfoResponseList;
 import com.becareful.becarefulserver.domain.recruitment.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.recruitment.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.recruitment.repository.RecruitmentRepository;
-
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,19 +50,28 @@ public class ContractService {
     }
 
     @Transactional(readOnly = true)
-    public List<ContractInfoResponse> getContractListAndInfo(Long matchingId){
+    public ContractInfoResponseList getContractListAndInfo(Long matchingId){
         List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matchingId);
+        Matching matching = matchingRepository.findById(matchingId)
+                .orElseThrow(() -> new EntityNotFoundException("Matching not found with id: " + matchingId));
 
-        return contracts.stream()
-                .map(contract -> new ContractInfoResponse(
-                        contract.getCareTypes().stream().toList(),
-                        contract.getWorkDays().stream().toList(),
-                        contract.getWorkStartTime(),
-                        contract.getWorkEndTime(),
-                        contract.getWorkSalaryAmount(),
-                        contract.getWorkStartDate()
-                ))
-                .toList();
+
+        String elderlyName = matching.getRecruitment().getElderly().getName();
+        String institutionName = matching.getRecruitment().getElderly().getNursingInstitution().getName();
+        String caregiverName = matching.getWorkApplication().getCaregiver().getName();
+
+
+         List<ContractInfoResponseList.ContractInfoResponse> contractList = contracts.stream()
+                                                .map(contract -> new ContractInfoResponseList.ContractInfoResponse(
+                                                        contract.getCareTypes().stream().toList(),
+                                                        contract.getWorkDays().stream().toList(),
+                                                        contract.getWorkStartTime(),
+                                                        contract.getWorkEndTime(),
+                                                        contract.getWorkSalaryAmount(),
+                                                        contract.getWorkStartDate()
+                                                ))
+                                                .toList();
+         return new ContractInfoResponseList(elderlyName, institutionName, caregiverName, contractList);
     }
 
     @Transactional
