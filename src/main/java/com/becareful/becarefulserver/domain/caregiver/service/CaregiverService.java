@@ -1,44 +1,23 @@
 package com.becareful.becarefulserver.domain.caregiver.service;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_ALREADY_EXISTS;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_REQUIRED_AGREEMENT;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_WORK_APPLICATION_NOT_EXISTS;
-
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.becareful.becarefulserver.domain.caregiver.domain.Career;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverHomeResponse;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverMyPageHomeResponse;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
-
-import com.becareful.becarefulserver.domain.caregiver.dto.response.ChatList;
-
-import com.becareful.becarefulserver.domain.caregiver.dto.response.WorkScheduleResponse;
-
+import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
-
+import com.becareful.becarefulserver.domain.recruitment.domain.CompletedMatching;
 import com.becareful.becarefulserver.domain.recruitment.domain.Contract;
 import com.becareful.becarefulserver.domain.recruitment.domain.Matching;
+import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.recruitment.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.recruitment.repository.ContractRepository;
-
-import com.becareful.becarefulserver.domain.recruitment.domain.CompletedMatching;
-
-import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.recruitment.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
-import com.becareful.becarefulserver.global.exception.ErrorMessage;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
@@ -52,11 +31,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.LocalDate;
-
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,8 +54,6 @@ public class CaregiverService {
     private  final ContractRepository contractRepository;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
-    private final MatchingRepository matchingRepository;
-    private final CompletedMatchingRepository completedMatchingRepository;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
