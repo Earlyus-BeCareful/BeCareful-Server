@@ -1,20 +1,12 @@
 package com.becareful.becarefulserver.domain.recruitment.domain;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryType;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
-import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
-import com.becareful.becarefulserver.domain.caregiver.domain.converter.WorkTimeSetConverter;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 
-import java.time.DayOfWeek;
 import java.util.EnumSet;
 
 @Entity
@@ -48,4 +40,9 @@ public class CompletedMatching {
     private String institutionName;
     private String institutionAddress;
     private String note;
+
+
+    public void updateNote(String note) {
+        this.note = note;
+    }
 }

@@ -1,9 +1,12 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
+import com.becareful.becarefulserver.domain.recruitment.repository.CompletedMatchingRepository;
+import com.becareful.becarefulserver.domain.recruitment.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpdateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyListResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.domain.socialworker.repository.NursingInstitutionRepository;
@@ -21,6 +24,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_NOT_EXISTS;
@@ -29,6 +34,8 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERL
 @RequiredArgsConstructor
 public class ElderlyService {
     private final ElderlyRepository elderlyRepository;
+    private final RecruitmentRepository recruitmentRepository;
+    private final CompletedMatchingRepository completedMatchingRepository;
     private final NursingInstitutionRepository nursingInstitutionRepository;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
@@ -79,6 +86,57 @@ public class ElderlyService {
         );
 
         elderlyRepository.save(elderly);
+    }
+
+    @Transactional
+    public List<ElderlyListResponse> getElderlyListBySearch(String searchString){
+        Socialworker socialworker = authUtil.getLoggedInSocialWorker();
+
+
+        List<Elderly> elderlyList;
+            elderlyList = elderlyRepository.findByNursingInstitutionAndNameContaining(socialworker.getNursingInstitution(), searchString);
+
+        return elderlyList.stream()
+                .map(elderly -> {
+                    boolean hasRecruitment = recruitmentRepository.existsByElderly(elderly);
+                    int caregiverNum = completedMatchingRepository.countDistinctCaregiversByElderly(elderly);
+                    return new ElderlyListResponse(
+                            elderly.getId(),
+                            elderly.getName(),
+                            elderly.getAge(),
+                            elderly.getGender(),
+                            elderly.getProfileImageUrl(),
+                            elderly.getCareLevel(),
+                            caregiverNum,//매칭 완료 테이블에서 어르신
+                            hasRecruitment
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<ElderlyListResponse> getElderlyList(){
+        Socialworker socialworker = authUtil.getLoggedInSocialWorker();
+
+
+        List<Elderly> elderlyList = elderlyList = elderlyRepository.findByNursingInstitution(socialworker.getNursingInstitution());
+
+        return elderlyList.stream()
+                .map(elderly -> {
+                    boolean hasRecruitment = recruitmentRepository.existsByElderly(elderly);
+                    int caregiverNum = completedMatchingRepository.countDistinctCaregiversByElderly(elderly);
+                    return new ElderlyListResponse(
+                            elderly.getId(),
+                            elderly.getName(),
+                            elderly.getAge(),
+                            elderly.getGender(),
+                            elderly.getProfileImageUrl(),
+                            elderly.getCareLevel(),
+                            caregiverNum,//매칭 완료 테이블에서 어르신
+                            hasRecruitment
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     @Transactional

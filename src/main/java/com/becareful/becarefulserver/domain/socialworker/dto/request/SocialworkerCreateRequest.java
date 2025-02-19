@@ -1,12 +1,10 @@
 package com.becareful.becarefulserver.domain.socialworker.dto.request;
 
 
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.Rank;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.Rank;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
-import java.time.LocalDateTime;
 
 public record SocialworkerCreateRequest(
     @NotBlank String name,
@@ -17,6 +15,7 @@ public record SocialworkerCreateRequest(
     @NotNull Rank rank,
     boolean isAgreedToTerms,
     boolean isAgreedToCollectPersonalInfo,
-    boolean isAgreedToReceiveMarketingInfo
+    boolean isAgreedToReceiveMarketingInfo,
+    String socialProfileImageUrl
 ) {}
 

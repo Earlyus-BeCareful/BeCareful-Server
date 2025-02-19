@@ -1,5 +1,5 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
+
 import com.becareful.becarefulserver.domain.socialworker.dto.request.NursingInstitutionCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.NursingInstitutionProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.service.NursingInstitutionService;
@@ -22,9 +22,9 @@ public class NursingInstitutionController {
     private final NursingInstitutionService nursingInstitutionService;
 
     @Operation(summary = "요양 기관 조회", description = "요양 기관이 이미 DB에 등록된 기관인지 확인")
-    @GetMapping("/{institutionId}/exists")
-    public ResponseEntity<Boolean> checkExistingNursingInstitution(@PathVariable String institutionId) {
-        boolean exists = nursingInstitutionService.existsById(institutionId);
+    @GetMapping("/exists")
+    public ResponseEntity<Boolean> checkExistingNursingInstitution() {
+        boolean exists = nursingInstitutionService.existsById();
         return ResponseEntity.ok(exists);
         }
     @Operation(summary = "요양 기관 등록", description = "요양 기관이 등록 되지 않았으면 등록 요청")
@@ -37,9 +37,9 @@ public class NursingInstitutionController {
     @Operation(summary = "요양 기관 프로필 사진 업로드", description = "사회복지사 회원가입 시 프로필 이미지 저장 API.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<NursingInstitutionProfileUploadResponse> uploadProfileImg(
-            @RequestPart MultipartFile file,
-            @RequestPart String phoneNumber) {
-        var response = nursingInstitutionService.uploadProfileImage(file, phoneNumber);
+            @RequestPart MultipartFile file, @RequestPart String institutionName) {
+
+        var response = nursingInstitutionService.uploadProfileImage(file, institutionName);
         return ResponseEntity.ok(response);
     }
 }
