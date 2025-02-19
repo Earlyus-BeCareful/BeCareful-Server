@@ -11,13 +11,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
+import org.springframework.cglib.core.Local;
+
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryType;
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.ResidentialAddress;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -90,5 +94,32 @@ public class Recruitment extends BaseEntity {
                 .isRecruiting(true)
                 .elderly(elderly)
                 .build();
+    }
+
+    public EnumSet<WorkTime> getWorkTimes() {
+        EnumSet<WorkTime> times = EnumSet.noneOf(WorkTime.class);
+
+        if (isWorkTimeOverlap(LocalTime.of(9, 0), LocalTime.of(11,59))) {
+            times.add(WorkTime.MORNING);
+        }
+
+        if (isWorkTimeOverlap(LocalTime.of(12, 0), LocalTime.of(17, 59))) {
+            times.add(WorkTime.AFTERNOON);
+        }
+
+        if (isWorkTimeOverlap(LocalTime.of(18, 0), LocalTime.of(21, 0))) {
+            times.add(WorkTime.EVENING);
+        }
+
+        return times;
+    }
+
+    public ResidentialAddress getResidentialAddress() {
+        return elderly.getResidentialAddress();
+    }
+
+    private boolean isWorkTimeOverlap(LocalTime startTime, LocalTime endTime) {
+        return (workStartTime.isBefore(endTime) && startTime.isAfter(workEndTime))
+                || (startTime.isBefore(workEndTime) && workStartTime.isBefore(endTime));
     }
 }

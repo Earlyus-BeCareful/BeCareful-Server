@@ -14,9 +14,4 @@ public interface WorkApplicationWorkLocationRepository extends
 
     void deleteAllByWorkApplication(WorkApplication workApplication);
     List<WorkApplicationWorkLocation> findAllByWorkApplication(WorkApplication workApplication);
-
-    @Query("SELECT w "
-            + "FROM WorkApplicationWorkLocation w "
-            + "WHERE w.workApplication.isActive")
-    List<WorkApplicationWorkLocation> findAllActiveWorkApplication();
 }
