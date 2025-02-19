@@ -171,9 +171,10 @@ public class RecruitmentService {
     }
 
     //매칭 상세 - 공고 상세 페이지
-    public RecruitmentMatchingStateResponse getRecruitmentMatchingState(Long recruitmentId) {
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow();
-        List<Matching> matchings = matchingRepository.findByRecruitmentId(recruitmentId);
+    public RecruitmentMatchingStateResponse getMatchingListDetail(Long recruitmentId) {
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+        List<Matching> matchings = matchingRepository.findByRecruitment(recruitment);
 
         List<RecruitmentMatchingStateResponse.CaregiverDetail> unAppliedCaregivers = matchings.stream()
                 .filter(matching -> matching.getMatchingStatus() == MatchingStatus.미지원)
