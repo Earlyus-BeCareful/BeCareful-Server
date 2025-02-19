@@ -15,6 +15,7 @@ import lombok.Builder;
 
 @Builder
 public record CaregiverDetailResponse(
+        Long matchingId,
         String name,
         String profileImageUrl,
         List<DayOfWeek> workDays,
@@ -31,6 +32,7 @@ public record CaregiverDetailResponse(
 
     public static CaregiverDetailResponse of(Matching matching, Career career, List<CareerDetail> careerDetails) {
         return CaregiverDetailResponse.builder()
+                .matchingId(matching.getId())
                 .name(matching.getWorkApplication().getCaregiver().getName())
                 .profileImageUrl(matching.getWorkApplication().getCaregiver().getProfileImageUrl())
                 .workDays(matching.getWorkApplication().getWorkDays().stream().toList())

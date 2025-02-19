@@ -27,7 +27,7 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     JOIN r.elderly e
     WHERE e.nursingInstitution = :nursingInstitution
     AND m.matchingStatus = '합격'
-""")
+    """)
     List<Matching> findByNursingInstitution(@Param("nursingInstitution") NursingInstitution nursingInstitution);
 
     @Query("""
@@ -35,7 +35,7 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     JOIN m.workApplication w
     WHERE w.caregiver = :caregiver
     AND m.matchingStatus = '합격'
-""")
+    """)
     List<Matching> findByCaregiver(@Param("caregiver")Caregiver caregiver);
 
     List<Matching> findByRecruitmentId(Long recruitmentId);
