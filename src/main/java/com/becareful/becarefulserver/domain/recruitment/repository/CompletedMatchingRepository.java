@@ -14,5 +14,12 @@ public interface CompletedMatchingRepository extends JpaRepository<CompletedMatc
     @Query("SELECT COUNT(DISTINCT cm.caregiver) FROM CompletedMatching cm WHERE cm.contract.matching.recruitment.elderly = :elderly")
     int countDistinctCaregiversByElderly(@Param("elderly") Elderly elderly);
 
+    @Query("""
+    SELECT COUNT(cm) > 0 FROM CompletedMatching cm
+    WHERE cm.contract.id = :contractId
+""")
+    boolean existsInCompletedMatching(@Param("contractId") Long contractId);
+
+
     List<CompletedMatching> findByCaregiver(Caregiver caregiver);
 }

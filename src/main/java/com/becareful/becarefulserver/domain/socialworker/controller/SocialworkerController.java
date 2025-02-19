@@ -1,10 +1,9 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
 
-import com.becareful.becarefulserver.domain.recruitment.dto.response.NursingInstitutionRecruitmentStateResponse;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentMatchingStateResponse;
 import com.becareful.becarefulserver.domain.recruitment.service.ContractService;
 import com.becareful.becarefulserver.domain.recruitment.service.RecruitmentService;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialworkerCreateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import com.becareful.becarefulserver.domain.socialworker.service.SocialworkerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,5 +38,12 @@ public class SocialworkerController {
     public ResponseEntity<Void> createContract(@PathVariable("matchingId") Long matchingId, @RequestParam LocalDate workStartDate) {
         contractService.createContract(matchingId, workStartDate);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "사회복지사 채팅 목록")
+    @GetMapping("/chat/list")
+    public ResponseEntity<ChatList> getChatInfoList(){
+        ChatList response = socialworkerService.getChatList();
+        return ResponseEntity.ok(response);
     }
 }
