@@ -24,21 +24,21 @@ public class Contract extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "contract_id")
-    Long id;
+    private Long id;
 
     @JoinColumn(name = "matching_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Matching matching;
 
     @Convert(converter = DayOfWeekSetConverter.class)
-    public EnumSet<DayOfWeek> workDays;
+    private EnumSet<DayOfWeek> workDays;
 
-    public LocalTime workStartTime;
-    public LocalTime workEndTime;
+    private LocalTime workStartTime;
+    private LocalTime workEndTime;
     private WorkSalaryType workSalaryType;
 
-    public int workSalaryAmount;
-    public LocalDate workStartDate;
+    private int workSalaryAmount;
+    private LocalDate workStartDate;
 
     @Convert(converter = CareTypeSetConverter.class)
     private EnumSet<CareType> careTypes;
