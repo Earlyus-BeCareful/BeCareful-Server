@@ -15,6 +15,7 @@ public record ContractInfoResponseList(
 
 ) {
     public record ContractInfoResponse(
+            Long contractId,
             List<CareType> careTypes,
             List<DayOfWeek> workDays,
             LocalTime workStartTime,

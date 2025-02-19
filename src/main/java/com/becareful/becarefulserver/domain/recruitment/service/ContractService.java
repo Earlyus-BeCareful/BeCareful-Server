@@ -63,6 +63,7 @@ public class ContractService {
 
          List<ContractInfoResponseList.ContractInfoResponse> contractList = contracts.stream()
                                                 .map(contract -> new ContractInfoResponseList.ContractInfoResponse(
+                                                        contract.getId(),
                                                         contract.getCareTypes().stream().toList(),
                                                         contract.getWorkDays().stream().toList(),
                                                         contract.getWorkStartTime(),
