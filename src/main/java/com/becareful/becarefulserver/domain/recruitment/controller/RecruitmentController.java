@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.recruitment.controller;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +16,9 @@ import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentC
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.MyRecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.MyRecruitmentResponse;
+import com.becareful.becarefulserver.domain.recruitment.dto.response.NursingInstitutionRecruitmentStateResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentDetailResponse;
+import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentMatchingStateResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentResponse;
 import com.becareful.becarefulserver.domain.recruitment.service.RecruitmentService;
 
@@ -42,11 +43,27 @@ public class RecruitmentController {
         return ResponseEntity.created(URI.create("/recruitment/" + recruitmentId)).build();
     }
 
+    //TODO
+    @Operation(summary = "매칭정보", description = "특정 공고의 매칭 상세 정보 반환")
+    @GetMapping("/{recruitmentId}")
+    public ResponseEntity<RecruitmentMatchingStateResponse> getRecruitmentMatchingState(@PathVariable Long recruitmentId) {
+        RecruitmentMatchingStateResponse recruitmentMatchingStateResponse = recruitmentService.getRecruitmentMatchingState(recruitmentId);
+        return ResponseEntity.ok(recruitmentMatchingStateResponse);
+    }
+
+
     @Operation(summary = "매칭 공고 리스트 조회 (요양보호사 일자리 리스트 조회)")
     @GetMapping("/list")
     public ResponseEntity<List<RecruitmentResponse>> getRecruitmentList() {
         List<RecruitmentResponse> responses = recruitmentService.getRecruitmentList();
         return ResponseEntity.ok(responses);
+    }
+
+    @Operation(summary = "매칭 현황 조회 (사회복지사 매칭 현황 조회)")
+    @GetMapping("/matching-list")
+    public ResponseEntity<List<NursingInstitutionRecruitmentStateResponse>> getMatchingList() {
+        List<NursingInstitutionRecruitmentStateResponse> matchingStates = recruitmentService.getMatchingList();
+        return ResponseEntity.ok(matchingStates);
     }
 
     @Operation(summary = "매칭 공고 상세 조회 (요양보호사 일자리 상세 조회)")

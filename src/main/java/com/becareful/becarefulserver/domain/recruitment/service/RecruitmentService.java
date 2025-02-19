@@ -146,25 +146,28 @@ public class RecruitmentService {
         return recruitment.getId();
     }
 
-
-    //매칭 현황 - 공고 리스트 반환
-    public List<NursingInstitutionRecruitmentStateResponse> getMatchingState() {
+    public List<NursingInstitutionRecruitmentStateResponse> getMatchingList() {
         Socialworker socialworker = authUtil.getLoggedInSocialWorker();
-        String institutionId = socialworker.getNursingInstitution().getId();
-        List<Recruitment> recruitments = recruitmentRepository.findByElderly_NursingInstitution_Id(institutionId);
-        return recruitments.stream().map(recruitment -> {
-            int totalMatchings = matchingRepository.countByRecruitmentIdAndMatchingStatusNot(recruitment.getId(), "거절"); //거절 제거 할래말래
-            int appliedMatchings = matchingRepository.countByRecruitmentIdAndMatchingStatus(recruitment.getId(), "지원");
-            return new NursingInstitutionRecruitmentStateResponse(
-                    recruitment.getId(),
-                    recruitment.getElderly().getName(),
-                    recruitment.getElderly().getAge(),
-                    recruitment.getElderly().getGender(),
-                    recruitment.getElderly().getProfileImageUrl(),
-                    totalMatchings,
-                    appliedMatchings
-            );
-        }).collect(Collectors.toList());
+        List<Recruitment> recruitments = recruitmentRepository
+                .findByElderly_NursingInstitution_Id(socialworker.getNursingInstitution().getId());
+
+        return recruitments.stream()
+                .filter(Recruitment::isRecruiting)
+                .map(recruitment -> {
+                    int notAppliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, MatchingStatus.미지원); //거절 제거 할래말래
+                    int appliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, MatchingStatus.지원);
+
+                    return new NursingInstitutionRecruitmentStateResponse(
+                            recruitment.getId(),
+                            recruitment.getElderly().getName(),
+                            recruitment.getElderly().getAge(),
+                            recruitment.getElderly().getGender(),
+                            recruitment.getElderly().getProfileImageUrl(),
+                            notAppliedMatchingCount + appliedMatchingCount,
+                            appliedMatchingCount
+                    );
+                })
+                .toList();
     }
 
     //매칭 상세 - 공고 상세 페이지
