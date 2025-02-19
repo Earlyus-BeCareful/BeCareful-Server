@@ -80,7 +80,7 @@ public class CaregiverService {
                 .map(WorkScheduleResponse::from)
                 .toList();
 
-        return CaregiverHomeResponse.of(caregiver, applicationCount, recruitmentCount, isWorking, workSchedules);
+        return CaregiverHomeResponse.of(caregiver, recruitmentCount, applicationCount, isWorking, workSchedules);
     }
 
     public CaregiverMyPageHomeResponse getMyPageHomeData() {
