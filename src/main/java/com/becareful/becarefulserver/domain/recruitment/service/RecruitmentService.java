@@ -179,6 +179,7 @@ public class RecruitmentService {
         List<RecruitmentMatchingStateResponse.CaregiverDetail> unAppliedCaregivers = matchings.stream()
                 .filter(matching -> matching.getMatchingStatus() == MatchingStatus.미지원)
                 .map(matching -> new RecruitmentMatchingStateResponse.CaregiverDetail(
+                        matching.getWorkApplication().getCaregiver().getId(),
                         matching.getWorkApplication().getCaregiver().getProfileImageUrl(),
                         matching.getWorkApplication().getCaregiver().getName(),
                         careerRepository.findByCaregiver(matching.getWorkApplication().getCaregiver()).get().getTitle()
@@ -187,6 +188,7 @@ public class RecruitmentService {
         List<RecruitmentMatchingStateResponse.CaregiverDetail> appliedCaregivers = matchings.stream()
                 .filter(matching -> matching.getMatchingStatus() == MatchingStatus.지원)
                 .map(matching -> new RecruitmentMatchingStateResponse.CaregiverDetail(
+                        matching.getWorkApplication().getCaregiver().getId(),
                         matching.getWorkApplication().getCaregiver().getProfileImageUrl(),
                         matching.getWorkApplication().getCaregiver().getName(),
                         careerRepository.findByCaregiver(matching.getWorkApplication().getCaregiver()).get().getTitle()
