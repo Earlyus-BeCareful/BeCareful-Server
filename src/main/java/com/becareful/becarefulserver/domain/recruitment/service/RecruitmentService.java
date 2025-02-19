@@ -1,9 +1,14 @@
 package com.becareful.becarefulserver.domain.recruitment.service;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.Career;
+import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplicationWorkLocation;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
+import com.becareful.becarefulserver.domain.caregiver.repository.CareerDetailRepository;
+import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
+import com.becareful.becarefulserver.domain.recruitment.dto.response.CaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
@@ -22,6 +27,7 @@ import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.ResidentialAddress;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
+import com.becareful.becarefulserver.global.exception.ErrorMessage;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +53,30 @@ public class RecruitmentService {
     private final AuthUtil authUtil;
     private final WorkApplicationRepository workApplicationRepository;
     private final CareerRepository careerRepository;
+    private final CaregiverRepository caregiverRepository;
+    private final CareerDetailRepository careerDetailRepository;
+
+    public CaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
+        authUtil.getLoggedInSocialWorker(); // 사회복지사가 호출하는 API
+
+        Caregiver caregiver = caregiverRepository.findById(caregiverId)
+                .orElseThrow(
+                        () -> new RecruitmentException(CAREGIVER_NOT_EXISTS_WITH_PHONE_NUMBER));
+        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver)
+                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+
+        Matching matching = matchingRepository.findByWorkApplicationAndRecruitment(workApplication, recruitment)
+                .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
+
+        Career career = careerRepository.findById(caregiverId)
+                .orElse(null);
+
+        List<CareerDetail> careerDetails = careerDetailRepository.findAllByCareer(career);
+
+        return CaregiverDetailResponse.of(matching, career, careerDetails);
+    }
 
     public List<RecruitmentResponse> getRecruitmentList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -146,35 +176,40 @@ public class RecruitmentService {
         return recruitment.getId();
     }
 
-
-    //매칭 현황 - 공고 리스트 반환
-    public List<NursingInstitutionRecruitmentStateResponse> getMatchingState() {
+    public List<NursingInstitutionRecruitmentStateResponse> getMatchingList() {
         Socialworker socialworker = authUtil.getLoggedInSocialWorker();
-        String institutionId = socialworker.getNursingInstitution().getId();
-        List<Recruitment> recruitments = recruitmentRepository.findByElderly_NursingInstitution_Id(institutionId);
-        return recruitments.stream().map(recruitment -> {
-            int totalMatchings = matchingRepository.countByRecruitmentIdAndMatchingStatusNot(recruitment.getId(), "거절"); //거절 제거 할래말래
-            int appliedMatchings = matchingRepository.countByRecruitmentIdAndMatchingStatus(recruitment.getId(), "지원");
-            return new NursingInstitutionRecruitmentStateResponse(
-                    recruitment.getId(),
-                    recruitment.getElderly().getName(),
-                    recruitment.getElderly().getAge(),
-                    recruitment.getElderly().getGender(),
-                    recruitment.getElderly().getProfileImageUrl(),
-                    totalMatchings,
-                    appliedMatchings
-            );
-        }).collect(Collectors.toList());
+        List<Recruitment> recruitments = recruitmentRepository
+                .findByElderly_NursingInstitution_Id(socialworker.getNursingInstitution().getId());
+
+        return recruitments.stream()
+                .filter(Recruitment::isRecruiting)
+                .map(recruitment -> {
+                    int notAppliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, MatchingStatus.미지원); //거절 제거 할래말래
+                    int appliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, MatchingStatus.지원);
+
+                    return new NursingInstitutionRecruitmentStateResponse(
+                            recruitment.getId(),
+                            recruitment.getElderly().getName(),
+                            recruitment.getElderly().getAge(),
+                            recruitment.getElderly().getGender(),
+                            recruitment.getElderly().getProfileImageUrl(),
+                            notAppliedMatchingCount + appliedMatchingCount,
+                            appliedMatchingCount
+                    );
+                })
+                .toList();
     }
 
     //매칭 상세 - 공고 상세 페이지
-    public RecruitmentMatchingStateResponse getRecruitmentMatchingState(Long recruitmentId) {
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow();
-        List<Matching> matchings = matchingRepository.findByRecruitmentId(recruitmentId);
+    public RecruitmentMatchingStateResponse getMatchingListDetail(Long recruitmentId) {
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+        List<Matching> matchings = matchingRepository.findByRecruitment(recruitment);
 
         List<RecruitmentMatchingStateResponse.CaregiverDetail> unAppliedCaregivers = matchings.stream()
                 .filter(matching -> matching.getMatchingStatus() == MatchingStatus.미지원)
                 .map(matching -> new RecruitmentMatchingStateResponse.CaregiverDetail(
+                        matching.getWorkApplication().getCaregiver().getId(),
                         matching.getWorkApplication().getCaregiver().getProfileImageUrl(),
                         matching.getWorkApplication().getCaregiver().getName(),
                         careerRepository.findByCaregiver(matching.getWorkApplication().getCaregiver()).get().getTitle()
@@ -183,6 +218,7 @@ public class RecruitmentService {
         List<RecruitmentMatchingStateResponse.CaregiverDetail> appliedCaregivers = matchings.stream()
                 .filter(matching -> matching.getMatchingStatus() == MatchingStatus.지원)
                 .map(matching -> new RecruitmentMatchingStateResponse.CaregiverDetail(
+                        matching.getWorkApplication().getCaregiver().getId(),
                         matching.getWorkApplication().getCaregiver().getProfileImageUrl(),
                         matching.getWorkApplication().getCaregiver().getName(),
                         careerRepository.findByCaregiver(matching.getWorkApplication().getCaregiver()).get().getTitle()
