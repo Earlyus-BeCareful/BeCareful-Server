@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.recruitment.controller;
 
 import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import com.becareful.becarefulserver.domain.recruitment.dto.response.NursingInst
 import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentMatchingStateResponse;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentResponse;
+import com.becareful.becarefulserver.domain.recruitment.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.recruitment.service.RecruitmentService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 public class RecruitmentController {
 
     private final RecruitmentService recruitmentService;
+    private final MatchingRepository matchingRepository;
 
     @Operation(summary = "매칭 공고 등록 (사회복지사 호출)")
     @PostMapping
@@ -112,5 +115,13 @@ public class RecruitmentController {
     public ResponseEntity<CaregiverDetailResponse> getCaregiverDetailInfo(@PathVariable(name = "recruitmentId") Long recruitmentId, @PathVariable(name = "caregiverId") Long caregiverId) {
         CaregiverDetailResponse response = recruitmentService.getCaregiverDetailInfo(recruitmentId, caregiverId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<Long> convertMatchingIdToRecruitmentId(@PathParam("matchingId") Long matchingId) {
+        Long recruitmentId = matchingRepository.findById(matchingId)
+                .map(matching -> matching.getRecruitment().getId())
+                .orElseThrow(() -> new RuntimeException("변환실패"));
+        return ResponseEntity.ok(recruitmentId);
     }
 }
