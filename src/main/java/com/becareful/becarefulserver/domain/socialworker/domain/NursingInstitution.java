@@ -24,11 +24,16 @@ public class NursingInstitution extends BaseEntity {
     private String id;
 
     private String name;
+
     @Embedded
     private Address address;
+
     private LocalDateTime openDate;
+
     private String institutionPhoneNumber;
+
     private boolean isHavingBathCar;
+
     private String profileImageUrl;
 
     @Builder(access = AccessLevel.PRIVATE)

@@ -14,27 +14,31 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Socialworker extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
     private String phoneNumber;
-    private String password;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "nursing_institution_id")
-    private NursingInstitution nursingInstitution;
+    private String password;
 
     @Enumerated(EnumType.STRING)
     private Rank institutionRank;
 
     private boolean isAgreedToTerms;
+
     private boolean isAgreedToCollectPersonalInfo;
+
     private boolean isAgreedToReceiveMarketingInfo;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "nursing_institution_id")
+    private NursingInstitution nursingInstitution;
 
     @Builder(access = AccessLevel.PRIVATE)
     private Socialworker(String name, Gender gender, String phoneNumber, String password,
@@ -67,6 +71,4 @@ public class Socialworker extends BaseEntity {
                 .isAgreedToCollectPersonalInfo(true)
                 .build();
     }
-
-
 }
