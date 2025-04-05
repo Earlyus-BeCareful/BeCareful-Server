@@ -26,15 +26,16 @@ public class Elderly extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    @Column(name = "elderly_id")
+    private Long id;
 
-    String name;
+    private String name;
 
-    LocalDate birthday;
+    private LocalDate birthday;
 
-    boolean inmate;
+    private boolean inmate;
 
-    boolean pet;
+    private boolean pet;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nursing_institution_id")
