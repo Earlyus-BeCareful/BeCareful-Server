@@ -31,4 +31,6 @@ public class ErrorMessage {
     public static final String MATCHING_NOT_EXISTS = "매칭 또는 지원 정보가 존재하지 않습니다.";
     public static final String MATCHING_CANNOT_APPLY = "미지원 공고에만 지원할 수 있습니다.";
     public static final String MATCHING_CANNOT_REJECT = "미지원 공고만 거절할 수 있습니다.";
+
+    public static final String POST_BOARD_NOT_FOUND = "게시판이 존재하지 않습니다.";
 }

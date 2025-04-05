@@ -1,7 +1,9 @@
 package com.becareful.becarefulserver.domain.community.controller;
 
 import com.becareful.becarefulserver.domain.community.dto.PostSimpleDto;
+import com.becareful.becarefulserver.domain.community.dto.request.PostCreateRequest;
 import com.becareful.becarefulserver.domain.community.dto.response.PostWholeResponse;
+import com.becareful.becarefulserver.domain.community.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,8 @@ import java.util.UUID;
 @RequestMapping("/post")
 @Tag(name = "Post", description = "커뮤니티 탭 게시글 관련 API 입니다.")
 public class PostController {
+
+    private final PostService postService;
 
     @Operation(summary = "게시판 별 모든 게시글 리스트 조회", description = "모든 게시글 리스트를 조회합니다.")
     @GetMapping("/list/all")
@@ -37,8 +41,9 @@ public class PostController {
     }
 
     @Operation(summary = "게시글 작성")
-    @PostMapping
-    public ResponseEntity<Void> createPost() {
+    @PostMapping("/board/{boardId}")
+    public ResponseEntity<Void> createPost(@PathVariable Long boardId, @RequestBody PostCreateRequest request) {
+        postService.createPost(boardId, request);
         return ResponseEntity.created(URI.create("/post/" + UUID.randomUUID().toString())).build();
     }
 
