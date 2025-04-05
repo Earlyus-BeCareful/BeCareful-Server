@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain.post.domain;
+package com.becareful.becarefulserver.domain.community.domain;
 
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.Rank;
 import jakarta.persistence.Entity;
