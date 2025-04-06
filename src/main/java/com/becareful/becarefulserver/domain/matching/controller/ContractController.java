@@ -4,12 +4,14 @@ import com.becareful.becarefulserver.domain.matching.dto.request.ContractEditReq
 import com.becareful.becarefulserver.domain.matching.dto.response.ContractDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.ContractInfoResponseList;
 import com.becareful.becarefulserver.domain.matching.service.ContractService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Hidden
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/contract")

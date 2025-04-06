@@ -32,7 +32,7 @@ public class SocialWorkerController {
     }
 
     @Operation(summary = "채용하기", description = "근무 시작일 선택 후 근무조건 생성")
-    @PostMapping("/matchingx/{matchingId}/hire")
+    @PostMapping("/matching/{matchingId}/hire")
     public ResponseEntity<Void> createContract(@PathVariable("matchingId") Long matchingId, @RequestParam LocalDate workStartDate) {
         contractService.createContract(matchingId, workStartDate);
         return ResponseEntity.ok().build();
