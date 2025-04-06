@@ -26,7 +26,7 @@ public class PostService {
     private final PostBoardRepository postBoardRepository;
 
     @Transactional
-    public void createPost(Long boardId, PostCreateRequest request) {
+    public Long createPost(Long boardId, PostCreateRequest request) {
         Socialworker currentMember = authUtil.getLoggedInSocialWorker();
 
         PostBoard postBoard = postBoardRepository.findById(boardId)
@@ -36,6 +36,8 @@ public class PostService {
 
         Post post = new Post(request.title(), request.content(), request.isImportant(), postBoard, currentMember);
         postRepository.save(post);
+
+        return post.getId();
     }
 
     private void validateSocialWorkerRankWritable(Socialworker socialworker, PostBoard board) {

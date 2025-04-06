@@ -43,8 +43,8 @@ public class PostController {
     @Operation(summary = "게시글 작성")
     @PostMapping("/board/{boardId}")
     public ResponseEntity<Void> createPost(@PathVariable Long boardId, @RequestBody PostCreateRequest request) {
-        postService.createPost(boardId, request);
-        return ResponseEntity.created(URI.create("/post/" + UUID.randomUUID().toString())).build();
+        Long postId = postService.createPost(boardId, request);
+        return ResponseEntity.created(URI.create("/board/" + boardId + "/post/" + postId)).build();
     }
 
     @Operation(summary = "게시글 수정")
