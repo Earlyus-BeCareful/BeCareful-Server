@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/post")
+@RequestMapping("/community")
 @Tag(name = "Post", description = "커뮤니티 탭 게시글 관련 API 입니다.")
 public class PostController {
 
