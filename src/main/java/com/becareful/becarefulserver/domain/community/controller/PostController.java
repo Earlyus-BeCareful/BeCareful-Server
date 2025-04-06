@@ -41,7 +41,7 @@ public class PostController {
     }
 
     @Operation(summary = "게시글 작성")
-    @PostMapping("/board/{boardId}")
+    @PostMapping("/board/{boardId}/post")
     public ResponseEntity<Void> createPost(@PathVariable Long boardId, @RequestBody PostCreateRequest request) {
         Long postId = postService.createPost(boardId, request);
         return ResponseEntity.created(URI.create("/board/" + boardId + "/post/" + postId)).build();
