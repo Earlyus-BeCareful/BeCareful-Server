@@ -55,8 +55,9 @@ public class PostController {
     }
 
     @Operation(summary = "게시글 삭제")
-    @DeleteMapping("/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+    @DeleteMapping("/board/{boardId}/post/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long boardId, @PathVariable Long postId) {
+        postService.deletePost(boardId, postId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -57,6 +57,22 @@ public class PostService {
         post.update(request.title(), request.content(), request.isImportant());
     }
 
+    @Transactional
+    public void deletePost(Long boardId, Long postId) {
+        Socialworker currentMember = authUtil.getLoggedInSocialWorker();
+
+        PostBoard postBoard = postBoardRepository.findById(boardId)
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostException(POST_NOT_FOUND));
+
+        validateSocialWorkerRankWritable(currentMember, postBoard);
+        post.validateAuthor(currentMember);
+
+        postRepository.delete(post);
+    }
+
     private void validateSocialWorkerRankWritable(Socialworker socialworker, PostBoard board) {
         if (!board.getWritableRank().equals(socialworker.getInstitutionRank())) {
             throw new PostBoardException(POST_BOARD_NOT_WRITABLE);
