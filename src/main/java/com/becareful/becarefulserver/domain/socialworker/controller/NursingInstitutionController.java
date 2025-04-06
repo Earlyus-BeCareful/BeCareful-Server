@@ -16,8 +16,8 @@ import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/nursingInstitution")
-@Tag(name = "nursingInstitution", description = "요양기관 관련 API 입니다.")
+@RequestMapping("/nursing-institution")
+@Tag(name = "Nursing Institution", description = "요양기관 관련 API 입니다.")
 public class NursingInstitutionController {
     private final NursingInstitutionService nursingInstitutionService;
 
