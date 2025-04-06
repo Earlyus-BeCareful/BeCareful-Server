@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Socialworker extends BaseEntity {
+public class SocialWorker extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,10 +41,10 @@ public class Socialworker extends BaseEntity {
     private NursingInstitution nursingInstitution;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Socialworker(String name, Gender gender, String phoneNumber, String password,
-                         NursingInstitution nursingInstitution,  Rank rank,
+    private SocialWorker(String name, Gender gender, String phoneNumber, String password,
+                         NursingInstitution nursingInstitution, Rank rank,
                          boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo,
-                        boolean isAgreedToReceiveMarketingInfo) {
+                         boolean isAgreedToReceiveMarketingInfo) {
         this.name = name;
         this.gender = gender;
         this.phoneNumber = phoneNumber;
@@ -56,10 +56,10 @@ public class Socialworker extends BaseEntity {
         this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
     }
 
-    public static Socialworker create(String name, Gender gender, String phoneNumber, String encodedPassword,
+    public static SocialWorker create(String name, Gender gender, String phoneNumber, String encodedPassword,
                                       NursingInstitution institution, Rank rank,
                                       boolean isAgreedToReceiveMarketingInfo) {
-        return Socialworker.builder()
+        return SocialWorker.builder()
                 .name(name)
                 .gender(gender)
                 .phoneNumber(phoneNumber)

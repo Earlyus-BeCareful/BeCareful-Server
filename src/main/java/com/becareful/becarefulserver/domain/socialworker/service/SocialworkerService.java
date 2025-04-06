@@ -10,7 +10,7 @@ import com.becareful.becarefulserver.domain.recruitment.domain.Contract;
 import com.becareful.becarefulserver.domain.recruitment.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.recruitment.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialworkerCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SimpleElderlyResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
@@ -49,7 +49,7 @@ public class SocialworkerService {
     private final ElderlyRepository elderlyRepository;
 
     public SocialWorkerHomeResponse getHomeData() {
-        Socialworker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         Integer elderlyCount = elderlyRepository.findByNursingInstitution(loggedInSocialWorker.getNursingInstitution()).size();
         Integer socialWorkerCount = socialworkerRepository.countByNursingInstitution(loggedInSocialWorker.getNursingInstitution());
 
@@ -123,7 +123,7 @@ public class SocialworkerService {
         }
 
         // Socialworker 엔티티 생성
-        Socialworker socialworker = Socialworker.create(
+        SocialWorker socialworker = SocialWorker.create(
                 request.name(), request.gender(), request.phoneNumber(),
                 getEncodedPassword(request.password()),
                 institution,
@@ -138,7 +138,7 @@ public class SocialworkerService {
 
     @Transactional
     public ChatList getChatList(){
-        Socialworker socialworker = authUtil.getLoggedInSocialWorker();
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
         NursingInstitution nursingInstitution = socialworker.getNursingInstitution();
         List<Matching> matchingList = matchingRepository.findByNursingInstitution(nursingInstitution);
 

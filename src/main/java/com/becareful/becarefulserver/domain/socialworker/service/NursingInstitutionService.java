@@ -1,7 +1,7 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
 import com.becareful.becarefulserver.domain.socialworker.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.NursingInstitutionCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.NursingInstitutionProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.NursingInstitutionRepository;
@@ -29,7 +29,7 @@ public class NursingInstitutionService {
     private final AuthUtil authUtil;
     @Transactional
     public boolean existsById() {
-        Socialworker socialworker = authUtil.getLoggedInSocialWorker();
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
         String institutionId = socialworker.getNursingInstitution().getId();
         return nursingInstitutionRepository.existsById(institutionId);
     }

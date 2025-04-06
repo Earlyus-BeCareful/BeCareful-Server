@@ -1,0 +1,52 @@
+package com.becareful.becarefulserver.community.api;
+
+import com.becareful.becarefulserver.common.IntegrationTest;
+import com.becareful.becarefulserver.common.WithSocialWorker;
+import com.becareful.becarefulserver.domain.community.domain.PostBoard;
+import com.becareful.becarefulserver.domain.community.dto.request.PostCreateRequest;
+import com.becareful.becarefulserver.domain.community.dto.request.PostUpdateRequest;
+import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
+import com.becareful.becarefulserver.domain.community.service.PostService;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.Rank;
+import com.becareful.becarefulserver.global.exception.exception.PostBoardException;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class PostIntegrationTest extends IntegrationTest {
+
+    @Autowired
+    private PostService postService;
+
+    @Autowired
+    private PostBoardRepository postBoardRepository;
+
+    @Test
+    @WithSocialWorker(phoneNumber = "01012345679")
+    void 게시글_생성에_성공한다() {
+        PostCreateRequest request = new PostCreateRequest("title", "content", false);
+        PostBoard board = postBoardRepository.save(new PostBoard("협회공지", Rank.MANAGER, Rank.MANAGER));
+
+        postService.createPost(board.getId(), request);
+    }
+
+    @Test
+    @WithSocialWorker(phoneNumber = "01012345678")
+    void 작성권한이_없으면_게시글_생성에_실패한다() {
+        PostCreateRequest request = new PostCreateRequest("title", "content", false);
+        PostBoard board = postBoardRepository.save(new PostBoard("협회공지", Rank.MANAGER, Rank.MANAGER));
+
+        Assertions.assertThatThrownBy(() -> postService.createPost(board.getId(), request))
+                .isInstanceOf(PostBoardException.class);
+    }
+
+    @Test
+    @WithSocialWorker(phoneNumber = "01012345679")
+    void 게시글_수정에_성공한다() {
+        PostCreateRequest request = new PostCreateRequest("title", "content", false);
+        PostBoard board = postBoardRepository.save(new PostBoard("협회공지", Rank.MANAGER, Rank.MANAGER));
+        Long postId = postService.createPost(board.getId(), request);
+
+        postService.updatePost(board.getId(), postId, new PostUpdateRequest("title2", "content2", false));
+    }
+}

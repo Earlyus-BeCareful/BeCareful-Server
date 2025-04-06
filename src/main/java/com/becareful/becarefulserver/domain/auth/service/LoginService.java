@@ -11,7 +11,7 @@ import com.becareful.becarefulserver.domain.auth.dto.request.LoginRequest;
 import com.becareful.becarefulserver.domain.auth.dto.response.LoginResponse;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
-import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialworkerRepository;
 import com.becareful.becarefulserver.global.exception.exception.AuthException;
 import com.becareful.becarefulserver.global.util.JwtUtil;
@@ -37,7 +37,7 @@ public class LoginService {
     }
 
     public LoginResponse loginSocialWorker(LoginRequest request) {
-        Socialworker socialworker = socialworkerRepository.findByPhoneNumber(request.phoneNumber())
+        SocialWorker socialworker = socialworkerRepository.findByPhoneNumber(request.phoneNumber())
                 .orElseThrow(() -> new AuthException(PHONE_NUMBER_NOT_EXISTS));
 
         validatePassword(request.password(), socialworker.getPassword());

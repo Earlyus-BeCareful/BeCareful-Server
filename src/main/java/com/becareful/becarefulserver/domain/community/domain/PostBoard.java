@@ -1,10 +1,8 @@
 package com.becareful.becarefulserver.domain.community.domain;
 
+import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.Rank;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostBoard {
+public class PostBoard extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +18,15 @@ public class PostBoard {
 
     private String name;
 
+    @Enumerated(EnumType.STRING)
     private Rank readableRank;
 
+    @Enumerated(EnumType.STRING)
     private Rank writableRank;
+
+    public PostBoard(String name, Rank readableRank, Rank writableRank) {
+        this.name = name;
+        this.readableRank = readableRank;
+        this.writableRank = writableRank;
+    }
 }

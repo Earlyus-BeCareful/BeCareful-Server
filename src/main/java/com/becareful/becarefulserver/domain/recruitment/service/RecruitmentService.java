@@ -23,11 +23,10 @@ import com.becareful.becarefulserver.domain.recruitment.dto.response.*;
 import com.becareful.becarefulserver.domain.recruitment.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.recruitment.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.ResidentialAddress;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
-import com.becareful.becarefulserver.global.exception.ErrorMessage;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
@@ -177,7 +176,7 @@ public class RecruitmentService {
     }
 
     public List<NursingInstitutionRecruitmentStateResponse> getMatchingList() {
-        Socialworker socialworker = authUtil.getLoggedInSocialWorker();
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
         List<Recruitment> recruitments = recruitmentRepository
                 .findByElderly_NursingInstitution_Id(socialworker.getNursingInstitution().getId());
 

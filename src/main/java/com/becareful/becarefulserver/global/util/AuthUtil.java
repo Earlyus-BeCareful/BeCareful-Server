@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
-import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialworkerRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.exception.exception.SocialworkerException;
@@ -28,7 +28,7 @@ public class AuthUtil {
                 .orElseThrow(() -> new CaregiverException(CAREGIVER_NOT_EXISTS_WITH_PHONE_NUMBER));
     }
 
-    public Socialworker getLoggedInSocialWorker() {
+    public SocialWorker getLoggedInSocialWorker() {
         String phoneNumber = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return socialworkerRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new SocialworkerException(SOCIALWORKER_NOT_EXISTS));
