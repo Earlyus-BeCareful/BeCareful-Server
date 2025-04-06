@@ -4,6 +4,7 @@ import com.becareful.becarefulserver.common.IntegrationTest;
 import com.becareful.becarefulserver.common.WithSocialWorker;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
 import com.becareful.becarefulserver.domain.community.dto.request.PostCreateRequest;
+import com.becareful.becarefulserver.domain.community.dto.request.PostUpdateRequest;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.community.service.PostService;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.Rank;
@@ -37,5 +38,15 @@ public class PostIntegrationTest extends IntegrationTest {
 
         Assertions.assertThatThrownBy(() -> postService.createPost(board.getId(), request))
                 .isInstanceOf(PostBoardException.class);
+    }
+
+    @Test
+    @WithSocialWorker(phoneNumber = "01012345679")
+    void 게시글_수정에_성공한다() {
+        PostCreateRequest request = new PostCreateRequest("title", "content", false);
+        PostBoard board = postBoardRepository.save(new PostBoard("협회공지", Rank.MANAGER, Rank.MANAGER));
+        Long postId = postService.createPost(board.getId(), request);
+
+        postService.updatePost(board.getId(), postId, new PostUpdateRequest("title2", "content2", false));
     }
 }

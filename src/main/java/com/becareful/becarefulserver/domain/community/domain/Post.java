@@ -2,10 +2,13 @@ package com.becareful.becarefulserver.domain.community.domain;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
+import com.becareful.becarefulserver.global.exception.exception.PostException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_NOT_UPDATABLE;
 
 @Entity
 @Getter
@@ -40,5 +43,21 @@ public class Post  extends BaseEntity {
         this.isImportant = isImportant;
         this.board = board;
         this.socialworker = socialworker;
+    }
+
+    public void validateAuthor(Socialworker currentMember) {
+        if (!this.socialworker.getId().equals(currentMember.getId())) {
+            throw new PostException(POST_NOT_UPDATABLE);
+        }
+    }
+
+    /**
+     * Data Update 로직
+     */
+
+    public void update(String title, String content, boolean isImportant) {
+        this.title = title;
+        this.content = content;
+        this.isImportant = isImportant;
     }
 }

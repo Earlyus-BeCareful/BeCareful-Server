@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.community.controller;
 
 import com.becareful.becarefulserver.domain.community.dto.PostSimpleDto;
 import com.becareful.becarefulserver.domain.community.dto.request.PostCreateRequest;
+import com.becareful.becarefulserver.domain.community.dto.request.PostUpdateRequest;
 import com.becareful.becarefulserver.domain.community.dto.response.PostWholeResponse;
 import com.becareful.becarefulserver.domain.community.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,8 +48,9 @@ public class PostController {
     }
 
     @Operation(summary = "게시글 수정")
-    @PutMapping("/{postId}")
-    public ResponseEntity<Void> updatePost(@PathVariable Long postId) {
+    @PutMapping("/board/{boardId}/post/{postId}")
+    public ResponseEntity<Void> updatePost(@PathVariable Long boardId, @PathVariable Long postId, @RequestBody PostUpdateRequest request) {
+        postService.updatePost(boardId, postId, request);
         return ResponseEntity.ok().build();
     }
 
