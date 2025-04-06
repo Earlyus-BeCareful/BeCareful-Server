@@ -30,10 +30,10 @@ public class Career extends BaseEntity {
 
     private String title;
 
+    private String introduce;
+
     @Enumerated(EnumType.STRING)
     private CareerType careerType;
-
-    private String introduce;
 
     @JoinColumn(name = "caregiver_id")
     @OneToOne(fetch = FetchType.LAZY)

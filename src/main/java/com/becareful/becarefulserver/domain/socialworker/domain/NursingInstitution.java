@@ -25,9 +25,6 @@ public class NursingInstitution extends BaseEntity {
 
     private String name;
 
-    @Embedded
-    private Address address;
-
     private LocalDateTime openDate;
 
     private String institutionPhoneNumber;
@@ -35,6 +32,9 @@ public class NursingInstitution extends BaseEntity {
     private boolean isHavingBathCar;
 
     private String profileImageUrl;
+
+    @Embedded
+    private Address address;
 
     @Builder(access = AccessLevel.PRIVATE)
     private NursingInstitution(String id, String name, Address address, LocalDateTime openDate,

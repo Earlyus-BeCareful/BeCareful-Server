@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
 
-import com.becareful.becarefulserver.domain.recruitment.service.ContractService;
+import com.becareful.becarefulserver.domain.matching.service.ContractService;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialworkerCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;

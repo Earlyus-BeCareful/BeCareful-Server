@@ -5,6 +5,7 @@ import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.PostException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -37,12 +38,23 @@ public class Post  extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private SocialWorker socialworker;
 
-    public Post(String title, String content, boolean isImportant, PostBoard board, SocialWorker socialworker) {
+    @Builder
+    private Post(String title, String content, boolean isImportant, PostBoard board, SocialWorker socialworker) {
         this.title = title;
         this.content = content;
         this.isImportant = isImportant;
         this.board = board;
         this.socialworker = socialworker;
+    }
+
+    public static Post create(String title, String content, boolean isImportant, PostBoard board, SocialWorker socialWorker) {
+        return Post.builder().
+                title(title).
+                content(content).
+                isImportant(isImportant).
+                board(board).
+                socialworker(socialWorker).
+                build();
     }
 
     public void validateAuthor(SocialWorker currentMember) {

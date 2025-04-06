@@ -35,7 +35,7 @@ public class PostService {
 
         validateSocialWorkerRankWritable(currentMember, postBoard);
 
-        Post post = new Post(request.title(), request.content(), request.isImportant(), postBoard, currentMember);
+        Post post = Post.create(request.title(), request.content(), request.isImportant(), postBoard, currentMember);
         postRepository.save(post);
 
         return post.getId();

@@ -1,7 +1,7 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
-import com.becareful.becarefulserver.domain.recruitment.repository.CompletedMatchingRepository;
-import com.becareful.becarefulserver.domain.recruitment.repository.RecruitmentRepository;
+import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
+import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
