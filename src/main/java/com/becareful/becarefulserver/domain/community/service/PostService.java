@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_BOARD_CANNOT_WRITABLE;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_BOARD_NOT_FOUND;
 
 @Slf4j
@@ -26,13 +27,20 @@ public class PostService {
 
     @Transactional
     public void createPost(Long boardId, PostCreateRequest request) {
-        // TODO : 작성 권한 검증
         Socialworker currentMember = authUtil.getLoggedInSocialWorker();
 
         PostBoard postBoard = postBoardRepository.findById(boardId)
                 .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
+        validateSocialWorkerRankWritable(currentMember, postBoard);
+
         Post post = new Post(request.title(), request.content(), request.isImportant(), postBoard, currentMember);
         postRepository.save(post);
+    }
+
+    private void validateSocialWorkerRankWritable(Socialworker socialworker, PostBoard board) {
+        if (!board.getWritableRank().equals(socialworker.getInstitutionRank())) {
+            throw new PostBoardException(POST_BOARD_CANNOT_WRITABLE);
+        }
     }
 }

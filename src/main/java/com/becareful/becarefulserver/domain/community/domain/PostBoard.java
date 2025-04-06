@@ -23,4 +23,10 @@ public class PostBoard extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private Rank writableRank;
+
+    public PostBoard(String name, Rank readableRank, Rank writableRank) {
+        this.name = name;
+        this.readableRank = readableRank;
+        this.writableRank = writableRank;
+    }
 }
