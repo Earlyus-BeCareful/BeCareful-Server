@@ -4,7 +4,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
 
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
-import com.becareful.becarefulserver.domain.recruitment.domain.CompletedMatching;
+import com.becareful.becarefulserver.domain.matching.domain.CompletedMatching;
 
 import java.util.List;
 import lombok.AccessLevel;

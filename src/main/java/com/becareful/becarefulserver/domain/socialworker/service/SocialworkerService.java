@@ -1,14 +1,14 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
-import com.becareful.becarefulserver.domain.recruitment.domain.Matching;
-import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
-import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
-import com.becareful.becarefulserver.domain.recruitment.repository.MatchingRepository;
+import com.becareful.becarefulserver.domain.matching.domain.Matching;
+import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
+import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.recruitment.domain.Contract;
-import com.becareful.becarefulserver.domain.recruitment.repository.CompletedMatchingRepository;
-import com.becareful.becarefulserver.domain.recruitment.repository.ContractRepository;
+import com.becareful.becarefulserver.domain.matching.domain.Contract;
+import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
+import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialworkerCreateRequest;

@@ -17,15 +17,17 @@ public class SocialWorker extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "social_worker_id")
     private Long id;
-    private String name;
 
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
+    private String name;
 
     private String phoneNumber;
 
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Enumerated(EnumType.STRING)
     private Rank institutionRank;

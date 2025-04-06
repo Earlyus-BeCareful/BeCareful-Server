@@ -4,6 +4,7 @@ import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,4 +28,19 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "post_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
+
+    @Builder
+    private Comment(String content, SocialWorker socialworker, Post post) {
+        this.content = content;
+        this.socialworker = socialworker;
+        this.post = post;
+    }
+
+    public static Comment create(String content, SocialWorker socialworker, Post post) {
+        return Comment.builder()
+                .content(content)
+                .socialworker(socialworker)
+                .post(post)
+                .build();
+    }
 }
