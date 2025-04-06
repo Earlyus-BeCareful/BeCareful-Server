@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.dto.response;
 
-import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.Rank;
 
 import java.util.List;
@@ -22,10 +22,10 @@ public record SocialWorkerHomeResponse(
         List<SimpleElderlyResponse> matchingElderlyList
 ) {
 
-    public static SocialWorkerHomeResponse of(Socialworker socialworker, Integer elderlyCount, Integer socialWorkerCount,
-            Long matchingProcessingCount, Long recentlyMatchedCount, Integer totalMatchedCount,
-            Integer appliedCaregiverCount, Double averageAppliedCaregiver, Double averageApplyingRate,
-            List<SimpleElderlyResponse> matchingElderlyList
+    public static SocialWorkerHomeResponse of(SocialWorker socialworker, Integer elderlyCount, Integer socialWorkerCount,
+                                              Long matchingProcessingCount, Long recentlyMatchedCount, Integer totalMatchedCount,
+                                              Integer appliedCaregiverCount, Double averageAppliedCaregiver, Double averageApplyingRate,
+                                              List<SimpleElderlyResponse> matchingElderlyList
             ) {
         return SocialWorkerHomeResponse.builder()
                 .socialWorkerName(socialworker.getName())

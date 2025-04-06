@@ -1,7 +1,7 @@
 package com.becareful.becarefulserver.domain.community.domain;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.PostException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -35,9 +35,9 @@ public class Post  extends BaseEntity {
 
     @JoinColumn(name = "social_worker_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Socialworker socialworker;
+    private SocialWorker socialworker;
 
-    public Post(String title, String content, boolean isImportant, PostBoard board, Socialworker socialworker) {
+    public Post(String title, String content, boolean isImportant, PostBoard board, SocialWorker socialworker) {
         this.title = title;
         this.content = content;
         this.isImportant = isImportant;
@@ -45,7 +45,7 @@ public class Post  extends BaseEntity {
         this.socialworker = socialworker;
     }
 
-    public void validateAuthor(Socialworker currentMember) {
+    public void validateAuthor(SocialWorker currentMember) {
         if (!this.socialworker.getId().equals(currentMember.getId())) {
             throw new PostException(POST_NOT_UPDATABLE);
         }

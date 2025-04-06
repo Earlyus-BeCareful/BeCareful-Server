@@ -6,7 +6,7 @@ import com.becareful.becarefulserver.domain.community.dto.request.PostCreateRequ
 import com.becareful.becarefulserver.domain.community.dto.request.PostUpdateRequest;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
-import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.PostBoardException;
 import com.becareful.becarefulserver.global.exception.exception.PostException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
@@ -28,7 +28,7 @@ public class PostService {
 
     @Transactional
     public Long createPost(Long boardId, PostCreateRequest request) {
-        Socialworker currentMember = authUtil.getLoggedInSocialWorker();
+        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
 
         PostBoard postBoard = postBoardRepository.findById(boardId)
                 .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
@@ -43,7 +43,7 @@ public class PostService {
 
     @Transactional
     public void updatePost(Long boardId, Long postId, PostUpdateRequest request) {
-        Socialworker currentMember = authUtil.getLoggedInSocialWorker();
+        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
 
         PostBoard postBoard = postBoardRepository.findById(boardId)
                 .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
@@ -59,7 +59,7 @@ public class PostService {
 
     @Transactional
     public void deletePost(Long boardId, Long postId) {
-        Socialworker currentMember = authUtil.getLoggedInSocialWorker();
+        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
 
         PostBoard postBoard = postBoardRepository.findById(boardId)
                 .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
@@ -73,7 +73,7 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    private void validateSocialWorkerRankWritable(Socialworker socialworker, PostBoard board) {
+    private void validateSocialWorkerRankWritable(SocialWorker socialworker, PostBoard board) {
         if (!board.getWritableRank().equals(socialworker.getInstitutionRank())) {
             throw new PostBoardException(POST_BOARD_NOT_WRITABLE);
         }
