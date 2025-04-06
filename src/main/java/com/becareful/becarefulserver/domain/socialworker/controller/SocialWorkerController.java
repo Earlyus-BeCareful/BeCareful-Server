@@ -18,8 +18,8 @@ import java.time.LocalDate;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/socialworker")
-@Tag(name = "socialworker", description = "사회복지사 관련 API 입니다.")
-public class SocialworkerController {
+@Tag(name = "Social Worker", description = "사회복지사 관련 API 입니다.")
+public class SocialWorkerController {
 
     private final SocialworkerService socialworkerService;
     private final ContractService contractService;
@@ -32,7 +32,7 @@ public class SocialworkerController {
     }
 
     @Operation(summary = "채용하기", description = "근무 시작일 선택 후 근무조건 생성")
-    @PostMapping("/matching/hire/{matchingId}")
+    @PostMapping("/matching/{matchingId}/hire")
     public ResponseEntity<Void> createContract(@PathVariable("matchingId") Long matchingId, @RequestParam LocalDate workStartDate) {
         contractService.createContract(matchingId, workStartDate);
         return ResponseEntity.ok().build();

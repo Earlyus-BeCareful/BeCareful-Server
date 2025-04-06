@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 
@@ -34,38 +35,17 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/recruitment")
-@Tag(name = "Recruitment", description = "매칭 공고 관련 API 입니다.")
+@Tag(name = "Recruitment", description = "요양보호사가 사용하는 매칭 공고 관련 API 입니다.")
 public class RecruitmentController {
 
     private final RecruitmentService recruitmentService;
     private final MatchingRepository matchingRepository;
-
-    @Operation(summary = "매칭 공고 등록 (사회복지사 호출)")
-    @PostMapping
-    public ResponseEntity<Long> createRecruitment(@Valid @RequestBody RecruitmentCreateRequest request) {
-        Long recruitmentId = recruitmentService.createRecruitment(request);
-        return ResponseEntity.ok(recruitmentId);
-    }
-
-    @Operation(summary = "매칭 현황 상세조회 (사회복지사 호출)", description = "매칭 현황 데이터의 상세화면을 조회합니다. 매칭된 요양보호사와 지원한 요양보호사 정보가 있습니다.")
-    @GetMapping("/{recruitmentId}")
-    public ResponseEntity<RecruitmentMatchingStateResponse> getMatchingListDetail(@PathVariable Long recruitmentId) {
-        RecruitmentMatchingStateResponse recruitmentMatchingStateResponse = recruitmentService.getMatchingListDetail(recruitmentId);
-        return ResponseEntity.ok(recruitmentMatchingStateResponse);
-    }
 
     @Operation(summary = "매칭 공고 리스트 조회 (요양보호사 일자리 리스트 조회)")
     @GetMapping("/list")
     public ResponseEntity<List<RecruitmentResponse>> getRecruitmentList() {
         List<RecruitmentResponse> responses = recruitmentService.getRecruitmentList();
         return ResponseEntity.ok(responses);
-    }
-
-    @Operation(summary = "매칭 현황 조회 (사회복지사 매칭 현황 조회)")
-    @GetMapping("/matching-list")
-    public ResponseEntity<List<NursingInstitutionRecruitmentStateResponse>> getMatchingList() {
-        List<NursingInstitutionRecruitmentStateResponse> matchingStates = recruitmentService.getMatchingList();
-        return ResponseEntity.ok(matchingStates);
     }
 
     @Operation(summary = "매칭 공고 상세 조회 (요양보호사 일자리 상세 조회)")
@@ -110,13 +90,7 @@ public class RecruitmentController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "요양보호사 지원 정보 상세 조회 (사회복지사 호출)", description = "요양보호사의 지원 정보를 자세히 조회합니다.")
-    @GetMapping("/{recruitmentId}/caregiver/{caregiverId}")
-    public ResponseEntity<CaregiverDetailResponse> getCaregiverDetailInfo(@PathVariable(name = "recruitmentId") Long recruitmentId, @PathVariable(name = "caregiverId") Long caregiverId) {
-        CaregiverDetailResponse response = recruitmentService.getCaregiverDetailInfo(recruitmentId, caregiverId);
-        return ResponseEntity.ok(response);
-    }
-
+    @Hidden
     @GetMapping("/test")
     public ResponseEntity<Long> convertMatchingIdToRecruitmentId(@PathParam("matchingId") Long matchingId) {
         Long recruitmentId = matchingRepository.findById(matchingId)
