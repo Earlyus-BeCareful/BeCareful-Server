@@ -5,6 +5,7 @@ import com.becareful.becarefulserver.domain.community.domain.PostBoard;
 import com.becareful.becarefulserver.domain.community.dto.PostSimpleDto;
 import com.becareful.becarefulserver.domain.community.dto.request.PostCreateRequest;
 import com.becareful.becarefulserver.domain.community.dto.request.PostUpdateRequest;
+import com.becareful.becarefulserver.domain.community.dto.response.PostDetailResponse;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
@@ -86,7 +87,7 @@ public class PostService {
         validateSocialWorkerRankReadable(currentMember, postBoard);
 
         return postRepository.findAllByBoard(postBoard, pageable)
-                .map(post -> PostSimpleDto.of(post, currentMember))
+                .map(PostSimpleDto::from)
                 .toList();
     }
 
@@ -95,8 +96,21 @@ public class PostService {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
 
         return postRepository.findAllReadableImportantPosts(currentMember.getInstitutionRank(), pageable)
-                .map(post -> PostSimpleDto.of(post, currentMember))
+                .map(PostSimpleDto::from)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public PostDetailResponse getPost(Long boardId, Long postId) {
+        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        PostBoard postBoard = postBoardRepository.findById(boardId)
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+
+        validateSocialWorkerRankReadable(currentMember, postBoard);
+
+        return postRepository.findById(postId)
+                .map(PostDetailResponse::from)
+                .orElseThrow(() -> new PostException(POST_NOT_FOUND));
     }
 
     private void validateSocialWorkerRankWritable(SocialWorker socialworker, PostBoard board) {

@@ -37,6 +37,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnknownException(Exception e) {
         log.error("Unknown exception: {}", e.getMessage());
+        e.printStackTrace();
         return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage()));
     }
 }

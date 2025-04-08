@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.community.controller;
 import com.becareful.becarefulserver.domain.community.dto.PostSimpleDto;
 import com.becareful.becarefulserver.domain.community.dto.request.PostCreateRequest;
 import com.becareful.becarefulserver.domain.community.dto.request.PostUpdateRequest;
+import com.becareful.becarefulserver.domain.community.dto.response.PostDetailResponse;
 import com.becareful.becarefulserver.domain.community.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,8 +39,9 @@ public class PostController {
 
     @Operation(summary = "특정 게시글 상세 조회", description = "특정 게시글의 상세 내용을 조회합니다.")
     @GetMapping("/board/{boardId}/post/{postId}")
-    public ResponseEntity<Void> getPost(@PathVariable Long postId) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<PostDetailResponse> getPost(@PathVariable Long boardId, @PathVariable Long postId) {
+        var response = postService.getPost(boardId, postId);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "게시글 수정")
