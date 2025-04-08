@@ -2,8 +2,10 @@ package com.becareful.becarefulserver.domain.community.service;
 
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
+import com.becareful.becarefulserver.domain.community.dto.PostSimpleDto;
 import com.becareful.becarefulserver.domain.community.dto.request.PostCreateRequest;
 import com.becareful.becarefulserver.domain.community.dto.request.PostUpdateRequest;
+import com.becareful.becarefulserver.domain.community.dto.response.PostDetailResponse;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
@@ -12,8 +14,11 @@ import com.becareful.becarefulserver.global.exception.exception.PostException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
@@ -73,9 +78,50 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    @Transactional(readOnly = true)
+    public List<PostSimpleDto> getPosts(Long boardId, Pageable pageable) {
+        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        PostBoard postBoard = postBoardRepository.findById(boardId)
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+
+        validateSocialWorkerRankReadable(currentMember, postBoard);
+
+        return postRepository.findAllByBoard(postBoard, pageable)
+                .map(PostSimpleDto::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostSimpleDto> getImportantPosts(Pageable pageable) {
+        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+
+        return postRepository.findAllReadableImportantPosts(currentMember.getInstitutionRank(), pageable)
+                .map(PostSimpleDto::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public PostDetailResponse getPost(Long boardId, Long postId) {
+        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        PostBoard postBoard = postBoardRepository.findById(boardId)
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+
+        validateSocialWorkerRankReadable(currentMember, postBoard);
+
+        return postRepository.findById(postId)
+                .map(PostDetailResponse::from)
+                .orElseThrow(() -> new PostException(POST_NOT_FOUND));
+    }
+
     private void validateSocialWorkerRankWritable(SocialWorker socialworker, PostBoard board) {
         if (!board.getWritableRank().equals(socialworker.getInstitutionRank())) {
             throw new PostBoardException(POST_BOARD_NOT_WRITABLE);
+        }
+    }
+
+    private void validateSocialWorkerRankReadable(SocialWorker socialWorker, PostBoard board) {
+        if (!board.getReadableRank().equals(socialWorker.getInstitutionRank())) {
+            throw new PostBoardException(POST_BOARD_NOT_READABLE);
         }
     }
 }

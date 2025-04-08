@@ -36,15 +36,15 @@ public class Post  extends BaseEntity {
 
     @JoinColumn(name = "social_worker_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private SocialWorker socialworker;
+    private SocialWorker author;
 
     @Builder
-    private Post(String title, String content, boolean isImportant, PostBoard board, SocialWorker socialworker) {
+    private Post(String title, String content, boolean isImportant, PostBoard board, SocialWorker author) {
         this.title = title;
         this.content = content;
         this.isImportant = isImportant;
         this.board = board;
-        this.socialworker = socialworker;
+        this.author = author;
     }
 
     public static Post create(String title, String content, boolean isImportant, PostBoard board, SocialWorker socialWorker) {
@@ -53,12 +53,12 @@ public class Post  extends BaseEntity {
                 content(content).
                 isImportant(isImportant).
                 board(board).
-                socialworker(socialWorker).
+                author(socialWorker).
                 build();
     }
 
     public void validateAuthor(SocialWorker currentMember) {
-        if (!this.socialworker.getId().equals(currentMember.getId())) {
+        if (!this.author.getId().equals(currentMember.getId())) {
             throw new PostException(POST_NOT_UPDATABLE);
         }
     }
