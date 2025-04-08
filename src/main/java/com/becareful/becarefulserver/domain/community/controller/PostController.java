@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.community.controller;
 import com.becareful.becarefulserver.domain.community.dto.PostSimpleDto;
 import com.becareful.becarefulserver.domain.community.dto.request.PostCreateRequest;
 import com.becareful.becarefulserver.domain.community.dto.request.PostUpdateRequest;
-import com.becareful.becarefulserver.domain.community.dto.response.PostWholeResponse;
 import com.becareful.becarefulserver.domain.community.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +22,13 @@ public class PostController {
 
     private final PostService postService;
 
+    @Operation(summary = "게시글 작성")
+    @PostMapping("/board/{boardId}/post")
+    public ResponseEntity<Void> createPost(@PathVariable Long boardId, @RequestBody PostCreateRequest request) {
+        Long postId = postService.createPost(boardId, request);
+        return ResponseEntity.created(URI.create("/board/" + boardId + "/post/" + postId)).build();
+    }
+
     @Operation(summary = "특정 게시판의 모든 게시글 리스트 조회")
     @GetMapping("/board/{boardId}/post")
     public ResponseEntity<List<PostSimpleDto>> getAllBoardPosts(@PathVariable Long boardId, Pageable pageable) {
@@ -31,16 +37,9 @@ public class PostController {
     }
 
     @Operation(summary = "특정 게시글 상세 조회", description = "특정 게시글의 상세 내용을 조회합니다.")
-    @GetMapping("/{postId}")
+    @GetMapping("/board/{boardId}/post/{postId}")
     public ResponseEntity<Void> getPost(@PathVariable Long postId) {
         return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "게시글 작성")
-    @PostMapping("/board/{boardId}/post")
-    public ResponseEntity<Void> createPost(@PathVariable Long boardId, @RequestBody PostCreateRequest request) {
-        Long postId = postService.createPost(boardId, request);
-        return ResponseEntity.created(URI.create("/board/" + boardId + "/post/" + postId)).build();
     }
 
     @Operation(summary = "게시글 수정")
@@ -55,5 +54,12 @@ public class PostController {
     public ResponseEntity<Void> deletePost(@PathVariable Long boardId, @PathVariable Long postId) {
         postService.deletePost(boardId, postId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "모든 게시판의 필독 게시글 모아보기", description = "읽기 권한이 없는 게시판의 필독 게시글은 조회되지 않습니다.")
+    @GetMapping("/post/important")
+    public ResponseEntity<List<PostSimpleDto>> getImportantPosts(Pageable pageable) {
+        var response = postService.getImportantPosts(pageable);
+        return ResponseEntity.ok(response);
     }
 }

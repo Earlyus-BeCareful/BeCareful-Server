@@ -90,6 +90,15 @@ public class PostService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<PostSimpleDto> getImportantPosts(Pageable pageable) {
+        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+
+        return postRepository.findAllReadableImportantPosts(currentMember.getInstitutionRank(), pageable)
+                .map(post -> PostSimpleDto.of(post, currentMember))
+                .toList();
+    }
+
     private void validateSocialWorkerRankWritable(SocialWorker socialworker, PostBoard board) {
         if (!board.getWritableRank().equals(socialworker.getInstitutionRank())) {
             throw new PostBoardException(POST_BOARD_NOT_WRITABLE);
