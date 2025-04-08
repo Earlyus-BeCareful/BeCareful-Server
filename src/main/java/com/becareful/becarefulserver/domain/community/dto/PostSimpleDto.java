@@ -7,23 +7,25 @@ import com.becareful.becarefulserver.domain.socialworker.domain.vo.Rank;
 import java.time.format.DateTimeFormatter;
 
 public record PostSimpleDto(
-        String institutionImageUrl,
+        Long postId,
+        String title,
+        boolean isImportant,
+        String thumbnailUrl,
+        String createdAt,
         String nickname,
         Rank rank,
-        boolean isImportant,
-        String title,
-        String createdAt,
-        String thumbnailUrl
+        String institutionImageUrl
 ) {
     public static PostSimpleDto of(Post post, SocialWorker socialWorker) {
         return new PostSimpleDto(
-                socialWorker.getNursingInstitution().getProfileImageUrl(),
+                post.getId(),
+                post.getTitle(),
+                post.isImportant(),
+                "", // TODO : 이미지 관련 연관관계 설정 후 작업
+                post.getCreateDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 socialWorker.getName(), // TODO : 닉네임 필드로 수정
                 socialWorker.getInstitutionRank(),
-                post.isImportant(),
-                post.getTitle(),
-                post.getCreateDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                "" // TODO : 이미지 관련 연관관계 설정 후 작업
+                socialWorker.getNursingInstitution().getProfileImageUrl()
         );
     }
 }
