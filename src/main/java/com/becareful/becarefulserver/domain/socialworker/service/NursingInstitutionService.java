@@ -49,14 +49,11 @@ public class NursingInstitutionService {
 
     @Transactional
     public NursingInstitutionProfileUploadResponse uploadProfileImage(MultipartFile file, String institutionName) {
-        try {
-            String fileName = generateProfileImageFileName(institutionName);
-            String profileImageUrl = fileUtil.upload(file, fileName);
-            return new NursingInstitutionProfileUploadResponse(profileImageUrl);
-        } catch (IOException e) {
-            throw new NursingInstitutionException(NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE);
-        }
+        String fileName = generateProfileImageFileName(institutionName);
+        String profileImageUrl = fileUtil.upload(file, fileName);
+        return new NursingInstitutionProfileUploadResponse(profileImageUrl);
     }
+
     private String generateProfileImageFileName(String institutionName) {
         try {
             var md  = MessageDigest.getInstance("SHA-256");

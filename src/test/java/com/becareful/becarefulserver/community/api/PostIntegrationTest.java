@@ -13,6 +13,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 public class PostIntegrationTest extends IntegrationTest {
 
     @Autowired
@@ -24,7 +26,7 @@ public class PostIntegrationTest extends IntegrationTest {
     @Test
     @WithSocialWorker(phoneNumber = "01012345679")
     void 게시글_생성에_성공한다() {
-        PostCreateRequest request = new PostCreateRequest("title", "content", false);
+        PostCreateRequest request = new PostCreateRequest("title", "content", false, List.of(), List.of(), List.of());
         PostBoard board = postBoardRepository.save(PostBoardFixture.협회공지);
 
         postService.createPost(board.getId(), request);
@@ -33,7 +35,7 @@ public class PostIntegrationTest extends IntegrationTest {
     @Test
     @WithSocialWorker(phoneNumber = "01012345678")
     void 작성권한이_없으면_게시글_생성에_실패한다() {
-        PostCreateRequest request = new PostCreateRequest("title", "content", false);
+        PostCreateRequest request = new PostCreateRequest("title", "content", false, List.of(), List.of(), List.of());
         PostBoard board = postBoardRepository.save(PostBoardFixture.협회공지);
 
         Assertions.assertThatThrownBy(() -> postService.createPost(board.getId(), request))
@@ -43,7 +45,7 @@ public class PostIntegrationTest extends IntegrationTest {
     @Test
     @WithSocialWorker(phoneNumber = "01012345679")
     void 게시글_수정에_성공한다() {
-        PostCreateRequest request = new PostCreateRequest("title", "content", false);
+        PostCreateRequest request = new PostCreateRequest("title", "content", false, List.of(), List.of(), List.of());
         PostBoard board = postBoardRepository.save(PostBoardFixture.협회공지);
         Long postId = postService.createPost(board.getId(), request);
 

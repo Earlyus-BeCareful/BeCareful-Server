@@ -12,11 +12,13 @@ import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.PostBoardException;
 import com.becareful.becarefulserver.global.exception.exception.PostException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
+import com.becareful.becarefulserver.global.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -30,6 +32,7 @@ public class PostService {
     private final AuthUtil authUtil;
     private final PostRepository postRepository;
     private final PostBoardRepository postBoardRepository;
+    private final FileUtil fileUtil;
 
     @Transactional
     public Long createPost(Long boardId, PostCreateRequest request) {
@@ -42,6 +45,8 @@ public class PostService {
 
         Post post = Post.create(request.title(), request.content(), request.isImportant(), postBoard, currentMember);
         postRepository.save(post);
+
+
 
         return post.getId();
     }
@@ -111,6 +116,17 @@ public class PostService {
         return postRepository.findById(postId)
                 .map(PostDetailResponse::from)
                 .orElseThrow(() -> new PostException(POST_NOT_FOUND));
+    }
+
+    @Transactional
+    public String uploadFile(Long boardId, MultipartFile file) {
+        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        PostBoard postBoard = postBoardRepository.findById(boardId)
+                        .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+
+        validateSocialWorkerRankWritable(currentMember, postBoard);
+
+        return fileUtil.upload(file, file.getName());
     }
 
     private void validateSocialWorkerRankWritable(SocialWorker socialworker, PostBoard board) {

@@ -124,13 +124,9 @@ public class CaregiverService {
     @Transactional
     public CaregiverProfileUploadResponse uploadProfileImage(MultipartFile file,
             String phoneNumber) {
-        try {
-            String fileName = generateProfileImageFileName(phoneNumber);
-            String profileImageUrl = fileUtil.upload(file, fileName);
-            return new CaregiverProfileUploadResponse(profileImageUrl);
-        } catch (IOException e) {
-            throw new CaregiverException(CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE);
-        }
+        String fileName = generateProfileImageFileName(phoneNumber);
+        String profileImageUrl = fileUtil.upload(file, fileName);
+        return new CaregiverProfileUploadResponse(profileImageUrl);
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms,

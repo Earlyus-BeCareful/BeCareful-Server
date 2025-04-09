@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
@@ -63,5 +64,12 @@ public class PostController {
     public ResponseEntity<List<PostSimpleDto>> getImportantPosts(Pageable pageable) {
         var response = postService.getImportantPosts(pageable);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "게시글에 파일 업로드", description = "게시글에 사진, 동영상, 파일을 업로드합니다. 각 파일 종류 별로 용량에 제한이 있습니다.")
+    @PostMapping("/board/{boardId}/post/file/upload")
+    public ResponseEntity<Void> uploadFile(@PathVariable Long boardId, @RequestPart("file") MultipartFile file) {
+        String fileUrl = postService.uploadFile(boardId, file);
+        return ResponseEntity.created(URI.create(fileUrl)).build();
     }
 }

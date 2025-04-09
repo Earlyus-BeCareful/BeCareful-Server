@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.global.util;
 
+import com.becareful.becarefulserver.global.exception.exception.FileException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,15 +19,16 @@ public class FileUtil {
     private static final String bucket = "becareful-s3";
     private static final String baseUrl = "https://becareful-s3.s3.ap-northeast-2.amazonaws.com/profile-image/";
 
-    public String upload(MultipartFile file, String fileName) throws IOException {
+    public String upload(MultipartFile file, String fileName) {
+        try {
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(file.getContentType());
+            metadata.setContentLength(file.getSize());
 
-        System.out.println(fileName);
-
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType(file.getContentType());
-        metadata.setContentLength(file.getSize());
-
-        amazonS3Client.putObject(bucket, "profile-image/" + fileName, file.getInputStream(), metadata);
-        return baseUrl + fileName;
+            amazonS3Client.putObject(bucket, "profile-image/" + fileName, file.getInputStream(), metadata);
+            return baseUrl + fileName;
+        } catch (IOException e) {
+            throw new FileException(e.getMessage());
+        }
     }
 }
