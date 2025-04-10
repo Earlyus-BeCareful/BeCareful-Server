@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.recruitment.dto.response;
 
-import com.becareful.becarefulserver.domain.socialworker.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
 
 public record InstitutionInfoResponse(
         String name,

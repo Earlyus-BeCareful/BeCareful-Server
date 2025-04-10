@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.community.domain;
 
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.Rank;
+import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,7 +20,7 @@ public class PostBoard {
 
     private String name;
 
-    private Rank readableRank;
+    private InstitutionRank readableRank;
 
-    private Rank writableRank;
+    private InstitutionRank writableRank;
 }

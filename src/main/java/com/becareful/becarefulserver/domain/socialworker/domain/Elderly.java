@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.socialworker.domain;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
+import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.converter.DetailCareTypeConverter;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.ResidentialAddress;
@@ -13,8 +14,7 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+
 import lombok.NoArgsConstructor;
 
 import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;

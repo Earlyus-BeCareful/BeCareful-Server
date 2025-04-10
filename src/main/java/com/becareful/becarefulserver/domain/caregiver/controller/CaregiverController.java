@@ -10,6 +10,7 @@ import com.becareful.becarefulserver.domain.caregiver.service.WorkApplicationSer
 import com.becareful.becarefulserver.domain.recruitment.dto.request.EditCompletedMatchingNoteRequest;
 import com.becareful.becarefulserver.domain.recruitment.dto.response.CompletedMatchingInfoResponse;
 import com.becareful.becarefulserver.domain.recruitment.service.CompletedMatchingService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.net.URI;
 import java.util.List;
 
+@Hidden
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/caregiver")

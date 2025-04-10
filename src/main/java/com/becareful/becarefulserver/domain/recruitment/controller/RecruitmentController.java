@@ -1,36 +1,22 @@
 package com.becareful.becarefulserver.domain.recruitment.controller;
 
-import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.becareful.becarefulserver.domain.recruitment.dto.response.CaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.recruitment.dto.request.RecruitmentMediateRequest;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.MyRecruitmentDetailResponse;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.MyRecruitmentResponse;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.NursingInstitutionRecruitmentStateResponse;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentDetailResponse;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentMatchingStateResponse;
-import com.becareful.becarefulserver.domain.recruitment.dto.response.RecruitmentResponse;
+import com.becareful.becarefulserver.domain.recruitment.dto.response.*;
 import com.becareful.becarefulserver.domain.recruitment.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.recruitment.service.RecruitmentService;
-
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.net.URI;
-import java.util.List;
+import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+@Hidden
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/recruitment")

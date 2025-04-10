@@ -5,7 +5,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.recruitment.domain.Matching;
 import com.becareful.becarefulserver.domain.recruitment.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.recruitment.domain.Recruitment;
-import com.becareful.becarefulserver.domain.socialworker.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

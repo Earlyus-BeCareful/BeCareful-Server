@@ -1,15 +1,15 @@
 package com.becareful.becarefulserver.domain.socialworker.dto.response;
 
 import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.Rank;
+import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
+import lombok.Builder;
 
 import java.util.List;
-import lombok.Builder;
 
 @Builder
 public record SocialWorkerHomeResponse(
         String socialWorkerName,
-        Rank socialWorkerRank,
+        InstitutionRank socialWorkerRank,
         String institutionName,
         Integer elderlyCount,
         Integer socialWorkerCount,
@@ -28,7 +28,7 @@ public record SocialWorkerHomeResponse(
             List<SimpleElderlyResponse> matchingElderlyList
             ) {
         return SocialWorkerHomeResponse.builder()
-                .socialWorkerName(socialworker.getName())
+                .socialWorkerName(socialworker.getRealName())
                 .socialWorkerRank(socialworker.getInstitutionRank())
                 .institutionName(socialworker.getNursingInstitution().getName())
                 .elderlyCount(elderlyCount)

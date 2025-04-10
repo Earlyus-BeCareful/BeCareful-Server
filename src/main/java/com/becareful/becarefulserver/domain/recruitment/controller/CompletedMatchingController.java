@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.recruitment.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +11,7 @@ import com.becareful.becarefulserver.domain.recruitment.service.CompletedMatchin
 
 import lombok.RequiredArgsConstructor;
 
+@Hidden
 @RestController
 @RequestMapping("/complete-matching")
 @RequiredArgsConstructor
