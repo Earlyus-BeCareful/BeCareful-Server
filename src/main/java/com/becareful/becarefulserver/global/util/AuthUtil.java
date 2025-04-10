@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.repository.SocialworkerRepository;
+import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.exception.exception.SocialworkerException;
 
@@ -20,16 +20,16 @@ import lombok.RequiredArgsConstructor;
 public class AuthUtil {
 
     private final CaregiverRepository caregiverRepository;
-    private final SocialworkerRepository socialworkerRepository;
+    private final SocialWorkerRepository socialworkerRepository;
 
     public Caregiver getLoggedInCaregiver() {
-        String phoneNumber = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String phoneNumber = SecurityContextHolder.getContext().getAuthentication().getName();
         return caregiverRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new CaregiverException(CAREGIVER_NOT_EXISTS_WITH_PHONE_NUMBER));
     }
 
     public SocialWorker getLoggedInSocialWorker() {
-        String phoneNumber = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String phoneNumber = SecurityContextHolder.getContext().getAuthentication().getName();
         return socialworkerRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new SocialworkerException(SOCIALWORKER_NOT_EXISTS));
     }

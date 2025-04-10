@@ -2,12 +2,13 @@ package com.becareful.becarefulserver.global.constant;
 
 import java.util.List;
 
-public class SecurityConstant {
 
+public class SecurityConstant {
+//TODO(url 수정)
     public static List<String> passFilterStaticUrl = List.of(
-            "/caregiver/signup", "/caregiver/upload-profile-img"
-           , "/nursingInstitution/register","/nursingInstitution/upload-profile-img",
-            "/socialworker/signup"
+            "/caregiver/signup", "/caregiver/upload-profile-img",
+            "/nursingInstitution/upload-profile-img",
+            "/favicon.ico"
     );
 
     public static List<String> passFilterDynamicUrl = List.of(
@@ -15,6 +16,7 @@ public class SecurityConstant {
             "/auth",
             "/swagger-ui",
             "/v3/api-docs",
-            "/nursingInstitution"
+            "/oauth2",
+            "/login"
     );
 }

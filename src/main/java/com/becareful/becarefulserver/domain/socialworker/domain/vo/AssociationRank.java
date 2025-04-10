@@ -1,5 +1,5 @@
 package com.becareful.becarefulserver.domain.socialworker.domain.vo;
 
-public enum Rank {
-    MANAGER, SOCIALWORKER;
+public enum AssociationRank {
+    CHAIRMAN, EXECUTIVE, MEMBER, NONE
 }

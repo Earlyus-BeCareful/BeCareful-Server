@@ -1,7 +1,7 @@
 package com.becareful.becarefulserver.common;
 
-import com.becareful.becarefulserver.domain.socialworker.repository.NursingInstitutionRepository;
-import com.becareful.becarefulserver.domain.socialworker.repository.SocialworkerRepository;
+import com.becareful.becarefulserver.domain.nursingInstitution.repository.NursingInstitutionRepository;
+import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
 import com.becareful.becarefulserver.fixture.SocialWorkerFixture;
 import jakarta.persistence.EntityManager;
@@ -16,7 +16,7 @@ public class DatabaseCleaner {
     private EntityManager em;
 
     @Autowired
-    private SocialworkerRepository socialworkerRepository;
+    private SocialWorkerRepository socialworkerRepository;
 
     @Autowired
     private NursingInstitutionRepository institutionRepository;

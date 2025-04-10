@@ -1,52 +1,71 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
+import com.becareful.becarefulserver.domain.association.domain.Association;
+import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
+import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
+import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.nursingInstitution.repository.NursingInstitutionRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
-import com.becareful.becarefulserver.domain.socialworker.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialworkerCreateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SimpleElderlyResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
-import com.becareful.becarefulserver.domain.socialworker.repository.NursingInstitutionRepository;
-import com.becareful.becarefulserver.domain.socialworker.repository.SocialworkerRepository;
+import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
+import com.becareful.becarefulserver.global.exception.exception.AssociationException;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
 import com.becareful.becarefulserver.global.exception.exception.SocialworkerException;
+import com.becareful.becarefulserver.global.properties.CookieProperties;
+import com.becareful.becarefulserver.global.properties.JwtProperties;
 import com.becareful.becarefulserver.global.util.AuthUtil;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.becareful.becarefulserver.global.util.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class SocialworkerService {
-    private final SocialworkerRepository socialworkerRepository;
+public class SocialWorkerService {
+    private final SocialWorkerRepository socialworkerRepository;
     private final NursingInstitutionRepository nursingInstitutionRepository;
 
     private final MatchingRepository matchingRepository;
     private final ContractRepository contractRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private final AuthUtil authUtil;
     private final ElderlyRepository elderlyRepository;
+    private final AssociationRepository associationRepository;
+
+    private final AuthUtil authUtil;
+    private final JwtUtil jwtUtil;
+    private final CookieProperties cookieProperties;
+    private final JwtProperties jwtProperties;
 
     public SocialWorkerHomeResponse getHomeData() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
@@ -109,29 +128,47 @@ public class SocialworkerService {
                 elderlyList);
     }
 
+    @Transactional(readOnly = true)
+    public boolean checkSameNickNameAtRegist(String nickName){
+        return socialworkerRepository.existsByNickname(nickName);
+    }
 
     @Transactional
-    public Long saveSocialworker(SocialworkerCreateRequest request) {
+    public Long saveSocialworker(SocialworkerCreateRequest request, HttpServletResponse httpServletResponse) {
 
         validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
 
-        NursingInstitution institution = nursingInstitutionRepository.findById(request.institutionId())
+        //기관ID로 기관 찾기
+         NursingInstitution nursingInstitution = nursingInstitutionRepository.findById(request.nursingInstitutionId())
                 .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
 
-        if (socialworkerRepository.existsByPhoneNumber(request.phoneNumber())) {
-            throw new SocialworkerException(SOCIALWORKER_ALREADY_EXISTS);
+         //협회 등록
+        Association association = null;
+        if (request.associationRank() != AssociationRank.NONE) {
+            long associationId = 1L;  // TODO: 나중에 동적으로 받도록 개선
+            association = associationRepository.findById(associationId)
+                    .orElseThrow(() -> new AssociationException(ASSOCIATION_INSTITUTION_NOT_EXISTS));
         }
+
+        //닉네임 중복 검사
+        checkSameNickName(request.nickName());
+
+        //사용자 전화번호 중복 검사
+        if (socialworkerRepository.existsByPhoneNumber(request.phoneNumber())) {
+            throw new SocialworkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
+        }
+
+        LocalDate birthDate = parseBirthDate(String.valueOf(request.birthYymmdd()), request.genderCode());
+        Gender gender = parseGender(request.genderCode());
 
         // Socialworker 엔티티 생성
         SocialWorker socialworker = SocialWorker.create(
-                request.name(), request.gender(), request.phoneNumber(),
-                getEncodedPassword(request.password()),
-                institution,
-                request.rank(),
-                request.isAgreedToReceiveMarketingInfo()
+                request.realName(), request.nickName(), birthDate, gender, request.phoneNumber(), request.institutionRank(), request.associationRank(), request.isAgreedToReceiveMarketingInfo(), nursingInstitution,
+                association
         );
 
         socialworkerRepository.save(socialworker);
+        updateJwtAndSecurityContext(httpServletResponse, request.phoneNumber(), request.institutionRank().toString(), request.associationRank().toString());
 
         return socialworker.getId();
     }
@@ -213,10 +250,6 @@ public class SocialworkerService {
         }
     }
 
-    private String getEncodedPassword(String rawPassword) {
-        return passwordEncoder.encode(rawPassword);
-    }
-
     private void validateEssentialAgreement(boolean isAgreedToTerms,
                                             boolean isAgreedToCollectPersonalInfo) {
         if (isAgreedToTerms && isAgreedToCollectPersonalInfo) {
@@ -224,5 +257,67 @@ public class SocialworkerService {
         }
 
         throw new SocialworkerException(SOCIALWORKER_REQUIRED_AGREEMENT);
+    }
+
+    private void checkSameNickName(String nickName) {
+      if(!socialworkerRepository.existsByNickname(nickName)){
+          return;
+        }
+        throw  new SocialworkerException(SOCIAlWORKER_ALREADY_EXISTS_NICKNAME);
+    }
+
+    private LocalDate parseBirthDate(String yymmdd, int genderCode) {
+        int yearPrefix;
+        switch (genderCode) {
+            case 1: case 2: yearPrefix = 1900; break;
+            case 3: case 4: yearPrefix = 2000; break;
+            default: throw new IllegalArgumentException("Invalid gender code: " + genderCode);
+        }
+
+        int year = yearPrefix + Integer.parseInt(yymmdd.substring(0, 2));
+        int month = Integer.parseInt(yymmdd.substring(2, 4));
+        int day = Integer.parseInt(yymmdd.substring(4, 6));
+
+        return LocalDate.of(year, month, day);
+    }
+
+    private Gender parseGender(int genderCode) {
+        switch (genderCode) {
+            case 1:
+            case 3:
+                return Gender.MALE;
+            case 2:
+            case 4:
+                return Gender.FEMALE;
+            default:
+                throw new SocialworkerException(USER_CREATE_INVALID_GENDER_CODE);
+        }
+    }
+
+    private void updateJwtAndSecurityContext(HttpServletResponse response, String phoneNumber, String institutionRank, String associationRank){
+        String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
+        String refreshToken = jwtUtil.createRefreshToken(phoneNumber, institutionRank, associationRank);
+
+        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
+        response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
+
+
+        List<GrantedAuthority> authorities = List.of(
+                (GrantedAuthority) () -> institutionRank,
+                (GrantedAuthority) () -> associationRank
+        );
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    private Cookie createCookie(String key, String value, int maxAge) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(maxAge);
+        cookie.setSecure(cookieProperties.getCookieSecure());
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
+        return cookie;
     }
 }

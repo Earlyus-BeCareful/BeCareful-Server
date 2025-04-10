@@ -9,7 +9,7 @@ import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpda
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyListResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
-import com.becareful.becarefulserver.domain.socialworker.repository.NursingInstitutionRepository;
+import com.becareful.becarefulserver.domain.nursingInstitution.repository.NursingInstitutionRepository;
 import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;

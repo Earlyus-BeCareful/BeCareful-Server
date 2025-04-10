@@ -1,8 +1,6 @@
 package com.becareful.becarefulserver.domain.community.dto;
 
 import com.becareful.becarefulserver.domain.community.domain.Post;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.Rank;
-
 import java.time.format.DateTimeFormatter;
 
 public record PostSimpleDto(

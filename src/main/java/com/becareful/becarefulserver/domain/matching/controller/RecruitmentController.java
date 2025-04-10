@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.controller;
 
 import io.swagger.v3.oas.annotations.Hidden;
-import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 
 import org.springframework.http.ResponseEntity;
@@ -13,15 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
-import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.MyRecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MyRecruitmentResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.NursingInstitutionRecruitmentStateResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentMatchingStateResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.service.RecruitmentService;
@@ -32,6 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
+@Hidden
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/recruitment")

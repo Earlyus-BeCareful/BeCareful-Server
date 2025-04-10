@@ -24,6 +24,7 @@ public class SmsController {
 
     private final SmsService smsService;
 
+
     @Operation(summary = "인증번호 SMS 전송", description = "6자리 인증번호를 생성하여 주어진 전화번호로 전송합니다.")
     @PostMapping("/send-auth-number")
     public ResponseEntity<Void> sendAuthNumber(@RequestBody SmsSendRequest request) {

@@ -2,7 +2,7 @@ package com.becareful.becarefulserver.domain.matching.dto.response;
 
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
 
 public record RecruitmentDetailResponse(
         RecruitmentInfoResponse recruitmentInfo,

@@ -15,14 +15,28 @@ spring:
 
   profiles:
     include:
+      - oauth2
       - sms
       - redis
       - s3
+    active: local
 
 jwt:
   secret: "${JWT_SECRET_KEY}"
-  expiration_time: 108000000
+  expiration_time:
+    access_token: 86400
+    refresh_token: 604800
 
 server:
   tomcat:
     uri-encoding: UTF-8
+
+login:
+  redirect_url:
+    guest: "${LOGIN_REDIRECT_URL_GUEST}"
+
+
+
+cookie:
+  secure: "${COOKIE_SECURE}"
+  samesite: "${COOKIE_SAMESITE}"

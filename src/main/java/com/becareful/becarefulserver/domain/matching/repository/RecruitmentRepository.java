@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> {
 
-    List<Recruitment> findByElderly_NursingInstitution_Id(String institutionId);
+    List<Recruitment> findByElderly_NursingInstitution_Id(Long institutionId);
 
     boolean existsByElderly(Elderly elderly);
 }

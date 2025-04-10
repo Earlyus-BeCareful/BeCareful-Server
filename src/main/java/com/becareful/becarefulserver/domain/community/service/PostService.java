@@ -95,7 +95,7 @@ public class PostService {
     public List<PostSimpleDto> getImportantPosts(Pageable pageable) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
 
-        return postRepository.findAllReadableImportantPosts(currentMember.getInstitutionRank(), pageable)
+        return postRepository.findAllReadableImportantPosts(currentMember.getAssociationRank(), pageable)
                 .map(PostSimpleDto::from)
                 .toList();
     }
@@ -114,13 +114,13 @@ public class PostService {
     }
 
     private void validateSocialWorkerRankWritable(SocialWorker socialworker, PostBoard board) {
-        if (!board.getWritableRank().equals(socialworker.getInstitutionRank())) {
+        if (!board.getWritableRank().equals(socialworker.getAssociationRank())) {
             throw new PostBoardException(POST_BOARD_NOT_WRITABLE);
         }
     }
 
     private void validateSocialWorkerRankReadable(SocialWorker socialWorker, PostBoard board) {
-        if (!board.getReadableRank().equals(socialWorker.getInstitutionRank())) {
+        if (!board.getReadableRank().equals(socialWorker.getAssociationRank())) {
             throw new PostBoardException(POST_BOARD_NOT_READABLE);
         }
     }
