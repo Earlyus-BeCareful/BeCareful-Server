@@ -1,7 +1,7 @@
 ---
-name: Chore
+name: ⚙️ Chore
 about: 인프라 / 기타 수정 사항
-title: ''
+title: '⚙️ '
 labels: ''
 assignees: ''
 

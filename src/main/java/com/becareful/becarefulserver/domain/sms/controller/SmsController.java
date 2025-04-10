@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.sms.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+@Hidden
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/sms")
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class SmsController {
 
     private final SmsService smsService;
+
 
     @Operation(summary = "인증번호 SMS 전송", description = "6자리 인증번호를 생성하여 주어진 전화번호로 전송합니다.")
     @PostMapping("/send-auth-number")

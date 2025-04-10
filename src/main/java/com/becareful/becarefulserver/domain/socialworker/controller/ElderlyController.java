@@ -5,12 +5,11 @@ import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpda
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyListResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.service.ElderlyService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.util.List;
 
+@Hidden
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/elderly")
@@ -42,7 +43,7 @@ public class ElderlyController {
     }
 
     //어르신 목록 - 성함, 나이, 성별, 프로필, 요양등급, 요양보호자 수, 매칭 중인지(공고 진행중인거), 검색어 입력
-    @Operation(summary = "어르신 목록 조회", description = "검색어를 입력하면 해당 이름을 포함한 어르신 목록을 반환합니다.")
+    @Operation(summary = "어르신 검색", description = "검색어를 입력하면 해당 이름을 포함한 어르신 목록을 반환합니다.")
     @GetMapping("/search")
     public ResponseEntity<List<ElderlyListResponse>> getElderlyListBySearch(
             @Parameter(name = "searchString", description = "검색어 (어르신 이름 일부 또는 전체)", example = "홍길동")

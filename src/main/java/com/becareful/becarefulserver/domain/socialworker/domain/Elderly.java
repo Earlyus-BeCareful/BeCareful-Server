@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.socialworker.domain;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
+import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.converter.DetailCareTypeConverter;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.ResidentialAddress;
@@ -13,8 +14,7 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+
 import lombok.NoArgsConstructor;
 
 import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
@@ -26,19 +26,22 @@ public class Elderly extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    @Column(name = "elderly_id")
+    private Long id;
 
-    String name;
+    private String name;
 
-    LocalDate birthday;
+    private LocalDate birthday;
 
-    boolean inmate;
+    private boolean hasInmate;
 
-    boolean pet;
+    private boolean hasPet;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "nursing_institution_id")
-    private NursingInstitution nursingInstitution;
+    private String detailAddress;
+
+    private String profileImageUrl;
+
+    private String healthCondition;
 
     @Enumerated(EnumType.STRING)
     Gender gender;
@@ -49,18 +52,16 @@ public class Elderly extends BaseEntity {
     @Embedded
     private ResidentialAddress residentialAddress;
 
-    String detailAddress;
-
-    private String profileImageUrl;
-
-    private String healthCondition;
-
     @Convert(converter = DetailCareTypeConverter.class)
     private EnumSet<DetailCareType> detailCareTypes;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "nursing_institution_id")
+    private NursingInstitution nursingInstitution;
+
     @Builder(access = AccessLevel.PRIVATE)
-    private Elderly(Long id, String name,LocalDate birthday,  Gender gender, ResidentialAddress residentialAddress, String detailAddress,
-                    Boolean inmate, Boolean pet, NursingInstitution institution, String profileImageUrl,
+    private Elderly(Long id, String name, LocalDate birthday, Gender gender, ResidentialAddress residentialAddress, String detailAddress,
+                    Boolean hasInmate, Boolean hasPet, NursingInstitution institution, String profileImageUrl,
                     CareLevel careLevel, String healthCondition, EnumSet<DetailCareType> detailCareTypes){
         this.id = id;
         this.name = name;
@@ -68,8 +69,8 @@ public class Elderly extends BaseEntity {
         this.gender = gender;
         this.residentialAddress = residentialAddress;
         this.detailAddress = detailAddress;
-        this.inmate = inmate;
-        this.pet = pet;
+        this.hasInmate = hasInmate;
+        this.hasPet = hasPet;
         this.nursingInstitution = institution;
         this.profileImageUrl = profileImageUrl;
         this.careLevel = careLevel;
@@ -79,16 +80,16 @@ public class Elderly extends BaseEntity {
 
     public static Elderly create(String name,LocalDate birthday,  Gender gender,
                                  String siDo, String siGuGun, String eupMyeonDong, String detailAddress,
-                                 boolean inmate, boolean pet,  String profileImageUrl, NursingInstitution institution,
+                                 boolean hasInmate, boolean hasPet,  String profileImageUrl, NursingInstitution institution,
                                  CareLevel careLevel, String healthCondition, EnumSet<DetailCareType> detailCareTypes){
         return Elderly.builder()
                 .name(name)
                 .birthday(birthday)
                 .gender(gender)
-                .inmate(inmate)
+                .hasInmate(hasInmate)
                 .residentialAddress(new ResidentialAddress(siDo, siGuGun, eupMyeonDong))
                 .detailAddress(detailAddress)
-                .pet(pet)
+                .hasPet(hasPet)
                 .profileImageUrl(profileImageUrl == null || profileImageUrl.isBlank()
                         ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
                         : profileImageUrl)
@@ -118,11 +119,11 @@ public class Elderly extends BaseEntity {
     }
 
     public void updateInmate(Boolean inmate) {
-        if (inmate != null) this.inmate = inmate;
+        if (inmate != null) this.hasInmate = inmate;
     }
 
     public void updatePet(Boolean pet) {
-        if (pet != null) this.pet = pet;
+        if (pet != null) this.hasPet = pet;
     }
 
     public void updateGender(Gender gender) {

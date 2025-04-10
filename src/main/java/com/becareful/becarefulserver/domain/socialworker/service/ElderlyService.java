@@ -1,15 +1,15 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
-import com.becareful.becarefulserver.domain.recruitment.repository.CompletedMatchingRepository;
-import com.becareful.becarefulserver.domain.recruitment.repository.RecruitmentRepository;
+import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
+import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpdateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyListResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
-import com.becareful.becarefulserver.domain.socialworker.repository.NursingInstitutionRepository;
+import com.becareful.becarefulserver.domain.nursingInstitution.repository.NursingInstitutionRepository;
 import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
@@ -42,7 +42,7 @@ public class ElderlyService {
 
     @Transactional
     public Long saveElderly(ElderlyCreateRequest request) {
-        Socialworker socialworker = authUtil.getLoggedInSocialWorker();
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
         /*
         NursingInstitution institution = nursingInstitutionRepository.findById(request.institutionId())
                 .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
@@ -90,7 +90,7 @@ public class ElderlyService {
 
     @Transactional
     public List<ElderlyListResponse> getElderlyListBySearch(String searchString){
-        Socialworker socialworker = authUtil.getLoggedInSocialWorker();
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
 
         List<Elderly> elderlyList;
@@ -116,7 +116,7 @@ public class ElderlyService {
 
     @Transactional
     public List<ElderlyListResponse> getElderlyList(){
-        Socialworker socialworker = authUtil.getLoggedInSocialWorker();
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
 
         List<Elderly> elderlyList = elderlyList = elderlyRepository.findByNursingInstitution(socialworker.getNursingInstitution());

@@ -1,8 +1,8 @@
 ---
 name: Feature
 about: 새로운 기능 추가
-title: ''
-labels: ''
+title: '✨ '
+labels: 'feature'
 assignees: ''
 
 ---
