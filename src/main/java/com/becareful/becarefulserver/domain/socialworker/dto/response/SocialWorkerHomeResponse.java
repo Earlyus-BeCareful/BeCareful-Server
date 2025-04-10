@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.dto.response;
 
-import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
 import lombok.Builder;
 
@@ -22,15 +22,15 @@ public record SocialWorkerHomeResponse(
         List<SimpleElderlyResponse> matchingElderlyList
 ) {
 
-    public static SocialWorkerHomeResponse of(Socialworker socialworker, Integer elderlyCount, Integer socialWorkerCount,
+    public static SocialWorkerHomeResponse of(SocialWorker socialWorker, Integer elderlyCount, Integer socialWorkerCount,
             Long matchingProcessingCount, Long recentlyMatchedCount, Integer totalMatchedCount,
             Integer appliedCaregiverCount, Double averageAppliedCaregiver, Double averageApplyingRate,
             List<SimpleElderlyResponse> matchingElderlyList
             ) {
         return SocialWorkerHomeResponse.builder()
-                .socialWorkerName(socialworker.getRealName())
-                .socialWorkerRank(socialworker.getInstitutionRank())
-                .institutionName(socialworker.getNursingInstitution().getName())
+                .socialWorkerName(socialWorker.getName())
+                .socialWorkerRank(socialWorker.getInstitutionRank())
+                .institutionName(socialWorker.getNursingInstitution().getName())
                 .elderlyCount(elderlyCount)
                 .socialWorkerCount(socialWorkerCount)
                 .matchingProcessingCount(matchingProcessingCount.intValue())

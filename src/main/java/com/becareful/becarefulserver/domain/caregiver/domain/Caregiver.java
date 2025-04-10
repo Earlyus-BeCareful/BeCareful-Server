@@ -37,17 +37,17 @@ public class Caregiver extends BaseEntity {
 
     private LocalDate birthDate;
 
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
-
     private String phoneNumber;
 
     private String password;
 
+    private String profileImageUrl;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
     @Embedded
     private Address address;
-
-    private String profileImageUrl;
 
     @Embedded
     private CaregiverInfo caregiverInfo;

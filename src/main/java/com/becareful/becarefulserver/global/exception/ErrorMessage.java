@@ -40,4 +40,11 @@ public class ErrorMessage {
     public static final String MATCHING_CANNOT_REJECT = "미지원 공고만 거절할 수 있습니다.";
 
     public static final String USER_CREATE_INVALID_GENDER_CODE = "유효하지 않은 성별 번호입니다.";
+
+    public static final String POST_BOARD_NOT_FOUND = "게시판이 존재하지 않습니다.";
+    public static final String POST_BOARD_NOT_WRITABLE = "글 작성 권한이 없습니다.";
+    public static final String POST_BOARD_NOT_READABLE = "글 조회 권한이 없습니다.";
+
+    public static final String POST_NOT_FOUND = "게시글이 존재하지 않습니다.";
+    public static final String POST_NOT_UPDATABLE = "글 작성자만 수정할 수 있습니다.";
 }

@@ -3,7 +3,7 @@ package com.becareful.becarefulserver.domain.nursingInstitution.controller;
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.request.NursingInstitutionCreateRequest;
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionProfileUploadResponse;
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionSearchResponse;
-import com.becareful.becarefulserver.domain.socialworker.service.NursingInstitutionService;
+import com.becareful.becarefulserver.domain.nursingInstitution.service.NursingInstitutionService;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;

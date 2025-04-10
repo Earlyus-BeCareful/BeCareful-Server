@@ -4,8 +4,8 @@ import com.becareful.becarefulserver.domain.auth.dto.response.CustomOAuth2User;
 import com.becareful.becarefulserver.domain.auth.dto.response.KakaoOAuth2Response;
 import com.becareful.becarefulserver.domain.auth.dto.response.OAuth2LoginResponse;
 import com.becareful.becarefulserver.domain.auth.dto.response.OAuth2Response;
-import com.becareful.becarefulserver.domain.socialworker.domain.Socialworker;
-import com.becareful.becarefulserver.domain.socialworker.repository.SocialworkerRepository;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
-    private final SocialworkerRepository socialworkerRepository;
+    private final SocialWorkerRepository socialworkerRepository;
     private final Logger logger =  LoggerFactory.getLogger(this.getClass());
     //리소스 서버에서 사용자 정보를 받고 기존 회원인지 아닌지 판단
     @Override
@@ -64,7 +64,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             }
 
 
-            Optional<Socialworker> existData = socialworkerRepository.findByPhoneNumber(phoneNumber);
+            Optional<SocialWorker> existData = socialworkerRepository.findByPhoneNumber(phoneNumber);
             String institutionRank = (existData.isEmpty())? "GUEST" : existData.get().getInstitutionRank().toString();
             String associationRank = (existData.isEmpty())? "GUEST" : existData.get().getAssociationRank().toString();//TODO(rank 수정)
 
