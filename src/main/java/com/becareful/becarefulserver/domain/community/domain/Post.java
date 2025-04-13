@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_DIFFERENT_POST_BOARD;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_NOT_UPDATABLE;
 
 @Entity
@@ -66,10 +67,18 @@ public class Post  extends BaseEntity {
     /**
      * Data Update 로직
      */
-
     public void update(String title, String content, boolean isImportant) {
         this.title = title;
         this.content = content;
         this.isImportant = isImportant;
+    }
+
+    /**
+     * 검증 로직
+     */
+    public void validateBoard(Long boardId) {
+        if (!this.board.getId().equals(boardId)) {
+            throw new PostException(POST_DIFFERENT_POST_BOARD);
+        }
     }
 }
