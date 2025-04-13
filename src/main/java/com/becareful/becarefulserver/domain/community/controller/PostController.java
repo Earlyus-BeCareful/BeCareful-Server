@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
@@ -56,5 +57,12 @@ public class PostController {
     public ResponseEntity<Void> deletePost(@PathVariable Long boardId, @PathVariable Long postId) {
         postService.deletePost(boardId, postId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "게시글 파일 업로드")
+    @PostMapping("/file")
+    public ResponseEntity<Void> uploadImage(@PathVariable Long boardId, @RequestParam("file") MultipartFile file) {
+        String filePath = postService.uploadFile(boardId, file);
+        return ResponseEntity.created(URI.create(filePath)).build();
     }
 }

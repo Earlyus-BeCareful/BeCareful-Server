@@ -30,6 +30,7 @@ public class AuthUtil {
 
     public SocialWorker getLoggedInSocialWorker() {
         String phoneNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println(phoneNumber);
         return socialworkerRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new SocialworkerException(SOCIALWORKER_NOT_EXISTS));
     }

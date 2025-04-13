@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_BOARD_NOT_READABLE;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_BOARD_NOT_WRITABLE;
 
 @Entity
 @Getter
@@ -55,6 +56,12 @@ public class PostBoard extends BaseEntity {
     public void validateReadableFor(SocialWorker currentMember) {
         if (!this.getReadableRank().equals(currentMember.getAssociationRank())) {
             throw new PostBoardException(POST_BOARD_NOT_READABLE);
+        }
+    }
+
+    public void validateWritableFor(SocialWorker currentMember) {
+        if (!this.getWritableRank().equals(currentMember.getAssociationRank())) {
+            throw new PostBoardException(POST_BOARD_NOT_WRITABLE);
         }
     }
 }
