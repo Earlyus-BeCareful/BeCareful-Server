@@ -17,7 +17,7 @@ import java.util.EnumSet;
 
 import lombok.NoArgsConstructor;
 
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
+import static com.becareful.becarefulserver.global.constant.S3Constant.ELDERLY_DEFAULT_PROFILE_IMAGE_URL;
 
 @Getter
 @Entity
@@ -91,7 +91,7 @@ public class Elderly extends BaseEntity {
                 .detailAddress(detailAddress)
                 .hasPet(hasPet)
                 .profileImageUrl(profileImageUrl == null || profileImageUrl.isBlank()
-                        ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
+                        ? ELDERLY_DEFAULT_PROFILE_IMAGE_URL
                         : profileImageUrl)
                 .institution(institution)
                 .careLevel(careLevel)
@@ -102,7 +102,7 @@ public class Elderly extends BaseEntity {
 
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = (profileImageUrl == null || profileImageUrl.isBlank())
-                ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
+                ? ELDERLY_DEFAULT_PROFILE_IMAGE_URL
                 : profileImageUrl;
     }
 

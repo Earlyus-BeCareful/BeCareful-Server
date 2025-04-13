@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.EnumSet;
 
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.INSTITUTION_DEFAULT_PROFILE_IMAGE_URL;
+import static com.becareful.becarefulserver.global.constant.S3Constant.INSTITUTION_DEFAULT_PROFILE_IMAGE_URL;
 
 @Entity
 @Getter

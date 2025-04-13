@@ -7,6 +7,7 @@ import com.becareful.becarefulserver.domain.nursingInstitution.dto.request.Nursi
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionProfileUploadResponse;
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionSearchResponse;
 import com.becareful.becarefulserver.domain.nursingInstitution.repository.NursingInstitutionRepository;
+import com.becareful.becarefulserver.global.constant.S3Constant;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
@@ -23,6 +24,7 @@ import java.util.Base64;
 import java.util.EnumSet;
 import java.util.List;
 
+import static com.becareful.becarefulserver.global.constant.S3Constant.PROFILE_IMAGE_PATH;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Service
@@ -94,7 +96,7 @@ public class NursingInstitutionService {
     public NursingInstitutionProfileUploadResponse uploadProfileImage(MultipartFile file, String institutionName) {
         try {
             String fileName = generateProfileImageFileName(institutionName);
-            String profileImageUrl = fileUtil.upload(file, fileName);
+            String profileImageUrl = fileUtil.upload(file, PROFILE_IMAGE_PATH, fileName);
             return new NursingInstitutionProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
             throw new NursingInstitutionException(NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE);

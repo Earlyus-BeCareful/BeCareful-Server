@@ -1,10 +1,12 @@
 package com.becareful.becarefulserver.domain.caregiver.service;
 
+import static com.becareful.becarefulserver.global.constant.S3Constant.PROFILE_IMAGE_PATH;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_ALREADY_EXISTS;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_REQUIRED_AGREEMENT;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_WORK_APPLICATION_NOT_EXISTS;
 
+import com.becareful.becarefulserver.global.constant.S3Constant;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -122,11 +124,10 @@ public class CaregiverService {
     }
 
     @Transactional
-    public CaregiverProfileUploadResponse uploadProfileImage(MultipartFile file,
-            String phoneNumber) {
+    public CaregiverProfileUploadResponse uploadProfileImage(MultipartFile file, String phoneNumber) {
         try {
             String fileName = generateProfileImageFileName(phoneNumber);
-            String profileImageUrl = fileUtil.upload(file, fileName);
+            String profileImageUrl = fileUtil.upload(file, PROFILE_IMAGE_PATH, fileName);
             return new CaregiverProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
             throw new CaregiverException(CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE);

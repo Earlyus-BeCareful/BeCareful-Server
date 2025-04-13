@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.domain;
 
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
+import static com.becareful.becarefulserver.global.constant.S3Constant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
