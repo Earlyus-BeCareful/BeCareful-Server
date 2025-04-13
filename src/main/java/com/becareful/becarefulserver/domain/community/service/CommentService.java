@@ -31,7 +31,7 @@ public class CommentService {
     private final PostRepository postRepository;
 
     @Transactional
-    public void createComment(Long boardId, Long postId, CommentCreateRequest request) {
+    public Long createComment(Long boardId, Long postId, CommentCreateRequest request) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
         PostBoard postBoard = postBoardRepository.findById(boardId)
                 .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
@@ -47,7 +47,7 @@ public class CommentService {
                 post
         );
 
-        commentRepository.save(comment);
+        return commentRepository.save(comment).getId();
     }
 
     @Transactional(readOnly = true)

@@ -19,8 +19,8 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<Void> createComment(@PathVariable Long boardId, @PathVariable Long postId, @RequestBody CommentCreateRequest request) {
-        commentService.createComment(boardId, postId, request);
-        return ResponseEntity.created(URI.create("")).build();
+        Long commentId = commentService.createComment(boardId, postId, request);
+        return ResponseEntity.created(URI.create("/community/board/" + boardId + "/post/" + postId + "/comment/" + commentId)).build();
     }
 
     @GetMapping
@@ -28,4 +28,6 @@ public class CommentController {
         var response = commentService.getComments(boardId, postId);
         return ResponseEntity.ok(response);
     }
+
+    // TODO : 댓글 수정 / 삭제
 }
