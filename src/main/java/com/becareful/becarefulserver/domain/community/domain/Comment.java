@@ -23,23 +23,23 @@ public class Comment extends BaseEntity {
 
     @JoinColumn(name = "social_worker_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private SocialWorker socialworker;
+    private SocialWorker author;
 
     @JoinColumn(name = "post_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
 
-    @Builder
-    private Comment(String content, SocialWorker socialworker, Post post) {
+    @Builder(access = AccessLevel.PRIVATE)
+    private Comment(String content, SocialWorker author, Post post) {
         this.content = content;
-        this.socialworker = socialworker;
+        this.author = author;
         this.post = post;
     }
 
-    public static Comment create(String content, SocialWorker socialworker, Post post) {
+    public static Comment create(String content, SocialWorker author, Post post) {
         return Comment.builder()
                 .content(content)
-                .socialworker(socialworker)
+                .author(author)
                 .post(post)
                 .build();
     }
