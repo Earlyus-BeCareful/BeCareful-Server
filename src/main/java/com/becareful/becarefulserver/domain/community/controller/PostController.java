@@ -17,51 +17,44 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/community")
+@RequestMapping("/community/board/{boardId}/post")
 @Tag(name = "Post", description = "커뮤니티 탭 게시글 관련 API 입니다.")
 public class PostController {
 
     private final PostService postService;
 
     @Operation(summary = "게시글 작성")
-    @PostMapping("/board/{boardId}/post")
+    @PostMapping
     public ResponseEntity<Void> createPost(@PathVariable Long boardId, @RequestBody PostCreateRequest request) {
         Long postId = postService.createPost(boardId, request);
         return ResponseEntity.created(URI.create("/board/" + boardId + "/post/" + postId)).build();
     }
 
     @Operation(summary = "특정 게시판의 모든 게시글 리스트 조회")
-    @GetMapping("/board/{boardId}/post")
+    @GetMapping
     public ResponseEntity<List<PostSimpleDto>> getAllBoardPosts(@PathVariable Long boardId, Pageable pageable) {
         var response = postService.getPosts(boardId, pageable);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "특정 게시글 상세 조회", description = "특정 게시글의 상세 내용을 조회합니다.")
-    @GetMapping("/board/{boardId}/post/{postId}")
+    @GetMapping("/{postId}")
     public ResponseEntity<PostDetailResponse> getPost(@PathVariable Long boardId, @PathVariable Long postId) {
         var response = postService.getPost(boardId, postId);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "게시글 수정")
-    @PutMapping("/board/{boardId}/post/{postId}")
+    @PutMapping("/{postId}")
     public ResponseEntity<Void> updatePost(@PathVariable Long boardId, @PathVariable Long postId, @RequestBody PostUpdateRequest request) {
         postService.updatePost(boardId, postId, request);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "게시글 삭제")
-    @DeleteMapping("/board/{boardId}/post/{postId}")
+    @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Long boardId, @PathVariable Long postId) {
         postService.deletePost(boardId, postId);
         return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "모든 게시판의 필독 게시글 모아보기", description = "읽기 권한이 없는 게시판의 필독 게시글은 조회되지 않습니다.")
-    @GetMapping("/post/important")
-    public ResponseEntity<List<PostSimpleDto>> getImportantPosts(Pageable pageable) {
-        var response = postService.getImportantPosts(pageable);
-        return ResponseEntity.ok(response);
     }
 }
