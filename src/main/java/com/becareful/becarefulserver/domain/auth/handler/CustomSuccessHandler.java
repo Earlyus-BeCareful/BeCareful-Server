@@ -49,7 +49,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String accessToken = jwtUtil.createAccessToken(name, roles.get(0), roles.get(1));
         String refreshToken = jwtUtil.createRefreshToken(name, roles.get(0), roles.get(1));
 
-        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry())); //3시간
+        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry())); //24시간
         response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry())); //일주일
 
         if(roles.contains("GUEST")) {//비회원
