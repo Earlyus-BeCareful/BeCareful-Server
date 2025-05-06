@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.global.config;
 
 import com.becareful.becarefulserver.domain.auth.handler.CustomSuccessHandler;
 import com.becareful.becarefulserver.domain.auth.service.CustomOAuth2UserService;
+import com.becareful.becarefulserver.global.properties.LoginRedirectUrlProperties;
 import com.becareful.becarefulserver.global.security.JwtAuthenticationFilter;
 import com.becareful.becarefulserver.global.security.JwtExceptionHandlingFilter;
 import com.becareful.becarefulserver.global.util.JwtUtil;
@@ -31,6 +32,7 @@ public class SecurityConfig {
     private final CustomSuccessHandler customSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtExceptionHandlingFilter jwtExceptionHandlingFilter;
+    private final LoginRedirectUrlProperties loginRedirectUrlProperties;
     private final JwtUtil jwtUtil;
 
     @Bean
@@ -86,7 +88,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("https://becareful.vercel.app/", "http://localhost:5173", "https://localhost:5173", "http://localhost:8080", "https://blaybus.everdu.com" , "http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of("https://becareful.vercel.app/", "http://localhost:5173", "http://localhost:8080", "https://blaybus.everdu.com" , "http://localhost:3000"
+        , loginRedirectUrlProperties.getGuestLoginRedirectUrl(), loginRedirectUrlProperties.getUserLoginRedirectUrl()));
         configuration.addExposedHeader("Set-Cookie");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");

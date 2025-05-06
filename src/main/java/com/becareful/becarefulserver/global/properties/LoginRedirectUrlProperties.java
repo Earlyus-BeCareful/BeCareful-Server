@@ -10,4 +10,6 @@ public class LoginRedirectUrlProperties {
     @Value("${login.redirect_url.guest}")
     private String 	guestLoginRedirectUrl;
 
+    @Value("${login.redirect_url.user}")
+    private String 	userLoginRedirectUrl;
 }
