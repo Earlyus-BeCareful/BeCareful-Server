@@ -86,7 +86,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("https://becareful.vercel.app/", "http://localhost:5173", "http://localhost:8080", "https://blaybus.everdu.com" , "http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of("https://becareful.vercel.app/", "http://localhost:5173", "https://localhost:5173", "http://localhost:8080", "https://blaybus.everdu.com" , "http://localhost:3000"));
         configuration.addExposedHeader("Set-Cookie");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
