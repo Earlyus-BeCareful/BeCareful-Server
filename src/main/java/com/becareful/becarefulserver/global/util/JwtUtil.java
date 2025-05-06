@@ -49,7 +49,7 @@ public class JwtUtil {
                 .claim("institutionRank", "ROLE_" + institutionRank)
                 .claim("associationRank", "ROLE_" + associationRank)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + jwtProperties.getAccessTokenExpiry()))
+                .expiration(new Date(System.currentTimeMillis() + jwtProperties.getAccessTokenExpiry()*1000L))
                 .signWith(secretKey)
                 .compact();
     }
@@ -60,7 +60,7 @@ public class JwtUtil {
                 .subject(phoneNumber)
                 .claim("institutionRank", "ROLE_" + institutionRank)
                 .claim("associationRank", "ROLE_" + associationRank)
-                .expiration(new Date(System.currentTimeMillis() + jwtProperties.getRefreshTokenExpiry()))
+                .expiration(new Date(System.currentTimeMillis() + jwtProperties.getRefreshTokenExpiry()*1000L))
                 .signWith(secretKey)
                 .compact();
     }
