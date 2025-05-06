@@ -79,6 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 response.addCookie(newAccessTokenCookie);
             } else {
                 throw new AuthException(INVALID_REFRESH_TOKEN);
+
             }
         }
         updateSecurityContext(accessToken);

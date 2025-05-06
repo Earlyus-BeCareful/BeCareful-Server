@@ -6,11 +6,11 @@ import com.becareful.becarefulserver.global.properties.LoginRedirectUrlPropertie
 import com.becareful.becarefulserver.global.security.JwtAuthenticationFilter;
 import com.becareful.becarefulserver.global.security.JwtExceptionHandlingFilter;
 import com.becareful.becarefulserver.global.util.JwtUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,7 +21,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -38,20 +37,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                        CorsConfiguration configuration = new CorsConfiguration();
-
-                        configuration.setAllowedOriginPatterns(Collections.singletonList("*")); //프론트 서버
-                        configuration.setAllowedMethods(Collections.singletonList("*"));
-                        configuration.setAllowedHeaders(Collections.singletonList("*"));
-                        configuration.setAllowCredentials(true);
-                        configuration.setMaxAge(3600L);
-
-                        return configuration;
-                    }
-                }))
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin((auth) -> auth.disable())
                 .httpBasic((auth) -> auth.disable())
