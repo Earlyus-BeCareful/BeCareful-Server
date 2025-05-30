@@ -1,20 +1,19 @@
 package com.becareful.becarefulserver.domain.nursingInstitution.domain;
 
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.INSTITUTION_DEFAULT_PROFILE_IMAGE_URL;
+
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
-import com.becareful.becarefulserver.domain.socialworker.domain.converter.DetailCareTypeConverter;
 import com.becareful.becarefulserver.domain.nursingInstitution.converter.FacilityTypeConverter;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.Address;
 import com.becareful.becarefulserver.domain.nursingInstitution.vo.FacilityType;
+import com.becareful.becarefulserver.domain.socialworker.domain.converter.DetailCareTypeConverter;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.Address;
 import jakarta.persistence.*;
+import java.util.EnumSet;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.EnumSet;
-
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.INSTITUTION_DEFAULT_PROFILE_IMAGE_URL;
 
 @Entity
 @Getter
@@ -28,7 +27,7 @@ public class NursingInstitution extends BaseEntity {
 
     private String name;
 
-    private String code; //기관 코드
+    private String code; // 기관 코드
 
     @Embedded
     private Address address;
@@ -48,8 +47,14 @@ public class NursingInstitution extends BaseEntity {
     private EnumSet<FacilityType> facilityTypes;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private NursingInstitution(String name, String code, int openYear,EnumSet<FacilityType> facilityTypes,
-            String institutionPhoneNumber,  Address address, String profileImageUrl) {
+    private NursingInstitution(
+            String name,
+            String code,
+            int openYear,
+            EnumSet<FacilityType> facilityTypes,
+            String institutionPhoneNumber,
+            Address address,
+            String profileImageUrl) {
         this.name = name;
         this.code = code;
         this.openYear = openYear;
@@ -59,23 +64,29 @@ public class NursingInstitution extends BaseEntity {
         this.profileImageUrl = profileImageUrl;
     }
 
-    public static NursingInstitution create(String name, String code, int openYear,
-            EnumSet<FacilityType> facilityTypeList, String institutionPhoneNumber,
-                                            String streetAddress, String detailAddress, String profileImageUrl) {
+    public static NursingInstitution create(
+            String name,
+            String code,
+            int openYear,
+            EnumSet<FacilityType> facilityTypeList,
+            String institutionPhoneNumber,
+            String streetAddress,
+            String detailAddress,
+            String profileImageUrl) {
         return NursingInstitution.builder()
                 .name(name)
                 .code(code)
                 .openYear(openYear)
-                .facilityTypes(facilityTypeList == null || facilityTypeList.isEmpty()
-                        ? EnumSet.noneOf(FacilityType.class)
-                        : EnumSet.copyOf(facilityTypeList))
+                .facilityTypes(
+                        facilityTypeList == null || facilityTypeList.isEmpty()
+                                ? EnumSet.noneOf(FacilityType.class)
+                                : EnumSet.copyOf(facilityTypeList))
                 .institutionPhoneNumber(institutionPhoneNumber)
                 .address(new Address(streetAddress, detailAddress))
                 .profileImageUrl(
                         profileImageUrl == null || profileImageUrl.isBlank()
                                 ? INSTITUTION_DEFAULT_PROFILE_IMAGE_URL
-                                : profileImageUrl
-                )
+                                : profileImageUrl)
                 .build();
     }
 

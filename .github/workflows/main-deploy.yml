@@ -16,10 +16,10 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'temurin'
+          distribution: "temurin"
 
-#      - name: Set Redis
-#        run: docker compose -f docker-compose-test.yml up -d
+      #      - name: Set Redis
+      #        run: docker compose -f docker-compose-test.yml up -d
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0'
@@ -57,4 +57,3 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_IMAGE_TAG }}
             sudo docker compose up -d
             sudo docker image prune -a -f
-

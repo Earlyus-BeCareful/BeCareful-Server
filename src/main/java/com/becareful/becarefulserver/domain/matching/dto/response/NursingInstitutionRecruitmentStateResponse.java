@@ -9,6 +9,4 @@ public record NursingInstitutionRecruitmentStateResponse(
         Gender gender,
         String elderlyProfileImage,
         int matchingNum,
-        int applyNum
-) {
-}
+        int applyNum) {}

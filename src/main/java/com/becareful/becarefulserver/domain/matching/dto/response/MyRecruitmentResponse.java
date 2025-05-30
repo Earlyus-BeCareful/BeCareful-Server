@@ -2,13 +2,9 @@ package com.becareful.becarefulserver.domain.matching.dto.response;
 
 import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-
 import java.time.format.DateTimeFormatter;
 
-public record MyRecruitmentResponse(
-    RecruitmentResponse recruitmentInfo,
-    MatchingStatus matchingStatus
-) {
+public record MyRecruitmentResponse(RecruitmentResponse recruitmentInfo, MatchingStatus matchingStatus) {
     public static MyRecruitmentResponse of(Recruitment recruitment, MatchingStatus matchingStatus) {
         return new MyRecruitmentResponse(
                 new RecruitmentResponse(
@@ -24,9 +20,7 @@ public record MyRecruitmentResponse(
                         recruitment.getElderly().getNursingInstitution().getName(),
                         98, // TODO : 매칭율 계산 후 외부에서 주입
                         false,
-                        false
-                ),
-                matchingStatus
-        );
+                        false),
+                matchingStatus);
     }
 }

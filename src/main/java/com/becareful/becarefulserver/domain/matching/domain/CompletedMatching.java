@@ -2,10 +2,8 @@ package com.becareful.becarefulserver.domain.matching.domain;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import jakarta.persistence.*;
-
 import lombok.AccessLevel;
 import lombok.Getter;
-
 import lombok.NoArgsConstructor;
 
 @Entity

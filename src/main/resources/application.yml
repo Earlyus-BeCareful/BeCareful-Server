@@ -36,8 +36,6 @@ login:
     guest: "${LOGIN_REDIRECT_URL_GUEST}"
     user: "${LOGIN_REDIRECT_URL_USER}"
 
-
-
 cookie:
   secure: "${COOKIE_SECURE}"
   samesite: "${COOKIE_SAMESITE}"

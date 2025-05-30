@@ -13,5 +13,4 @@ public class JwtProperties {
 
     @Value("${jwt.expiration_time.refresh_token}")
     private int refreshTokenExpiry;
-
 }

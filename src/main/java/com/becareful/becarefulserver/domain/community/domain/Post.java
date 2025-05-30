@@ -1,5 +1,8 @@
 package com.becareful.becarefulserver.domain.community.domain;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_DIFFERENT_POST_BOARD;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_NOT_UPDATABLE;
+
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.PostException;
@@ -9,13 +12,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_DIFFERENT_POST_BOARD;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_NOT_UPDATABLE;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Post  extends BaseEntity {
+public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,14 +48,15 @@ public class Post  extends BaseEntity {
         this.author = author;
     }
 
-    public static Post create(String title, String content, boolean isImportant, PostBoard board, SocialWorker socialWorker) {
-        return Post.builder().
-                title(title).
-                content(content).
-                isImportant(isImportant).
-                board(board).
-                author(socialWorker).
-                build();
+    public static Post create(
+            String title, String content, boolean isImportant, PostBoard board, SocialWorker socialWorker) {
+        return Post.builder()
+                .title(title)
+                .content(content)
+                .isImportant(isImportant)
+                .board(board)
+                .author(socialWorker)
+                .build();
     }
 
     public void validateAuthor(SocialWorker currentMember) {
