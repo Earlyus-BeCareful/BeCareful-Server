@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.domain.converter;
 
 import jakarta.persistence.Converter;
-
 import java.time.DayOfWeek;
 
 @Converter

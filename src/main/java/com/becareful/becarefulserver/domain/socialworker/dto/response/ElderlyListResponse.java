@@ -11,6 +11,4 @@ public record ElderlyListResponse(
         String profileImageUrl,
         CareLevel careLevel,
         int caregiverNum,
-        boolean isMatching
-) {
-}
+        boolean isMatching) {}

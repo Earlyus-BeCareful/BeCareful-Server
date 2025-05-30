@@ -37,10 +37,6 @@ public class Comment extends BaseEntity {
     }
 
     public static Comment create(String content, SocialWorker author, Post post) {
-        return Comment.builder()
-                .content(content)
-                .author(author)
-                .post(post)
-                .build();
+        return Comment.builder().content(content).author(author).post(post).build();
     }
 }

@@ -6,15 +6,14 @@ import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeek
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.EnumSet;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
@@ -44,9 +43,15 @@ public class Contract extends BaseEntity {
     private EnumSet<CareType> careTypes;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Contract(Matching matching,
-                     EnumSet<DayOfWeek> workDays, LocalTime workStartTime, LocalTime workEndTime, LocalDate workStartDate,
-                     WorkSalaryType workSalaryType, int workSalaryAmount, EnumSet<CareType> careTypes) {
+    private Contract(
+            Matching matching,
+            EnumSet<DayOfWeek> workDays,
+            LocalTime workStartTime,
+            LocalTime workEndTime,
+            LocalDate workStartDate,
+            WorkSalaryType workSalaryType,
+            int workSalaryAmount,
+            EnumSet<CareType> careTypes) {
         this.matching = matching;
         this.workDays = workDays;
         this.workStartTime = workStartTime;
@@ -69,9 +74,16 @@ public class Contract extends BaseEntity {
                 .careTypes(recruitment.getCareTypes())
                 .build();
     }
-    public static Contract edit(Matching matching, EnumSet<DayOfWeek> workDays,LocalTime workStartTime,
-                                LocalTime workEndTime,WorkSalaryType workSalaryType,int workSalaryAmount,
-                                LocalDate workStartDate, EnumSet<CareType> careTypes) {
+
+    public static Contract edit(
+            Matching matching,
+            EnumSet<DayOfWeek> workDays,
+            LocalTime workStartTime,
+            LocalTime workEndTime,
+            WorkSalaryType workSalaryType,
+            int workSalaryAmount,
+            LocalDate workStartDate,
+            EnumSet<CareType> careTypes) {
         return Contract.builder()
                 .matching(matching)
                 .workDays(workDays)

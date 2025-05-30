@@ -11,5 +11,4 @@ public class BecarefulServerApplication {
     public static void main(String[] args) {
         SpringApplication.run(BecarefulServerApplication.class, args);
     }
-
 }

@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.domain.converter;
 
 import jakarta.persistence.AttributeConverter;
-
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
@@ -19,9 +18,7 @@ public abstract class EnumSetConverter<T extends Enum<T>> implements AttributeCo
         if (attribute == null || attribute.isEmpty()) {
             return "";
         }
-        return attribute.stream()
-                .map(Enum::name)
-                .collect(Collectors.joining(","));
+        return attribute.stream().map(Enum::name).collect(Collectors.joining(","));
     }
 
     @Override

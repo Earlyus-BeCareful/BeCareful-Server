@@ -1,20 +1,17 @@
 package com.becareful.becarefulserver.domain.nursingInstitution.service;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.nursingInstitution.vo.FacilityType;
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.request.NursingInstitutionCreateRequest;
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionProfileUploadResponse;
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionSearchResponse;
 import com.becareful.becarefulserver.domain.nursingInstitution.repository.NursingInstitutionRepository;
+import com.becareful.becarefulserver.domain.nursingInstitution.vo.FacilityType;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -22,8 +19,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.EnumSet;
 import java.util.List;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -41,24 +40,25 @@ public class NursingInstitutionService {
 
     @Transactional(readOnly = true)
     public Boolean existsByNameAndCode(String nursingInstitutionCode) {
-        if(nursingInstitutionCode == null){
+        if (nursingInstitutionCode == null) {
             throw new NursingInstitutionException(NURSING_INSTITUTION_REQUIRE_CODE);
         }
         return nursingInstitutionRepository.existsByCode(nursingInstitutionCode);
     }
 
     @Transactional
-    public Long saveNursingInstitution(NursingInstitutionCreateRequest request){
+    public Long saveNursingInstitution(NursingInstitutionCreateRequest request) {
 
-        if(nursingInstitutionRepository.existsByAddress_StreetAddress(request.streetAddress())){
+        if (nursingInstitutionRepository.existsByAddress_StreetAddress(request.streetAddress())) {
             throw new NursingInstitutionException(NURSING_INSTITUTION_ALREADY_EXISTS);
         }
 
-        EnumSet<FacilityType> facilityTypes = request.facilityTypeList() == null || request.facilityTypeList().isEmpty()
-                ? EnumSet.noneOf(FacilityType.class)
-                : EnumSet.copyOf(request.facilityTypeList());
+        EnumSet<FacilityType> facilityTypes =
+                request.facilityTypeList() == null || request.facilityTypeList().isEmpty()
+                        ? EnumSet.noneOf(FacilityType.class)
+                        : EnumSet.copyOf(request.facilityTypeList());
 
-        NursingInstitution newInstitution = NursingInstitution.create(// 프론트에서 받은 ID 사용
+        NursingInstitution newInstitution = NursingInstitution.create( // 프론트에서 받은 ID 사용
                 request.institutionName(),
                 request.institutionCode(),
                 request.openYear(),
@@ -66,28 +66,24 @@ public class NursingInstitutionService {
                 request.phoneNumber(),
                 request.streetAddress(),
                 request.detailAddress(),
-                request.profileImageUrl()
-        );
+                request.profileImageUrl());
 
         nursingInstitutionRepository.save(newInstitution);
         return newInstitution.getId();
     }
 
     @Transactional
-    public NursingInstitutionSearchResponse searchNursingInstitutionByName(String institutionName){
+    public NursingInstitutionSearchResponse searchNursingInstitutionByName(String institutionName) {
         List<NursingInstitution> institutions = nursingInstitutionRepository.findAllByNameContains(institutionName);
-        List<NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo> result =
-                institutions.stream()
-                        .map(institution -> new NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo(
-                                institution.getId(),
-                                institution.getName(),
-                                institution.getAddress().getStreetAddress(),
-                                institution.getAddress().getDetailAddress()
-                        ))
-                        .toList();
+        List<NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo> result = institutions.stream()
+                .map(institution -> new NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo(
+                        institution.getId(),
+                        institution.getName(),
+                        institution.getAddress().getStreetAddress(),
+                        institution.getAddress().getDetailAddress()))
+                .toList();
 
         return new NursingInstitutionSearchResponse(result);
-
     }
 
     @Transactional
@@ -100,14 +96,14 @@ public class NursingInstitutionService {
             throw new NursingInstitutionException(NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE);
         }
     }
+
     private String generateProfileImageFileName(String institutionName) {
         try {
-            var md  = MessageDigest.getInstance("SHA-256");
+            var md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(institutionName.getBytes(StandardCharsets.UTF_8));
             return Base64.getUrlEncoder().encodeToString(hash);
         } catch (NoSuchAlgorithmException e) {
-            throw new NursingInstitutionException(
-                    NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE);
+            throw new NursingInstitutionException(NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE);
         }
     }
 }

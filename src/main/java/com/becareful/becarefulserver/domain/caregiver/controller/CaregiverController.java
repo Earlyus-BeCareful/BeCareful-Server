@@ -2,25 +2,22 @@ package com.becareful.becarefulserver.domain.caregiver.controller;
 
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.service.CareerService;
 import com.becareful.becarefulserver.domain.caregiver.service.CaregiverService;
-import com.becareful.becarefulserver.domain.caregiver.service.WorkApplicationService;
 import com.becareful.becarefulserver.domain.matching.dto.request.EditCompletedMatchingNoteRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.CompletedMatchingInfoResponse;
 import com.becareful.becarefulserver.domain.matching.service.CompletedMatchingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +29,9 @@ public class CaregiverController {
     private final CareerService careerService;
     private final CompletedMatchingService completedMatchingService;
 
-    @Operation(summary = "요양보호사 회원가입", description = "사회복지사 (social worker), 간호조무사 (nursing care), 프로필 이미지 필드는 생략할 수 있습니다.")
+    @Operation(
+            summary = "요양보호사 회원가입",
+            description = "사회복지사 (social worker), 간호조무사 (nursing care), 프로필 이미지 필드는 생략할 수 있습니다.")
     @PostMapping("/signup")
     public ResponseEntity<Void> createCaregiver(@Valid @RequestBody CaregiverCreateRequest request) {
         Long id = caregiverService.saveCaregiver(request);
@@ -42,8 +41,7 @@ public class CaregiverController {
     @Operation(summary = "요양보호사 프로필 사진 신규 업로드", description = "요양보호사 회원가입 과정에서만 사용하는 프로필 이미지 업로드 API 입니다.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CaregiverProfileUploadResponse> uploadProfileImg(
-            @RequestPart MultipartFile file,
-            @RequestPart String phoneNumber) {
+            @RequestPart MultipartFile file, @RequestPart String phoneNumber) {
         var response = caregiverService.uploadProfileImage(file, phoneNumber);
         return ResponseEntity.ok(response);
     }
@@ -79,22 +77,22 @@ public class CaregiverController {
     @Operation(summary = "확정된 일자리의 리스트가 반환됩니다.")
     @GetMapping("/my/completed-matching-list")
     public ResponseEntity<List<CompletedMatchingInfoResponse>> getCompletedMatchingsByCaregiverId() {
-            List<CompletedMatchingInfoResponse> responseList = completedMatchingService.getCompletedMatchings();
-            return ResponseEntity.ok(responseList);
+        List<CompletedMatchingInfoResponse> responseList = completedMatchingService.getCompletedMatchings();
+        return ResponseEntity.ok(responseList);
     }
 
     @Operation(summary = "나의 일자리 화면에서 메모 수정")
     @PutMapping("/my/complete-matching-list/{completedMatchingId}")
-    public ResponseEntity<Void> editCompletedMatchingMemo(@PathVariable Long completedMatchingId, @RequestBody EditCompletedMatchingNoteRequest request){
+    public ResponseEntity<Void> editCompletedMatchingMemo(
+            @PathVariable Long completedMatchingId, @RequestBody EditCompletedMatchingNoteRequest request) {
         completedMatchingService.editNote(completedMatchingId, request);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "요양보호사 채팅 목록")
     @GetMapping("/chat/list")
-    public ResponseEntity<ChatList> getChatInfoList(){
+    public ResponseEntity<ChatList> getChatInfoList() {
         ChatList response = caregiverService.getChatList();
         return ResponseEntity.ok(response);
     }
-
 }

@@ -1,15 +1,13 @@
 package com.becareful.becarefulserver.global.exception;
 
+import com.becareful.becarefulserver.global.exception.exception.AuthException;
+import com.becareful.becarefulserver.global.exception.exception.DomainException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import com.becareful.becarefulserver.global.exception.exception.AuthException;
-import com.becareful.becarefulserver.global.exception.exception.DomainException;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
@@ -28,10 +26,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(final MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
+            final MethodArgumentNotValidException ex) {
         log.info("MethodArgumentNotValidException: {}", ex.getMessage());
         return ResponseEntity.badRequest()
-                .body(new ErrorResponse(ex.getBindingResult().getAllErrors().get(0).getDefaultMessage()));
+                .body(new ErrorResponse(
+                        ex.getBindingResult().getAllErrors().get(0).getDefaultMessage()));
     }
 
     @ExceptionHandler(Exception.class)

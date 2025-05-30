@@ -1,19 +1,17 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
-
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -29,7 +27,7 @@ public class SocialWorker extends BaseEntity {
 
     private String nickname;
 
-    private LocalDate birthday; //YYYYMMDD
+    private LocalDate birthday; // YYYYMMDD
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -58,12 +56,20 @@ public class SocialWorker extends BaseEntity {
     @JoinColumn(name = "association_id")
     private Association association;
 
-
     @Builder(access = AccessLevel.PRIVATE)
-    private SocialWorker( NursingInstitution nursingInstitution, Association association, String name, String nickname, LocalDate birthday, Gender gender, String phoneNumber,
-                         InstitutionRank institutionRank, AssociationRank associationRank,
-                         boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo,
-                         boolean isAgreedToReceiveMarketingInfo) {
+    private SocialWorker(
+            NursingInstitution nursingInstitution,
+            Association association,
+            String name,
+            String nickname,
+            LocalDate birthday,
+            Gender gender,
+            String phoneNumber,
+            InstitutionRank institutionRank,
+            AssociationRank associationRank,
+            boolean isAgreedToTerms,
+            boolean isAgreedToCollectPersonalInfo,
+            boolean isAgreedToReceiveMarketingInfo) {
         this.association = association;
         this.name = name;
         this.nickname = nickname;
@@ -78,7 +84,17 @@ public class SocialWorker extends BaseEntity {
         this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
     }
 
-    public static SocialWorker create(String name, String nickname, LocalDate birthday, Gender gender, String phoneNumber, InstitutionRank institutionRank, AssociationRank associationRank, boolean isAgreedToReceiveMarketingInfo, NursingInstitution nursingInstitution, Association association) {
+    public static SocialWorker create(
+            String name,
+            String nickname,
+            LocalDate birthday,
+            Gender gender,
+            String phoneNumber,
+            InstitutionRank institutionRank,
+            AssociationRank associationRank,
+            boolean isAgreedToReceiveMarketingInfo,
+            NursingInstitution nursingInstitution,
+            Association association) {
         return SocialWorker.builder()
                 .name(name)
                 .nickname(nickname)
