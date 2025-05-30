@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
+
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
@@ -8,16 +10,12 @@ import com.becareful.becarefulserver.domain.socialworker.domain.converter.Detail
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.ResidentialAddress;
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.util.EnumSet;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDate;
-import java.util.EnumSet;
-
 import lombok.NoArgsConstructor;
-
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
 
 @Getter
 @Entity
@@ -60,9 +58,20 @@ public class Elderly extends BaseEntity {
     private NursingInstitution nursingInstitution;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Elderly(Long id, String name, LocalDate birthday, Gender gender, ResidentialAddress residentialAddress, String detailAddress,
-                    Boolean hasInmate, Boolean hasPet, NursingInstitution institution, String profileImageUrl,
-                    CareLevel careLevel, String healthCondition, EnumSet<DetailCareType> detailCareTypes){
+    private Elderly(
+            Long id,
+            String name,
+            LocalDate birthday,
+            Gender gender,
+            ResidentialAddress residentialAddress,
+            String detailAddress,
+            Boolean hasInmate,
+            Boolean hasPet,
+            NursingInstitution institution,
+            String profileImageUrl,
+            CareLevel careLevel,
+            String healthCondition,
+            EnumSet<DetailCareType> detailCareTypes) {
         this.id = id;
         this.name = name;
         this.birthday = birthday;
@@ -75,13 +84,24 @@ public class Elderly extends BaseEntity {
         this.profileImageUrl = profileImageUrl;
         this.careLevel = careLevel;
         this.healthCondition = healthCondition;
-        this.detailCareTypes =detailCareTypes;
+        this.detailCareTypes = detailCareTypes;
     }
 
-    public static Elderly create(String name,LocalDate birthday,  Gender gender,
-                                 String siDo, String siGuGun, String eupMyeonDong, String detailAddress,
-                                 boolean hasInmate, boolean hasPet,  String profileImageUrl, NursingInstitution institution,
-                                 CareLevel careLevel, String healthCondition, EnumSet<DetailCareType> detailCareTypes){
+    public static Elderly create(
+            String name,
+            LocalDate birthday,
+            Gender gender,
+            String siDo,
+            String siGuGun,
+            String eupMyeonDong,
+            String detailAddress,
+            boolean hasInmate,
+            boolean hasPet,
+            String profileImageUrl,
+            NursingInstitution institution,
+            CareLevel careLevel,
+            String healthCondition,
+            EnumSet<DetailCareType> detailCareTypes) {
         return Elderly.builder()
                 .name(name)
                 .birthday(birthday)
@@ -90,9 +110,10 @@ public class Elderly extends BaseEntity {
                 .residentialAddress(new ResidentialAddress(siDo, siGuGun, eupMyeonDong))
                 .detailAddress(detailAddress)
                 .hasPet(hasPet)
-                .profileImageUrl(profileImageUrl == null || profileImageUrl.isBlank()
-                        ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
-                        : profileImageUrl)
+                .profileImageUrl(
+                        profileImageUrl == null || profileImageUrl.isBlank()
+                                ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
+                                : profileImageUrl)
                 .institution(institution)
                 .careLevel(careLevel)
                 .healthCondition(healthCondition)
@@ -139,8 +160,7 @@ public class Elderly extends BaseEntity {
             this.residentialAddress = new ResidentialAddress(
                     siDo != null ? siDo : this.residentialAddress.getSiDo(),
                     siGuGun != null ? siGuGun : this.residentialAddress.getSiGuGun(),
-                    eupMyeonDong != null ? eupMyeonDong : this.residentialAddress.getEupMyeonDong()
-            );
+                    eupMyeonDong != null ? eupMyeonDong : this.residentialAddress.getEupMyeonDong());
         }
     }
 
@@ -148,12 +168,11 @@ public class Elderly extends BaseEntity {
         if (detailAddress != null) this.detailAddress = detailAddress;
     }
 
-
     public void updateHealthCondition(String healthCondition) {
         if (healthCondition != null) this.healthCondition = healthCondition;
     }
 
-    public void updateDetailCareTypes( EnumSet<DetailCareType> detailCareTypes) {
+    public void updateDetailCareTypes(EnumSet<DetailCareType> detailCareTypes) {
         if (detailCareTypes != null) this.detailCareTypes = detailCareTypes;
     }
 }

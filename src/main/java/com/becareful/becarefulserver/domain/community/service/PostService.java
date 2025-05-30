@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.community.service;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
 import com.becareful.becarefulserver.domain.community.dto.PostSimpleDto;
@@ -12,15 +14,12 @@ import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.PostBoardException;
 import com.becareful.becarefulserver.global.exception.exception.PostException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Slf4j
 @Service
@@ -35,8 +34,8 @@ public class PostService {
     public Long createPost(Long boardId, PostCreateRequest request) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
 
-        PostBoard postBoard = postBoardRepository.findById(boardId)
-                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard =
+                postBoardRepository.findById(boardId).orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         validateSocialWorkerRankWritable(currentMember, postBoard);
 
@@ -50,11 +49,10 @@ public class PostService {
     public void updatePost(Long boardId, Long postId, PostUpdateRequest request) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
 
-        PostBoard postBoard = postBoardRepository.findById(boardId)
-                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard =
+                postBoardRepository.findById(boardId).orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostException(POST_NOT_FOUND));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
 
         validateSocialWorkerRankWritable(currentMember, postBoard);
         post.validateAuthor(currentMember);
@@ -66,11 +64,10 @@ public class PostService {
     public void deletePost(Long boardId, Long postId) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
 
-        PostBoard postBoard = postBoardRepository.findById(boardId)
-                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard =
+                postBoardRepository.findById(boardId).orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostException(POST_NOT_FOUND));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
 
         validateSocialWorkerRankWritable(currentMember, postBoard);
         post.validateAuthor(currentMember);
@@ -81,12 +78,13 @@ public class PostService {
     @Transactional(readOnly = true)
     public List<PostSimpleDto> getPosts(Long boardId, Pageable pageable) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
-        PostBoard postBoard = postBoardRepository.findById(boardId)
-                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard =
+                postBoardRepository.findById(boardId).orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         validateSocialWorkerRankReadable(currentMember, postBoard);
 
-        return postRepository.findAllByBoard(postBoard, pageable)
+        return postRepository
+                .findAllByBoard(postBoard, pageable)
                 .map(PostSimpleDto::from)
                 .toList();
     }
@@ -95,7 +93,8 @@ public class PostService {
     public List<PostSimpleDto> getImportantPosts(Pageable pageable) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
 
-        return postRepository.findAllReadableImportantPosts(currentMember.getAssociationRank(), pageable)
+        return postRepository
+                .findAllReadableImportantPosts(currentMember.getAssociationRank(), pageable)
                 .map(PostSimpleDto::from)
                 .toList();
     }
@@ -103,12 +102,13 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostDetailResponse getPost(Long boardId, Long postId) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
-        PostBoard postBoard = postBoardRepository.findById(boardId)
-                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard =
+                postBoardRepository.findById(boardId).orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         validateSocialWorkerRankReadable(currentMember, postBoard);
 
-        return postRepository.findById(postId)
+        return postRepository
+                .findById(postId)
                 .map(PostDetailResponse::from)
                 .orElseThrow(() -> new PostException(POST_NOT_FOUND));
     }

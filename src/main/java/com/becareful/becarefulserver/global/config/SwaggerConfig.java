@@ -2,15 +2,14 @@ package com.becareful.becarefulserver.global.config;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.List;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
@@ -44,5 +43,4 @@ public class SwaggerConfig {
     private SecurityRequirement securityRequirement() {
         return new SecurityRequirement().addList(AUTHORIZATION);
     }
-
 }

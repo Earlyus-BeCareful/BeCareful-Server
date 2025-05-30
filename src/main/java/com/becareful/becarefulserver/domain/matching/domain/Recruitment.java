@@ -1,16 +1,5 @@
 package com.becareful.becarefulserver.domain.matching.domain;
 
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryType;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
@@ -20,7 +9,15 @@ import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.ResidentialAddress;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.EnumSet;
@@ -64,9 +61,17 @@ public class Recruitment extends BaseEntity {
     private Elderly elderly;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Recruitment(String title, EnumSet<DayOfWeek> workDays, LocalTime workStartTime,
-            LocalTime workEndTime, EnumSet<CareType> careTypes, WorkSalaryType workSalaryType,
-            int workSalaryAmount, String description, boolean isRecruiting, Elderly elderly) {
+    private Recruitment(
+            String title,
+            EnumSet<DayOfWeek> workDays,
+            LocalTime workStartTime,
+            LocalTime workEndTime,
+            EnumSet<CareType> careTypes,
+            WorkSalaryType workSalaryType,
+            int workSalaryAmount,
+            String description,
+            boolean isRecruiting,
+            Elderly elderly) {
         this.title = title;
         this.workDays = workDays;
         this.workStartTime = workStartTime;
@@ -97,7 +102,7 @@ public class Recruitment extends BaseEntity {
     public EnumSet<WorkTime> getWorkTimes() {
         EnumSet<WorkTime> times = EnumSet.noneOf(WorkTime.class);
 
-        if (isWorkTimeOverlap(LocalTime.of(9, 0), LocalTime.of(11,59))) {
+        if (isWorkTimeOverlap(LocalTime.of(9, 0), LocalTime.of(11, 59))) {
             times.add(WorkTime.MORNING);
         }
 

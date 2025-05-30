@@ -2,15 +2,13 @@ package com.becareful.becarefulserver.domain.sms.domain;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.SMS_AUTHENTICATION_FAILED;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.redis.core.RedisHash;
-
 import com.becareful.becarefulserver.global.constant.SmsConstant;
 import com.becareful.becarefulserver.global.exception.exception.SmsException;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
 @Getter
 @RedisHash(value = "smsAuthentication", timeToLive = SmsConstant.TTL)

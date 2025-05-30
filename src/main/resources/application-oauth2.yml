@@ -9,12 +9,12 @@ spring:
             redirect-uri: "${KAKAO_REDIRECT_URI}"
             authorization-grant-type: authorization_code
             scope:
-            - profile_nickname
-            - name
-            - gender
-            - birthday
-            - birthyear
-            - phone_number
+              - profile_nickname
+              - name
+              - gender
+              - birthday
+              - birthyear
+              - phone_number
 
         provider:
           kakao:

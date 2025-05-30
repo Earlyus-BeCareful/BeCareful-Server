@@ -8,11 +8,10 @@ import com.becareful.becarefulserver.domain.matching.dto.response.CompletedMatch
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.global.util.AuthUtil;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +30,9 @@ public class CompletedMatchingService {
                 .toList();
     }
 
-    public void editNote(Long completedMatchingId, EditCompletedMatchingNoteRequest request){
-        CompletedMatching completedMatching = completedMatchingRepository.findById(completedMatchingId)
+    public void editNote(Long completedMatchingId, EditCompletedMatchingNoteRequest request) {
+        CompletedMatching completedMatching = completedMatchingRepository
+                .findById(completedMatchingId)
                 .orElseThrow(() -> new IllegalArgumentException("Matching not found"));
 
         completedMatching.updateNote(request.note());
@@ -41,7 +41,9 @@ public class CompletedMatchingService {
     @Transactional
     public void createCompletedMatching(Long contractId) {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
-        Contract contract = contractRepository.findById(contractId).orElseThrow(() -> new IllegalArgumentException("Contract not found"));
+        Contract contract = contractRepository
+                .findById(contractId)
+                .orElseThrow(() -> new IllegalArgumentException("Contract not found"));
 
         CompletedMatching completedMatching = new CompletedMatching(loggedInCaregiver, contract);
         completedMatchingRepository.save(completedMatching);
