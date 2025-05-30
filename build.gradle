@@ -81,7 +81,7 @@ spotless {
 
     yaml {
         target '**/*.yml'
-        //prettier()
+        prettier()
     }
 }
 
