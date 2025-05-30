@@ -1,6 +1,8 @@
 package com.becareful.becarefulserver.fixture;
 
-import com.becareful.becarefulserver.domain.association.domain.Association;
+import static com.becareful.becarefulserver.fixture.AssociationFixture.*;
+import static com.becareful.becarefulserver.fixture.NursingInstitutionFixture.*;
+
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
@@ -18,8 +20,8 @@ public class SocialWorkerFixture {
             InstitutionRank.SOCIAL_WORKER,
             AssociationRank.NONE,
             true,
-            NursingInstitutionFixture.NURSING_INSTITUTION,
-            Association.create("test"));
+            NURSING_INSTITUTION,
+            JEONJU_ASSOCIATION);
 
     public static SocialWorker SOCIAL_WORKER_MANAGER = SocialWorker.create(
             "박복지",
@@ -30,6 +32,6 @@ public class SocialWorkerFixture {
             InstitutionRank.SOCIAL_WORKER,
             AssociationRank.MEMBER,
             true,
-            NursingInstitutionFixture.NURSING_INSTITUTION,
-            Association.create("test"));
+            NURSING_INSTITUTION,
+            JEONJU_ASSOCIATION);
 }
