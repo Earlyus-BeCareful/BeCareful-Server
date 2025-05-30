@@ -59,6 +59,7 @@ jwt:
 login:
   redirect_url:
     guest: aaa
+    user: aaa
 
 cookie:
   secure: false

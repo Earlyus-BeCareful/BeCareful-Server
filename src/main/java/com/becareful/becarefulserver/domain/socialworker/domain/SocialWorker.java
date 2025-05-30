@@ -7,6 +7,7 @@ import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingIns
 import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

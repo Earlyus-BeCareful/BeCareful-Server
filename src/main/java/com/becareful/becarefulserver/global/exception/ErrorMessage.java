@@ -47,4 +47,5 @@ public class ErrorMessage {
 
     public static final String POST_NOT_FOUND = "게시글이 존재하지 않습니다.";
     public static final String POST_NOT_UPDATABLE = "글 작성자만 수정할 수 있습니다.";
+    public static final String POST_DIFFERENT_POST_BOARD = "URL로 넘긴 board id 에 post가 없습니다.";
 }
