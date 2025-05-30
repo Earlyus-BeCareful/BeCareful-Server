@@ -23,9 +23,6 @@ public class Association {
     }
 
     public static Association create(String name) {
-        return Association.builder()
-                .name(name)
-                .build();
+        return Association.builder().name(name).build();
     }
-
 }

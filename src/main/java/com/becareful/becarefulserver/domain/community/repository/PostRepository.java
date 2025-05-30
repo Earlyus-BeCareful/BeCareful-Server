@@ -12,7 +12,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Page<Post> findAllByBoard(PostBoard postBoard, Pageable pageable);
 
-    @Query("""
+    @Query(
+            """
         select p
           from Post p
          where p.isImportant = true

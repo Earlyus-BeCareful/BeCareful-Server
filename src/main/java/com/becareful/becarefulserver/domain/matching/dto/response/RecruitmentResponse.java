@@ -5,7 +5,6 @@ import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingInfo;
-
 import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -23,8 +22,7 @@ public record RecruitmentResponse(
         String institutionName,
         Integer matchRate,
         boolean isHotRecruitment,
-        boolean isHourlySalaryTop
-) {
+        boolean isHourlySalaryTop) {
 
     public static RecruitmentResponse from(Matching matching) {
         Recruitment recruitment = matching.getRecruitment();
@@ -39,17 +37,18 @@ public record RecruitmentResponse(
                 recruitment.getWorkSalaryAmount(),
                 recruitment.isRecruiting(),
                 recruitment.getElderly().getNursingInstitution().getName(),
-                calculateAverageMatchingRate(matching.getCaregiverMatchingInfo()).intValue(),
+                calculateAverageMatchingRate(matching.getCaregiverMatchingInfo())
+                        .intValue(),
                 false,
-                false
-        );
+                false);
     }
 
     private static Double calculateAverageMatchingRate(MatchingInfo caregiverMatchingInfo) {
         return (caregiverMatchingInfo.getWorkCareTypeMatchingRate()
-                + caregiverMatchingInfo.getWorkSalaryMatchingRate()
-                + caregiverMatchingInfo.getWorkTimeMatchingRate()
-                + caregiverMatchingInfo.getWorkDayMatchingRate()
-                + caregiverMatchingInfo.getWorkLocationMatchingRate()) / 5;
+                        + caregiverMatchingInfo.getWorkSalaryMatchingRate()
+                        + caregiverMatchingInfo.getWorkTimeMatchingRate()
+                        + caregiverMatchingInfo.getWorkDayMatchingRate()
+                        + caregiverMatchingInfo.getWorkLocationMatchingRate())
+                / 5;
     }
 }

@@ -35,8 +35,6 @@ login:
   redirect_url:
     guest: "${LOGIN_REDIRECT_URL_GUEST}"
 
-
-
 cookie:
   secure: "${COOKIE_SECURE}"
   samesite: "${COOKIE_SAMESITE}"

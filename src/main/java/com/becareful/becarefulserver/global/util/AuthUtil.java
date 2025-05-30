@@ -3,17 +3,15 @@ package com.becareful.becarefulserver.global.util;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_NOT_EXISTS_WITH_PHONE_NUMBER;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.SOCIALWORKER_NOT_EXISTS;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.exception.exception.SocialworkerException;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -23,14 +21,18 @@ public class AuthUtil {
     private final SocialWorkerRepository socialworkerRepository;
 
     public Caregiver getLoggedInCaregiver() {
-        String phoneNumber = SecurityContextHolder.getContext().getAuthentication().getName();
-        return caregiverRepository.findByPhoneNumber(phoneNumber)
+        String phoneNumber =
+                SecurityContextHolder.getContext().getAuthentication().getName();
+        return caregiverRepository
+                .findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new CaregiverException(CAREGIVER_NOT_EXISTS_WITH_PHONE_NUMBER));
     }
 
     public SocialWorker getLoggedInSocialWorker() {
-        String phoneNumber = SecurityContextHolder.getContext().getAuthentication().getName();
-        return socialworkerRepository.findByPhoneNumber(phoneNumber)
+        String phoneNumber =
+                SecurityContextHolder.getContext().getAuthentication().getName();
+        return socialworkerRepository
+                .findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new SocialworkerException(SOCIALWORKER_NOT_EXISTS));
     }
 }

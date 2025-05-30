@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.domain.vo;
 
 import jakarta.persistence.Embeddable;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,9 +21,13 @@ public class MatchingInfo {
     private Integer workSalaryDifference;
 
     @Builder
-    public MatchingInfo(Double workDayMatchingRate, Double workTimeMatchingRate,
-            Double workLocationMatchingRate, Double workCareTypeMatchingRate,
-            Double workSalaryMatchingRate, Integer workSalaryDifference) {
+    public MatchingInfo(
+            Double workDayMatchingRate,
+            Double workTimeMatchingRate,
+            Double workLocationMatchingRate,
+            Double workCareTypeMatchingRate,
+            Double workSalaryMatchingRate,
+            Integer workSalaryDifference) {
         this.workDayMatchingRate = workDayMatchingRate;
         this.workTimeMatchingRate = workTimeMatchingRate;
         this.workLocationMatchingRate = workLocationMatchingRate;

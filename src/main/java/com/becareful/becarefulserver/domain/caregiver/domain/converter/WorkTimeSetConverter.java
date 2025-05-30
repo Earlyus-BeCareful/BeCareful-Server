@@ -1,10 +1,8 @@
 package com.becareful.becarefulserver.domain.caregiver.domain.converter;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
-
 import java.util.Arrays;
 import java.util.EnumSet;
 
@@ -25,11 +23,9 @@ public class WorkTimeSetConverter implements AttributeConverter<EnumSet<WorkTime
     public EnumSet<WorkTime> convertToEntityAttribute(String dbData) {
         EnumSet<WorkTime> result = EnumSet.noneOf(WorkTime.class);
 
-        if (dbData.isBlank())
-            return result;
+        if (dbData.isBlank()) return result;
 
-        Arrays.stream(dbData.split(","))
-                .forEach(e -> result.add(WorkTime.valueOf(e)));
+        Arrays.stream(dbData.split(",")).forEach(e -> result.add(WorkTime.valueOf(e)));
 
         return result;
     }

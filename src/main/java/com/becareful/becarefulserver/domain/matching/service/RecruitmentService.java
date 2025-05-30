@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.caregiver.domain.Career;
 import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
@@ -7,9 +9,8 @@ import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplicationWorkLocation;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerDetailRepository;
-import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
-import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
+import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
@@ -20,6 +21,7 @@ import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingInfo;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.*;
+import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
@@ -29,16 +31,13 @@ import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepos
 import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.DayOfWeek;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -58,19 +57,21 @@ public class RecruitmentService {
     public CaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
         authUtil.getLoggedInSocialWorker(); // 사회복지사가 호출하는 API
 
-        Caregiver caregiver = caregiverRepository.findById(caregiverId)
-                .orElseThrow(
-                        () -> new RecruitmentException(CAREGIVER_NOT_EXISTS_WITH_PHONE_NUMBER));
-        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver)
+        Caregiver caregiver = caregiverRepository
+                .findById(caregiverId)
+                .orElseThrow(() -> new RecruitmentException(CAREGIVER_NOT_EXISTS_WITH_PHONE_NUMBER));
+        WorkApplication workApplication = workApplicationRepository
+                .findByCaregiver(caregiver)
                 .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
 
-        Matching matching = matchingRepository.findByWorkApplicationAndRecruitment(workApplication, recruitment)
+        Matching matching = matchingRepository
+                .findByWorkApplicationAndRecruitment(workApplication, recruitment)
                 .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
 
-        Career career = careerRepository.findById(caregiverId)
-                .orElse(null);
+        Career career = careerRepository.findById(caregiverId).orElse(null);
 
         List<CareerDetail> careerDetails = careerDetailRepository.findAllByCareer(career);
 
@@ -79,7 +80,8 @@ public class RecruitmentService {
 
     public List<RecruitmentResponse> getRecruitmentList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        return workApplicationRepository.findByCaregiver(caregiver)
+        return workApplicationRepository
+                .findByCaregiver(caregiver)
                 .map(workApplication -> matchingRepository.findAllByWorkApplication(workApplication).stream()
                         .map(RecruitmentResponse::from)
                         .toList())
@@ -88,7 +90,8 @@ public class RecruitmentService {
 
     public RecruitmentDetailResponse getRecruitmentDetail(Long recruitmentId) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
 
         // TODO : recruit 매칭 적합도 및 태그 부여 판단
@@ -97,37 +100,47 @@ public class RecruitmentService {
 
     public List<MyRecruitmentResponse> getMyRecruitment(MatchingStatus matchingStatus) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        return workApplicationRepository.findByCaregiver(caregiver)
-                .map(workApplication -> matchingRepository.findByWorkApplicationAndMatchingStatus(workApplication, matchingStatus).stream()
-                        .map(matching -> MyRecruitmentResponse.of(matching.getRecruitment(), matching.getMatchingStatus()))
-                        .toList())
+        return workApplicationRepository
+                .findByCaregiver(caregiver)
+                .map(workApplication ->
+                        matchingRepository
+                                .findByWorkApplicationAndMatchingStatus(workApplication, matchingStatus)
+                                .stream()
+                                .map(matching -> MyRecruitmentResponse.of(
+                                        matching.getRecruitment(), matching.getMatchingStatus()))
+                                .toList())
                 .orElse(List.of());
     }
 
     public MyRecruitmentDetailResponse getMyRecruitmentDetail(Long recruitmentId) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver)
+        WorkApplication workApplication = workApplicationRepository
+                .findByCaregiver(caregiver)
                 .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
 
-        Matching matching = matchingRepository.findByWorkApplicationAndRecruitment(workApplication, recruitment)
+        Matching matching = matchingRepository
+                .findByWorkApplicationAndRecruitment(workApplication, recruitment)
                 .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
 
         // TODO : recruit 매칭 적합도 및 태그 부여 판단
-        return MyRecruitmentDetailResponse.of(
-                recruitment, false, false, 98, matching.getApplicationDate());
+        return MyRecruitmentDetailResponse.of(recruitment, false, false, 98, matching.getApplicationDate());
     }
 
     @Transactional
     public void mediateMatching(Long recruitmentId, RecruitmentMediateRequest request) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver)
+        WorkApplication workApplication = workApplicationRepository
+                .findByCaregiver(caregiver)
                 .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
 
-        Matching matching = matchingRepository.findByWorkApplicationAndRecruitment(workApplication, recruitment)
+        Matching matching = matchingRepository
+                .findByWorkApplicationAndRecruitment(workApplication, recruitment)
                 .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
 
         matching.mediate(request);
@@ -136,12 +149,15 @@ public class RecruitmentService {
     @Transactional
     public void rejectMatching(Long recruitmentId) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver)
+        WorkApplication workApplication = workApplicationRepository
+                .findByCaregiver(caregiver)
                 .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
 
-        Matching matching = matchingRepository.findByWorkApplicationAndRecruitment(workApplication, recruitment)
+        Matching matching = matchingRepository
+                .findByWorkApplicationAndRecruitment(workApplication, recruitment)
                 .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
 
         matching.reject();
@@ -150,12 +166,15 @@ public class RecruitmentService {
     @Transactional
     public void applyRecruitment(Long recruitmentId) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        WorkApplication workApplication = workApplicationRepository.findByCaregiver(caregiver)
+        WorkApplication workApplication = workApplicationRepository
+                .findByCaregiver(caregiver)
                 .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
 
-        Matching matching = matchingRepository.findByWorkApplicationAndRecruitment(workApplication, recruitment)
+        Matching matching = matchingRepository
+                .findByWorkApplicationAndRecruitment(workApplication, recruitment)
                 .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
 
         matching.apply();
@@ -163,7 +182,8 @@ public class RecruitmentService {
 
     @Transactional
     public Long createRecruitment(RecruitmentCreateRequest request) {
-        Elderly elderly = elderlyRepository.findById(request.elderlyId())
+        Elderly elderly = elderlyRepository
+                .findById(request.elderlyId())
                 .orElseThrow((() -> new RecruitmentException(ELDERLY_NOT_EXISTS)));
 
         Recruitment recruitment = Recruitment.create(request, elderly);
@@ -177,14 +197,16 @@ public class RecruitmentService {
 
     public List<NursingInstitutionRecruitmentStateResponse> getMatchingList() {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
-        List<Recruitment> recruitments = recruitmentRepository
-                .findByElderly_NursingInstitution_Id(socialworker.getNursingInstitution().getId());
+        List<Recruitment> recruitments = recruitmentRepository.findByElderly_NursingInstitution_Id(
+                socialworker.getNursingInstitution().getId());
 
         return recruitments.stream()
                 .filter(Recruitment::isRecruiting)
                 .map(recruitment -> {
-                    int notAppliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, MatchingStatus.미지원); //거절 제거 할래말래
-                    int appliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, MatchingStatus.지원);
+                    int notAppliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingStatus(
+                            recruitment, MatchingStatus.미지원); // 거절 제거 할래말래
+                    int appliedMatchingCount =
+                            matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, MatchingStatus.지원);
 
                     return new NursingInstitutionRecruitmentStateResponse(
                             recruitment.getId(),
@@ -193,15 +215,15 @@ public class RecruitmentService {
                             recruitment.getElderly().getGender(),
                             recruitment.getElderly().getProfileImageUrl(),
                             notAppliedMatchingCount + appliedMatchingCount,
-                            appliedMatchingCount
-                    );
+                            appliedMatchingCount);
                 })
                 .toList();
     }
 
-    //매칭 상세 - 공고 상세 페이지
+    // 매칭 상세 - 공고 상세 페이지
     public RecruitmentMatchingStateResponse getMatchingListDetail(Long recruitmentId) {
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
         List<Matching> matchings = matchingRepository.findByRecruitment(recruitment);
 
@@ -211,8 +233,11 @@ public class RecruitmentService {
                         matching.getWorkApplication().getCaregiver().getId(),
                         matching.getWorkApplication().getCaregiver().getProfileImageUrl(),
                         matching.getWorkApplication().getCaregiver().getName(),
-                        careerRepository.findByCaregiver(matching.getWorkApplication().getCaregiver()).get().getTitle()
-                )).collect(Collectors.toList());
+                        careerRepository
+                                .findByCaregiver(matching.getWorkApplication().getCaregiver())
+                                .get()
+                                .getTitle()))
+                .collect(Collectors.toList());
 
         List<RecruitmentMatchingStateResponse.CaregiverDetail> appliedCaregivers = matchings.stream()
                 .filter(matching -> matching.getMatchingStatus() == MatchingStatus.지원)
@@ -220,8 +245,11 @@ public class RecruitmentService {
                         matching.getWorkApplication().getCaregiver().getId(),
                         matching.getWorkApplication().getCaregiver().getProfileImageUrl(),
                         matching.getWorkApplication().getCaregiver().getName(),
-                        careerRepository.findByCaregiver(matching.getWorkApplication().getCaregiver()).get().getTitle()
-                )).collect(Collectors.toList());
+                        careerRepository
+                                .findByCaregiver(matching.getWorkApplication().getCaregiver())
+                                .get()
+                                .getTitle()))
+                .collect(Collectors.toList());
 
         return new RecruitmentMatchingStateResponse(
                 recruitment.getElderly().getName(),
@@ -232,36 +260,47 @@ public class RecruitmentService {
                 recruitment.getWorkStartTime(),
                 recruitment.getWorkEndTime(),
                 unAppliedCaregivers,
-                appliedCaregivers
-        );
+                appliedCaregivers);
     }
-
 
     private void matchingWith(Recruitment recruitment) {
         workApplicationRepository.findAllActiveWorkApplication().stream()
                 .map(application -> {
-                    List<WorkLocation> locations = workApplicationWorkLocationRepository.findAllByWorkApplication(application).stream()
-                            .map(WorkApplicationWorkLocation::getWorkLocation)
-                            .toList();
+                    List<WorkLocation> locations =
+                            workApplicationWorkLocationRepository.findAllByWorkApplication(application).stream()
+                                    .map(WorkApplicationWorkLocation::getWorkLocation)
+                                    .toList();
 
-                    MatchingInfo caregiverMatchingInfo = calculateMatchingRate(recruitment, application, locations, true);
-                    MatchingInfo socialworkerMatchingInfo = calculateMatchingRate(recruitment, application, locations, false);
+                    MatchingInfo caregiverMatchingInfo =
+                            calculateMatchingRate(recruitment, application, locations, true);
+                    MatchingInfo socialworkerMatchingInfo =
+                            calculateMatchingRate(recruitment, application, locations, false);
 
-                    System.out.println(Matching.create(recruitment, application, caregiverMatchingInfo, socialworkerMatchingInfo));
+                    System.out.println(
+                            Matching.create(recruitment, application, caregiverMatchingInfo, socialworkerMatchingInfo));
 
                     return Matching.create(recruitment, application, caregiverMatchingInfo, socialworkerMatchingInfo);
                 })
                 // TODO : 매칭 알고리즘 해제하기.
-                //.filter((matching -> isMatchedWithSocialWorker(matching.getSocialWorkerMatchingInfo())))
+                // .filter((matching -> isMatchedWithSocialWorker(matching.getSocialWorkerMatchingInfo())))
                 .forEach(matchingRepository::save);
     }
 
-    private MatchingInfo calculateMatchingRate(Recruitment recruitment, WorkApplication workApplication, List<WorkLocation> locations, boolean isForCaregiver) {
-        Double workTimeMatchingRate = calculateWorkTimeMatchingRate(recruitment.getWorkTimes(), workApplication.getWorkTimes(), isForCaregiver);
-        Double workDayMatchingRate = calculateDayMatchingRate(recruitment.getWorkDays(), workApplication.getWorkDays(), isForCaregiver);
-        Double workSalaryMatchingRate = calculateWorkSalaryMatchingRate(recruitment.getWorkSalaryAmount(), workApplication.getWorkSalaryAmount(), isForCaregiver);
-        Double workLocationMatchingRate = calculateWorkLocationMatchingRate(recruitment.getResidentialAddress(), locations);
-        Double workCareTypeMatchingRate = calculateWorkCareTypeMatchingRate(recruitment.getCareTypes(), workApplication.getWorkCareTypes(), isForCaregiver);
+    private MatchingInfo calculateMatchingRate(
+            Recruitment recruitment,
+            WorkApplication workApplication,
+            List<WorkLocation> locations,
+            boolean isForCaregiver) {
+        Double workTimeMatchingRate = calculateWorkTimeMatchingRate(
+                recruitment.getWorkTimes(), workApplication.getWorkTimes(), isForCaregiver);
+        Double workDayMatchingRate =
+                calculateDayMatchingRate(recruitment.getWorkDays(), workApplication.getWorkDays(), isForCaregiver);
+        Double workSalaryMatchingRate = calculateWorkSalaryMatchingRate(
+                recruitment.getWorkSalaryAmount(), workApplication.getWorkSalaryAmount(), isForCaregiver);
+        Double workLocationMatchingRate =
+                calculateWorkLocationMatchingRate(recruitment.getResidentialAddress(), locations);
+        Double workCareTypeMatchingRate = calculateWorkCareTypeMatchingRate(
+                recruitment.getCareTypes(), workApplication.getWorkCareTypes(), isForCaregiver);
 
         return MatchingInfo.builder()
                 .workTimeMatchingRate(workTimeMatchingRate)
@@ -273,7 +312,8 @@ public class RecruitmentService {
                 .build();
     }
 
-    private Double calculateWorkCareTypeMatchingRate(EnumSet<CareType> recruitmentCareTypes, EnumSet<CareType> applicationCareTypes, boolean isForCaregiver) {
+    private Double calculateWorkCareTypeMatchingRate(
+            EnumSet<CareType> recruitmentCareTypes, EnumSet<CareType> applicationCareTypes, boolean isForCaregiver) {
         EnumSet<CareType> intersection = EnumSet.copyOf(recruitmentCareTypes);
         intersection.retainAll(applicationCareTypes);
 
@@ -283,17 +323,20 @@ public class RecruitmentService {
         return ((double) intersection.size() / recruitmentCareTypes.size()) * 100;
     }
 
-    private Double calculateWorkLocationMatchingRate(ResidentialAddress residentialAddress, List<WorkLocation> locations) {
+    private Double calculateWorkLocationMatchingRate(
+            ResidentialAddress residentialAddress, List<WorkLocation> locations) {
         return locations.stream()
                 .map(location -> location.calculateMatchingRate(residentialAddress))
                 .max(Double::compareTo)
                 .orElse(0.0);
     }
 
-    private Double calculateWorkSalaryMatchingRate(int recruitmentSalaryAmount, int applicationSalaryAmount, boolean isForCaregiver) {
+    private Double calculateWorkSalaryMatchingRate(
+            int recruitmentSalaryAmount, int applicationSalaryAmount, boolean isForCaregiver) {
         // 급여 타입은 시급만 고려
         // 매칭 대상 비율은 50 ~ 100% 사이, 그 이외 범위는 매칭 안됨
-        // 요양 보호사 계산식 = (이 값이 0 ~ 1000 인 것만 매칭, 요양보호사는 이 값 차이가 큰 순으로 정렬, 사회복지사는 이 값이 작을수록 적합도 상승 (2000 - 이 값) / 2000 으로 계산)
+        // 요양 보호사 계산식 = (이 값이 0 ~ 1000 인 것만 매칭, 요양보호사는 이 값 차이가 큰 순으로 정렬, 사회복지사는 이 값이 작을수록 적합도 상승 (2000 - 이 값) / 2000 으로
+        // 계산)
         int workSalaryDifference = applicationSalaryAmount - recruitmentSalaryAmount;
 
         if (workSalaryDifference < 0 || workSalaryDifference > 1000) {
@@ -304,14 +347,15 @@ public class RecruitmentService {
         return 100.0;
 
         // 비율 계산 방식
-//        if (isForCaregiver) {
-//            return (double) (workSalaryDifference + 1000) / 2000;
-//        }
-//
-//        return (double) (2000 - workSalaryDifference) / 2000;
+        //        if (isForCaregiver) {
+        //            return (double) (workSalaryDifference + 1000) / 2000;
+        //        }
+        //
+        //        return (double) (2000 - workSalaryDifference) / 2000;
     }
 
-    private Double calculateWorkTimeMatchingRate(EnumSet<WorkTime> recruitmentTimes, EnumSet<WorkTime> applyTimes, boolean isForCaregiver) {
+    private Double calculateWorkTimeMatchingRate(
+            EnumSet<WorkTime> recruitmentTimes, EnumSet<WorkTime> applyTimes, boolean isForCaregiver) {
         EnumSet<WorkTime> intersection = EnumSet.copyOf(recruitmentTimes);
         intersection.retainAll(applyTimes);
 
@@ -321,7 +365,8 @@ public class RecruitmentService {
         return ((double) intersection.size() / recruitmentTimes.size()) * 100;
     }
 
-    private Double calculateDayMatchingRate(EnumSet<DayOfWeek> recruitmentDays, EnumSet<DayOfWeek> applyDays, boolean isForCaregiver) {
+    private Double calculateDayMatchingRate(
+            EnumSet<DayOfWeek> recruitmentDays, EnumSet<DayOfWeek> applyDays, boolean isForCaregiver) {
         EnumSet<DayOfWeek> intersection = EnumSet.copyOf(recruitmentDays);
         intersection.retainAll(applyDays);
 
@@ -364,10 +409,9 @@ public class RecruitmentService {
             return false;
         }
 
-        if (matchingInfo.getWorkLocationMatchingRate() >= 100.0 &&
-            matchingInfo.getWorkSalaryMatchingRate() >= 100 &&
-                matchingInfo.getWorkCareTypeMatchingRate() >= 100
-        ) {
+        if (matchingInfo.getWorkLocationMatchingRate() >= 100.0
+                && matchingInfo.getWorkSalaryMatchingRate() >= 100
+                && matchingInfo.getWorkCareTypeMatchingRate() >= 100) {
             return false;
         }
 

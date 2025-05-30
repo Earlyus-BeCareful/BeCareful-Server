@@ -8,7 +8,6 @@ import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerRespons
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MediationType;
-
 import java.time.DayOfWeek;
 import java.util.List;
 import lombok.Builder;
@@ -27,8 +26,7 @@ public record CaregiverDetailResponse(
         boolean isCompleteDementiaEducation,
         CareerResponse careerInfo,
         List<MediationType> mediationTypes,
-        String mediationDescription
-) {
+        String mediationDescription) {
 
     public static CaregiverDetailResponse of(Matching matching, Career career, List<CareerDetail> careerDetails) {
         return CaregiverDetailResponse.builder()
@@ -38,12 +36,28 @@ public record CaregiverDetailResponse(
                 .workDays(matching.getWorkApplication().getWorkDays().stream().toList())
                 .workTimes(matching.getWorkApplication().getWorkTimes().stream().toList())
                 .workSalaryAmount(matching.getWorkApplication().getWorkSalaryAmount())
-                .careTypes(matching.getWorkApplication().getWorkCareTypes().stream().toList())
-                .certificates(matching.getWorkApplication().getCaregiver().getCaregiverInfo().getCertificateNames())
-                .isHavingCar(matching.getWorkApplication().getCaregiver().getCaregiverInfo().isHavingCar())
-                .isCompleteDementiaEducation(matching.getWorkApplication().getCaregiver().getCaregiverInfo().isCompleteDementiaEducation())
-                .careerInfo(career != null ? CareerResponse.of(career, careerDetails.stream().map(
-                        CareerDetailResponse::from).toList()) : null)
+                .careTypes(matching.getWorkApplication().getWorkCareTypes().stream()
+                        .toList())
+                .certificates(matching.getWorkApplication()
+                        .getCaregiver()
+                        .getCaregiverInfo()
+                        .getCertificateNames())
+                .isHavingCar(matching.getWorkApplication()
+                        .getCaregiver()
+                        .getCaregiverInfo()
+                        .isHavingCar())
+                .isCompleteDementiaEducation(matching.getWorkApplication()
+                        .getCaregiver()
+                        .getCaregiverInfo()
+                        .isCompleteDementiaEducation())
+                .careerInfo(
+                        career != null
+                                ? CareerResponse.of(
+                                        career,
+                                        careerDetails.stream()
+                                                .map(CareerDetailResponse::from)
+                                                .toList())
+                                : null)
                 .build();
     }
 }
