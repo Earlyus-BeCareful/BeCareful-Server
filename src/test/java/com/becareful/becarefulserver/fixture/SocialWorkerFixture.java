@@ -8,6 +8,9 @@ import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRa
 
 import java.time.LocalDate;
 
+import static com.becareful.becarefulserver.fixture.AssociationFixture.*;
+import static com.becareful.becarefulserver.fixture.NursingInstitutionFixture.*;
+
 public class SocialWorkerFixture {
 
     public static SocialWorker SOCIAL_WORKER_1 = SocialWorker.create(
@@ -19,8 +22,8 @@ public class SocialWorkerFixture {
             InstitutionRank.SOCIAL_WORKER,
             AssociationRank.NONE,
             true,
-            NursingInstitutionFixture.NURSING_INSTITUTION,
-            Association.create("test")
+            NURSING_INSTITUTION,
+            JEONJU_ASSOCIATION
     );
 
     public static SocialWorker SOCIAL_WORKER_MANAGER = SocialWorker.create(
@@ -32,7 +35,7 @@ public class SocialWorkerFixture {
             InstitutionRank.SOCIAL_WORKER,
             AssociationRank.MEMBER,
             true,
-            NursingInstitutionFixture.NURSING_INSTITUTION,
-            Association.create("test")
+            NURSING_INSTITUTION,
+            JEONJU_ASSOCIATION
     );
 }
