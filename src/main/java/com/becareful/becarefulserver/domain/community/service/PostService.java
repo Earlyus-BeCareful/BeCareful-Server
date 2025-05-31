@@ -36,9 +36,9 @@ public class PostService {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
-        PostBoard postBoard =
-                postBoardRepository.findByBoardTypeAndAssociation(type, currentMember.getAssociation())
-                        .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         validateSocialWorkerRankWritable(currentMember, postBoard);
 
@@ -53,9 +53,9 @@ public class PostService {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
-        PostBoard postBoard =
-                postBoardRepository.findByBoardTypeAndAssociation(type, currentMember.getAssociation())
-                        .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
 
@@ -70,9 +70,9 @@ public class PostService {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
-        PostBoard postBoard =
-                postBoardRepository.findByBoardTypeAndAssociation(type, currentMember.getAssociation())
-                        .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
 
@@ -87,9 +87,9 @@ public class PostService {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
-        PostBoard postBoard =
-                postBoardRepository.findByBoardTypeAndAssociation(type, currentMember.getAssociation())
-                        .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         validateSocialWorkerRankReadable(currentMember, postBoard);
 
@@ -114,9 +114,9 @@ public class PostService {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
-        PostBoard postBoard =
-                postBoardRepository.findByBoardTypeAndAssociation(type, currentMember.getAssociation())
-                        .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         validateSocialWorkerRankReadable(currentMember, postBoard);
 
@@ -127,13 +127,19 @@ public class PostService {
     }
 
     private void validateSocialWorkerRankWritable(SocialWorker socialworker, PostBoard board) {
-        if (!board.getWritableRank().equals(socialworker.getAssociationRank()) || !board.getAssociation().getId().equals(socialworker.getAssociation().getId())) {
+        if (!board.getWritableRank().equals(socialworker.getAssociationRank())
+                || !board.getAssociation()
+                        .getId()
+                        .equals(socialworker.getAssociation().getId())) {
             throw new PostBoardException(POST_BOARD_NOT_WRITABLE);
         }
     }
 
     private void validateSocialWorkerRankReadable(SocialWorker socialWorker, PostBoard board) {
-        if (!board.getReadableRank().equals(socialWorker.getAssociationRank()) || !board.getAssociation().getId().equals(socialWorker.getAssociation().getId())) {
+        if (!board.getReadableRank().equals(socialWorker.getAssociationRank())
+                || !board.getAssociation()
+                        .getId()
+                        .equals(socialWorker.getAssociation().getId())) {
             throw new PostBoardException(POST_BOARD_NOT_READABLE);
         }
     }

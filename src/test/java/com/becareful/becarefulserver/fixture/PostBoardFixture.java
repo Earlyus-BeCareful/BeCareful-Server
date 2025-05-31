@@ -6,5 +6,9 @@ import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRa
 
 public class PostBoardFixture {
 
-    public static final PostBoard 협회공지 = PostBoard.create(BoardType.ASSOCIATION_NOTICE, AssociationRank.MEMBER, AssociationRank.MEMBER, AssociationFixture.JEONJU_ASSOCIATION);
+    public static final PostBoard 협회공지 = PostBoard.create(
+            BoardType.ASSOCIATION_NOTICE,
+            AssociationRank.MEMBER,
+            AssociationRank.MEMBER,
+            AssociationFixture.JEONJU_ASSOCIATION);
 }
