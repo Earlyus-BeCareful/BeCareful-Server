@@ -22,6 +22,7 @@ public class PostBoard extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     private BoardType boardType;
 
     @Enumerated(EnumType.STRING)
