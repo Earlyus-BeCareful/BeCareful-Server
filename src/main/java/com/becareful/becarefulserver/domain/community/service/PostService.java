@@ -127,13 +127,13 @@ public class PostService {
     }
 
     private void validateSocialWorkerRankWritable(SocialWorker socialworker, PostBoard board) {
-        if (!board.getWritableRank().equals(socialworker.getAssociationRank())) {
+        if (!board.getWritableRank().equals(socialworker.getAssociationRank()) || !board.getAssociation().getId().equals(socialworker.getAssociation().getId())) {
             throw new PostBoardException(POST_BOARD_NOT_WRITABLE);
         }
     }
 
     private void validateSocialWorkerRankReadable(SocialWorker socialWorker, PostBoard board) {
-        if (!board.getReadableRank().equals(socialWorker.getAssociationRank())) {
+        if (!board.getReadableRank().equals(socialWorker.getAssociationRank()) || !board.getAssociation().getId().equals(socialWorker.getAssociation().getId())) {
             throw new PostBoardException(POST_BOARD_NOT_READABLE);
         }
     }
