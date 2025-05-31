@@ -23,39 +23,39 @@ public class PostController {
     private final PostService postService;
 
     @Operation(summary = "게시글 작성")
-    @PostMapping("/board/{boardId}/post")
-    public ResponseEntity<Void> createPost(@PathVariable Long boardId, @RequestBody PostCreateRequest request) {
-        Long postId = postService.createPost(boardId, request);
-        return ResponseEntity.created(URI.create("/board/" + boardId + "/post/" + postId))
+    @PostMapping("/board/{boardType}/post")
+    public ResponseEntity<Void> createPost(@PathVariable String boardType, @RequestBody PostCreateRequest request) {
+        Long postId = postService.createPost(boardType, request);
+        return ResponseEntity.created(URI.create("/board/" + boardType + "/post/" + postId))
                 .build();
     }
 
     @Operation(summary = "특정 게시판의 모든 게시글 리스트 조회")
-    @GetMapping("/board/{boardId}/post")
-    public ResponseEntity<List<PostSimpleDto>> getAllBoardPosts(@PathVariable Long boardId, Pageable pageable) {
-        var response = postService.getPosts(boardId, pageable);
+    @GetMapping("/board/{boardType}/post")
+    public ResponseEntity<List<PostSimpleDto>> getAllBoardPosts(@PathVariable String boardType, Pageable pageable) {
+        var response = postService.getPosts(boardType, pageable);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "특정 게시글 상세 조회", description = "특정 게시글의 상세 내용을 조회합니다.")
-    @GetMapping("/board/{boardId}/post/{postId}")
-    public ResponseEntity<PostDetailResponse> getPost(@PathVariable Long boardId, @PathVariable Long postId) {
-        var response = postService.getPost(boardId, postId);
+    @GetMapping("/board/{boardType}/post/{postId}")
+    public ResponseEntity<PostDetailResponse> getPost(@PathVariable String boardType, @PathVariable Long postId) {
+        var response = postService.getPost(boardType, postId);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "게시글 수정")
-    @PutMapping("/board/{boardId}/post/{postId}")
+    @PutMapping("/board/{boardType}/post/{postId}")
     public ResponseEntity<Void> updatePost(
-            @PathVariable Long boardId, @PathVariable Long postId, @RequestBody PostUpdateRequest request) {
-        postService.updatePost(boardId, postId, request);
+            @PathVariable String boardType, @PathVariable Long postId, @RequestBody PostUpdateRequest request) {
+        postService.updatePost(boardType, postId, request);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "게시글 삭제")
-    @DeleteMapping("/board/{boardId}/post/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long boardId, @PathVariable Long postId) {
-        postService.deletePost(boardId, postId);
+    @DeleteMapping("/board/{boardType}/post/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable String boardType, @PathVariable Long postId) {
+        postService.deletePost(boardType, postId);
         return ResponseEntity.noContent().build();
     }
 

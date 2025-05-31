@@ -9,5 +9,21 @@ public enum BoardType {
     ASSOCIATION_NOTICE,
     SERVICE_NOTICE,
     INFORMATION_SHARING,
-    PARTICIPATION_APPLICATION
+    PARTICIPATION_APPLICATION;
+
+    public static BoardType fromUrlBoardType(String boardType) {
+        boardType = convertUrlBoardTypeToName(boardType);
+        for (BoardType type : BoardType.values()) {
+            if (type.name().equals(boardType)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
+    private static String convertUrlBoardTypeToName(String boardType) {
+        boardType = boardType.toUpperCase();
+        String[] tokens = boardType.split("-");
+        return String.join("_", tokens);
+    }
 }
