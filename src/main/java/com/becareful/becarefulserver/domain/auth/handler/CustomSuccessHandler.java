@@ -10,26 +10,42 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.util.List;
+import java.util.UUID;
 
 @Component
-@RequiredArgsConstructor
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private static final Logger logger = LoggerFactory.getLogger(CustomSuccessHandler.class);
     private final JwtUtil jwtUtil;
     private final CookieProperties cookieProperties;
     private final LoginRedirectUrlProperties loginRedirectUrlProperties;
     private final JwtProperties jwtProperties;
+    private final RedisTemplate<String, OAuth2LoginResponse> redisTemplate;
+
+    public CustomSuccessHandler(
+            JwtUtil jwtUtil,
+            CookieProperties cookieProperties,
+            LoginRedirectUrlProperties loginRedirectUrlProperties,
+            JwtProperties jwtProperties,
+            @Qualifier("oAuth2LoginResponseRedisTemplate") RedisTemplate<String, OAuth2LoginResponse> redisTemplate) {
+        this.jwtUtil = jwtUtil;
+        this.cookieProperties = cookieProperties;
+        this.loginRedirectUrlProperties = loginRedirectUrlProperties;
+        this.jwtProperties = jwtProperties;
+        this.redisTemplate = redisTemplate;
+    }
 
     @Override
     public void onAuthenticationSuccess(
@@ -52,22 +68,24 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry())); // 24시간
         response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry())); // 일주일
 
-        if (roles.contains("GUEST")) { // 비회원
-            String encodedName = URLEncoder.encode(loginInfo.name(), StandardCharsets.UTF_8);
-            String encodedNickname = URLEncoder.encode(loginInfo.nickname(), StandardCharsets.UTF_8);
+        if (roles.contains("GUEST")) {
+            // 민감 정보는 Redis에 저장하고 key만 전달
+            String guestKey = UUID.randomUUID().toString();
+            redisTemplate
+                    .opsForValue()
+                    .set(
+                            "guest:" + guestKey, loginInfo, Duration.ofMinutes(5) // 5분 후 만료
+                            );
 
-            response.addCookie(createReadableCookie("Name", encodedName));
-            response.addCookie(createReadableCookie("Nickname", encodedNickname));
-            response.addCookie(createReadableCookie("PhoneNumber", loginInfo.phoneNumber()));
-            response.addCookie(createReadableCookie("BirthYymmdd", String.valueOf(loginInfo.birthYymmdd())));
-            response.addCookie(createReadableCookie("BirthGenderCode", String.valueOf(loginInfo.birthGenderCode())));
+            String redirectUrl = UriComponentsBuilder.fromUriString(
+                            loginRedirectUrlProperties.getGuestLoginRedirectUrl())
+                    .queryParam("guestKey", guestKey)
+                    .build()
+                    .toUriString();
 
-            // TODO(회원 로그인 리다이렉트 주소 설정)
-            response.sendRedirect(loginRedirectUrlProperties.getGuestLoginRedirectUrl());
-        } else if (roles.contains("NONE")) { // 기관 사회복지사 & 요양 보호사
-            response.sendRedirect(loginRedirectUrlProperties.getGuestLoginRedirectUrl());
-        } else { // 협회 회원
-            response.sendRedirect(loginRedirectUrlProperties.getGuestLoginRedirectUrl());
+            response.sendRedirect(redirectUrl);
+        } else {
+            response.sendRedirect(loginRedirectUrlProperties.getUserLoginRedirectUrl());
         }
     }
 
@@ -76,17 +94,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookie.setMaxAge(maxAge);
         cookie.setSecure(cookieProperties.getCookieSecure());
         cookie.setPath("/");
+        cookie.setDomain(cookieProperties.getCookieDomain()); // Set domain for cross-domain access
         cookie.setHttpOnly(true);
-        cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
-        return cookie;
-    }
-
-    private Cookie createReadableCookie(String key, String value) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60 * 60 * 5);
-        cookie.setSecure(cookieProperties.getCookieSecure());
-        cookie.setPath("/");
-        cookie.setHttpOnly(false); // JS에서 접근 가능하게 설정
         cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
         return cookie;
     }
