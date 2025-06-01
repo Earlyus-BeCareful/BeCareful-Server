@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.association.service;
 
+import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
+import static com.becareful.becarefulserver.domain.community.domain.BoardType.PARTICIPATION_APPLICATION;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
@@ -11,13 +13,17 @@ import com.becareful.becarefulserver.domain.association.dto.response.Association
 import com.becareful.becarefulserver.domain.association.repository.AssociationMembershipRequestRepository;
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
 import com.becareful.becarefulserver.domain.association.vo.AssociationJoinRequestStatus;
+import com.becareful.becarefulserver.domain.community.domain.PostBoard;
+import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.exception.exception.AssociationException;
 import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,6 +39,7 @@ public class AssociationService {
     private final SocialWorkerRepository socialWorkerRepository;
     private final AssociationRepository associationRepository;
     private final AssociationMembershipRequestRepository associationMembershipRequestRepository;
+    private final PostBoardRepository postBoardRepository;
 
     @Transactional
     public void joinAssociation(AssociationJoinRequest request) {
@@ -72,18 +79,22 @@ public class AssociationService {
 
     @Transactional
     public long saveAssociation(AssociationCreateRequest request) {
+        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
         Association newAssociation =
                 Association.create(request.name(), request.profileImageUrl(), request.establishedYear());
 
         associationRepository.save(newAssociation);
 
-        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
+        List<PostBoard> postBoards = createDefaultPostBoards(newAssociation);
+
+        postBoardRepository.saveAll(postBoards);
+
         currentSocialWorker.setAssociation(newAssociation);
 
         return newAssociation.getId();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public AssociationMyResponse getMyAssociation() {
         SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
         Association association = currentSocialWorker.getAssociation();
@@ -108,5 +119,14 @@ public class AssociationService {
     // TODO(파일이름 생성 로직 수정)
     private String generateProfileImageFileName() {
         return UUID.randomUUID().toString();
+    }
+
+    private List<PostBoard> createDefaultPostBoards(Association association) {
+        return List.of(
+                PostBoard.create(ASSOCIATION_NOTICE, AssociationRank.MEMBER, AssociationRank.MEMBER, association),
+                PostBoard.create(SERVICE_NOTICE, AssociationRank.MEMBER, AssociationRank.MEMBER, association),
+                PostBoard.create(INFORMATION_SHARING, AssociationRank.MEMBER, AssociationRank.MEMBER, association),
+                PostBoard.create(
+                        PARTICIPATION_APPLICATION, AssociationRank.MEMBER, AssociationRank.MEMBER, association));
     }
 }
