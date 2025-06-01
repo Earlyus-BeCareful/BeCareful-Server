@@ -62,10 +62,10 @@ public class CommunityService {
 
             if (requestOpt.isPresent()) {
                 associationMembershipRequestRepository.delete(requestOpt.get());
-                return CommunityAccessResponse.approved(associationMemberCount, socialWorker);
+                return CommunityAccessResponse.approved(socialWorker, associationMemberCount);
             }
 
-            return CommunityAccessResponse.alreadyApproved(associationMemberCount, socialWorker);
+            return CommunityAccessResponse.alreadyApproved(socialWorker, associationMemberCount);
         }
 
         return requestOpt
