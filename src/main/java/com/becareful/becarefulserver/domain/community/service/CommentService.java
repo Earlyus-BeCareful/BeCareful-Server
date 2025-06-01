@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.community.service;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_BOARD_NOT_FOUND;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_NOT_FOUND;
 
+import com.becareful.becarefulserver.domain.community.domain.BoardType;
 import com.becareful.becarefulserver.domain.community.domain.Comment;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
@@ -30,14 +31,17 @@ public class CommentService {
     private final PostRepository postRepository;
 
     @Transactional
-    public Long createComment(Long boardId, Long postId, CommentCreateRequest request) {
+    public Long createComment(String boardType, Long postId, CommentCreateRequest request) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
-        PostBoard postBoard =
-                postBoardRepository.findById(boardId).orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        BoardType type = BoardType.fromUrlBoardType(boardType);
+
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
 
         postBoard.validateReadableFor(currentMember);
-        post.validateBoard(boardId);
+        post.validateBoard(postBoard.getId());
 
         Comment comment = Comment.create(request.content(), currentMember, post);
 
@@ -45,14 +49,17 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<CommentResponse> getComments(Long boardId, Long postId) {
+    public List<CommentResponse> getComments(String boardType, Long postId) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
-        PostBoard postBoard =
-                postBoardRepository.findById(boardId).orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        BoardType type = BoardType.fromUrlBoardType(boardType);
+
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
 
         postBoard.validateReadableFor(currentMember);
-        post.validateBoard(boardId);
+        post.validateBoard(postBoard.getId());
 
         return commentRepository.findAllByPost(post).stream()
                 .map(CommentResponse::from)

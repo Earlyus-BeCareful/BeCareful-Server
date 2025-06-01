@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.community.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.community.domain.BoardType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
 import com.becareful.becarefulserver.domain.community.dto.PostSimpleDto;
@@ -31,11 +32,13 @@ public class PostService {
     private final PostBoardRepository postBoardRepository;
 
     @Transactional
-    public Long createPost(Long boardId, PostCreateRequest request) {
+    public Long createPost(String boardType, PostCreateRequest request) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        BoardType type = BoardType.fromUrlBoardType(boardType);
 
-        PostBoard postBoard =
-                postBoardRepository.findById(boardId).orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         validateSocialWorkerRankWritable(currentMember, postBoard);
 
@@ -46,11 +49,13 @@ public class PostService {
     }
 
     @Transactional
-    public void updatePost(Long boardId, Long postId, PostUpdateRequest request) {
+    public void updatePost(String boardType, Long postId, PostUpdateRequest request) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        BoardType type = BoardType.fromUrlBoardType(boardType);
 
-        PostBoard postBoard =
-                postBoardRepository.findById(boardId).orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
 
@@ -61,11 +66,13 @@ public class PostService {
     }
 
     @Transactional
-    public void deletePost(Long boardId, Long postId) {
+    public void deletePost(String boardType, Long postId) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        BoardType type = BoardType.fromUrlBoardType(boardType);
 
-        PostBoard postBoard =
-                postBoardRepository.findById(boardId).orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
 
@@ -76,10 +83,13 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostSimpleDto> getPosts(Long boardId, Pageable pageable) {
+    public List<PostSimpleDto> getPosts(String boardType, Pageable pageable) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
-        PostBoard postBoard =
-                postBoardRepository.findById(boardId).orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        BoardType type = BoardType.fromUrlBoardType(boardType);
+
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         validateSocialWorkerRankReadable(currentMember, postBoard);
 
@@ -100,28 +110,44 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostDetailResponse getPost(Long boardId, Long postId) {
+    public PostDetailResponse getPost(String boardType, Long postId) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
-        PostBoard postBoard =
-                postBoardRepository.findById(boardId).orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        BoardType type = BoardType.fromUrlBoardType(boardType);
+
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         validateSocialWorkerRankReadable(currentMember, postBoard);
 
-        return postRepository
-                .findById(postId)
-                .map(PostDetailResponse::from)
-                .orElseThrow(() -> new PostException(POST_NOT_FOUND));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
+
+        validatePostBoardHasPost(postBoard, post);
+
+        return PostDetailResponse.from(post);
     }
 
     private void validateSocialWorkerRankWritable(SocialWorker socialworker, PostBoard board) {
-        if (!board.getWritableRank().equals(socialworker.getAssociationRank())) {
+        if (!board.getWritableRank().equals(socialworker.getAssociationRank())
+                || !board.getAssociation()
+                        .getId()
+                        .equals(socialworker.getAssociation().getId())) {
             throw new PostBoardException(POST_BOARD_NOT_WRITABLE);
         }
     }
 
     private void validateSocialWorkerRankReadable(SocialWorker socialWorker, PostBoard board) {
-        if (!board.getReadableRank().equals(socialWorker.getAssociationRank())) {
+        if (!board.getReadableRank().equals(socialWorker.getAssociationRank())
+                || !board.getAssociation()
+                        .getId()
+                        .equals(socialWorker.getAssociation().getId())) {
             throw new PostBoardException(POST_BOARD_NOT_READABLE);
+        }
+    }
+
+    private void validatePostBoardHasPost(PostBoard board, Post post) {
+        if (!post.getBoard().equals(board)) {
+            throw new PostException(POST_NOT_FOUND_IN_BOARD);
         }
     }
 }
