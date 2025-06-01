@@ -1,18 +1,18 @@
 package com.becareful.becarefulserver.domain.community.dto.response;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
-import com.becareful.becarefulserver.domain.association.dto.response.AssociationInfoResponse;
+import com.becareful.becarefulserver.domain.association.dto.response.AssociationMyResponse;
 import com.becareful.becarefulserver.domain.community.vo.CommunityAccessStatus;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 
 public record CommunityAccessResponse(
-        CommunityAccessStatus accessStatus, AssociationInfoResponse associationInfo, String socialWorkerNickname) {
+        CommunityAccessStatus accessStatus, AssociationMyResponse associationInfo, String socialWorkerNickname) {
 
     public static CommunityAccessResponse alreadyApproved(
             Integer associationMemberCount, SocialWorker socialWorker) {
         return new CommunityAccessResponse(
                 CommunityAccessStatus.ALREADY_APPROVED,
-                AssociationInfoResponse.from(socialWorker.getAssociation(), associationMemberCount),
+                AssociationMyResponse.from(socialWorker.getAssociation(), associationMemberCount),
                 socialWorker.getNickname());
     }
 
@@ -20,7 +20,7 @@ public record CommunityAccessResponse(
             Integer associationMemberCount, SocialWorker socialWorker) {
         return new CommunityAccessResponse(
                 CommunityAccessStatus.APPROVED,
-                AssociationInfoResponse.from(socialWorker.getAssociation(), associationMemberCount),
+                AssociationMyResponse.from(socialWorker.getAssociation(), associationMemberCount),
                 socialWorker.getNickname());
     }
 
