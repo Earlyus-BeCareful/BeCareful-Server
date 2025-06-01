@@ -15,9 +15,11 @@ public class AssociationMembershipRequest {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "association_id")
     private Association association;
 
     @OneToOne
+    @JoinColumn(name = "social_worker_id")
     private SocialWorker socialWorker;
 
     @Enumerated(EnumType.STRING)

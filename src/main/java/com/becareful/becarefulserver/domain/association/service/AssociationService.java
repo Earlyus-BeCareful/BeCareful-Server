@@ -35,6 +35,7 @@ public class AssociationService {
     private final AssociationRepository associationRepository;
     private final AssociationMembershipRequestRepository associationMembershipRequestRepository;
 
+    @Transactional
     public void joinAssociation(AssociationJoinRequest request) {
         SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
 
@@ -48,6 +49,7 @@ public class AssociationService {
     }
 
     // 협회 가입 신청 승인
+    @Transactional
     public void accpetJoinAssociation(Long associationMembershipRequestId) {
         AssociationMembershipRequest membershipRequest = associationMembershipRequestRepository
                 .findById(associationMembershipRequestId)
@@ -60,6 +62,7 @@ public class AssociationService {
     }
 
     // 협회 가입 신청 반려(신청자가 반려사실을 확인하면 요청 레코드 삭제)
+    @Transactional
     public void rejectJoinAssociation(Long associationMembershipRequestId) {
         AssociationMembershipRequest membershipRequest = associationMembershipRequestRepository
                 .findById(associationMembershipRequestId)
@@ -68,6 +71,7 @@ public class AssociationService {
         membershipRequest.setStatus(AssociationJoinRequestStatus.REJECTED);
     }
 
+    @Transactional
     public long saveAssociation(AssociationCreateRequest request) {
         Association newAssociation =
                 Association.create(request.name(), request.profileImageUrl(), request.establishedYear());
@@ -80,6 +84,7 @@ public class AssociationService {
         return newAssociation.getId();
     }
 
+    @Transactional
     public AssociationMyResponse getMyAssociation() {
         SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
         Association association = currentSocialWorker.getAssociation();
@@ -88,7 +93,7 @@ public class AssociationService {
         return AssociationMyResponse.from(association, associationMemberCount);
     }
 
-    @Transactional
+
     public AssociationProfileImageUploadResponse uploadProfileImage(MultipartFile file) {
         try {
             String fileName = generateProfileImageFileName();
