@@ -1,7 +1,5 @@
 package com.becareful.becarefulserver.domain.nursingInstitution.controller;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.NURSING_INSTITUTION_REQUIRE_CODE;
-
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.request.NursingInstitutionCreateRequest;
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionProfileUploadResponse;
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionSearchResponse;
@@ -16,6 +14,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.net.URI;
+
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.NURSING_INSTITUTION_REQUIRE_CODE;
 
 @RestController
 @RequiredArgsConstructor
@@ -54,9 +56,9 @@ public class NursingInstitutionController {
 
     @Operation(summary = "요양 기관 등록", description = "요양 기관이 등록 되지 않았으면 등록 요청")
     @PostMapping("/for-guest/register")
-    public ResponseEntity<Long> createNursingInstitution(@Valid @RequestBody NursingInstitutionCreateRequest request) {
+    public ResponseEntity<Void> createNursingInstitution(@Valid @RequestBody NursingInstitutionCreateRequest request) {
         Long id = nursingInstitutionService.saveNursingInstitution(request);
-        return ResponseEntity.ok(id);
+        return ResponseEntity.created(URI.create("nursingInstitution/" + id)).build();
     }
 
     @Hidden

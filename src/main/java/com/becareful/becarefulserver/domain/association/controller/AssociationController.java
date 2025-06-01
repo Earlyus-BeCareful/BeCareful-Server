@@ -7,6 +7,7 @@ import com.becareful.becarefulserver.domain.association.service.AssociationServi
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,10 +35,10 @@ public class AssociationController {
     // TODO(role 확인)
     @Operation(summary = "협회 등록", description = "협회 회장으로 승인 된 사용자만 협회 등록 가능")
     @PostMapping("/register")
-    public ResponseEntity<Long> createAssociation(
+    public ResponseEntity<Void> createAssociation(
             @Valid @RequestBody AssociationCreateRequest associationCreateRequest) {
         Long id = associationService.saveAssociation(associationCreateRequest);
-        return ResponseEntity.ok(id);
+        return ResponseEntity.created(URI.create("association/" + id)).build();
     }
 
     // TODO(role 확인)
