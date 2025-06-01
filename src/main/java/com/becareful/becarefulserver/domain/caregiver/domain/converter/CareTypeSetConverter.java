@@ -1,8 +1,7 @@
 package com.becareful.becarefulserver.domain.caregiver.domain.converter;
 
-import jakarta.persistence.Converter;
-
 import com.becareful.becarefulserver.domain.common.domain.CareType;
+import jakarta.persistence.Converter;
 
 @Converter
 public class CareTypeSetConverter extends EnumSetConverter<CareType> {

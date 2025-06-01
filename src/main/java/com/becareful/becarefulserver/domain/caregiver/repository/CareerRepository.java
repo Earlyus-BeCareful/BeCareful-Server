@@ -1,11 +1,9 @@
 package com.becareful.becarefulserver.domain.caregiver.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.becareful.becarefulserver.domain.caregiver.domain.Career;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-
 import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CareerRepository extends JpaRepository<Career, Long> {
 

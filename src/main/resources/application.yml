@@ -34,8 +34,7 @@ server:
 login:
   redirect_url:
     guest: "${LOGIN_REDIRECT_URL_GUEST}"
-
-
+    user: "${LOGIN_REDIRECT_URL_USER}"
 
 cookie:
   secure: "${COOKIE_SECURE}"

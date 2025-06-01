@@ -2,7 +2,6 @@ package com.becareful.becarefulserver.domain.community.dto.response;
 
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.dto.AuthorSimpleDto;
-
 import java.time.format.DateTimeFormatter;
 
 public record PostDetailResponse(
@@ -12,8 +11,7 @@ public record PostDetailResponse(
         boolean isImportant,
         boolean isEdited,
         String postedDate,
-        AuthorSimpleDto author
-) {
+        AuthorSimpleDto author) {
     public static PostDetailResponse from(Post post) {
         return new PostDetailResponse(
                 post.getId(),
@@ -22,7 +20,6 @@ public record PostDetailResponse(
                 post.isImportant(),
                 !post.getCreateDate().isEqual(post.getUpdateDate()),
                 post.getUpdateDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                AuthorSimpleDto.from(post.getAuthor())
-        );
+                AuthorSimpleDto.from(post.getAuthor()));
     }
 }

@@ -3,8 +3,6 @@ package com.becareful.becarefulserver.domain.sms.service;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.SMS_PHONE_NUMBER_AUTH_NOT_EXISTS;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.SMS_SEND_FAILED;
 
-import org.springframework.stereotype.Service;
-
 import com.becareful.becarefulserver.domain.sms.domain.SmsAuthentication;
 import com.becareful.becarefulserver.domain.sms.dto.SmsAuthenticateRequest;
 import com.becareful.becarefulserver.domain.sms.dto.SmsSendRequest;
@@ -12,9 +10,9 @@ import com.becareful.becarefulserver.domain.sms.repository.SmsRepository;
 import com.becareful.becarefulserver.global.exception.exception.SmsException;
 import com.becareful.becarefulserver.global.util.SmsSendResult;
 import com.becareful.becarefulserver.global.util.SmsUtil;
-
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +39,8 @@ public class SmsService {
     }
 
     public void authenticateNumber(SmsAuthenticateRequest request) {
-        SmsAuthentication auth = smsRepository.findById(request.phoneNumber())
+        SmsAuthentication auth = smsRepository
+                .findById(request.phoneNumber())
                 .orElseThrow(() -> new SmsException(SMS_PHONE_NUMBER_AUTH_NOT_EXISTS));
 
         auth.authenticate(request.authNumber());

@@ -1,5 +1,10 @@
 package com.becareful.becarefulserver.domain.caregiver.domain;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
+import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
+import com.becareful.becarefulserver.domain.caregiver.domain.converter.WorkTimeSetConverter;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
+import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -12,16 +17,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-
-import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
-import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
-import com.becareful.becarefulserver.domain.caregiver.domain.converter.WorkTimeSetConverter;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
-import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-
 import java.time.DayOfWeek;
 import java.util.EnumSet;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -58,9 +55,14 @@ public class WorkApplication extends BaseEntity {
     private Caregiver caregiver;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public WorkApplication(EnumSet<DayOfWeek> workDays, EnumSet<WorkTime> workTimes,
-            EnumSet<CareType> workCareTypes, WorkSalaryType workSalaryType, int workSalaryAmount,
-            boolean isActive, Caregiver caregiver) {
+    public WorkApplication(
+            EnumSet<DayOfWeek> workDays,
+            EnumSet<WorkTime> workTimes,
+            EnumSet<CareType> workCareTypes,
+            WorkSalaryType workSalaryType,
+            int workSalaryAmount,
+            boolean isActive,
+            Caregiver caregiver) {
         this.workDays = workDays;
         this.workTimes = workTimes;
         this.workCareTypes = workCareTypes;
@@ -93,7 +95,6 @@ public class WorkApplication extends BaseEntity {
     /***
      * Entity Method
      */
-
     public void activate() {
         this.isActive = true;
     }

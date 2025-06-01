@@ -1,15 +1,11 @@
 package com.becareful.becarefulserver.domain.matching.dto.response;
 
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
-
+import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import java.time.LocalDate;
 
-public record MyRecruitmentDetailResponse(
-        RecruitmentDetailResponse recruitmentDetailInfo,
-        LocalDate applyDate
-) {
+public record MyRecruitmentDetailResponse(RecruitmentDetailResponse recruitmentDetailInfo, LocalDate applyDate) {
 
     public static MyRecruitmentDetailResponse of(
             Recruitment recruitment,
@@ -28,9 +24,7 @@ public record MyRecruitmentDetailResponse(
                         InstitutionInfoResponse.from(institution),
                         isHotRecruitment,
                         isHourlySalaryTop,
-                        matchRate
-                ),
-                applyDate
-        );
+                        matchRate),
+                applyDate);
     }
 }

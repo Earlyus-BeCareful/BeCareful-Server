@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.caregiver.domain.vo;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,8 +17,9 @@ public class Certificate {
 
     private String certificateNumber;
 
-    public enum CertificateGrade{
-        FIRST("1급"), SECOND("2급");
+    public enum CertificateGrade {
+        FIRST("1급"),
+        SECOND("2급");
 
         private final String value;
 

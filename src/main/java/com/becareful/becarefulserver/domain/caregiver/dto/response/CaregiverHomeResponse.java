@@ -1,8 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.dto.response;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -13,9 +11,13 @@ public record CaregiverHomeResponse(
         Integer applicationCount,
         Integer recruitmentCount,
         List<WorkScheduleResponse> workScheduleList,
-        boolean isWorking
-) {
-    public static CaregiverHomeResponse of(Caregiver caregiver, Integer applicationCount, Integer recruitmentCount, boolean isWorking, List<WorkScheduleResponse> workScheduleList) {
+        boolean isWorking) {
+    public static CaregiverHomeResponse of(
+            Caregiver caregiver,
+            Integer applicationCount,
+            Integer recruitmentCount,
+            boolean isWorking,
+            List<WorkScheduleResponse> workScheduleList) {
         return CaregiverHomeResponse.builder()
                 .name(caregiver.getName())
                 .applicationCount(applicationCount)

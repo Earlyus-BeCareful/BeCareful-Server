@@ -39,8 +39,6 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
-
-
 sms:
   api_key: "a"
   api_secret: "a"
@@ -58,13 +56,11 @@ jwt:
     access_token: 86400
     refresh_token: 604800
 
-
 login:
   redirect_url:
     guest: aaa
+    user: aaa
 
 cookie:
   secure: false
   samesite: Lax
-
-

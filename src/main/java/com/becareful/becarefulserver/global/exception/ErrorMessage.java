@@ -23,13 +23,14 @@ public class ErrorMessage {
     public static final String SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER = "이미 가입된 전화번호 입니다.";
     public static final String SOCIAlWORKER_ALREADY_EXISTS_NICKNAME = "이미 존재하는 닉네임 입니다.";
     public static final String SOCIALWORKER_NOT_EXISTS = "해당하는 사회복지사가 없습니다.";
-    public static final String  NURSING_INSTITUTION_REQUIRE_CODE = "기관코드는 필수입니다.";
+    public static final String NURSING_INSTITUTION_REQUIRE_CODE = "기관코드는 필수입니다.";
 
     public static final String NURSING_INSTITUTION_ALREADY_EXISTS = "이미 등록된 기관입니다.";
     public static final String NURSING_INSTITUTION_NOT_FOUND = "해당 ID의 요양 기관을 찾을 수 없습니다.";
     public static final String NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
 
-    public static final String ASSOCIATION_INSTITUTION_NOT_EXISTS = "존재하지 않는 협회입니다.";
+    public static final String ASSOCIATION_NOT_EXISTS = "존재하지 않는 협회입니다.";
+    public static final String ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS = "존재하지 않는 협회 가입 요청입니다.";
 
     public static final String ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
     public static final String ELDERLY_NOT_EXISTS = "존재하지 않는 어르신입니다.";
@@ -47,4 +48,6 @@ public class ErrorMessage {
 
     public static final String POST_NOT_FOUND = "게시글이 존재하지 않습니다.";
     public static final String POST_NOT_UPDATABLE = "글 작성자만 수정할 수 있습니다.";
+    public static final String POST_DIFFERENT_POST_BOARD = "URL로 넘긴 board id 에 post가 없습니다.";
+    public static final String POST_NOT_FOUND_IN_BOARD = "게시판에 해당 ID의 포스트가 존재하지 않습니다.";
 }

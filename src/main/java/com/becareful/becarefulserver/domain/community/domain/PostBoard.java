@@ -1,13 +1,13 @@
 package com.becareful.becarefulserver.domain.community.domain;
 
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_BOARD_NOT_READABLE;
+
+import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.global.exception.exception.PostBoardException;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +22,8 @@ public class PostBoard extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private BoardType boardType;
 
     @Enumerated(EnumType.STRING)
     private AssociationRank readableRank;
@@ -30,18 +31,35 @@ public class PostBoard extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private AssociationRank writableRank;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "association_id")
+    private Association association;
+
     @Builder(access = AccessLevel.PRIVATE)
-    private PostBoard(String name, AssociationRank readableRank, AssociationRank writableRank) {
-        this.name = name;
+    private PostBoard(
+            BoardType boardType, AssociationRank readableRank, AssociationRank writableRank, Association association) {
+        this.boardType = boardType;
         this.readableRank = readableRank;
         this.writableRank = writableRank;
+        this.association = association;
     }
 
-    public static PostBoard create(String name, AssociationRank readableRank, AssociationRank writableRank) {
+    public static PostBoard create(
+            BoardType boardType, AssociationRank readableRank, AssociationRank writableRank, Association association) {
         return PostBoard.builder()
-                .name(name)
+                .boardType(boardType)
                 .readableRank(readableRank)
                 .writableRank(writableRank)
+                .association(association)
                 .build();
+    }
+
+    /**
+     * 검증 로직
+     */
+    public void validateReadableFor(SocialWorker currentMember) {
+        if (!this.getReadableRank().equals(currentMember.getAssociationRank())) {
+            throw new PostBoardException(POST_BOARD_NOT_READABLE);
+        }
     }
 }

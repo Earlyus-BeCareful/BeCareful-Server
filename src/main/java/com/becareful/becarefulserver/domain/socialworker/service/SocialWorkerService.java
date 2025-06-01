@@ -1,19 +1,20 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
-import com.becareful.becarefulserver.domain.association.domain.Association;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
+import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
+import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
+import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursingInstitution.repository.NursingInstitutionRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
-import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
-import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialworkerCreateRequest;
@@ -22,7 +23,6 @@ import com.becareful.becarefulserver.domain.socialworker.dto.response.SimpleElde
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
-import com.becareful.becarefulserver.global.exception.exception.AssociationException;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
 import com.becareful.becarefulserver.global.exception.exception.SocialworkerException;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
@@ -31,6 +31,11 @@ import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -39,14 +44,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -69,12 +66,16 @@ public class SocialWorkerService {
 
     public SocialWorkerHomeResponse getHomeData() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        Integer elderlyCount = elderlyRepository.findByNursingInstitution(loggedInSocialWorker.getNursingInstitution()).size();
-        Integer socialWorkerCount = socialworkerRepository.countByNursingInstitution(loggedInSocialWorker.getNursingInstitution());
+        Integer elderlyCount = elderlyRepository
+                .findByNursingInstitution(loggedInSocialWorker.getNursingInstitution())
+                .size();
+        Integer socialWorkerCount =
+                socialworkerRepository.countByNursingInstitution(loggedInSocialWorker.getNursingInstitution());
 
-        List<Long> elderlyIds = elderlyRepository.findByNursingInstitution(loggedInSocialWorker.getNursingInstitution()).stream()
-                .map(Elderly::getId)
-                .toList();
+        List<Long> elderlyIds =
+                elderlyRepository.findByNursingInstitution(loggedInSocialWorker.getNursingInstitution()).stream()
+                        .map(Elderly::getId)
+                        .toList();
 
         List<Matching> matchingList = matchingRepository.findAllMatchingByElderlyIds(elderlyIds);
 
@@ -83,7 +84,8 @@ public class SocialWorkerService {
                 .count();
 
         Long recentlyMatchedCount = matchingList.stream()
-                .filter(matching -> matching.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7)))
+                .filter(matching ->
+                        matching.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7)))
                 .filter(matching -> matching.getMatchingStatus().equals(MatchingStatus.합격))
                 .count();
 
@@ -102,7 +104,8 @@ public class SocialWorkerService {
 
         long wholeApplierCountForCompletedRecruitment = matchingList.stream()
                 .filter(matching -> !matching.getRecruitment().isRecruiting())
-                .filter(matching -> matching.getMatchingStatus().equals(MatchingStatus.합격) || matching.getMatchingStatus().equals(MatchingStatus.불합격))
+                .filter(matching -> matching.getMatchingStatus().equals(MatchingStatus.합격)
+                        || matching.getMatchingStatus().equals(MatchingStatus.불합격))
                 .count();
 
         long wholeCompletedMatchingCount = matchingList.stream()
@@ -116,7 +119,8 @@ public class SocialWorkerService {
                 .map(SimpleElderlyResponse::from)
                 .toList();
 
-        return SocialWorkerHomeResponse.of(loggedInSocialWorker,
+        return SocialWorkerHomeResponse.of(
+                loggedInSocialWorker,
                 elderlyCount,
                 socialWorkerCount,
                 processingMatchingCount,
@@ -129,7 +133,7 @@ public class SocialWorkerService {
     }
 
     @Transactional(readOnly = true)
-    public boolean checkSameNickNameAtRegist(String nickName){
+    public boolean checkSameNickNameAtRegist(String nickName) {
         return socialworkerRepository.existsByNickname(nickName);
     }
 
@@ -138,22 +142,15 @@ public class SocialWorkerService {
 
         validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
 
-        //기관ID로 기관 찾기
-         NursingInstitution nursingInstitution = nursingInstitutionRepository.findById(request.nursingInstitutionId())
+        // 기관ID로 기관 찾기
+        NursingInstitution nursingInstitution = nursingInstitutionRepository
+                .findById(request.nursingInstitutionId())
                 .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
 
-         //협회 등록
-        Association association = null;
-        if (request.associationRank() != AssociationRank.NONE) {
-            long associationId = 1L;  // TODO: 나중에 동적으로 받도록 개선
-            association = associationRepository.findById(associationId)
-                    .orElseThrow(() -> new AssociationException(ASSOCIATION_INSTITUTION_NOT_EXISTS));
-        }
-
-        //닉네임 중복 검사
+        // 닉네임 중복 검사
         checkSameNickName(request.nickName());
 
-        //사용자 전화번호 중복 검사
+        // 사용자 전화번호 중복 검사
         if (socialworkerRepository.existsByPhoneNumber(request.phoneNumber())) {
             throw new SocialworkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
         }
@@ -163,18 +160,29 @@ public class SocialWorkerService {
 
         // Socialworker 엔티티 생성
         SocialWorker socialworker = SocialWorker.create(
-                request.realName(), request.nickName(), birthDate, gender, request.phoneNumber(), request.institutionRank(), request.associationRank(), request.isAgreedToReceiveMarketingInfo(), nursingInstitution,
-                association
-        );
+                request.realName(),
+                request.nickName(),
+                birthDate,
+                gender,
+                request.phoneNumber(),
+                request.institutionRank(),
+                AssociationRank.NONE,
+                request.isAgreedToReceiveMarketingInfo(),
+                nursingInstitution);
 
         socialworkerRepository.save(socialworker);
-        updateJwtAndSecurityContext(httpServletResponse, request.phoneNumber(), request.institutionRank().toString(), request.associationRank().toString());
+
+        updateJwtAndSecurityContext(
+                httpServletResponse,
+                request.phoneNumber(),
+                request.institutionRank().toString(),
+                AssociationRank.NONE.toString());
 
         return socialworker.getId();
     }
 
     @Transactional
-    public ChatList getChatList(){
+    public ChatList getChatList() {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
         NursingInstitution nursingInstitution = socialworker.getNursingInstitution();
         List<Matching> matchingList = matchingRepository.findByNursingInstitution(nursingInstitution);
@@ -185,10 +193,10 @@ public class SocialWorkerService {
                     Caregiver caregiver = matching.getWorkApplication().getCaregiver();
                     Elderly elderly = matching.getRecruitment().getElderly();
                     String timeDifference = getTimeDifferenceString(matching);
-                    Contract latestContract = contractRepository.findLatestContractByMatching(matching).get(0);
-                    String recentChat = isContractInCompletedMatching(matching)
-                            ? "최종 승인이 확정되었습니다!"
-                            : "합격 축하드립니다.";
+                    Contract latestContract = contractRepository
+                            .findLatestContractByMatching(matching)
+                            .get(0);
+                    String recentChat = isContractInCompletedMatching(matching) ? "최종 승인이 확정되었습니다!" : "합격 축하드립니다.";
 
                     // ChatroomInfo 생성
                     return new ChatList.ChatroomInfo(
@@ -200,13 +208,12 @@ public class SocialWorkerService {
                             elderly.getName(), // 어르신 이름
                             elderly.getAge(), // 어르신 나이
                             elderly.getGender() // 어르신 성별
-                    );
+                            );
                 })
                 .collect(Collectors.toList());
 
         // ChatList 반환
         return new ChatList(chatroomInfoList);
-
     }
 
     public LocalDateTime findLatestContractCreatedDate(Matching matching) {
@@ -250,8 +257,7 @@ public class SocialWorkerService {
         }
     }
 
-    private void validateEssentialAgreement(boolean isAgreedToTerms,
-                                            boolean isAgreedToCollectPersonalInfo) {
+    private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
         if (isAgreedToTerms && isAgreedToCollectPersonalInfo) {
             return;
         }
@@ -260,18 +266,25 @@ public class SocialWorkerService {
     }
 
     private void checkSameNickName(String nickName) {
-      if(!socialworkerRepository.existsByNickname(nickName)){
-          return;
+        if (!socialworkerRepository.existsByNickname(nickName)) {
+            return;
         }
-        throw  new SocialworkerException(SOCIAlWORKER_ALREADY_EXISTS_NICKNAME);
+        throw new SocialworkerException(SOCIAlWORKER_ALREADY_EXISTS_NICKNAME);
     }
 
     private LocalDate parseBirthDate(String yymmdd, int genderCode) {
         int yearPrefix;
         switch (genderCode) {
-            case 1: case 2: yearPrefix = 1900; break;
-            case 3: case 4: yearPrefix = 2000; break;
-            default: throw new IllegalArgumentException("Invalid gender code: " + genderCode);
+            case 1:
+            case 2:
+                yearPrefix = 1900;
+                break;
+            case 3:
+            case 4:
+                yearPrefix = 2000;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid gender code: " + genderCode);
         }
 
         int year = yearPrefix + Integer.parseInt(yymmdd.substring(0, 2));
@@ -294,18 +307,16 @@ public class SocialWorkerService {
         }
     }
 
-    private void updateJwtAndSecurityContext(HttpServletResponse response, String phoneNumber, String institutionRank, String associationRank){
+    private void updateJwtAndSecurityContext(
+            HttpServletResponse response, String phoneNumber, String institutionRank, String associationRank) {
         String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
         String refreshToken = jwtUtil.createRefreshToken(phoneNumber, institutionRank, associationRank);
 
         response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
         response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
 
-
-        List<GrantedAuthority> authorities = List.of(
-                (GrantedAuthority) () -> institutionRank,
-                (GrantedAuthority) () -> associationRank
-        );
+        List<GrantedAuthority> authorities =
+                List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);

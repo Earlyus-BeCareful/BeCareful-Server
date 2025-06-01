@@ -1,10 +1,9 @@
 package com.becareful.becarefulserver.domain.socialworker.dto.response;
 
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
-import lombok.Builder;
-
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import java.util.List;
+import lombok.Builder;
 
 @Builder
 public record SocialWorkerHomeResponse(
@@ -19,14 +18,19 @@ public record SocialWorkerHomeResponse(
         Integer appliedCaregiverCount,
         Integer averageAppliedCaregiver,
         Integer averageApplyingRate,
-        List<SimpleElderlyResponse> matchingElderlyList
-) {
+        List<SimpleElderlyResponse> matchingElderlyList) {
 
-    public static SocialWorkerHomeResponse of(SocialWorker socialWorker, Integer elderlyCount, Integer socialWorkerCount,
-            Long matchingProcessingCount, Long recentlyMatchedCount, Integer totalMatchedCount,
-            Integer appliedCaregiverCount, Double averageAppliedCaregiver, Double averageApplyingRate,
-            List<SimpleElderlyResponse> matchingElderlyList
-            ) {
+    public static SocialWorkerHomeResponse of(
+            SocialWorker socialWorker,
+            Integer elderlyCount,
+            Integer socialWorkerCount,
+            Long matchingProcessingCount,
+            Long recentlyMatchedCount,
+            Integer totalMatchedCount,
+            Integer appliedCaregiverCount,
+            Double averageAppliedCaregiver,
+            Double averageApplyingRate,
+            List<SimpleElderlyResponse> matchingElderlyList) {
         return SocialWorkerHomeResponse.builder()
                 .socialWorkerName(socialWorker.getName())
                 .socialWorkerRank(socialWorker.getInstitutionRank())
@@ -42,5 +46,4 @@ public record SocialWorkerHomeResponse(
                 .matchingElderlyList(matchingElderlyList)
                 .build();
     }
-
 }

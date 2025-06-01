@@ -2,6 +2,10 @@ package com.becareful.becarefulserver.domain.caregiver.domain;
 
 import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.vo.Address;
+import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
+import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.domain.common.vo.Gender;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -10,12 +14,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
-import com.becareful.becarefulserver.domain.caregiver.domain.vo.Address;
-import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
-import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-import com.becareful.becarefulserver.domain.common.vo.Gender;
-
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AccessLevel;
@@ -59,10 +57,17 @@ public class Caregiver extends BaseEntity {
     private boolean isAgreedToReceiveMarketingInfo;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Caregiver(String name, LocalDate birthDate, Gender gender, String phoneNumber,
+    private Caregiver(
+            String name,
+            LocalDate birthDate,
+            Gender gender,
+            String phoneNumber,
             String password,
-            String profileImageUrl, Address address, CaregiverInfo caregiverInfo,
-            boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo,
+            String profileImageUrl,
+            Address address,
+            CaregiverInfo caregiverInfo,
+            boolean isAgreedToTerms,
+            boolean isAgreedToCollectPersonalInfo,
             boolean isAgreedToReceiveMarketingInfo) {
         this.name = name;
         this.birthDate = birthDate;
@@ -77,10 +82,17 @@ public class Caregiver extends BaseEntity {
         this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
     }
 
-    public static Caregiver create(String name, LocalDate birthDate, String phoneNumber,
+    public static Caregiver create(
+            String name,
+            LocalDate birthDate,
+            String phoneNumber,
             String encodedPassword,
-            Gender gender, String streetAddress, String detailAddress, CaregiverInfo caregiverInfo,
-            boolean isAgreedToReceiveMarketingInfo, String profileImageUrl) {
+            Gender gender,
+            String streetAddress,
+            String detailAddress,
+            CaregiverInfo caregiverInfo,
+            boolean isAgreedToReceiveMarketingInfo,
+            String profileImageUrl) {
         return Caregiver.builder()
                 .name(name)
                 .birthDate(birthDate)
@@ -102,7 +114,6 @@ public class Caregiver extends BaseEntity {
     /***
      * Entity Method
      * */
-
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }

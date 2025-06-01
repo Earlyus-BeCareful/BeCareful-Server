@@ -8,7 +8,6 @@ import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.dto.response.ElderlyInfoResponse.CareInfoResponse;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-
 import java.time.DayOfWeek;
 import java.util.List;
 
@@ -21,8 +20,7 @@ public record RecruitmentInfoResponse(
         WorkSalaryType workSalaryType,
         Integer workSalaryAmount,
         String description,
-        List<CareInfoResponse> careInfoList
-) {
+        List<CareInfoResponse> careInfoList) {
 
     public static RecruitmentInfoResponse from(Recruitment recruitment, Elderly elderly) {
         return new RecruitmentInfoResponse(
@@ -36,14 +34,14 @@ public record RecruitmentInfoResponse(
                 recruitment.getDescription(),
                 elderly.getDetailCareTypes().stream()
                         .collect(groupingBy(DetailCareType::getCareType))
-                        .entrySet().stream()
+                        .entrySet()
+                        .stream()
                         .filter(entry -> recruitment.getCareTypes().contains(entry.getKey()))
                         .map(entry -> new CareInfoResponse(
                                 entry.getKey(),
                                 entry.getValue().stream()
                                         .map(DetailCareType::getDisplayName)
                                         .toList()))
-                        .toList()
-        );
+                        .toList());
     }
 }
