@@ -26,7 +26,8 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CommentResponse>> getComments(@PathVariable String boardType, @PathVariable Long postId) {
+    public ResponseEntity<List<CommentResponse>> getComments(
+            @PathVariable String boardType, @PathVariable Long postId) {
         var response = commentService.getComments(boardType, postId);
         return ResponseEntity.ok(response);
     }
