@@ -78,7 +78,8 @@ public class CommunityService {
                         case PENDING -> {
                             return CommunityAccessResponse.pending(socialWorker);
                         }
-                        default -> throw new IllegalStateException("Unexpected community access status: " + request.getStatus());
+                        default -> throw new IllegalStateException(
+                                "Unexpected community access status: " + request.getStatus());
                     }
                 })
                 .orElseGet(() -> CommunityAccessResponse.notApplied(socialWorker));
