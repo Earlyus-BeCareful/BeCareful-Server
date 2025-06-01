@@ -5,6 +5,13 @@ import com.becareful.becarefulserver.domain.association.dto.response.Association
 import com.becareful.becarefulserver.domain.community.vo.CommunityAccessStatus;
 
 public record CommunityAccessResponse(CommunityAccessStatus status, AssociationInfo associationInfo) {
+
+    public static CommunityAccessResponse alreadyApproved(Association association, Integer associationMemberCount) {
+        return new CommunityAccessResponse(
+                CommunityAccessStatus.ALREADY_APPROVED,
+                new AssociationInfo(association.getId(), association.getName(), associationMemberCount));
+    }
+
     public static CommunityAccessResponse approved(Association association, Integer associationMemberCount) {
         return new CommunityAccessResponse(
                 CommunityAccessStatus.APPROVED,

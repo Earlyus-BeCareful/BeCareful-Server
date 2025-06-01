@@ -12,14 +12,15 @@ import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -52,23 +53,33 @@ public class CommunityService {
                     dbAssociationRank);
         }
 
-        if (socialWorker.getAssociation() != null) {
-            Association association = socialWorker.getAssociation();
-            int associationMemberCount = socialWorkerRepository.countByAssociation(association);
-
-            return CommunityAccessResponse.approved(association, associationMemberCount);
-        }
-
+        Association association = socialWorker.getAssociation();
         Optional<AssociationMembershipRequest> requestOpt =
                 associationMembershipRequestRepository.findBySocialWorker(socialWorker);
 
+        if (association != null) {
+            int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+
+            if(requestOpt.isPresent()) {
+                associationMembershipRequestRepository.delete(requestOpt.get());
+                return CommunityAccessResponse.approved(association, associationMemberCount);
+            }
+
+            return CommunityAccessResponse.alreadyApproved(association, associationMemberCount);
+        }
+
         return requestOpt
-                .map(associationMembershipRequest -> switch (associationMembershipRequest.getStatus()) {
-                    case REJECTED -> {
-                        associationMembershipRequestRepository.delete(associationMembershipRequest);
-                        yield CommunityAccessResponse.rejected();
+                .map(request -> {
+                    switch (request.getStatus()) {
+                        case REJECTED -> {
+                            associationMembershipRequestRepository.delete(request);
+                            return CommunityAccessResponse.rejected();
+                        }
+                        case PENDING -> {
+                            return CommunityAccessResponse.pending();
+                        }
+                        default -> throw new IllegalStateException("Unexpected status: " + request.getStatus());
                     }
-                    case PENDING -> CommunityAccessResponse.pending();
                 })
                 .orElseGet(CommunityAccessResponse::notApplied);
     }

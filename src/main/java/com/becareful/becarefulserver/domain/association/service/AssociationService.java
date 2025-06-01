@@ -1,7 +1,5 @@
 package com.becareful.becarefulserver.domain.association.service;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
-
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationMembershipRequest;
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
@@ -17,12 +15,15 @@ import com.becareful.becarefulserver.global.exception.exception.AssociationExcep
 import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
-import java.io.IOException;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.UUID;
+
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +52,8 @@ public class AssociationService {
         AssociationMembershipRequest membershipRequest = associationMembershipRequestRepository
                 .findById(associationMembershipRequestId)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
+
+        membershipRequest.setStatus(AssociationJoinRequestStatus.APPROVED);
 
         SocialWorker socialWorker = membershipRequest.getSocialWorker();
         socialWorker.joinAssociation(membershipRequest.getAssociation(), membershipRequest.getAssociationRank());
