@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CommunityService {
+
     private final AuthUtil authUtil;
     private final SocialWorkerRepository socialWorkerRepository;
     private final AssociationMembershipRequestRepository associationMembershipRequestRepository;
@@ -61,10 +62,11 @@ public class CommunityService {
 
             if (requestOpt.isPresent()) {
                 associationMembershipRequestRepository.delete(requestOpt.get());
-                return CommunityAccessResponse.approved(association, associationMemberCount);
+
+                return CommunityAccessResponse.approved(socialWorker, associationMemberCount);
             }
 
-            return CommunityAccessResponse.alreadyApproved(association, associationMemberCount);
+            return CommunityAccessResponse.alreadyApproved(socialWorker, associationMemberCount);
         }
 
         return requestOpt
@@ -72,15 +74,17 @@ public class CommunityService {
                     switch (request.getStatus()) {
                         case REJECTED -> {
                             associationMembershipRequestRepository.delete(request);
-                            return CommunityAccessResponse.rejected();
+
+                            return CommunityAccessResponse.rejected(socialWorker);
                         }
                         case PENDING -> {
-                            return CommunityAccessResponse.pending();
+                            return CommunityAccessResponse.pending(socialWorker);
                         }
-                        default -> throw new IllegalStateException("Unexpected status: " + request.getStatus());
+                        default -> throw new IllegalStateException(
+                                "Unexpected community access status: " + request.getStatus());
                     }
                 })
-                .orElseGet(CommunityAccessResponse::notApplied);
+                .orElseGet(() -> CommunityAccessResponse.notApplied(socialWorker));
     }
 
     private void updateJwtAndSecurityContext(
