@@ -134,7 +134,7 @@ public class CaregiverService {
     public CaregiverProfileUploadResponse uploadProfileImage(MultipartFile file, String phoneNumber) {
         try {
             String fileName = generateProfileImageFileName(phoneNumber);
-            String profileImageUrl = fileUtil.upload(file,"profile-image", fileName);
+            String profileImageUrl = fileUtil.upload(file, "profile-image", fileName);
             return new CaregiverProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
             throw new CaregiverException(CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE);

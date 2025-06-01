@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.association.service;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationMembershipRequest;
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
@@ -15,15 +17,12 @@ import com.becareful.becarefulserver.global.exception.exception.AssociationExcep
 import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
+import java.io.IOException;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.UUID;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -35,20 +34,20 @@ public class AssociationService {
     private final AssociationRepository associationRepository;
     private final AssociationMembershipRequestRepository associationMembershipRequestRepository;
 
-    public void joinAssociation(AssociationJoinRequest request){
+    public void joinAssociation(AssociationJoinRequest request) {
         SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
 
         Association association = associationRepository
                 .findById(request.associationId())
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_NOT_EXISTS));
 
-        AssociationMembershipRequest newMembershipRequest = AssociationMembershipRequest.create(association, currentSocialWorker, request.associationRank(), AssociationJoinRequestStatus.PENDING);
+        AssociationMembershipRequest newMembershipRequest = AssociationMembershipRequest.create(
+                association, currentSocialWorker, request.associationRank(), AssociationJoinRequestStatus.PENDING);
         associationMembershipRequestRepository.save(newMembershipRequest);
-
     }
 
-    //협회 가입 신청 승인
-    public void accpetJoinAssociation(Long associationMembershipRequestId){
+    // 협회 가입 신청 승인
+    public void accpetJoinAssociation(Long associationMembershipRequestId) {
         AssociationMembershipRequest membershipRequest = associationMembershipRequestRepository
                 .findById(associationMembershipRequestId)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
@@ -57,8 +56,8 @@ public class AssociationService {
         socialWorker.joinAssociation(membershipRequest.getAssociation(), membershipRequest.getAssociationRank());
     }
 
-    //협회 가입 신청 반려(신청자가 반려사실을 확인하면 요청 레코드 삭제)
-    public void rejectJoinAssociation(Long associationMembershipRequestId){
+    // 협회 가입 신청 반려(신청자가 반려사실을 확인하면 요청 레코드 삭제)
+    public void rejectJoinAssociation(Long associationMembershipRequestId) {
         AssociationMembershipRequest membershipRequest = associationMembershipRequestRepository
                 .findById(associationMembershipRequestId)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
@@ -66,21 +65,16 @@ public class AssociationService {
         membershipRequest.setStatus(AssociationJoinRequestStatus.REJECTED);
     }
 
-
-
-
     public long saveAssociation(AssociationCreateRequest request) {
-            Association newAssociation = Association.create(
-                    request.name(),
-                    request.profileImageUrl(),
-                    request.establishedYear());
+        Association newAssociation =
+                Association.create(request.name(), request.profileImageUrl(), request.establishedYear());
 
-            associationRepository.save(newAssociation);
+        associationRepository.save(newAssociation);
 
-            SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
-            currentSocialWorker.setAssociation(newAssociation);
+        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
+        currentSocialWorker.setAssociation(newAssociation);
 
-            return newAssociation.getId();
+        return newAssociation.getId();
     }
 
     public AssociationMyResponse getMyAssociation() {
@@ -103,9 +97,9 @@ public class AssociationService {
         }
     }
 
-    //TODO(회원 목록 반환)
+    // TODO(회원 목록 반환)
 
-    //TODO(파일이름 생성 로직 수정)
+    // TODO(파일이름 생성 로직 수정)
     private String generateProfileImageFileName() {
         return UUID.randomUUID().toString();
     }

@@ -28,14 +28,22 @@ public class AssociationMembershipRequest {
     private AssociationJoinRequestStatus status;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private AssociationMembershipRequest(Association association, SocialWorker socialWorker, AssociationRank associationRank, AssociationJoinRequestStatus status){
+    private AssociationMembershipRequest(
+            Association association,
+            SocialWorker socialWorker,
+            AssociationRank associationRank,
+            AssociationJoinRequestStatus status) {
         this.association = association;
         this.socialWorker = socialWorker;
         this.associationRank = associationRank;
         this.status = status;
     }
 
-    public static AssociationMembershipRequest create(Association association, SocialWorker socialWorker, AssociationRank associationRank, AssociationJoinRequestStatus status){
+    public static AssociationMembershipRequest create(
+            Association association,
+            SocialWorker socialWorker,
+            AssociationRank associationRank,
+            AssociationJoinRequestStatus status) {
         return AssociationMembershipRequest.builder()
                 .association(association)
                 .socialWorker(socialWorker)

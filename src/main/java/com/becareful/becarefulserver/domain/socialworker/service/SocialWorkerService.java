@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
@@ -29,6 +31,11 @@ import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,14 +44,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -147,8 +146,6 @@ public class SocialWorkerService {
         NursingInstitution nursingInstitution = nursingInstitutionRepository
                 .findById(request.nursingInstitutionId())
                 .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
-
-
 
         // 닉네임 중복 검사
         checkSameNickName(request.nickName());

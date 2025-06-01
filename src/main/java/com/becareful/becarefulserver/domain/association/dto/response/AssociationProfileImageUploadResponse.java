@@ -1,6 +1,3 @@
 package com.becareful.becarefulserver.domain.association.dto.response;
 
-public record AssociationProfileImageUploadResponse(
-        String imageUrl
-) {
-}
+public record AssociationProfileImageUploadResponse(String imageUrl) {}

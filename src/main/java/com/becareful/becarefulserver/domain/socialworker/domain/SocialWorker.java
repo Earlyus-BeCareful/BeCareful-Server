@@ -7,9 +7,8 @@ import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingIns
 import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDate;
+import lombok.*;
 
 @Entity
 @Getter
@@ -106,7 +105,7 @@ public class SocialWorker extends BaseEntity {
                 .build();
     }
 
-    public void joinAssociation(Association association, AssociationRank rank){
+    public void joinAssociation(Association association, AssociationRank rank) {
         this.association = association;
         this.associationRank = rank;
     }

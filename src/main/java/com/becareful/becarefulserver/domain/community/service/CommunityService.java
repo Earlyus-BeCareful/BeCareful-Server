@@ -12,15 +12,14 @@ import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,42 +31,47 @@ public class CommunityService {
     private final JwtProperties jwtProperties;
     private final CookieProperties cookieProperties;
 
-    public CommunityAccessResponse getCommunityAccess( HttpServletResponse httpServletResponse) {
+    public CommunityAccessResponse getCommunityAccess(HttpServletResponse httpServletResponse) {
         SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
 
-        //jwt의 role과 DB의 role이 다른 경우 DB의 role로 업데이트
+        // jwt의 role과 DB의 role이 다른 경우 DB의 role로 업데이트
 
-        List<String> grantedRoles = SecurityContextHolder.getContext().getAuthentication()
-                .getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)           // 예: "ROLE_CHAIRMAN", "ROLE_NONE"
-                .map(role -> role.replace("ROLE_", ""))        // 예: "CHAIRMAN", "NONE"
+        List<String> grantedRoles = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority) // 예: "ROLE_CHAIRMAN", "ROLE_NONE"
+                .map(role -> role.replace("ROLE_", "")) // 예: "CHAIRMAN", "NONE"
                 .toList();
 
         String dbAssociationRank = socialWorker.getAssociationRank().toString(); // 실제 DB 기준 최신 rank
 
         if (!grantedRoles.contains(dbAssociationRank)) {
             // JWT 재발급 필요
-            updateJwtAndSecurityContext(httpServletResponse,socialWorker.getPhoneNumber(),socialWorker.getInstitutionRank().toString(), dbAssociationRank);
+            updateJwtAndSecurityContext(
+                    httpServletResponse,
+                    socialWorker.getPhoneNumber(),
+                    socialWorker.getInstitutionRank().toString(),
+                    dbAssociationRank);
         }
 
-        if(socialWorker.getAssociation() != null){
+        if (socialWorker.getAssociation() != null) {
             Association association = socialWorker.getAssociation();
             int associationMemberCount = socialWorkerRepository.countByAssociation(association);
 
             return CommunityAccessResponse.approved(association, associationMemberCount);
         }
 
-        Optional<AssociationMembershipRequest> requestOpt = associationMembershipRequestRepository.findBySocialWorker(socialWorker);
+        Optional<AssociationMembershipRequest> requestOpt =
+                associationMembershipRequestRepository.findBySocialWorker(socialWorker);
 
-        return requestOpt.map(associationMembershipRequest -> switch (associationMembershipRequest.getStatus()) {
-            case REJECTED -> {
-                associationMembershipRequestRepository.delete(associationMembershipRequest);
-                yield CommunityAccessResponse.rejected();
-            }
-            case PENDING -> CommunityAccessResponse.pending();
-        }).orElseGet(CommunityAccessResponse::notApplied);
+        return requestOpt
+                .map(associationMembershipRequest -> switch (associationMembershipRequest.getStatus()) {
+                    case REJECTED -> {
+                        associationMembershipRequestRepository.delete(associationMembershipRequest);
+                        yield CommunityAccessResponse.rejected();
+                    }
+                    case PENDING -> CommunityAccessResponse.pending();
+                })
+                .orElseGet(CommunityAccessResponse::notApplied);
     }
-
 
     private void updateJwtAndSecurityContext(
             HttpServletResponse response, String phoneNumber, String institutionRank, String associationRank) {
@@ -93,6 +97,4 @@ public class CommunityService {
         cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
         return cookie;
     }
-
-
 }

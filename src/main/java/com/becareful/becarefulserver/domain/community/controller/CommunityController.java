@@ -31,11 +31,10 @@ public class CommunityController {
     }
 
     @Hidden
-    //@Operation(summary = "커뮤니티 탭 협회 정보 조회", description = "현재 로그인한 사용자가 속한 협회의 정보를 조회합니다.")
+    // @Operation(summary = "커뮤니티 탭 협회 정보 조회", description = "현재 로그인한 사용자가 속한 협회의 정보를 조회합니다.")
     @GetMapping("/my/association")
     public ResponseEntity<AssociationMyResponse> getAssociationInfo() {
         var response = associationService.getMyAssociation();
         return ResponseEntity.ok(response);
     }
-
 }

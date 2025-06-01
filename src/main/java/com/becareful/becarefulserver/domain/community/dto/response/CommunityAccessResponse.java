@@ -4,15 +4,11 @@ import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.dto.response.AssociationInfo;
 import com.becareful.becarefulserver.domain.community.vo.CommunityAccessStatus;
 
-public record CommunityAccessResponse(
-        CommunityAccessStatus status,
-        AssociationInfo associationInfo
-) {
+public record CommunityAccessResponse(CommunityAccessStatus status, AssociationInfo associationInfo) {
     public static CommunityAccessResponse approved(Association association, Integer associationMemberCount) {
         return new CommunityAccessResponse(
                 CommunityAccessStatus.APPROVED,
-                new AssociationInfo(association.getId(), association.getName(), associationMemberCount)
-        );
+                new AssociationInfo(association.getId(), association.getName(), associationMemberCount));
     }
 
     public static CommunityAccessResponse rejected() {

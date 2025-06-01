@@ -1,5 +1,8 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_NOT_EXISTS;
+
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.nursingInstitution.repository.NursingInstitutionRepository;
@@ -13,11 +16,6 @@ import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepos
 import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -26,9 +24,10 @@ import java.util.Base64;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_NOT_EXISTS;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor

@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.nursingInstitution.controller;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.NURSING_INSTITUTION_REQUIRE_CODE;
+
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.request.NursingInstitutionCreateRequest;
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionProfileUploadResponse;
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionSearchResponse;
@@ -14,8 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.NURSING_INSTITUTION_REQUIRE_CODE;
 
 @RestController
 @RequiredArgsConstructor
@@ -60,7 +60,7 @@ public class NursingInstitutionController {
     }
 
     @Hidden
-    //@Operation(summary = "요양 기관 조회", description = "요양 기관이 이미 DB에 등록된 기관인지 확인")
+    // @Operation(summary = "요양 기관 조회", description = "요양 기관이 이미 DB에 등록된 기관인지 확인")
     @GetMapping("/exists")
     public ResponseEntity<Boolean> checkExistingNursingInstitution() {
         boolean exists = nursingInstitutionService.existsById();
