@@ -4,7 +4,6 @@ import com.becareful.becarefulserver.domain.association.dto.response.Association
 import com.becareful.becarefulserver.domain.association.service.AssociationService;
 import com.becareful.becarefulserver.domain.community.dto.response.CommunityAccessResponse;
 import com.becareful.becarefulserver.domain.community.service.CommunityService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,7 +29,6 @@ public class CommunityController {
         return ResponseEntity.ok(response);
     }
 
-    @Hidden
     @Operation(summary = "커뮤니티 탭 협회 정보 조회", description = "현재 로그인한 사용자가 속한 협회의 정보를 조회합니다.")
     @GetMapping("/my/association")
     public ResponseEntity<AssociationMyResponse> getAssociationInfo() {
