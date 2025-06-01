@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.association.service;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationMembershipRequest;
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
@@ -15,15 +17,12 @@ import com.becareful.becarefulserver.global.exception.exception.AssociationExcep
 import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
+import java.io.IOException;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.UUID;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -92,7 +91,6 @@ public class AssociationService {
 
         return AssociationMyResponse.from(association, associationMemberCount);
     }
-
 
     public AssociationProfileImageUploadResponse uploadProfileImage(MultipartFile file) {
         try {

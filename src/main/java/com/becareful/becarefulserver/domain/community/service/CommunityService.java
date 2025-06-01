@@ -60,7 +60,7 @@ public class CommunityService {
         if (association != null) {
             int associationMemberCount = socialWorkerRepository.countByAssociation(association);
 
-            if(requestOpt.isPresent()) {
+            if (requestOpt.isPresent()) {
                 associationMembershipRequestRepository.delete(requestOpt.get());
                 return CommunityAccessResponse.approved(association, associationMemberCount);
             }
