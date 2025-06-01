@@ -11,23 +11,24 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/community/board/{boardId}/post/{postId}/comment")
+@RequestMapping("/community/board/{boardType}/post/{postId}/comment")
 public class CommentController {
 
     private final CommentService commentService;
 
     @PostMapping
     public ResponseEntity<Void> createComment(
-            @PathVariable Long boardId, @PathVariable Long postId, @RequestBody CommentCreateRequest request) {
-        Long commentId = commentService.createComment(boardId, postId, request);
+            @PathVariable String boardType, @PathVariable Long postId, @RequestBody CommentCreateRequest request) {
+        Long commentId = commentService.createComment(boardType, postId, request);
         return ResponseEntity.created(
-                        URI.create("/community/board/" + boardId + "/post/" + postId + "/comment/" + commentId))
+                        URI.create("/community/board/" + boardType + "/post/" + postId + "/comment/" + commentId))
                 .build();
     }
 
     @GetMapping
-    public ResponseEntity<List<CommentResponse>> getComments(@PathVariable Long boardId, @PathVariable Long postId) {
-        var response = commentService.getComments(boardId, postId);
+    public ResponseEntity<List<CommentResponse>> getComments(
+            @PathVariable String boardType, @PathVariable Long postId) {
+        var response = commentService.getComments(boardType, postId);
         return ResponseEntity.ok(response);
     }
 
