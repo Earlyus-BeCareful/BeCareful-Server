@@ -2,7 +2,6 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
@@ -24,7 +23,6 @@ import com.becareful.becarefulserver.domain.socialworker.dto.response.SimpleElde
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
-import com.becareful.becarefulserver.global.exception.exception.AssociationException;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
 import com.becareful.becarefulserver.global.exception.exception.SocialworkerException;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
@@ -149,15 +147,6 @@ public class SocialWorkerService {
                 .findById(request.nursingInstitutionId())
                 .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
 
-        // 협회 등록
-        Association association = null;
-        if (request.associationRank() != AssociationRank.NONE) {
-            long associationId = 1L; // TODO: 나중에 동적으로 받도록 개선
-            association = associationRepository
-                    .findById(associationId)
-                    .orElseThrow(() -> new AssociationException(ASSOCIATION_INSTITUTION_NOT_EXISTS));
-        }
-
         // 닉네임 중복 검사
         checkSameNickName(request.nickName());
 
@@ -177,17 +166,17 @@ public class SocialWorkerService {
                 gender,
                 request.phoneNumber(),
                 request.institutionRank(),
-                request.associationRank(),
+                AssociationRank.NONE,
                 request.isAgreedToReceiveMarketingInfo(),
-                nursingInstitution,
-                association);
+                nursingInstitution);
 
         socialworkerRepository.save(socialworker);
+
         updateJwtAndSecurityContext(
                 httpServletResponse,
                 request.phoneNumber(),
                 request.institutionRank().toString(),
-                request.associationRank().toString());
+                AssociationRank.NONE.toString());
 
         return socialworker.getId();
     }

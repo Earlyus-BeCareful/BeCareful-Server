@@ -8,10 +8,7 @@ import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRan
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
@@ -52,6 +49,7 @@ public class SocialWorker extends BaseEntity {
     @JoinColumn(name = "nursing_institution_id")
     private NursingInstitution nursingInstitution;
 
+    @Setter(AccessLevel.PUBLIC)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "association_id")
     private Association association;
@@ -59,7 +57,6 @@ public class SocialWorker extends BaseEntity {
     @Builder(access = AccessLevel.PRIVATE)
     private SocialWorker(
             NursingInstitution nursingInstitution,
-            Association association,
             String name,
             String nickname,
             LocalDate birthday,
@@ -70,7 +67,6 @@ public class SocialWorker extends BaseEntity {
             boolean isAgreedToTerms,
             boolean isAgreedToCollectPersonalInfo,
             boolean isAgreedToReceiveMarketingInfo) {
-        this.association = association;
         this.name = name;
         this.nickname = nickname;
         this.birthday = birthday;
@@ -93,8 +89,7 @@ public class SocialWorker extends BaseEntity {
             InstitutionRank institutionRank,
             AssociationRank associationRank,
             boolean isAgreedToReceiveMarketingInfo,
-            NursingInstitution nursingInstitution,
-            Association association) {
+            NursingInstitution nursingInstitution) {
         return SocialWorker.builder()
                 .name(name)
                 .nickname(nickname)
@@ -107,7 +102,11 @@ public class SocialWorker extends BaseEntity {
                 .isAgreedToTerms(true)
                 .isAgreedToCollectPersonalInfo(true)
                 .nursingInstitution(nursingInstitution)
-                .association(association)
                 .build();
+    }
+
+    public void joinAssociation(Association association, AssociationRank rank) {
+        this.association = association;
+        this.associationRank = rank;
     }
 }

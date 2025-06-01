@@ -147,7 +147,7 @@ public class ElderlyService {
     public ElderlyProfileUploadResponse uploadProfileImage(MultipartFile file, String institutionId) {
         try {
             String fileName = generateProfileImageFileName(institutionId);
-            String profileImageUrl = fileUtil.upload(file, fileName);
+            String profileImageUrl = fileUtil.upload(file, "profile-image", fileName);
             return new ElderlyProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
             throw new ElderlyException(ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE);
