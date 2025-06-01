@@ -4,7 +4,6 @@ import com.becareful.becarefulserver.domain.association.dto.response.Association
 import com.becareful.becarefulserver.domain.association.service.AssociationService;
 import com.becareful.becarefulserver.domain.community.dto.response.CommunityAccessResponse;
 import com.becareful.becarefulserver.domain.community.service.CommunityService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
