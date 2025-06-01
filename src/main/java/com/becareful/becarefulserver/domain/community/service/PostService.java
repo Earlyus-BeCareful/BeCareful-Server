@@ -120,8 +120,7 @@ public class PostService {
 
         validateSocialWorkerRankReadable(currentMember, postBoard);
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostException(POST_NOT_FOUND));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
 
         validatePostBoardHasPost(postBoard, post);
 
