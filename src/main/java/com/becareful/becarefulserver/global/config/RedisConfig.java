@@ -39,7 +39,7 @@ public class RedisConfig {
         return template;
     }
 
-    @Bean
+    @Bean(name = "oAuth2LoginResponseRedisTemplate")
     public RedisTemplate<String, OAuth2LoginResponse> oAuth2LoginResponseRedisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, OAuth2LoginResponse> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
@@ -47,20 +47,16 @@ public class RedisConfig {
         Jackson2JsonRedisSerializer<OAuth2LoginResponse> serializer =
                 new Jackson2JsonRedisSerializer<>(OAuth2LoginResponse.class);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper
+        ObjectMapper objectMapper = new ObjectMapper()
                 .registerModule(new ParameterNamesModule())
                 .registerModule(new Jdk8Module())
-                .registerModule(new JavaTimeModule());
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                .registerModule(new JavaTimeModule())
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        serializer.setObjectMapper(objectMapper); // 아직 사용 가능 (deprecated 경고는 있지만 동작은 함)
+        serializer.setObjectMapper(objectMapper); // Deprecated이지만 작동은 함
 
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(serializer);
-        template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(serializer);
-
         template.afterPropertiesSet();
         return template;
     }
