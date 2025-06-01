@@ -7,7 +7,6 @@ import com.becareful.becarefulserver.global.security.JwtAuthenticationFilter;
 import com.becareful.becarefulserver.global.security.JwtExceptionHandlingFilter;
 import com.becareful.becarefulserver.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +20,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -52,6 +53,10 @@ public class SecurityConfig {
                                 .hasRole("GUEST")
                                 .requestMatchers("/socialworker/check-nickname")
                                 .hasRole("GUEST")
+                                .requestMatchers("association/register", "association/reject/join/*", "association/accept/join/*", "association/upload-profile-img")
+                                .hasRole("CHAIRMAN")
+                                .requestMatchers("association/join")
+                                .hasRole("NONE")
                                 .requestMatchers("/sms/**")
                                 .authenticated()
                                 .requestMatchers("/post")
@@ -60,6 +65,7 @@ public class SecurityConfig {
                                 .permitAll()
                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
                                 .permitAll()
+
                                 .anyRequest()
                                 .authenticated())
                 .exceptionHandling(
