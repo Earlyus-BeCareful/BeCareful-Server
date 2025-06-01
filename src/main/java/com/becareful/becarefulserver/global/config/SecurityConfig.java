@@ -52,6 +52,14 @@ public class SecurityConfig {
                                 .hasRole("GUEST")
                                 .requestMatchers("/socialworker/check-nickname")
                                 .hasRole("GUEST")
+                                .requestMatchers(
+                                        "association/register",
+                                        "association/reject/join/*",
+                                        "association/accept/join/*",
+                                        "association/upload-profile-img")
+                                .hasRole("CHAIRMAN")
+                                .requestMatchers("association/join")
+                                .hasRole("NONE")
                                 .requestMatchers("/sms/**")
                                 .authenticated()
                                 .requestMatchers("/post")

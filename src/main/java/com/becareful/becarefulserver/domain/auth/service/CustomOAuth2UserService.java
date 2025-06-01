@@ -62,13 +62,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 birthGenderCode = isMale ? 1 : 2;
             }
 
+            // TODO(role 수정)
             Optional<SocialWorker> existData = socialworkerRepository.findByPhoneNumber(phoneNumber);
             String institutionRank = (existData.isEmpty())
                     ? "GUEST"
                     : existData.get().getInstitutionRank().toString();
             String associationRank = (existData.isEmpty())
                     ? "GUEST"
-                    : existData.get().getAssociationRank().toString(); // TODO(rank 수정)
+                    : existData.get().getAssociationRank().toString();
 
             OAuth2LoginResponse loginResponse = new OAuth2LoginResponse(
                     name, nickname, phoneNumber, institutionRank, associationRank, birthYymmdd, birthGenderCode);

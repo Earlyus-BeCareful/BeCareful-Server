@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.dto.request;
 
 import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -13,7 +12,6 @@ public record SocialworkerCreateRequest(
         @NotNull int genderCode,
         @NotBlank String phoneNumber,
         @NotNull InstitutionRank institutionRank,
-        @NotNull AssociationRank associationRank,
         boolean isAgreedToTerms,
         boolean isAgreedToCollectPersonalInfo,
         boolean isAgreedToReceiveMarketingInfo) {}
