@@ -59,7 +59,6 @@ public class AssociationController {
     @Operation(summary = "협회 프로필 사진 업로드", description = "협회 등록 전 프로필 이미지 저장 API")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AssociationProfileImageUploadResponse> uploadProfileImg(@RequestPart MultipartFile file) {
-
         var response = associationService.uploadProfileImage(file);
         return ResponseEntity.ok(response);
     }
