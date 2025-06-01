@@ -1,7 +1,5 @@
 package com.becareful.becarefulserver.domain.nursingInstitution.service;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
-
 import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.request.NursingInstitutionCreateRequest;
 import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionProfileUploadResponse;
@@ -12,6 +10,11 @@ import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -19,10 +22,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.EnumSet;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -90,7 +91,7 @@ public class NursingInstitutionService {
     public NursingInstitutionProfileUploadResponse uploadProfileImage(MultipartFile file, String institutionName) {
         try {
             String fileName = generateProfileImageFileName(institutionName);
-            String profileImageUrl = fileUtil.upload(file, fileName);
+            String profileImageUrl = fileUtil.upload(file, "nursing-institution-image", fileName);
             return new NursingInstitutionProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
             throw new NursingInstitutionException(NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE);
