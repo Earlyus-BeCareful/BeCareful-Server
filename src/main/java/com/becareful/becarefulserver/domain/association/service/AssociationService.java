@@ -83,8 +83,9 @@ public class AssociationService {
 
         Association newAssociation =
                 Association.create(request.name(), request.profileImageUrl(), request.establishedYear());
-        currentSocialWorker.setAssociation(newAssociation);
         associationRepository.save(newAssociation);
+
+        currentSocialWorker.setAssociation(newAssociation);
 
         List<PostBoard> postBoards = createDefaultPostBoards(newAssociation);
         postBoardRepository.saveAll(postBoards);
