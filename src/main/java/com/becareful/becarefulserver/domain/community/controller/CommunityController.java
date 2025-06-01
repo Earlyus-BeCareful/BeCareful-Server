@@ -23,7 +23,7 @@ public class CommunityController {
     private final AssociationService associationService;
     private final CommunityService communityService;
 
-    @Operation(summary = "커뮤니티 탭 첫 화면 데이터 조회", description = "협회 가입 여부에 따라 필요한 첫 화면 데이터를 응답합니다.")
+    @Operation(summary = "커뮤니티 탭 접근 권한 검증 및 각 화면 별 데이터 조회", description = "협회 가입 여부에 따라 필요한 첫 화면 데이터를 응답합니다.")
     @GetMapping("/access")
     public ResponseEntity<CommunityAccessResponse> getAccessStatus(HttpServletResponse httpServletResponse) {
         CommunityAccessResponse response = communityService.getCommunityAccess(httpServletResponse);
