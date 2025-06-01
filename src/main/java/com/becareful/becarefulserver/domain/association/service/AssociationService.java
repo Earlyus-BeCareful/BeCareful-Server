@@ -79,12 +79,12 @@ public class AssociationService {
 
     @Transactional
     public long saveAssociation(AssociationCreateRequest request) {
-        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
-
         Association newAssociation =
                 Association.create(request.name(), request.profileImageUrl(), request.establishedYear());
+
         associationRepository.save(newAssociation);
 
+        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
         currentSocialWorker.setAssociation(newAssociation);
 
         List<PostBoard> postBoards = createDefaultPostBoards(newAssociation);

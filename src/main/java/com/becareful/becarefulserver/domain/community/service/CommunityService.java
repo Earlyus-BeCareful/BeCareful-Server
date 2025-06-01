@@ -62,7 +62,6 @@ public class CommunityService {
 
             if (requestOpt.isPresent()) {
                 associationMembershipRequestRepository.delete(requestOpt.get());
-
                 return CommunityAccessResponse.approved(socialWorker, associationMemberCount);
             }
 
@@ -74,7 +73,6 @@ public class CommunityService {
                     switch (request.getStatus()) {
                         case REJECTED -> {
                             associationMembershipRequestRepository.delete(request);
-
                             return CommunityAccessResponse.rejected(socialWorker);
                         }
                         case PENDING -> {
