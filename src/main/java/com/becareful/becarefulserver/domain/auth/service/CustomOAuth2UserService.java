@@ -6,7 +6,6 @@ import com.becareful.becarefulserver.domain.auth.dto.response.OAuth2LoginRespons
 import com.becareful.becarefulserver.domain.auth.dto.response.OAuth2Response;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -62,13 +63,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 birthGenderCode = isMale ? 1 : 2;
             }
 
+            //TODO(role 수정)
             Optional<SocialWorker> existData = socialworkerRepository.findByPhoneNumber(phoneNumber);
             String institutionRank = (existData.isEmpty())
                     ? "GUEST"
                     : existData.get().getInstitutionRank().toString();
             String associationRank = (existData.isEmpty())
                     ? "GUEST"
-                    : existData.get().getAssociationRank().toString(); // TODO(rank 수정)
+                    : existData.get().getAssociationRank().toString();
 
             OAuth2LoginResponse loginResponse = new OAuth2LoginResponse(
                     name, nickname, phoneNumber, institutionRank, associationRank, birthYymmdd, birthGenderCode);

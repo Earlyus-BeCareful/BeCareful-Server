@@ -1,13 +1,13 @@
 package com.becareful.becarefulserver.fixture;
 
-import static com.becareful.becarefulserver.fixture.AssociationFixture.*;
-import static com.becareful.becarefulserver.fixture.NursingInstitutionFixture.*;
-
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
+
 import java.time.LocalDate;
+
+import static com.becareful.becarefulserver.fixture.NursingInstitutionFixture.NURSING_INSTITUTION;
 
 public class SocialWorkerFixture {
 
@@ -20,8 +20,7 @@ public class SocialWorkerFixture {
             InstitutionRank.SOCIAL_WORKER,
             AssociationRank.NONE,
             true,
-            NURSING_INSTITUTION,
-            JEONJU_ASSOCIATION);
+            NURSING_INSTITUTION);
 
     public static SocialWorker SOCIAL_WORKER_MANAGER = SocialWorker.create(
             "박복지",
@@ -32,6 +31,5 @@ public class SocialWorkerFixture {
             InstitutionRank.SOCIAL_WORKER,
             AssociationRank.MEMBER,
             true,
-            NURSING_INSTITUTION,
-            JEONJU_ASSOCIATION);
+            NURSING_INSTITUTION);
 }
