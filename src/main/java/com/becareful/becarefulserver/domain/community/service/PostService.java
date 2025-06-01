@@ -120,10 +120,12 @@ public class PostService {
 
         validateSocialWorkerRankReadable(currentMember, postBoard);
 
-        return postRepository
-                .findById(postId)
-                .map(PostDetailResponse::from)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostException(POST_NOT_FOUND));
+
+        validatePostBoardHasPost(postBoard, post);
+
+        return PostDetailResponse.from(post);
     }
 
     private void validateSocialWorkerRankWritable(SocialWorker socialworker, PostBoard board) {
@@ -141,6 +143,12 @@ public class PostService {
                         .getId()
                         .equals(socialWorker.getAssociation().getId())) {
             throw new PostBoardException(POST_BOARD_NOT_READABLE);
+        }
+    }
+
+    private void validatePostBoardHasPost(PostBoard board, Post post) {
+        if (!post.getBoard().equals(board)) {
+            throw new PostException(POST_NOT_FOUND_IN_BOARD);
         }
     }
 }
