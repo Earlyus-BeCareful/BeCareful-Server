@@ -93,7 +93,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookie.setMaxAge(maxAge);
         cookie.setSecure(cookieProperties.getCookieSecure());
         cookie.setPath("/");
-        cookie.setDomain(cookieProperties.getCookieDomain()); // Set domain for cross-domain access
         cookie.setHttpOnly(true);
         cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
         return cookie;
