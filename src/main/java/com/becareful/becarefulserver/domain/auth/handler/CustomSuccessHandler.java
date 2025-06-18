@@ -31,19 +31,22 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final CookieProperties cookieProperties;
     private final LoginRedirectUrlProperties loginRedirectUrlProperties;
     private final JwtProperties jwtProperties;
-    private final RedisTemplate<String, OAuth2LoginResponse> redisTemplate;
+    private final RedisTemplate<String, String> stringRedisTemplate;
+    private final RedisTemplate<String, OAuth2LoginResponse> oauth2LoginRedisTemplate;
 
     public CustomSuccessHandler(
             JwtUtil jwtUtil,
             CookieProperties cookieProperties,
             LoginRedirectUrlProperties loginRedirectUrlProperties,
             JwtProperties jwtProperties,
-            @Qualifier("oAuth2LoginResponseRedisTemplate") RedisTemplate<String, OAuth2LoginResponse> redisTemplate) {
+            @Qualifier("oAuth2LoginResponseRedisTemplate") RedisTemplate<String, OAuth2LoginResponse> oauth2LoginRedisTemplate,
+            RedisTemplate<String, String> stringRedisTemplate) {
         this.jwtUtil = jwtUtil;
         this.cookieProperties = cookieProperties;
         this.loginRedirectUrlProperties = loginRedirectUrlProperties;
         this.jwtProperties = jwtProperties;
-        this.redisTemplate = redisTemplate;
+        this.oauth2LoginRedisTemplate = oauth2LoginRedisTemplate;
+        this.stringRedisTemplate = stringRedisTemplate;
     }
 
     @Override
@@ -67,24 +70,39 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry())); // 24시간
         response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry())); // 일주일
 
+        String state = request.getParameter("state");
+        System.out.println("successHandler>>" + state);
+
+        String redirectUri = stringRedisTemplate.opsForValue().get("oauth2:state:" + state);
+        if (redirectUri == null) {
+            redirectUri = "/"; // fallback
+        } else {
+            stringRedisTemplate.delete("oauth2:state:" + state); // clean up
+        }
+
         if (roles.contains("GUEST")) {
             // 민감 정보는 Redis에 저장하고 key만 전달
             String guestKey = UUID.randomUUID().toString();
-            redisTemplate
+            oauth2LoginRedisTemplate
                     .opsForValue()
                     .set(
                             "guest:" + guestKey, loginInfo, Duration.ofMinutes(5) // 5분 후 만료
                             );
 
-            String redirectUrl = UriComponentsBuilder.fromUriString(
-                            loginRedirectUrlProperties.getGuestLoginRedirectUrl())
+            String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
+                    .path(loginRedirectUrlProperties.getGuestLoginRedirectUrl())
                     .queryParam("guestKey", guestKey)
                     .build()
                     .toUriString();
 
             response.sendRedirect(redirectUrl);
         } else {
-            response.sendRedirect(loginRedirectUrlProperties.getUserLoginRedirectUrl());
+            String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
+                    .path(loginRedirectUrlProperties.getUserLoginRedirectUrl()) // e.g., "/home"
+                    .build()
+                    .toUriString();
+
+            response.sendRedirect(redirectUrl);
         }
     }
 
