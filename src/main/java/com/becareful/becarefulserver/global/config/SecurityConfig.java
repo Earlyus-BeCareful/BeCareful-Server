@@ -2,12 +2,10 @@ package com.becareful.becarefulserver.global.config;
 
 import com.becareful.becarefulserver.domain.auth.handler.CustomSuccessHandler;
 import com.becareful.becarefulserver.domain.auth.service.CustomOAuth2UserService;
-import com.becareful.becarefulserver.global.properties.LoginRedirectUrlProperties;
 import com.becareful.becarefulserver.global.security.JwtAuthenticationFilter;
 import com.becareful.becarefulserver.global.security.JwtExceptionHandlingFilter;
 import com.becareful.becarefulserver.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +20,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -30,8 +30,8 @@ public class SecurityConfig {
     private final CustomSuccessHandler customSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtExceptionHandlingFilter jwtExceptionHandlingFilter;
-    private final LoginRedirectUrlProperties loginRedirectUrlProperties;
     private final JwtUtil jwtUtil;
+    private final CustomAuthorizationRequestResolver customResolver;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,8 +40,9 @@ public class SecurityConfig {
                 .formLogin((auth) -> auth.disable())
                 .httpBasic((auth) -> auth.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2Login((oauth2) -> oauth2.userInfoEndpoint(
-                                (userInfoEndpointConfig) -> userInfoEndpointConfig.userService(customOAuth2UserService))
+                .oauth2Login(oauth2 -> oauth2.authorizationEndpoint(
+                                endpoint -> endpoint.authorizationRequestResolver(customResolver))
+                        .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
                         .successHandler(customSuccessHandler))
                 .authorizeHttpRequests(
                         auth -> auth.requestMatchers("/caregiver/signup", "/caregiver/upload-profile-img")
@@ -87,6 +88,7 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(List.of(
                 "https://becareful.vercel.app/",
+                "https://www.carebridges.kr/",
                 "https://localhost:5173",
                 "https://localhost:8080",
                 "https://blaybus.everdu.com",
