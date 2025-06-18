@@ -47,17 +47,13 @@ public class PostService {
         validateSocialWorkerRankWritable(currentMember, postBoard);
 
         Post post = Post.create(request.title(), request.content(), request.isImportant(), postBoard, currentMember);
-        
+
         // 이미지 처리
         if (request.imageList() != null) {
             validateImageCount(request.imageList().size());
             for (MediaInfoDto imageInfo : request.imageList()) {
-                PostMedia imageMedia = PostMedia.createImage(
-                    imageInfo.fileName(),
-                    imageInfo.mediaUrl(),
-                    imageInfo.fileSize(),
-                    post
-                );
+                PostMedia imageMedia =
+                        PostMedia.createImage(imageInfo.fileName(), imageInfo.mediaUrl(), imageInfo.fileSize(), post);
                 post.addMedia(imageMedia);
             }
         }
@@ -67,12 +63,11 @@ public class PostService {
             validateVideoCount(request.videoList().size());
             for (MediaInfoDto videoInfo : request.videoList()) {
                 PostMedia videoMedia = PostMedia.createVideo(
-                    videoInfo.fileName(),
-                    videoInfo.mediaUrl(),
-                    videoInfo.fileSize(),
-                    videoInfo.videoDuration(),
-                    post
-                );
+                        videoInfo.fileName(),
+                        videoInfo.mediaUrl(),
+                        videoInfo.fileSize(),
+                        videoInfo.videoDuration(),
+                        post);
                 post.addMedia(videoMedia);
             }
         }
@@ -102,12 +97,8 @@ public class PostService {
         if (request.imageList() != null) {
             validateImageCount(request.imageList().size());
             for (MediaInfoDto imageInfo : request.imageList()) {
-                PostMedia imageMedia = PostMedia.createImage(
-                    imageInfo.fileName(),
-                    imageInfo.mediaUrl(),
-                    imageInfo.fileSize(),
-                    post
-                );
+                PostMedia imageMedia =
+                        PostMedia.createImage(imageInfo.fileName(), imageInfo.mediaUrl(), imageInfo.fileSize(), post);
                 post.addMedia(imageMedia);
             }
         }
@@ -116,12 +107,11 @@ public class PostService {
             validateVideoCount(request.videoList().size());
             for (MediaInfoDto videoInfo : request.videoList()) {
                 PostMedia videoMedia = PostMedia.createVideo(
-                    videoInfo.fileName(),
-                    videoInfo.mediaUrl(),
-                    videoInfo.fileSize(),
-                    videoInfo.videoDuration(),
-                    post
-                );
+                        videoInfo.fileName(),
+                        videoInfo.mediaUrl(),
+                        videoInfo.fileSize(),
+                        videoInfo.videoDuration(),
+                        post);
                 post.addMedia(videoMedia);
             }
         }
