@@ -7,6 +7,8 @@ import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.PostException;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,6 +40,9 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "social_worker_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private SocialWorker author;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostMedia> mediaList = new ArrayList<>();
 
     @Builder
     private Post(String title, String content, boolean isImportant, PostBoard board, SocialWorker author) {
@@ -81,5 +86,24 @@ public class Post extends BaseEntity {
         if (!this.board.getId().equals(boardId)) {
             throw new PostException(POST_DIFFERENT_POST_BOARD);
         }
+    }
+
+    /**
+     * 미디어 추가 로직
+     */
+    public void addMedia(PostMedia media) {
+        this.mediaList.add(media);
+    }
+
+    public List<PostMedia> getImageMediaList() {
+        return this.mediaList.stream()
+                .filter(media -> media.getFileType() == FileType.IMAGE)
+                .toList();
+    }
+
+    public List<PostMedia> getVideoMediaList() {
+        return this.mediaList.stream()
+                .filter(media -> media.getFileType() == FileType.VIDEO)
+                .toList();
     }
 }

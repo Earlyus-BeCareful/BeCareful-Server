@@ -6,8 +6,7 @@ import com.becareful.becarefulserver.domain.community.domain.BoardType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
 import com.becareful.becarefulserver.domain.community.dto.PostSimpleDto;
-import com.becareful.becarefulserver.domain.community.dto.request.PostCreateRequest;
-import com.becareful.becarefulserver.domain.community.dto.request.PostUpdateRequest;
+import com.becareful.becarefulserver.domain.community.dto.request.PostCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.community.dto.response.PostDetailResponse;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
@@ -31,8 +30,11 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostBoardRepository postBoardRepository;
 
+    private static final int MAX_IMAGE_COUNT = 100;
+    private static final int MAX_VIDEO_COUNT = 3;
+
     @Transactional
-    public Long createPost(String boardType, PostCreateRequest request) {
+    public Long createPost(String boardType, PostCreateOrUpdateRequest request) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
@@ -49,7 +51,7 @@ public class PostService {
     }
 
     @Transactional
-    public void updatePost(String boardType, Long postId, PostUpdateRequest request) {
+    public void updatePost(String boardType, Long postId, PostCreateOrUpdateRequest request) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
