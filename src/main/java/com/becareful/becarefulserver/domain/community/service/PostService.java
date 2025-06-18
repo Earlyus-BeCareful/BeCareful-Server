@@ -5,6 +5,8 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 import com.becareful.becarefulserver.domain.community.domain.BoardType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
+import com.becareful.becarefulserver.domain.community.domain.PostMedia;
+import com.becareful.becarefulserver.domain.community.dto.MediaInfoDto;
 import com.becareful.becarefulserver.domain.community.dto.PostSimpleDto;
 import com.becareful.becarefulserver.domain.community.dto.request.PostCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.community.dto.response.PostDetailResponse;
@@ -45,8 +47,37 @@ public class PostService {
         validateSocialWorkerRankWritable(currentMember, postBoard);
 
         Post post = Post.create(request.title(), request.content(), request.isImportant(), postBoard, currentMember);
-        postRepository.save(post);
+        
+        // 이미지 처리
+        if (request.imageList() != null) {
+            validateImageCount(request.imageList().size());
+            for (MediaInfoDto imageInfo : request.imageList()) {
+                PostMedia imageMedia = PostMedia.createImage(
+                    imageInfo.fileName(),
+                    imageInfo.mediaUrl(),
+                    imageInfo.fileSize(),
+                    post
+                );
+                post.addMedia(imageMedia);
+            }
+        }
 
+        // 비디오 처리
+        if (request.videoList() != null) {
+            validateVideoCount(request.videoList().size());
+            for (MediaInfoDto videoInfo : request.videoList()) {
+                PostMedia videoMedia = PostMedia.createVideo(
+                    videoInfo.fileName(),
+                    videoInfo.mediaUrl(),
+                    videoInfo.fileSize(),
+                    videoInfo.videoDuration(),
+                    post
+                );
+                post.addMedia(videoMedia);
+            }
+        }
+
+        postRepository.save(post);
         return post.getId();
     }
 
@@ -63,6 +94,37 @@ public class PostService {
 
         validateSocialWorkerRankWritable(currentMember, postBoard);
         post.validateAuthor(currentMember);
+
+        // 기존 미디어 삭제
+        post.getMediaList().clear();
+
+        // 새로운 미디어 추가
+        if (request.imageList() != null) {
+            validateImageCount(request.imageList().size());
+            for (MediaInfoDto imageInfo : request.imageList()) {
+                PostMedia imageMedia = PostMedia.createImage(
+                    imageInfo.fileName(),
+                    imageInfo.mediaUrl(),
+                    imageInfo.fileSize(),
+                    post
+                );
+                post.addMedia(imageMedia);
+            }
+        }
+
+        if (request.videoList() != null) {
+            validateVideoCount(request.videoList().size());
+            for (MediaInfoDto videoInfo : request.videoList()) {
+                PostMedia videoMedia = PostMedia.createVideo(
+                    videoInfo.fileName(),
+                    videoInfo.mediaUrl(),
+                    videoInfo.fileSize(),
+                    videoInfo.videoDuration(),
+                    post
+                );
+                post.addMedia(videoMedia);
+            }
+        }
 
         post.update(request.title(), request.content(), request.isImportant());
     }
@@ -150,6 +212,18 @@ public class PostService {
     private void validatePostBoardHasPost(PostBoard board, Post post) {
         if (!post.getBoard().equals(board)) {
             throw new PostException(POST_NOT_FOUND_IN_BOARD);
+        }
+    }
+
+    private void validateImageCount(int count) {
+        if (count > MAX_IMAGE_COUNT) {
+            throw new PostException(POST_MEDIA_IMAGE_COUNT_EXCEEDED);
+        }
+    }
+
+    private void validateVideoCount(int count) {
+        if (count > MAX_VIDEO_COUNT) {
+            throw new PostException(POST_MEDIA_VIDEO_COUNT_EXCEEDED);
         }
     }
 }

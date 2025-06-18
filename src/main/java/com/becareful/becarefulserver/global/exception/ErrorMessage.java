@@ -54,4 +54,6 @@ public class ErrorMessage {
     public static final String POST_MEDIA_FILE_HAS_NO_NAME = "미디어 파일의 이름이 없습니다.";
     public static final String POST_MEDIA_VALIDATION_FAILED = "미디어 파일 검증에 실패했습니다.";
     public static final String POST_MEDIA_UPLOAD_FAILED = "미디어 파일 업로드에 실패했습니다.";
+    public static final String POST_MEDIA_IMAGE_COUNT_EXCEEDED = "이미지는 최대 100개까지 업로드할 수 있습니다.";
+    public static final String POST_MEDIA_VIDEO_COUNT_EXCEEDED = "동영상은 최대 3개까지 업로드할 수 있습니다.";
 }
