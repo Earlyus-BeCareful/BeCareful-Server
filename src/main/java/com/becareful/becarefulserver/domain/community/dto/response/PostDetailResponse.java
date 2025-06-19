@@ -20,29 +20,8 @@ public record PostDetailResponse(
         List<String> videoUrls,
         List<String> fileUrls,
         boolean isMyPost) {
-    public static PostDetailResponse from(Post post) {
-        return new PostDetailResponse(
-                post.getId(),
-                post.getTitle(),
-                post.getContent(),
-                post.isImportant(),
-                !post.getCreateDate().isEqual(post.getUpdateDate()),
-                post.getUpdateDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                AuthorSimpleDto.from(post.getAuthor()),
-                post.getMediaListByType(FileType.IMAGE).stream()
-                        .map(PostMedia::getMediaUrl)
-                        .toList(),
-                post.getMediaListByType(FileType.VIDEO).stream()
-                        .map(PostMedia::getMediaUrl)
-                        .toList(),
-                post.getMediaListByType(FileType.FILE).stream()
-                        .map(PostMedia::getMediaUrl)
-                        .toList(),
-                false // 기본값: 내 글 아님
-                );
-    }
 
-    public static PostDetailResponse from(Post post, Long currentUserId) {
+    public static PostDetailResponse of(Post post, Long currentUserId) {
         SocialWorker author = post.getAuthor();
         boolean isMyPost = author != null && author.getId().equals(currentUserId);
         return new PostDetailResponse(

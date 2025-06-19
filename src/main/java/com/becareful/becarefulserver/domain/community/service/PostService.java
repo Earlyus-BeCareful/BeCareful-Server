@@ -201,7 +201,7 @@ public class PostService {
 
         validatePostBoardHasPost(postBoard, post);
 
-        return PostDetailResponse.from(post, currentMember.getId());
+        return PostDetailResponse.of(post, currentMember.getId());
     }
 
     private void validateSocialWorkerRankWritable(SocialWorker socialworker, PostBoard board) {
