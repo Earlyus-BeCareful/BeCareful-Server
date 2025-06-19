@@ -4,6 +4,7 @@ import com.becareful.becarefulserver.domain.community.domain.FileType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostMedia;
 import com.becareful.becarefulserver.domain.community.dto.AuthorSimpleDto;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -17,8 +18,12 @@ public record PostDetailResponse(
         AuthorSimpleDto author,
         List<String> imageUrls,
         List<String> videoUrls,
-        List<String> fileUrls) {
-    public static PostDetailResponse from(Post post) {
+        List<String> fileUrls,
+        boolean isMyPost) {
+
+    public static PostDetailResponse of(Post post, Long currentUserId) {
+        SocialWorker author = post.getAuthor();
+        boolean isMyPost = author != null && author.getId().equals(currentUserId);
         return new PostDetailResponse(
                 post.getId(),
                 post.getTitle(),
@@ -26,7 +31,7 @@ public record PostDetailResponse(
                 post.isImportant(),
                 !post.getCreateDate().isEqual(post.getUpdateDate()),
                 post.getUpdateDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                AuthorSimpleDto.from(post.getAuthor()),
+                AuthorSimpleDto.from(author),
                 post.getMediaListByType(FileType.IMAGE).stream()
                         .map(PostMedia::getMediaUrl)
                         .toList(),
@@ -35,6 +40,7 @@ public record PostDetailResponse(
                         .toList(),
                 post.getMediaListByType(FileType.FILE).stream()
                         .map(PostMedia::getMediaUrl)
-                        .toList());
+                        .toList(),
+                isMyPost);
     }
 }
