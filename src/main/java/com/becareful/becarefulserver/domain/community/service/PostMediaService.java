@@ -22,6 +22,7 @@ public class PostMediaService {
     private final FileUtil fileUtil;
     private static final long MAX_IMAGE_SIZE = 30 * 1024 * 1024; // 30MB
     private static final long MAX_VIDEO_SIZE = 1024 * 1024 * 1024; // 1GB
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     private static final int MAX_VIDEO_DURATION = 15 * 60; // 15분(초 단위)
 
     @Transactional
@@ -48,7 +49,9 @@ public class PostMediaService {
         if (fileType == FileType.VIDEO && file.getSize() <= MAX_VIDEO_SIZE) {
             return;
         }
-
+        if (fileType == FileType.FILE && file.getSize() <= MAX_FILE_SIZE) {
+            return;
+        }
         throw new PostException(POST_MEDIA_VALIDATION_FAILED);
     }
 
@@ -63,7 +66,13 @@ public class PostMediaService {
         if (fileType == FileType.IMAGE) {
             return "post-images";
         }
-        return "post-videos";
+        if (fileType == FileType.VIDEO) {
+            return "post-videos";
+        }
+        if (fileType == FileType.FILE) {
+            return "post-files";
+        }
+        throw new PostException(POST_MEDIA_UNSUPPORTED_FILE_TYPE);
     }
 
     private String generateFileName(MultipartFile file) {

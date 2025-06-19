@@ -1,8 +1,10 @@
 package com.becareful.becarefulserver.domain.community.dto.response;
 
+import com.becareful.becarefulserver.domain.community.domain.FileType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostMedia;
 import com.becareful.becarefulserver.domain.community.dto.AuthorSimpleDto;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -15,8 +17,14 @@ public record PostDetailResponse(
         String postedDate,
         AuthorSimpleDto author,
         List<String> imageUrls,
-        List<String> videoUrls) {
-    public static PostDetailResponse from(Post post) {
+        List<String> videoUrls,
+        List<String> fileUrls,
+        boolean isMyPost,
+        String originalUrl) {
+
+    public static PostDetailResponse of(Post post, Long currentUserId) {
+        SocialWorker author = post.getAuthor();
+        boolean isMyPost = author != null && author.getId().equals(currentUserId);
         return new PostDetailResponse(
                 post.getId(),
                 post.getTitle(),
@@ -24,8 +32,17 @@ public record PostDetailResponse(
                 post.isImportant(),
                 !post.getCreateDate().isEqual(post.getUpdateDate()),
                 post.getUpdateDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                AuthorSimpleDto.from(post.getAuthor()),
-                post.getImageMediaList().stream().map(PostMedia::getMediaUrl).toList(),
-                post.getVideoMediaList().stream().map(PostMedia::getMediaUrl).toList());
+                AuthorSimpleDto.from(author),
+                post.getMediaListByType(FileType.IMAGE).stream()
+                        .map(PostMedia::getMediaUrl)
+                        .toList(),
+                post.getMediaListByType(FileType.VIDEO).stream()
+                        .map(PostMedia::getMediaUrl)
+                        .toList(),
+                post.getMediaListByType(FileType.FILE).stream()
+                        .map(PostMedia::getMediaUrl)
+                        .toList(),
+                isMyPost,
+                post.getOriginalUrl());
     }
 }
