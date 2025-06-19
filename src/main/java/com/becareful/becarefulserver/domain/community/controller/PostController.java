@@ -1,9 +1,11 @@
 package com.becareful.becarefulserver.domain.community.controller;
 
+import com.becareful.becarefulserver.domain.community.domain.FileType;
+import com.becareful.becarefulserver.domain.community.dto.MediaInfoDto;
 import com.becareful.becarefulserver.domain.community.dto.PostSimpleDto;
-import com.becareful.becarefulserver.domain.community.dto.request.PostCreateRequest;
-import com.becareful.becarefulserver.domain.community.dto.request.PostUpdateRequest;
+import com.becareful.becarefulserver.domain.community.dto.request.PostCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.community.dto.response.PostDetailResponse;
+import com.becareful.becarefulserver.domain.community.service.PostMediaService;
 import com.becareful.becarefulserver.domain.community.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,8 +13,10 @@ import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,10 +25,12 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+    private final PostMediaService postMediaService;
 
     @Operation(summary = "게시글 작성")
     @PostMapping("/board/{boardType}/post")
-    public ResponseEntity<Void> createPost(@PathVariable String boardType, @RequestBody PostCreateRequest request) {
+    public ResponseEntity<Void> createPost(
+            @PathVariable String boardType, @RequestBody PostCreateOrUpdateRequest request) {
         Long postId = postService.createPost(boardType, request);
         return ResponseEntity.created(URI.create("/board/" + boardType + "/post/" + postId))
                 .build();
@@ -47,7 +53,7 @@ public class PostController {
     @Operation(summary = "게시글 수정")
     @PutMapping("/board/{boardType}/post/{postId}")
     public ResponseEntity<Void> updatePost(
-            @PathVariable String boardType, @PathVariable Long postId, @RequestBody PostUpdateRequest request) {
+            @PathVariable String boardType, @PathVariable Long postId, @RequestBody PostCreateOrUpdateRequest request) {
         postService.updatePost(boardType, postId, request);
         return ResponseEntity.ok().build();
     }
@@ -63,6 +69,18 @@ public class PostController {
     @GetMapping("/post/important")
     public ResponseEntity<List<PostSimpleDto>> getImportantPosts(Pageable pageable) {
         var response = postService.getImportantPosts(pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "미디어 파일 업로드",
+            description = "게시글 작성/수정 전에 미디어 파일을 먼저 업로드합니다. 이미지는 30MB 이하, 동영상은 1GB 이하 및 15분 이내여야 합니다.")
+    @PostMapping(value = "/media/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MediaInfoDto> uploadMedia(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("fileType") FileType fileType,
+            @RequestParam(value = "videoDuration", required = false) Integer videoDuration) {
+        var response = postMediaService.uploadPostMedia(file, fileType, videoDuration);
         return ResponseEntity.ok(response);
     }
 }

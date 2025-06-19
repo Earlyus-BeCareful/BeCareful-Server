@@ -1,8 +1,10 @@
 package com.becareful.becarefulserver.domain.community.dto.response;
 
 import com.becareful.becarefulserver.domain.community.domain.Post;
+import com.becareful.becarefulserver.domain.community.domain.PostMedia;
 import com.becareful.becarefulserver.domain.community.dto.AuthorSimpleDto;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public record PostDetailResponse(
         Long postId,
@@ -11,7 +13,9 @@ public record PostDetailResponse(
         boolean isImportant,
         boolean isEdited,
         String postedDate,
-        AuthorSimpleDto author) {
+        AuthorSimpleDto author,
+        List<String> imageUrls,
+        List<String> videoUrls) {
     public static PostDetailResponse from(Post post) {
         return new PostDetailResponse(
                 post.getId(),
@@ -20,6 +24,8 @@ public record PostDetailResponse(
                 post.isImportant(),
                 !post.getCreateDate().isEqual(post.getUpdateDate()),
                 post.getUpdateDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                AuthorSimpleDto.from(post.getAuthor()));
+                AuthorSimpleDto.from(post.getAuthor()),
+                post.getImageMediaList().stream().map(PostMedia::getMediaUrl).toList(),
+                post.getVideoMediaList().stream().map(PostMedia::getMediaUrl).toList());
     }
 }
