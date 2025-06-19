@@ -27,11 +27,14 @@ public class Post extends BaseEntity {
     @Column(name = "post_title")
     private String title;
 
-    @Column(name = "post_content")
+    @Column(name = "post_content", columnDefinition = "varchar(4000)")
     private String content;
 
     @Column(name = "post_is_important")
     private boolean isImportant;
+
+    @Column(name = "post_original_url")
+    private String originalUrl;
 
     @JoinColumn(name = "board_id")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,20 +48,33 @@ public class Post extends BaseEntity {
     private List<PostMedia> mediaList = new ArrayList<>();
 
     @Builder
-    private Post(String title, String content, boolean isImportant, PostBoard board, SocialWorker author) {
+    private Post(
+            String title,
+            String content,
+            boolean isImportant,
+            String originalUrl,
+            PostBoard board,
+            SocialWorker author) {
         this.title = title;
         this.content = content;
         this.isImportant = isImportant;
+        this.originalUrl = originalUrl;
         this.board = board;
         this.author = author;
     }
 
     public static Post create(
-            String title, String content, boolean isImportant, PostBoard board, SocialWorker socialWorker) {
+            String title,
+            String content,
+            boolean isImportant,
+            String originalUrl,
+            PostBoard board,
+            SocialWorker socialWorker) {
         return Post.builder()
                 .title(title)
                 .content(content)
                 .isImportant(isImportant)
+                .originalUrl(originalUrl)
                 .board(board)
                 .author(socialWorker)
                 .build();
@@ -73,10 +89,11 @@ public class Post extends BaseEntity {
     /**
      * Data Update 로직
      */
-    public void update(String title, String content, boolean isImportant) {
+    public void update(String title, String content, boolean isImportant, String originalUrl) {
         this.title = title;
         this.content = content;
         this.isImportant = isImportant;
+        this.originalUrl = originalUrl;
     }
 
     /**

@@ -19,7 +19,8 @@ public record PostDetailResponse(
         List<String> imageUrls,
         List<String> videoUrls,
         List<String> fileUrls,
-        boolean isMyPost) {
+        boolean isMyPost,
+        String originalUrl) {
 
     public static PostDetailResponse of(Post post, Long currentUserId) {
         SocialWorker author = post.getAuthor();
@@ -41,6 +42,7 @@ public record PostDetailResponse(
                 post.getMediaListByType(FileType.FILE).stream()
                         .map(PostMedia::getMediaUrl)
                         .toList(),
-                isMyPost);
+                isMyPost,
+                post.getOriginalUrl());
     }
 }
