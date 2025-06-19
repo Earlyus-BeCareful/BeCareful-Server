@@ -95,15 +95,9 @@ public class Post extends BaseEntity {
         this.mediaList.add(media);
     }
 
-    public List<PostMedia> getImageMediaList() {
+    public List<PostMedia> getMediaListByType(FileType fileType) {
         return this.mediaList.stream()
-                .filter(media -> media.getFileType() == FileType.IMAGE)
-                .toList();
-    }
-
-    public List<PostMedia> getVideoMediaList() {
-        return this.mediaList.stream()
-                .filter(media -> media.getFileType() == FileType.VIDEO)
+                .filter(media -> media.getFileType() == fileType)
                 .toList();
     }
 }

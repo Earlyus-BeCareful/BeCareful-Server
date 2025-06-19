@@ -56,4 +56,8 @@ public class ErrorMessage {
     public static final String POST_MEDIA_UPLOAD_FAILED = "미디어 파일 업로드에 실패했습니다.";
     public static final String POST_MEDIA_IMAGE_COUNT_EXCEEDED = "이미지는 최대 100개까지 업로드할 수 있습니다.";
     public static final String POST_MEDIA_VIDEO_COUNT_EXCEEDED = "동영상은 최대 3개까지 업로드할 수 있습니다.";
+    public static final String POST_MEDIA_FILE_COUNT_EXCEEDED = "파일은 최대 5개까지 업로드할 수 있습니다.";
+    public static final String POST_MEDIA_FILE_SIZE_EXCEEDED = "파일은 1개당 최대 10MB까지 업로드할 수 있습니다.";
+    public static final String POST_MEDIA_TOTAL_FILE_SIZE_EXCEEDED = "파일은 한 게시글당 최대 30MB까지 업로드할 수 있습니다.";
+    public static final String POST_MEDIA_UNSUPPORTED_FILE_TYPE = "지원하지 않는 파일 타입입니다.";
 }

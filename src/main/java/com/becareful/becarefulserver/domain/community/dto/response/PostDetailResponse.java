@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.community.dto.response;
 
+import com.becareful.becarefulserver.domain.community.domain.FileType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostMedia;
 import com.becareful.becarefulserver.domain.community.dto.AuthorSimpleDto;
@@ -15,7 +16,8 @@ public record PostDetailResponse(
         String postedDate,
         AuthorSimpleDto author,
         List<String> imageUrls,
-        List<String> videoUrls) {
+        List<String> videoUrls,
+        List<String> fileUrls) {
     public static PostDetailResponse from(Post post) {
         return new PostDetailResponse(
                 post.getId(),
@@ -25,7 +27,14 @@ public record PostDetailResponse(
                 !post.getCreateDate().isEqual(post.getUpdateDate()),
                 post.getUpdateDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 AuthorSimpleDto.from(post.getAuthor()),
-                post.getImageMediaList().stream().map(PostMedia::getMediaUrl).toList(),
-                post.getVideoMediaList().stream().map(PostMedia::getMediaUrl).toList());
+                post.getMediaListByType(FileType.IMAGE).stream()
+                        .map(PostMedia::getMediaUrl)
+                        .toList(),
+                post.getMediaListByType(FileType.VIDEO).stream()
+                        .map(PostMedia::getMediaUrl)
+                        .toList(),
+                post.getMediaListByType(FileType.FILE).stream()
+                        .map(PostMedia::getMediaUrl)
+                        .toList());
     }
 }

@@ -67,4 +67,14 @@ public class PostMedia extends BaseEntity {
                 .post(post)
                 .build();
     }
+
+    public static PostMedia createFile(String fileName, String mediaUrl, Long fileSize, Post post) {
+        return PostMedia.builder()
+                .fileName(fileName)
+                .mediaUrl(mediaUrl)
+                .fileType(FileType.FILE)
+                .fileSize(fileSize)
+                .post(post)
+                .build();
+    }
 }
