@@ -9,4 +9,5 @@ public record PostCreateOrUpdateRequest(
         String content,
         boolean isImportant,
         List<MediaInfoDto> imageList,
-        List<MediaInfoDto> videoList) {}
+        List<MediaInfoDto> videoList,
+        List<MediaInfoDto> fileList) {}

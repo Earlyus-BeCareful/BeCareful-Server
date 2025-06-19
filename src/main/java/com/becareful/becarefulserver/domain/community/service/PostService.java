@@ -34,6 +34,9 @@ public class PostService {
 
     private static final int MAX_IMAGE_COUNT = 100;
     private static final int MAX_VIDEO_COUNT = 3;
+    private static final int MAX_FILE_COUNT = 5;
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    private static final long MAX_TOTAL_FILE_SIZE = 30 * 1024 * 1024; // 30MB
 
     @Transactional
     public Long createPost(String boardType, PostCreateOrUpdateRequest request) {
@@ -69,6 +72,16 @@ public class PostService {
                         videoInfo.videoDuration(),
                         post);
                 post.addMedia(videoMedia);
+            }
+        }
+
+        // 파일 처리
+        if (request.fileList() != null && !request.fileList().isEmpty()) {
+            validateFileList(request.fileList());
+            for (MediaInfoDto fileInfo : request.fileList()) {
+                PostMedia fileMedia =
+                        PostMedia.createFile(fileInfo.fileName(), fileInfo.mediaUrl(), fileInfo.fileSize(), post);
+                post.addMedia(fileMedia);
             }
         }
 
@@ -113,6 +126,16 @@ public class PostService {
                         videoInfo.videoDuration(),
                         post);
                 post.addMedia(videoMedia);
+            }
+        }
+
+        // 파일 처리
+        if (request.fileList() != null && !request.fileList().isEmpty()) {
+            validateFileList(request.fileList());
+            for (MediaInfoDto fileInfo : request.fileList()) {
+                PostMedia fileMedia =
+                        PostMedia.createFile(fileInfo.fileName(), fileInfo.mediaUrl(), fileInfo.fileSize(), post);
+                post.addMedia(fileMedia);
             }
         }
 
@@ -214,6 +237,22 @@ public class PostService {
     private void validateVideoCount(int count) {
         if (count > MAX_VIDEO_COUNT) {
             throw new PostException(POST_MEDIA_VIDEO_COUNT_EXCEEDED);
+        }
+    }
+
+    private void validateFileList(List<MediaInfoDto> fileList) {
+        if (fileList.size() > MAX_FILE_COUNT) {
+            throw new PostException(POST_MEDIA_FILE_COUNT_EXCEEDED);
+        }
+        long totalSize = 0;
+        for (MediaInfoDto file : fileList) {
+            if (file.fileSize() > MAX_FILE_SIZE) {
+                throw new PostException(POST_MEDIA_FILE_SIZE_EXCEEDED);
+            }
+            totalSize += file.fileSize();
+        }
+        if (totalSize > MAX_TOTAL_FILE_SIZE) {
+            throw new PostException(POST_MEDIA_TOTAL_FILE_SIZE_EXCEEDED);
         }
     }
 }

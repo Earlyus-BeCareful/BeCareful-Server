@@ -74,7 +74,10 @@ public class PostController {
 
     @Operation(
             summary = "미디어 파일 업로드",
-            description = "게시글 작성/수정 전에 미디어 파일을 먼저 업로드합니다. 이미지는 30MB 이하, 동영상은 1GB 이하 및 15분 이내여야 합니다.")
+            description = "게시글 작성/수정 전에 미디어 파일을 먼저 업로드합니다.\n" + "- 이미지: 1개당 30MB 이하, 최대 100개\n"
+                    + "- 동영상: 1개당 1GB 이하, 최대 3개, 각 15분 이내\n"
+                    + "- 파일: 1개당 10MB 이하, 최대 5개, 게시글당 총 30MB 이하\n"
+                    + "\n[videoDuration] 파라미터는 fileType이 VIDEO일 때만 필수이며, 그 외 타입(IMAGE, FILE)일 때는 비워서 보내도 됩니다.")
     @PostMapping(value = "/media/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MediaInfoDto> uploadMedia(
             @RequestParam("file") MultipartFile file,
