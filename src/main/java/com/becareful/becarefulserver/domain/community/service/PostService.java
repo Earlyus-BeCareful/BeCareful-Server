@@ -49,7 +49,13 @@ public class PostService {
 
         validateSocialWorkerRankWritable(currentMember, postBoard);
 
-        Post post = Post.create(request.title(), request.content(), request.isImportant(), postBoard, currentMember);
+        Post post = Post.create(
+                request.title(),
+                request.content(),
+                request.isImportant(),
+                request.originalUrl(),
+                postBoard,
+                currentMember);
 
         // 이미지 처리
         if (request.imageList() != null) {
@@ -139,7 +145,7 @@ public class PostService {
             }
         }
 
-        post.update(request.title(), request.content(), request.isImportant());
+        post.update(request.title(), request.content(), request.isImportant(), request.originalUrl());
     }
 
     @Transactional

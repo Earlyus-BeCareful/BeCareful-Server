@@ -27,7 +27,7 @@ public class PostController {
     private final PostService postService;
     private final PostMediaService postMediaService;
 
-    @Operation(summary = "게시글 작성")
+    @Operation(summary = "게시글 작성", description = "original url 필드의 경우, 협회 공지 게시판 이외에는 비워둡니다.")
     @PostMapping("/board/{boardType}/post")
     public ResponseEntity<Void> createPost(
             @PathVariable String boardType, @RequestBody PostCreateOrUpdateRequest request) {
