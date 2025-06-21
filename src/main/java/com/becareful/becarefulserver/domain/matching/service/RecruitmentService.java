@@ -13,11 +13,11 @@ import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepositor
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
-import com.becareful.becarefulserver.domain.common.domain.CareType;
+import com.becareful.becarefulserver.domain.common.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingInfo;
+import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.*;
@@ -26,9 +26,7 @@ import com.becareful.becarefulserver.domain.matching.repository.MatchingReposito
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.ResidentialAddress;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
-import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import java.time.DayOfWeek;
@@ -78,12 +76,12 @@ public class RecruitmentService {
         return CaregiverDetailResponse.of(matching, career, careerDetails);
     }
 
-    public List<RecruitmentResponse> getRecruitmentList() {
+    public List<CaregiverRecruitmentResponse> getCaregiverMatchingRecruitmentList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         return workApplicationRepository
                 .findByCaregiver(caregiver)
                 .map(workApplication -> matchingRepository.findAllByWorkApplication(workApplication).stream()
-                        .map(RecruitmentResponse::from)
+                        .map(CaregiverRecruitmentResponse::from)
                         .toList())
                 .orElse(null);
     }
@@ -266,103 +264,47 @@ public class RecruitmentService {
     private void matchingWith(Recruitment recruitment) {
         workApplicationRepository.findAllActiveWorkApplication().stream()
                 .map(application -> {
-                    List<WorkLocation> locations =
+                    List<Location> locations =
                             workApplicationWorkLocationRepository.findAllByWorkApplication(application).stream()
-                                    .map(WorkApplicationWorkLocation::getWorkLocation)
+                                    .map(WorkApplicationWorkLocation::getLocation)
                                     .toList();
 
-                    MatchingInfo caregiverMatchingInfo =
+                    MatchingResultInfo caregiverMatchingResultInfo =
                             calculateMatchingRate(recruitment, application, locations, true);
-                    MatchingInfo socialworkerMatchingInfo =
+                    MatchingResultInfo socialworkerMatchingResultInfo =
                             calculateMatchingRate(recruitment, application, locations, false);
 
-                    System.out.println(
-                            Matching.create(recruitment, application, caregiverMatchingInfo, socialworkerMatchingInfo));
-
-                    return Matching.create(recruitment, application, caregiverMatchingInfo, socialworkerMatchingInfo);
+                    return Matching.create(
+                            recruitment, application, caregiverMatchingResultInfo, socialworkerMatchingResultInfo);
                 })
                 // TODO : 매칭 알고리즘 해제하기.
                 // .filter((matching -> isMatchedWithSocialWorker(matching.getSocialWorkerMatchingInfo())))
                 .forEach(matchingRepository::save);
     }
 
-    private MatchingInfo calculateMatchingRate(
+    /**
+     * @param recruitment       - 사회복지사가 등록한 공고
+     * @param workApplication   - 요양보호사가 등록한 지원서
+     * @param locations         - 지원서에 등록된 희망 근무 장소
+     * @param isForCaregiver    - 요양보호사 기준 적합도인지, 사회복지사 기준 적합도인지 기준
+     * @return                  - MatchingInfo
+     */
+    private MatchingResultInfo calculateMatchingRate(
             Recruitment recruitment,
             WorkApplication workApplication,
-            List<WorkLocation> locations,
+            List<Location> locations,
             boolean isForCaregiver) {
-        Double workTimeMatchingRate = calculateWorkTimeMatchingRate(
-                recruitment.getWorkTimes(), workApplication.getWorkTimes(), isForCaregiver);
+        boolean workLocationMatchingRate = isWorkLocationMatched(recruitment.getResidentialLocation(), locations);
         Double workDayMatchingRate =
                 calculateDayMatchingRate(recruitment.getWorkDays(), workApplication.getWorkDays(), isForCaregiver);
-        Double workSalaryMatchingRate = calculateWorkSalaryMatchingRate(
-                recruitment.getWorkSalaryAmount(), workApplication.getWorkSalaryAmount(), isForCaregiver);
-        Double workLocationMatchingRate =
-                calculateWorkLocationMatchingRate(recruitment.getResidentialAddress(), locations);
-        Double workCareTypeMatchingRate = calculateWorkCareTypeMatchingRate(
-                recruitment.getCareTypes(), workApplication.getWorkCareTypes(), isForCaregiver);
+        boolean workTimeMatchingRate =
+                isWorkTimeMatched(recruitment.getWorkTimes(), workApplication.getWorkTimes(), isForCaregiver);
 
-        return MatchingInfo.builder()
-                .workTimeMatchingRate(workTimeMatchingRate)
-                .workDayMatchingRate(workDayMatchingRate)
-                .workSalaryMatchingRate(workSalaryMatchingRate)
-                .workLocationMatchingRate(workLocationMatchingRate)
-                .workCareTypeMatchingRate(workCareTypeMatchingRate)
-                .workSalaryDifference(workApplication.getWorkSalaryAmount() - recruitment.getWorkSalaryAmount())
-                .build();
+        return MatchingResultInfo.create(workLocationMatchingRate, workDayMatchingRate, workTimeMatchingRate);
     }
 
-    private Double calculateWorkCareTypeMatchingRate(
-            EnumSet<CareType> recruitmentCareTypes, EnumSet<CareType> applicationCareTypes, boolean isForCaregiver) {
-        EnumSet<CareType> intersection = EnumSet.copyOf(recruitmentCareTypes);
-        intersection.retainAll(applicationCareTypes);
-
-        if (isForCaregiver) {
-            return ((double) intersection.size()) / applicationCareTypes.size() * 100;
-        }
-        return ((double) intersection.size() / recruitmentCareTypes.size()) * 100;
-    }
-
-    private Double calculateWorkLocationMatchingRate(
-            ResidentialAddress residentialAddress, List<WorkLocation> locations) {
-        return locations.stream()
-                .map(location -> location.calculateMatchingRate(residentialAddress))
-                .max(Double::compareTo)
-                .orElse(0.0);
-    }
-
-    private Double calculateWorkSalaryMatchingRate(
-            int recruitmentSalaryAmount, int applicationSalaryAmount, boolean isForCaregiver) {
-        // 급여 타입은 시급만 고려
-        // 매칭 대상 비율은 50 ~ 100% 사이, 그 이외 범위는 매칭 안됨
-        // 요양 보호사 계산식 = (이 값이 0 ~ 1000 인 것만 매칭, 요양보호사는 이 값 차이가 큰 순으로 정렬, 사회복지사는 이 값이 작을수록 적합도 상승 (2000 - 이 값) / 2000 으로
-        // 계산)
-        int workSalaryDifference = applicationSalaryAmount - recruitmentSalaryAmount;
-
-        if (workSalaryDifference < 0 || workSalaryDifference > 1000) {
-            return 0.0;
-        }
-
-        // 범위만 체크하는 방식 (요양보호사 관점은 없음)
-        return 100.0;
-
-        // 비율 계산 방식
-        //        if (isForCaregiver) {
-        //            return (double) (workSalaryDifference + 1000) / 2000;
-        //        }
-        //
-        //        return (double) (2000 - workSalaryDifference) / 2000;
-    }
-
-    private Double calculateWorkTimeMatchingRate(
-            EnumSet<WorkTime> recruitmentTimes, EnumSet<WorkTime> applyTimes, boolean isForCaregiver) {
-        EnumSet<WorkTime> intersection = EnumSet.copyOf(recruitmentTimes);
-        intersection.retainAll(applyTimes);
-
-        if (isForCaregiver) {
-            return ((double) intersection.size()) / applyTimes.size() * 100;
-        }
-        return ((double) intersection.size() / recruitmentTimes.size()) * 100;
+    private boolean isWorkLocationMatched(Location residentialLocation, List<Location> workableLocations) {
+        return workableLocations.contains(residentialLocation);
     }
 
     private Double calculateDayMatchingRate(
@@ -376,45 +318,14 @@ public class RecruitmentService {
         return ((double) intersection.size() / recruitmentDays.size()) * 100;
     }
 
-    private boolean isMatchedWithSocialWorker(MatchingInfo socialWorkerMatchingInfo) {
-        if (socialWorkerMatchingInfo.getWorkTimeMatchingRate() == 0.0) {
-            return false;
+    private boolean isWorkTimeMatched(
+            EnumSet<WorkTime> recruitmentTimes, EnumSet<WorkTime> applyTimes, boolean isForCaregiver) {
+        EnumSet<WorkTime> intersection = EnumSet.copyOf(recruitmentTimes);
+        intersection.retainAll(applyTimes);
+
+        if (isForCaregiver) {
+            return ((double) intersection.size()) / applyTimes.size() * 100 == 100;
         }
-
-        if (isNotMatchedWithDaysOfWeek(socialWorkerMatchingInfo)) {
-            return false;
-        }
-
-        if (socialWorkerMatchingInfo.getWorkSalaryMatchingRate() < 50.0) {
-            return false;
-        }
-
-        if (socialWorkerMatchingInfo.getWorkLocationMatchingRate() < 50.0) {
-            return false;
-        }
-
-        if (socialWorkerMatchingInfo.getWorkCareTypeMatchingRate() < 50.0) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private boolean isNotMatchedWithDaysOfWeek(MatchingInfo matchingInfo) {
-        if (matchingInfo.getWorkDayMatchingRate() == 0.0) {
-            return true;
-        }
-
-        if (matchingInfo.getWorkDayMatchingRate() >= 50.0) {
-            return false;
-        }
-
-        if (matchingInfo.getWorkLocationMatchingRate() >= 100.0
-                && matchingInfo.getWorkSalaryMatchingRate() >= 100
-                && matchingInfo.getWorkCareTypeMatchingRate() >= 100) {
-            return false;
-        }
-
-        return true;
+        return ((double) intersection.size() / recruitmentTimes.size()) * 100 != 100;
     }
 }

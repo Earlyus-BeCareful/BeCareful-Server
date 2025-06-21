@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.caregiver.domain;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.domain.common.vo.Location;
 import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -37,5 +38,9 @@ public class WorkApplicationWorkLocation extends BaseEntity {
 
     public static WorkApplicationWorkLocation of(WorkApplication workApplication, WorkLocation workLocation) {
         return new WorkApplicationWorkLocation(workApplication, workLocation);
+    }
+
+    public Location getLocation() {
+        return workLocation.getLocation();
     }
 }

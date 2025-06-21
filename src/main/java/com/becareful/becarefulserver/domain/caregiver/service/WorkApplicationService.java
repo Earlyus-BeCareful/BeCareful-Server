@@ -9,6 +9,7 @@ import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicatio
 import com.becareful.becarefulserver.domain.caregiver.dto.response.WorkApplicationResponse;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
+import com.becareful.becarefulserver.domain.common.vo.Location;
 import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
 import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import com.becareful.becarefulserver.domain.work_location.repository.WorkLocationRepository;
@@ -86,8 +87,8 @@ public class WorkApplicationService {
     private void saveWorkLocations(List<WorkLocationDto> workLocations, WorkApplication workApplication) {
         for (WorkLocationDto workLocation : workLocations) {
             WorkLocation location = workLocationRepository
-                    .findBySiDoAndSiGuGunAndEupMyeonDong(
-                            workLocation.siDo(), workLocation.siGuGun(), workLocation.dongEupMyeon())
+                    .findByLocation(
+                            Location.of(workLocation.siDo(), workLocation.siGuGun(), workLocation.dongEupMyeon()))
                     .orElseGet(() -> workLocationRepository.save(WorkLocation.from(workLocation)));
 
             var data = WorkApplicationWorkLocation.of(workApplication, location);

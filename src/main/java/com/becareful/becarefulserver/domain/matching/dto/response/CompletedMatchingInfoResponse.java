@@ -30,7 +30,7 @@ public record CompletedMatchingInfoResponse(
                 elderly.getGender(),
                 elderly.getProfileImageUrl(),
                 completedMatching.getContract().getWorkDays().stream().toList(),
-                elderly.getResidentialAddress().getFullAddress(),
+                elderly.getResidentialLocation().getFullAddress(),
                 completedMatching.getContract().getCareTypes().stream().toList(),
                 elderly.getHealthCondition(),
                 elderly.getNursingInstitution().getName(),
