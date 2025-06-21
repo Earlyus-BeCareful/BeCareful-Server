@@ -2,23 +2,17 @@ package com.becareful.becarefulserver.domain.matching.dto.response;
 
 import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
+import com.becareful.becarefulserver.domain.matching.dto.RecruitmentDto;
+
 import java.time.format.DateTimeFormatter;
 
-public record MyRecruitmentResponse(RecruitmentResponse recruitmentInfo, MatchingStatus matchingStatus) {
+public record MyRecruitmentResponse(CaregiverRecruitmentResponse recruitmentInfo, MatchingStatus matchingStatus) {
     public static MyRecruitmentResponse of(Recruitment recruitment, MatchingStatus matchingStatus) {
         return new MyRecruitmentResponse(
-                new RecruitmentResponse(
-                        recruitment.getId(),
-                        recruitment.getTitle(),
-                        recruitment.getCareTypes().stream().toList(),
-                        recruitment.getWorkDays().stream().toList(),
-                        recruitment.getWorkStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
-                        recruitment.getWorkEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
-                        recruitment.getWorkSalaryType(),
-                        recruitment.getWorkSalaryAmount(),
-                        recruitment.isRecruiting(),
-                        recruitment.getElderly().getNursingInstitution().getName(),
-                        98, // TODO : 매칭율 계산 후 외부에서 주입
+                new CaregiverRecruitmentResponse(
+                        RecruitmentDto.from(recruitment),
+                        MatchingResultStatus.보통, // TODO : 매칭율 계산 후 외부에서 주입
                         false,
                         false),
                 matchingStatus);

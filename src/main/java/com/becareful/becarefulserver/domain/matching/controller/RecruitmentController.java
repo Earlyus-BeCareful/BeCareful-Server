@@ -5,7 +5,7 @@ import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMedi
 import com.becareful.becarefulserver.domain.matching.dto.response.MyRecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MyRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.service.RecruitmentService;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -35,8 +35,8 @@ public class RecruitmentController {
 
     @Operation(summary = "매칭 공고 리스트 조회 (요양보호사 일자리 리스트 조회)")
     @GetMapping("/list")
-    public ResponseEntity<List<RecruitmentResponse>> getRecruitmentList() {
-        List<RecruitmentResponse> responses = recruitmentService.getRecruitmentList();
+    public ResponseEntity<List<CaregiverRecruitmentResponse>> getCaregiverRecruitmentList() {
+        List<CaregiverRecruitmentResponse> responses = recruitmentService.getCaregiverRecruitmentList();
         return ResponseEntity.ok(responses);
     }
 
