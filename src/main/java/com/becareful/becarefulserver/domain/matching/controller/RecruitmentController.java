@@ -31,12 +31,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class RecruitmentController {
 
     private final RecruitmentService recruitmentService;
-    private final MatchingRepository matchingRepository;
 
     @Operation(summary = "매칭 공고 리스트 조회 (요양보호사 일자리 리스트 조회)")
     @GetMapping("/list")
-    public ResponseEntity<List<CaregiverRecruitmentResponse>> getCaregiverRecruitmentList() {
-        List<CaregiverRecruitmentResponse> responses = recruitmentService.getCaregiverRecruitmentList();
+    public ResponseEntity<List<CaregiverRecruitmentResponse>> getCaregiverMatchingRecruitmentList() {
+        List<CaregiverRecruitmentResponse> responses = recruitmentService.getCaregiverMatchingRecruitmentList();
         return ResponseEntity.ok(responses);
     }
 
@@ -90,15 +89,5 @@ public class RecruitmentController {
             @PathVariable("recruitmentId") Long recruitmentId) {
         MyRecruitmentDetailResponse response = recruitmentService.getMyRecruitmentDetail(recruitmentId);
         return ResponseEntity.ok(response);
-    }
-
-    @Hidden
-    @GetMapping("/test")
-    public ResponseEntity<Long> convertMatchingIdToRecruitmentId(@PathParam("matchingId") Long matchingId) {
-        Long recruitmentId = matchingRepository
-                .findById(matchingId)
-                .map(matching -> matching.getRecruitment().getId())
-                .orElseThrow(() -> new RuntimeException("변환실패"));
-        return ResponseEntity.ok(recruitmentId);
     }
 }

@@ -76,7 +76,7 @@ public class RecruitmentService {
         return CaregiverDetailResponse.of(matching, career, careerDetails);
     }
 
-    public List<CaregiverRecruitmentResponse> getCaregiverRecruitmentList() {
+    public List<CaregiverRecruitmentResponse> getCaregiverMatchingRecruitmentList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         return workApplicationRepository
                 .findByCaregiver(caregiver)
