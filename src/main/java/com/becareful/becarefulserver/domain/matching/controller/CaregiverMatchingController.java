@@ -9,7 +9,6 @@ import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentDet
 import com.becareful.becarefulserver.domain.matching.service.RecruitmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
