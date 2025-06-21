@@ -274,7 +274,8 @@ public class RecruitmentService {
                     MatchingResultInfo socialworkerMatchingResultInfo =
                             calculateMatchingRate(recruitment, application, locations, false);
 
-                    return Matching.create(recruitment, application, caregiverMatchingResultInfo, socialworkerMatchingResultInfo);
+                    return Matching.create(
+                            recruitment, application, caregiverMatchingResultInfo, socialworkerMatchingResultInfo);
                 })
                 // TODO : 매칭 알고리즘 해제하기.
                 // .filter((matching -> isMatchedWithSocialWorker(matching.getSocialWorkerMatchingInfo())))
@@ -293,22 +294,16 @@ public class RecruitmentService {
             WorkApplication workApplication,
             List<Location> locations,
             boolean isForCaregiver) {
-        boolean workLocationMatchingRate =
-                isWorkLocationMatched(recruitment.getResidentialLocation(), locations);
+        boolean workLocationMatchingRate = isWorkLocationMatched(recruitment.getResidentialLocation(), locations);
         Double workDayMatchingRate =
                 calculateDayMatchingRate(recruitment.getWorkDays(), workApplication.getWorkDays(), isForCaregiver);
-        boolean workTimeMatchingRate = isWorkTimeMatched(
-                recruitment.getWorkTimes(), workApplication.getWorkTimes(), isForCaregiver);
+        boolean workTimeMatchingRate =
+                isWorkTimeMatched(recruitment.getWorkTimes(), workApplication.getWorkTimes(), isForCaregiver);
 
-        return MatchingResultInfo.create(
-                workLocationMatchingRate,
-                workDayMatchingRate,
-                workTimeMatchingRate
-        );
+        return MatchingResultInfo.create(workLocationMatchingRate, workDayMatchingRate, workTimeMatchingRate);
     }
 
-    private boolean isWorkLocationMatched(
-            Location residentialLocation, List<Location> workableLocations) {
+    private boolean isWorkLocationMatched(Location residentialLocation, List<Location> workableLocations) {
         return workableLocations.contains(residentialLocation);
     }
 

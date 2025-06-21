@@ -66,9 +66,7 @@ public class Matching extends BaseEntity {
         @AttributeOverride(
                 name = "workDayMatchingRate",
                 column = @Column(name = "social_worker_work_day_matching_rate")),
-        @AttributeOverride(
-                name = "isWorkTimeMatched",
-                column = @Column(name = "social_worker_is_work_time_matched")),
+        @AttributeOverride(name = "isWorkTimeMatched", column = @Column(name = "social_worker_is_work_time_matched")),
         @AttributeOverride(
                 name = "isWorkLocationMatched",
                 column = @Column(name = "social_worker_is_work_location_matched"))

@@ -2,7 +2,6 @@ package com.becareful.becarefulserver.domain.matching.dto.response;
 
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.RecruitmentDto;
 

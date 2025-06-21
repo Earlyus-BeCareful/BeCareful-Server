@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.matching.dto;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryType;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-
 import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -31,7 +30,6 @@ public record RecruitmentDto(
                 recruitment.getWorkSalaryType(),
                 recruitment.getWorkSalaryAmount(),
                 recruitment.isRecruiting(),
-                recruitment.getElderly().getNursingInstitution().getName()
-        );
+                recruitment.getElderly().getNursingInstitution().getName());
     }
 }

@@ -15,7 +15,8 @@ public class MatchingResultInfo {
     private Double workDayMatchingRate;
     private boolean isWorkTimeMatched;
 
-    public static MatchingResultInfo create(boolean isWorkLocationMatched, Double workDayMatchingRate, boolean isWorkTimeMatched) {
+    public static MatchingResultInfo create(
+            boolean isWorkLocationMatched, Double workDayMatchingRate, boolean isWorkTimeMatched) {
         return MatchingResultInfo.builder()
                 .isWorkLocationMatched(isWorkLocationMatched)
                 .workDayMatchingRate(workDayMatchingRate)

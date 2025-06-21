@@ -2,10 +2,10 @@ package com.becareful.becarefulserver.domain.matching.controller;
 
 import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
+import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MyRecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MyRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.service.RecruitmentService;
 import io.swagger.v3.oas.annotations.Hidden;
