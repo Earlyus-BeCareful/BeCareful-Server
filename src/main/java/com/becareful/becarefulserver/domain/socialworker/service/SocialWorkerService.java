@@ -17,14 +17,14 @@ import com.becareful.becarefulserver.domain.nursingInstitution.repository.Nursin
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialworkerCreateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SimpleElderlyResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
-import com.becareful.becarefulserver.global.exception.exception.SocialworkerException;
+import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
 import com.becareful.becarefulserver.global.properties.JwtProperties;
 import com.becareful.becarefulserver.global.util.AuthUtil;
@@ -138,7 +138,7 @@ public class SocialWorkerService {
     }
 
     @Transactional
-    public Long saveSocialworker(SocialworkerCreateRequest request, HttpServletResponse httpServletResponse) {
+    public Long saveSocialworker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
 
         validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
 
@@ -152,7 +152,7 @@ public class SocialWorkerService {
 
         // 사용자 전화번호 중복 검사
         if (socialworkerRepository.existsByPhoneNumber(request.phoneNumber())) {
-            throw new SocialworkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
+            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
         }
 
         LocalDate birthDate = parseBirthDate(String.valueOf(request.birthYymmdd()), request.genderCode());
@@ -262,14 +262,14 @@ public class SocialWorkerService {
             return;
         }
 
-        throw new SocialworkerException(SOCIALWORKER_REQUIRED_AGREEMENT);
+        throw new SocialWorkerException(SOCIALWORKER_REQUIRED_AGREEMENT);
     }
 
     private void checkSameNickName(String nickName) {
         if (!socialworkerRepository.existsByNickname(nickName)) {
             return;
         }
-        throw new SocialworkerException(SOCIAlWORKER_ALREADY_EXISTS_NICKNAME);
+        throw new SocialWorkerException(SOCIAlWORKER_ALREADY_EXISTS_NICKNAME);
     }
 
     private LocalDate parseBirthDate(String yymmdd, int genderCode) {
@@ -303,7 +303,7 @@ public class SocialWorkerService {
             case 4:
                 return Gender.FEMALE;
             default:
-                throw new SocialworkerException(USER_CREATE_INVALID_GENDER_CODE);
+                throw new SocialWorkerException(USER_CREATE_INVALID_GENDER_CODE);
         }
     }
 

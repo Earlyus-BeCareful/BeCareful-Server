@@ -1,7 +1,7 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
 
 import com.becareful.becarefulserver.domain.matching.service.ContractService;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialworkerCreateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
 import com.becareful.becarefulserver.domain.socialworker.service.SocialWorkerService;
@@ -28,7 +28,7 @@ public class SocialWorkerController {
     @Operation(summary = "사회복지사 회원가입", description = "센터장, 대표, 사회복지사 모두 같은 API")
     @PostMapping("/signup")
     public ResponseEntity<Void> createSocialworker(
-            @Valid @RequestBody SocialworkerCreateRequest request, HttpServletResponse response) {
+            @Valid @RequestBody SocialWorkerCreateRequest request, HttpServletResponse response) {
         Long id = socialworkerService.saveSocialworker(request, response);
         return ResponseEntity.created(URI.create("/socialworker/" + id)).build();
     }

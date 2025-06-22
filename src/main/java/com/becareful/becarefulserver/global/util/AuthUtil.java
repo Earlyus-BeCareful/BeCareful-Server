@@ -8,7 +8,7 @@ import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverReposi
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
-import com.becareful.becarefulserver.global.exception.exception.SocialworkerException;
+import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -33,6 +33,6 @@ public class AuthUtil {
                 SecurityContextHolder.getContext().getAuthentication().getName();
         return socialworkerRepository
                 .findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new SocialworkerException(SOCIALWORKER_NOT_EXISTS));
+                .orElseThrow(() -> new SocialWorkerException(SOCIALWORKER_NOT_EXISTS));
     }
 }
