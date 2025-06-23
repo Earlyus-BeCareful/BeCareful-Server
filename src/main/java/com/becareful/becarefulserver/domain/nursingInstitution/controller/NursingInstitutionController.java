@@ -34,6 +34,13 @@ public class NursingInstitutionController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "회원가입 전: 서비스에 등록된 요양 기관 리스트 조회", description = "회원가입 단계에서 요양 기관 조회 API")
+    @GetMapping("/for-guest/list")
+    public ResponseEntity<NursingInstitutionSearchResponse> getNursingInstitutionList() {
+        NursingInstitutionSearchResponse response = nursingInstitutionService.getNursingInstitutionList();
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "요양 기관 등록 전: 기관 검색 (대표,센터장 전용)", description = "기관 등록 과정에서 기관이 서비스에 이미 등록되어있는지 확인하는 API")
     @GetMapping("/for-guest/check/already-register")
     public ResponseEntity<Boolean> checkAlreadyRegister(@RequestParam(required = true) String nursingInstitutionCode) {
