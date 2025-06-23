@@ -74,7 +74,24 @@ public class NursingInstitutionService {
 
     @Transactional
     public NursingInstitutionSearchResponse searchNursingInstitutionByName(String institutionName) {
-        List<NursingInstitution> institutions = nursingInstitutionRepository.findAllByNameContains(institutionName);
+        List<NursingInstitution> institutions = institutionName == null
+                ? nursingInstitutionRepository.findAll()
+                : nursingInstitutionRepository.findAllByNameContains(institutionName);
+        List<NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo> result = institutions.stream()
+                .map(institution -> new NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo(
+                        institution.getId(),
+                        institution.getName(),
+                        institution.getAddress().getStreetAddress(),
+                        institution.getAddress().getDetailAddress()))
+                .toList();
+
+        return new NursingInstitutionSearchResponse(result);
+    }
+
+    @Transactional(readOnly = true)
+    public NursingInstitutionSearchResponse getNursingInstitutionList() {
+        List<NursingInstitution> institutions = nursingInstitutionRepository.findAll();
+
         List<NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo> result = institutions.stream()
                 .map(institution -> new NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo(
                         institution.getId(),
