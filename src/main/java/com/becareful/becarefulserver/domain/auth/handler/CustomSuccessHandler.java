@@ -97,8 +97,12 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             response.sendRedirect(redirectUrl);
         } else {
+
+            String redirectUrlPath = roles.get(0).equals("NONE")
+                    ? loginRedirectUrlProperties.getCaregiverLoginRedirectUrl()
+                    : loginRedirectUrlProperties.getSocialWorkerLoginRedirectUrl();
             String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
-                    .path(loginRedirectUrlProperties.getUserLoginRedirectUrl()) // e.g., "/home"
+                    .path(redirectUrlPath)
                     .build()
                     .toUriString();
 
