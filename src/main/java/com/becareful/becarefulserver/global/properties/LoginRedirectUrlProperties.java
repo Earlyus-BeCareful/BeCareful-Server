@@ -10,6 +10,9 @@ public class LoginRedirectUrlProperties {
     @Value("${login.redirect_url.guest}")
     private String guestLoginRedirectUrl;
 
-    @Value("${login.redirect_url.user}")
-    private String userLoginRedirectUrl;
+    @Value("${login.redirect_url.social_worker}")
+    private String socialWorkerLoginRedirectUrl;
+
+    @Value("${login.redirect_url.caregiver}")
+    private String caregiverLoginRedirectUrl;
 }

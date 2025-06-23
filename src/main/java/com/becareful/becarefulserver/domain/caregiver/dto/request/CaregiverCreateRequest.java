@@ -1,17 +1,14 @@
 package com.becareful.becarefulserver.domain.caregiver.dto.request;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.Certificate;
-import com.becareful.becarefulserver.domain.common.vo.Gender;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
 
 public record CaregiverCreateRequest(
-        @NotBlank String name,
-        @NotNull LocalDate birthDate,
-        @NotNull Gender gender,
-        @NotNull String phoneNumber,
-        @NotNull String password,
+        @NotBlank String realName,
+        @NotBlank String birthYymmdd,
+        @NotNull int genderCode,
+        @NotBlank String phoneNumber,
         @NotNull String streetAddress,
         @NotNull String detailAddress,
         @NotNull Certificate caregiverCertificate,

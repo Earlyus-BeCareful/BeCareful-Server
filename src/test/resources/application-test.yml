@@ -59,7 +59,8 @@ jwt:
 login:
   redirect_url:
     guest: aaa
-    user: aaa
+    social_worker: aaa
+    caregiver: aaa
 
 cookie:
   secure: false
