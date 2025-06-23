@@ -2,16 +2,13 @@ package com.becareful.becarefulserver.domain.matching.controller;
 
 import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
+import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MyRecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MyRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentResponse;
-import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.service.RecruitmentService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.websocket.server.PathParam;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,25 +20,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Hidden
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/recruitment")
-@Tag(name = "Recruitment", description = "요양보호사가 사용하는 매칭 공고 관련 API 입니다.")
-public class RecruitmentController {
+@RequestMapping("/matching/caregiver")
+@Tag(name = "Caregiver Matching", description = "요양보호사가 사용하는 매칭 공고 관련 API 입니다.")
+public class CaregiverMatchingController {
 
     private final RecruitmentService recruitmentService;
-    private final MatchingRepository matchingRepository;
 
     @Operation(summary = "매칭 공고 리스트 조회 (요양보호사 일자리 리스트 조회)")
     @GetMapping("/list")
-    public ResponseEntity<List<RecruitmentResponse>> getRecruitmentList() {
-        List<RecruitmentResponse> responses = recruitmentService.getRecruitmentList();
+    public ResponseEntity<List<CaregiverRecruitmentResponse>> getCaregiverMatchingRecruitmentList() {
+        List<CaregiverRecruitmentResponse> responses = recruitmentService.getCaregiverMatchingRecruitmentList();
+        System.out.println(responses);
         return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "매칭 공고 상세 조회 (요양보호사 일자리 상세 조회)")
-    @GetMapping("/list/{recruitmentId}")
+    @GetMapping("/recruitment/{recruitmentId}")
     public ResponseEntity<RecruitmentDetailResponse> getRecruitmentDetail(
             @PathVariable("recruitmentId") Long recruitmentId) {
         RecruitmentDetailResponse response = recruitmentService.getRecruitmentDetail(recruitmentId);
@@ -49,21 +45,21 @@ public class RecruitmentController {
     }
 
     @Operation(summary = "매칭 공고 지원 (요양보호사 일자리 지원)")
-    @PostMapping("/{recruitmentId}/apply")
+    @PostMapping("/recruitment/{recruitmentId}/apply")
     public ResponseEntity<Void> applyRecruitment(@PathVariable("recruitmentId") Long recruitmentId) {
         recruitmentService.applyRecruitment(recruitmentId);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "매칭 공고 거절 (요양보호사 일자리 거절)")
-    @PostMapping("/{recruitmentId}/reject")
+    @PostMapping("/recruitment/{recruitmentId}/reject")
     public ResponseEntity<Void> rejectMatching(@PathVariable("recruitmentId") Long recruitmentId) {
         recruitmentService.rejectMatching(recruitmentId);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "근무 조건 조율 (요양보호사 일자리 조율 지원)")
-    @PostMapping("/{recruitmentId}/mediate")
+    @PostMapping("/recruitment/{recruitmentId}/mediate")
     public ResponseEntity<Void> mediateMatching(
             @PathVariable("recruitmentId") Long recruitmentId, @RequestBody RecruitmentMediateRequest request) {
         recruitmentService.mediateMatching(recruitmentId, request);
@@ -90,15 +86,5 @@ public class RecruitmentController {
             @PathVariable("recruitmentId") Long recruitmentId) {
         MyRecruitmentDetailResponse response = recruitmentService.getMyRecruitmentDetail(recruitmentId);
         return ResponseEntity.ok(response);
-    }
-
-    @Hidden
-    @GetMapping("/test")
-    public ResponseEntity<Long> convertMatchingIdToRecruitmentId(@PathParam("matchingId") Long matchingId) {
-        Long recruitmentId = matchingRepository
-                .findById(matchingId)
-                .map(matching -> matching.getRecruitment().getId())
-                .orElseThrow(() -> new RuntimeException("변환실패"));
-        return ResponseEntity.ok(recruitmentId);
     }
 }

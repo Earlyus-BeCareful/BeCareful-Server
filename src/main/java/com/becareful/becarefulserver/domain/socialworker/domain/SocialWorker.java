@@ -109,4 +109,9 @@ public class SocialWorker extends BaseEntity {
         this.association = association;
         this.associationRank = rank;
     }
+
+    public void leaveAssociation() {
+        this.association = null;
+        this.associationRank = AssociationRank.NONE;
+    }
 }

@@ -1,28 +1,32 @@
 package com.becareful.becarefulserver.domain.association.service;
 
 import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
-import static com.becareful.becarefulserver.domain.community.domain.BoardType.PARTICIPATION_APPLICATION;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
-import com.becareful.becarefulserver.domain.association.domain.AssociationMembershipRequest;
+import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
+import com.becareful.becarefulserver.domain.association.dto.JoinApplicationSimpleDto;
+import com.becareful.becarefulserver.domain.association.dto.MemberSimpleDto;
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationJoinRequest;
-import com.becareful.becarefulserver.domain.association.dto.response.AssociationMyResponse;
-import com.becareful.becarefulserver.domain.association.dto.response.AssociationProfileImageUploadResponse;
-import com.becareful.becarefulserver.domain.association.repository.AssociationMembershipRequestRepository;
+import com.becareful.becarefulserver.domain.association.dto.response.*;
+import com.becareful.becarefulserver.domain.association.repository.AssociationJoinApplicationRepository;
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
-import com.becareful.becarefulserver.domain.association.vo.AssociationJoinRequestStatus;
+import com.becareful.becarefulserver.domain.association.vo.AssociationJoinApplicationStatus;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
+import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.exception.exception.AssociationException;
 import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
+import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +42,9 @@ public class AssociationService {
     private final AuthUtil authUtil;
     private final SocialWorkerRepository socialWorkerRepository;
     private final AssociationRepository associationRepository;
-    private final AssociationMembershipRequestRepository associationMembershipRequestRepository;
+    private final AssociationJoinApplicationRepository associationMembershipRequestRepository;
     private final PostBoardRepository postBoardRepository;
+    private final AssociationJoinApplicationRepository associationJoinApplicationRepository;
 
     @Transactional
     public void joinAssociation(AssociationJoinRequest request) {
@@ -49,19 +54,19 @@ public class AssociationService {
                 .findById(request.associationId())
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_NOT_EXISTS));
 
-        AssociationMembershipRequest newMembershipRequest = AssociationMembershipRequest.create(
-                association, currentSocialWorker, request.associationRank(), AssociationJoinRequestStatus.PENDING);
+        AssociationJoinApplication newMembershipRequest = AssociationJoinApplication.create(
+                association, currentSocialWorker, request.associationRank(), AssociationJoinApplicationStatus.PENDING);
         associationMembershipRequestRepository.save(newMembershipRequest);
     }
 
     // 협회 가입 신청 승인
     @Transactional
-    public void accpetJoinAssociation(Long associationMembershipRequestId) {
-        AssociationMembershipRequest membershipRequest = associationMembershipRequestRepository
+    public void acceptJoinAssociation(Long associationMembershipRequestId) {
+        AssociationJoinApplication membershipRequest = associationMembershipRequestRepository
                 .findById(associationMembershipRequestId)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
 
-        membershipRequest.setStatus(AssociationJoinRequestStatus.APPROVED);
+        membershipRequest.setStatus(AssociationJoinApplicationStatus.APPROVED);
 
         SocialWorker socialWorker = membershipRequest.getSocialWorker();
         socialWorker.joinAssociation(membershipRequest.getAssociation(), membershipRequest.getAssociationRank());
@@ -70,11 +75,11 @@ public class AssociationService {
     // 협회 가입 신청 반려(신청자가 반려사실을 확인하면 요청 레코드 삭제)
     @Transactional
     public void rejectJoinAssociation(Long associationMembershipRequestId) {
-        AssociationMembershipRequest membershipRequest = associationMembershipRequestRepository
+        AssociationJoinApplication membershipRequest = associationMembershipRequestRepository
                 .findById(associationMembershipRequestId)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
 
-        membershipRequest.setStatus(AssociationJoinRequestStatus.REJECTED);
+        membershipRequest.setStatus(AssociationJoinApplicationStatus.REJECTED);
     }
 
     @Transactional
@@ -113,7 +118,76 @@ public class AssociationService {
         }
     }
 
-    // TODO(회원 목록 반환)
+    // 협회 회원 목록 overview
+    @Transactional(readOnly = true)
+    public AssociationMemberOverviewResponse getAssociationMemberOverview() {
+        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
+        Association association = currentSocialWorker.getAssociation();
+        int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+        int joinApplicationCount = associationJoinApplicationRepository.countByAssociationAndStatus(
+                association, AssociationJoinApplicationStatus.PENDING);
+
+        List<SocialWorker> members = socialWorkerRepository.findAllByAssociation(association);
+        List<MemberSimpleDto> memberSimpleDtos =
+                members.stream().map(MemberSimpleDto::of).toList();
+        return new AssociationMemberOverviewResponse(associationMemberCount, joinApplicationCount, memberSimpleDtos);
+    }
+
+    // 협회 회원 목록 반환
+    @Transactional(readOnly = true)
+    public AssociationMemberListResponse getAssociationMemberList() {
+        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
+
+        Association association = currentSocialWorker.getAssociation();
+        int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+
+        List<SocialWorker> members = socialWorkerRepository.findAllByAssociation(association);
+        List<MemberSimpleDto> memberSimpleDtos =
+                members.stream().map(MemberSimpleDto::of).toList();
+
+        return new AssociationMemberListResponse(associationMemberCount, memberSimpleDtos);
+    }
+
+    // 협회 가입 요청 목록 반환
+    @Transactional(readOnly = true)
+    public AssociationJoinApplicationListResponse getAssociationJoinApplicationList() {
+        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
+
+        Association association = currentSocialWorker.getAssociation();
+        int joinApplicationCount = associationJoinApplicationRepository.countByAssociationAndStatus(
+                association, AssociationJoinApplicationStatus.PENDING);
+
+        List<AssociationJoinApplication> applications =
+                associationJoinApplicationRepository.findAllByAssociationAndStatus(
+                        association, AssociationJoinApplicationStatus.PENDING);
+        List<JoinApplicationSimpleDto> applicationDtos =
+                applications.stream().map(JoinApplicationSimpleDto::of).toList();
+        return new AssociationJoinApplicationListResponse(joinApplicationCount, applicationDtos);
+    }
+
+    // 협회 회원 상세정보 반환
+    @Transactional(readOnly = true)
+    public AssociationMemberDetailInfoResponse getAssociationMemberDetailInfo(Long memberId) {
+        SocialWorker member = socialWorkerRepository
+                .findById(memberId)
+                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+
+        Association association = member.getAssociation();
+        NursingInstitution institution = member.getNursingInstitution();
+        Integer age = Period.between(member.getBirthday(), LocalDate.now()).getYears(); // 만나이 구하기
+
+        return AssociationMemberDetailInfoResponse.of(member, age, institution, association);
+    }
+
+    // 회원을 협회에서 탈퇴 시키는 메서드. 회원정보를 삭제하는게 아님
+    @Transactional
+    public void expelMember(Long memberId) {
+        SocialWorker member = socialWorkerRepository
+                .findById(memberId)
+                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+
+        member.leaveAssociation();
+    }
 
     // TODO(파일이름 생성 로직 수정)
     private String generateProfileImageFileName() {

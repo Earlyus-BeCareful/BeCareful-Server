@@ -49,7 +49,7 @@ public record WorkScheduleResponse(
                         .getMatching()
                         .getRecruitment()
                         .getElderly()
-                        .getResidentialAddress()
+                        .getResidentialLocation()
                         .getFullAddress())
                 .build();
     }

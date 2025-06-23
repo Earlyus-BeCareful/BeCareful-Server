@@ -6,9 +6,9 @@ import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeS
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
+import com.becareful.becarefulserver.domain.common.vo.Location;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.ResidentialAddress;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -102,23 +102,23 @@ public class Recruitment extends BaseEntity {
     public EnumSet<WorkTime> getWorkTimes() {
         EnumSet<WorkTime> times = EnumSet.noneOf(WorkTime.class);
 
-        if (isWorkTimeOverlap(LocalTime.of(9, 0), LocalTime.of(11, 59))) {
+        if (isWorkTimeOverlap(LocalTime.of(8, 0), LocalTime.of(12, 0))) {
             times.add(WorkTime.MORNING);
         }
 
-        if (isWorkTimeOverlap(LocalTime.of(12, 0), LocalTime.of(17, 59))) {
+        if (isWorkTimeOverlap(LocalTime.of(12, 1), LocalTime.of(18, 0))) {
             times.add(WorkTime.AFTERNOON);
         }
 
-        if (isWorkTimeOverlap(LocalTime.of(18, 0), LocalTime.of(21, 0))) {
+        if (isWorkTimeOverlap(LocalTime.of(18, 1), LocalTime.of(22, 0))) {
             times.add(WorkTime.EVENING);
         }
 
         return times;
     }
 
-    public ResidentialAddress getResidentialAddress() {
-        return elderly.getResidentialAddress();
+    public Location getResidentialLocation() {
+        return elderly.getResidentialLocation();
     }
 
     private boolean isWorkTimeOverlap(LocalTime startTime, LocalTime endTime) {

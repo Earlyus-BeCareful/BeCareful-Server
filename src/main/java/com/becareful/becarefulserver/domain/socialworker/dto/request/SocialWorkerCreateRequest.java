@@ -4,7 +4,7 @@ import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRan
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record SocialworkerCreateRequest(
+public record SocialWorkerCreateRequest(
         Long nursingInstitutionId,
         @NotBlank String realName,
         @NotBlank String nickName,

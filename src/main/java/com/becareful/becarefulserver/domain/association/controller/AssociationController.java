@@ -2,7 +2,7 @@ package com.becareful.becarefulserver.domain.association.controller;
 
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationJoinRequest;
-import com.becareful.becarefulserver.domain.association.dto.response.AssociationProfileImageUploadResponse;
+import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.service.AssociationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,38 +22,69 @@ public class AssociationController {
 
     private final AssociationService associationService;
 
-    // 가입-검색(이름, 설립일, 회원수, 사진 반환/ 이름으로 검색)
-    // 가입(임원진, 회원 선택 -> 대기명단에 등록)
-    // TODO(role 확인)
-    @Operation(summary = "협회 가입 신청", description = "협회 임원진, 회원 전용 API")
-    @PostMapping("/join")
-    public ResponseEntity<Void> joinAssociation(@Valid @RequestBody AssociationJoinRequest request) {
-        associationService.joinAssociation(request);
-        return ResponseEntity.ok().build();
-    }
-
-    // TODO(role 확인)
-    @Operation(summary = "협회 등록", description = "협회 회장으로 승인 된 사용자만 협회 등록 가능")
-    @PostMapping("/register")
+    @Operation(summary = "협회 생성", description = "협회 회장으로 승인 된 사용자만 협회 등록 가능")
+    @PostMapping("/create")
     public ResponseEntity<Void> createAssociation(
             @Valid @RequestBody AssociationCreateRequest associationCreateRequest) {
         Long id = associationService.saveAssociation(associationCreateRequest);
         return ResponseEntity.created(URI.create("association/" + id)).build();
     }
 
-    // TODO(role 확인)
-    @Operation(summary = "협회 가입 신청 반려", description = "협회장만 접근 가능한 API")
-    @PutMapping("/reject/join/{requestId}")
-    public ResponseEntity<Void> rejectAssociationJoinRequest(@PathVariable Long requestId) {
-        associationService.rejectJoinAssociation(requestId);
+    // TODO(협회 가입 전 -검색(이름, 설립일, 회원수, 사진 반환/ 이름으로 검색))
+
+    @Operation(summary = "협회 가입 신청", description = "협회 임원진, 회원 전용 API")
+    @PostMapping("/join-requests")
+    public ResponseEntity<Void> joinAssociation(@Valid @RequestBody AssociationJoinRequest request) {
+        associationService.joinAssociation(request);
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "협회 회원 + 가입 신청자 요약", description = "커뮤니티 메인화면에서 회원 목록 요청")
+    @GetMapping("/members/overview")
+    public ResponseEntity<AssociationMemberOverviewResponse> getAssociationMemberOverview() {
+        AssociationMemberOverviewResponse response = associationService.getAssociationMemberOverview();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @Operation(summary = "협회 회원 목록 조회", description = "협회장, 임원진, 회원 모두 접근 가능한 API")
+    @GetMapping("/members")
+    public ResponseEntity<AssociationMemberListResponse> getAssociationMembers() {
+        AssociationMemberListResponse response = associationService.getAssociationMemberList();
+        return ResponseEntity.ok().body(response);
+    }
+
+    @Operation(summary = "협회 가입 신청 목록 보기")
+    @GetMapping("/join-requests")
+    public ResponseEntity<AssociationJoinApplicationListResponse> getPendingJoinApplications() {
+        AssociationJoinApplicationListResponse response = associationService.getAssociationJoinApplicationList();
+        return ResponseEntity.ok().body(response);
+    }
     // 가입 신청 목록에서 승인하기 - 승인이 완료되면 신청한 회원의 role 수정
     @Operation(summary = "협회 가입 신청 승인", description = "협회장만 접근 가능한 API")
-    @PutMapping("/accept/join/{requestId}")
-    public ResponseEntity<Void> acceptAssociation(@PathVariable Long requestId) {
-        associationService.accpetJoinAssociation(requestId);
+    @PutMapping("/join-requests/{memberId}/accept")
+    public ResponseEntity<Void> acceptAssociation(@PathVariable Long memberId) {
+        associationService.acceptJoinAssociation(memberId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "협회 가입 신청 반려", description = "협회장만 접근 가능한 API")
+    @PutMapping("/join-requests/{memberId}/reject")
+    public ResponseEntity<Void> rejectAssociationJoinRequest(@PathVariable Long memberId) {
+        associationService.rejectJoinAssociation(memberId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "협회 회원 상세 정보 조회")
+    @GetMapping("/members/{memberId}")
+    public ResponseEntity<AssociationMemberDetailInfoResponse> getMemberDetailInfo(@PathVariable Long memberId) {
+        AssociationMemberDetailInfoResponse response = associationService.getAssociationMemberDetailInfo(memberId);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @Operation(summary = "협회 회원 강제 탈퇴", description = "협회장이 특정 회원을 협회에서 탈퇴시키는 API")
+    @DeleteMapping("/members/{memberId}/expel") // api url 수정
+    public ResponseEntity<Void> expelAssociationMember(@PathVariable Long memberId) {
+        associationService.expelMember(memberId); // 메서드 이름 수정
         return ResponseEntity.ok().build();
     }
 
@@ -64,6 +95,4 @@ public class AssociationController {
         var response = associationService.uploadProfileImage(file);
         return ResponseEntity.ok(response);
     }
-
-    // TODO(협회 가입 전 검색)
 }

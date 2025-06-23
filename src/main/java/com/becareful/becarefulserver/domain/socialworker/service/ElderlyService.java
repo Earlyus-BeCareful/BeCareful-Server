@@ -80,7 +80,7 @@ public class ElderlyService {
         if (request.siDo().isPresent()
                 || request.siGuGun().isPresent()
                 || request.eupMyeonDong().isPresent()) {
-            elderly.updateResidentialAddress(
+            elderly.updateResidentialLocation(
                     request.siDo().orElse(null),
                     request.siGuGun().orElse(null),
                     request.eupMyeonDong().orElse(null));
