@@ -10,6 +10,7 @@ import com.becareful.becarefulserver.domain.matching.dto.response.CompletedMatch
 import com.becareful.becarefulserver.domain.matching.service.CompletedMatchingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -33,16 +34,16 @@ public class CaregiverController {
             summary = "요양보호사 회원가입",
             description = "사회복지사 (social worker), 간호조무사 (nursing care), 프로필 이미지 필드는 생략할 수 있습니다.")
     @PostMapping("/signup")
-    public ResponseEntity<Void> createCaregiver(@Valid @RequestBody CaregiverCreateRequest request) {
-        Long id = caregiverService.saveCaregiver(request);
+    public ResponseEntity<Void> createCaregiver(
+            @Valid @RequestBody CaregiverCreateRequest request, HttpServletResponse response) {
+        Long id = caregiverService.saveCaregiver(request, response);
         return ResponseEntity.created(URI.create("/caregiver/" + id)).build();
     }
 
-    @Operation(summary = "요양보호사 프로필 사진 신규 업로드", description = "요양보호사 회원가입 과정에서만 사용하는 프로필 이미지 업로드 API 입니다.")
+    @Operation(summary = "요양보호사 프로필 사진 신규 업로드", description = "요양보호사 프로필 이미지 업로드 API 입니다.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CaregiverProfileUploadResponse> uploadProfileImg(
-            @RequestPart MultipartFile file, @RequestPart String phoneNumber) {
-        var response = caregiverService.uploadProfileImage(file, phoneNumber);
+    public ResponseEntity<CaregiverProfileUploadResponse> uploadProfileImg(@RequestPart MultipartFile file) {
+        var response = caregiverService.uploadProfileImage(file);
         return ResponseEntity.ok(response);
     }
 
