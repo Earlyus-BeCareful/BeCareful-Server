@@ -202,4 +202,28 @@ public class AssociationService {
                 PostBoard.create(
                         PARTICIPATION_APPLICATION, AssociationRank.MEMBER, AssociationRank.MEMBER, association));
     }
+
+    public AssociationSearchResponse searchAssociationByName(String associationName) {
+        List<Association> associationList = associationName == null
+                ? associationRepository.findAll()
+                : associationRepository.findByNameContains(associationName);
+        List<AssociationSearchResponse.AssociationSimpleInfo> associationSimpleInfoList = associationList.stream()
+                .map(association -> {
+                    int memberCount = socialWorkerRepository.countByAssociation(association);
+                    return AssociationSearchResponse.AssociationSimpleInfo.of(association, memberCount);
+                })
+                .toList();
+        return new AssociationSearchResponse(associationList.size(), associationSimpleInfoList);
+    }
+
+    public AssociationSearchResponse getAssociationList() {
+        List<Association> associationList = associationRepository.findAll();
+        List<AssociationSearchResponse.AssociationSimpleInfo> associationSimpleInfoList = associationList.stream()
+                .map(association -> {
+                    int memberCount = socialWorkerRepository.countByAssociation(association);
+                    return AssociationSearchResponse.AssociationSimpleInfo.of(association, memberCount);
+                })
+                .toList();
+        return new AssociationSearchResponse(associationList.size(), associationSimpleInfoList);
+    }
 }
