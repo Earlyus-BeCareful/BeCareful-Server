@@ -1,9 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.service;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_ALREADY_EXISTS;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_REQUIRED_AGREEMENT;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_WORK_APPLICATION_NOT_EXISTS;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Career;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
@@ -11,14 +8,11 @@ import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverHomeResponse;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverMyPageHomeResponse;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CaregiverProfileUploadResponse;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.WorkScheduleResponse;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
+import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.matching.domain.CompletedMatching;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
@@ -28,8 +22,14 @@ import com.becareful.becarefulserver.domain.matching.repository.ContractReposito
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
+import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
+import com.becareful.becarefulserver.global.properties.CookieProperties;
+import com.becareful.becarefulserver.global.properties.JwtProperties;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
+import com.becareful.becarefulserver.global.util.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -39,8 +39,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +65,9 @@ public class CaregiverService {
     private final ContractRepository contractRepository;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
+    private final JwtUtil jwtUtil;
+    private final CookieProperties cookieProperties;
+    private final JwtProperties jwtProperties;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -99,12 +107,15 @@ public class CaregiverService {
     }
 
     @Transactional
-    public Long saveCaregiver(CaregiverCreateRequest request) {
+    public Long saveCaregiver(CaregiverCreateRequest request, HttpServletResponse httpServletResponse) {
         validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
 
         if (caregiverRepository.existsByPhoneNumber(request.phoneNumber())) {
             throw new CaregiverException(CAREGIVER_ALREADY_EXISTS);
         }
+
+        LocalDate birthDate = parseBirthDate(String.valueOf(request.birthYymmdd()), request.genderCode());
+        Gender gender = parseGender(request.genderCode());
 
         CaregiverInfo caregiverInfo = CaregiverInfo.builder()
                 .isHavingCar(request.isHavingCar())
@@ -115,25 +126,27 @@ public class CaregiverService {
                 .build();
 
         Caregiver caregiver = Caregiver.create(
-                request.name(),
-                request.birthDate(),
+                request.realName(),
+                birthDate,
+                gender,
                 request.phoneNumber(),
-                getEncodedPassword(request.password()),
-                request.gender(),
+                request.profileImageUrl(),
                 request.streetAddress(),
                 request.detailAddress(),
                 caregiverInfo,
-                request.isAgreedToReceiveMarketingInfo(),
-                request.profileImageUrl());
+                request.isAgreedToReceiveMarketingInfo());
 
         caregiverRepository.save(caregiver);
+
+        updateJwtAndSecurityContext(httpServletResponse, request.phoneNumber());
+
         return caregiver.getId();
     }
 
     @Transactional
-    public CaregiverProfileUploadResponse uploadProfileImage(MultipartFile file, String phoneNumber) {
+    public CaregiverProfileUploadResponse uploadProfileImage(MultipartFile file) {
         try {
-            String fileName = generateProfileImageFileName(phoneNumber);
+            String fileName = generateProfileImageFileName();
             String profileImageUrl = fileUtil.upload(file, "profile-image", fileName);
             return new CaregiverProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
@@ -154,10 +167,10 @@ public class CaregiverService {
         return passwordEncoder.encode(rawPassword);
     }
 
-    private String generateProfileImageFileName(String phoneNumber) {
+    private String generateProfileImageFileName() {
         try {
             var md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(phoneNumber.getBytes(StandardCharsets.UTF_8));
+            byte[] hash = md.digest(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
             return Base64.getUrlEncoder().encodeToString(hash);
         } catch (NoSuchAlgorithmException e) {
             throw new CaregiverException(CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE);
@@ -229,5 +242,67 @@ public class CaregiverService {
             long days = duration.toDays();
             return days + "일 전";
         }
+    }
+
+    private LocalDate parseBirthDate(String yymmdd, int genderCode) {
+        int yearPrefix;
+        switch (genderCode) {
+            case 1:
+            case 2:
+                yearPrefix = 1900;
+                break;
+            case 3:
+            case 4:
+                yearPrefix = 2000;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid gender code: " + genderCode);
+        }
+
+        int year = yearPrefix + Integer.parseInt(yymmdd.substring(0, 2));
+        int month = Integer.parseInt(yymmdd.substring(2, 4));
+        int day = Integer.parseInt(yymmdd.substring(4, 6));
+
+        return LocalDate.of(year, month, day);
+    }
+
+    private Gender parseGender(int genderCode) {
+        switch (genderCode) {
+            case 1:
+            case 3:
+                return Gender.MALE;
+            case 2:
+            case 4:
+                return Gender.FEMALE;
+            default:
+                throw new SocialWorkerException(USER_CREATE_INVALID_GENDER_CODE);
+        }
+    }
+
+    private void updateJwtAndSecurityContext(HttpServletResponse response, String phoneNumber) {
+        String institutionRank = "NONE";
+        String associationRank = "NONE";
+
+        String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
+        String refreshToken = jwtUtil.createRefreshToken(phoneNumber, institutionRank, associationRank);
+
+        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
+        response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
+
+        List<GrantedAuthority> authorities =
+                List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    private Cookie createCookie(String key, String value, int maxAge) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(maxAge);
+        cookie.setSecure(cookieProperties.getCookieSecure());
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
+        return cookie;
     }
 }

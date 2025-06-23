@@ -46,11 +46,14 @@ public class SecurityConfig {
                         .successHandler(customSuccessHandler))
                 .authorizeHttpRequests(auth -> auth.requestMatchers(
                                 "/caregiver/signup",
-                                "/caregiver/upload-profile-img",
                                 "/nursingInstitution/for-guest/**",
                                 "/socialworker/signup",
                                 "/socialworker/check-nickname")
                         .hasRole("GUEST")
+                        .requestMatchers("/nursingInstitution/upload-profile-img")
+                        .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE")
+                        .requestMatchers("/caregiver/upload-profile-img")
+                        .hasAnyRole("GUEST", "NONE")
                         .requestMatchers(HttpMethod.GET, "association/join-requests")
                         .hasRole("CHAIRMAN")
                         .requestMatchers(

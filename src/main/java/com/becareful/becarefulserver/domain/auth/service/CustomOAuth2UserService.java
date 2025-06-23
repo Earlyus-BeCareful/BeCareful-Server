@@ -4,6 +4,8 @@ import com.becareful.becarefulserver.domain.auth.dto.response.CustomOAuth2User;
 import com.becareful.becarefulserver.domain.auth.dto.response.KakaoOAuth2Response;
 import com.becareful.becarefulserver.domain.auth.dto.response.OAuth2LoginResponse;
 import com.becareful.becarefulserver.domain.auth.dto.response.OAuth2Response;
+import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
+import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import java.util.Optional;
@@ -20,6 +22,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final SocialWorkerRepository socialworkerRepository;
+    private final CaregiverRepository caregiverRepository;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     // 리소스 서버에서 사용자 정보를 받고 기존 회원인지 아닌지 판단
     @Override
@@ -63,13 +67,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             }
 
             // TODO(role 수정)
-            Optional<SocialWorker> existData = socialworkerRepository.findByPhoneNumber(phoneNumber);
-            String institutionRank = (existData.isEmpty())
+            Optional<SocialWorker> socialWorker = socialworkerRepository.findByPhoneNumber(phoneNumber);
+            Optional<Caregiver> caregiver = caregiverRepository.findByPhoneNumber(phoneNumber);
+
+            boolean isGuest = socialWorker.isEmpty() && caregiver.isEmpty();
+
+            String institutionRank = isGuest
                     ? "GUEST"
-                    : existData.get().getInstitutionRank().toString();
-            String associationRank = (existData.isEmpty())
+                    : socialWorker.map(sw -> sw.getInstitutionRank().toString()).orElse("NONE");
+
+            String associationRank = isGuest
                     ? "GUEST"
-                    : existData.get().getAssociationRank().toString();
+                    : socialWorker.map(sw -> sw.getAssociationRank().name()).orElse("NONE");
 
             OAuth2LoginResponse loginResponse = new OAuth2LoginResponse(
                     name, nickname, phoneNumber, institutionRank, associationRank, birthYymmdd, birthGenderCode);

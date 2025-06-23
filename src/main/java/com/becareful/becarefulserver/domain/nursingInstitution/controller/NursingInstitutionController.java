@@ -44,8 +44,8 @@ public class NursingInstitutionController {
         return ResponseEntity.ok(isRegister);
     }
 
-    @Operation(summary = "회원가입 전: 요양 기관 프로필 사진 업로드(대표,센터장 전용)", description = "대표/센터장 회원가입 시 기관 프로필 이미지 저장 API.")
-    @PostMapping(value = "/for-guest/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "요양 기관 프로필 사진 업로드(대표,센터장 전용)", description = "요양기관 프로필 이미지 저장 API.")
+    @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<NursingInstitutionProfileUploadResponse> uploadProfileImg(
             @RequestPart MultipartFile file, @RequestPart String institutionName) {
 
