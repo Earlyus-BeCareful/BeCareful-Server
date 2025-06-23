@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.association.domain;
 
-import com.becareful.becarefulserver.domain.association.vo.AssociationJoinRequestStatus;
+import com.becareful.becarefulserver.domain.association.vo.AssociationJoinApplicationStatus;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import jakarta.persistence.*;
@@ -9,7 +9,7 @@ import lombok.*;
 @Entity
 @Getter
 @RequiredArgsConstructor
-public class AssociationMembershipRequest {
+public class AssociationJoinApplication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,26 +27,26 @@ public class AssociationMembershipRequest {
 
     @Enumerated(EnumType.STRING)
     @Setter(AccessLevel.PUBLIC)
-    private AssociationJoinRequestStatus status;
+    private AssociationJoinApplicationStatus status;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private AssociationMembershipRequest(
+    private AssociationJoinApplication(
             Association association,
             SocialWorker socialWorker,
             AssociationRank associationRank,
-            AssociationJoinRequestStatus status) {
+            AssociationJoinApplicationStatus status) {
         this.association = association;
         this.socialWorker = socialWorker;
         this.associationRank = associationRank;
         this.status = status;
     }
 
-    public static AssociationMembershipRequest create(
+    public static AssociationJoinApplication create(
             Association association,
             SocialWorker socialWorker,
             AssociationRank associationRank,
-            AssociationJoinRequestStatus status) {
-        return AssociationMembershipRequest.builder()
+            AssociationJoinApplicationStatus status) {
+        return AssociationJoinApplication.builder()
                 .association(association)
                 .socialWorker(socialWorker)
                 .associationRank(associationRank)

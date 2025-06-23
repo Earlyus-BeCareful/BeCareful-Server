@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.association.vo;
 
-public enum AssociationJoinRequestStatus {
+public enum AssociationJoinApplicationStatus {
     PENDING,
     REJECTED,
     APPROVED

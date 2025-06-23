@@ -10,6 +10,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -43,33 +44,36 @@ public class SecurityConfig {
                                 endpoint -> endpoint.authorizationRequestResolver(customResolver))
                         .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
                         .successHandler(customSuccessHandler))
-                .authorizeHttpRequests(
-                        auth -> auth.requestMatchers("/caregiver/signup", "/caregiver/upload-profile-img")
-                                .hasRole("GUEST")
-                                .requestMatchers("/nursingInstitution/for-guest/**")
-                                .hasRole("GUEST")
-                                .requestMatchers("/socialworker/signup")
-                                .hasRole("GUEST")
-                                .requestMatchers("/socialworker/check-nickname")
-                                .hasRole("GUEST")
-                                .requestMatchers(
-                                        "association/register",
-                                        "association/reject/join/*",
-                                        "association/accept/join/*",
-                                        "association/upload-profile-img")
-                                .hasRole("CHAIRMAN")
-                                .requestMatchers("association/join")
-                                .hasRole("NONE")
-                                .requestMatchers("/sms/**")
-                                .authenticated()
-                                .requestMatchers("/post")
-                                .authenticated()
-                                .requestMatchers("/auth/**", "/login/**", "/oauth2/**", "/favicon.ico")
-                                .permitAll()
-                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated())
+                .authorizeHttpRequests(auth -> auth.requestMatchers(
+                                "/caregiver/signup",
+                                "/caregiver/upload-profile-img",
+                                "/nursingInstitution/for-guest/**",
+                                "/socialworker/signup",
+                                "/socialworker/check-nickname")
+                        .hasRole("GUEST")
+                        .requestMatchers(HttpMethod.GET, "association/join-requests")
+                        .hasRole("CHAIRMAN")
+                        .requestMatchers(
+                                "association/create",
+                                "association/join-requests/*/accept",
+                                "association/join-requests/*/reject",
+                                "association/members/*/expel",
+                                "association/upload-profile-img")
+                        .hasRole("CHAIRMAN")
+                        .requestMatchers(HttpMethod.POST, "association/join-requests")
+                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
+                        .requestMatchers("association/members/overview", "association/members", "association/members/*")
+                        .hasAnyRole("CHAIRMAN", "EXECUTIVE", "MEMBER")
+                        .requestMatchers("/sms/**")
+                        .authenticated()
+                        .requestMatchers("/post")
+                        .authenticated()
+                        .requestMatchers("/auth/**", "/login/**", "/oauth2/**", "/favicon.ico")
+                        .permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
                 .exceptionHandling(
                         exception -> exception.authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

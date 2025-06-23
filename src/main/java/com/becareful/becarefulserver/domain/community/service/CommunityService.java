@@ -1,8 +1,8 @@
 package com.becareful.becarefulserver.domain.community.service;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
-import com.becareful.becarefulserver.domain.association.domain.AssociationMembershipRequest;
-import com.becareful.becarefulserver.domain.association.repository.AssociationMembershipRequestRepository;
+import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
+import com.becareful.becarefulserver.domain.association.repository.AssociationJoinApplicationRepository;
 import com.becareful.becarefulserver.domain.community.dto.response.CommunityAccessResponse;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
@@ -27,7 +27,7 @@ public class CommunityService {
 
     private final AuthUtil authUtil;
     private final SocialWorkerRepository socialWorkerRepository;
-    private final AssociationMembershipRequestRepository associationMembershipRequestRepository;
+    private final AssociationJoinApplicationRepository associationMembershipRequestRepository;
     private final JwtUtil jwtUtil;
     private final JwtProperties jwtProperties;
     private final CookieProperties cookieProperties;
@@ -54,7 +54,7 @@ public class CommunityService {
         }
 
         Association association = socialWorker.getAssociation();
-        Optional<AssociationMembershipRequest> requestOpt =
+        Optional<AssociationJoinApplication> requestOpt =
                 associationMembershipRequestRepository.findBySocialWorker(socialWorker);
 
         if (association != null) {
