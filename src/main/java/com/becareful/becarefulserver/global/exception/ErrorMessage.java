@@ -25,6 +25,8 @@ public class ErrorMessage {
     public static final String SOCIALWORKER_NOT_EXISTS = "해당하는 사회복지사가 없습니다.";
     public static final String NURSING_INSTITUTION_REQUIRE_CODE = "기관코드는 필수입니다.";
 
+    public static final String SOCIAL_WORKER_NOT_EXISTS = "존재하지 않는 회원번호입니다.";
+
     public static final String NURSING_INSTITUTION_ALREADY_EXISTS = "이미 등록된 기관입니다.";
     public static final String NURSING_INSTITUTION_NOT_FOUND = "해당 ID의 요양 기관을 찾을 수 없습니다.";
     public static final String NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
