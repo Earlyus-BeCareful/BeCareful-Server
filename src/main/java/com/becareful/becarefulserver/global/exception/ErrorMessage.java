@@ -11,6 +11,7 @@ public class ErrorMessage {
     public static final String CAREGIVER_REQUIRED_AGREEMENT = "필수 동의 항목에 동의하지 않았습니다.";
     public static final String CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
     public static final String CAREGIVER_WORK_APPLICATION_NOT_EXISTS = "일자리 신청서가 존재하지 않습니다.";
+    public static final String CAREGIVER_CAREER_NOT_EXISTS = "요양보호사 경력사항이 존재하지 않습니다.";
 
     public static final String PHONE_NUMBER_NOT_EXISTS = "존재하지 않는 전화번호입니다.";
     public static final String PASSWORD_NOT_MATCH = "비밀번호가 일치하지 않습니다.";
