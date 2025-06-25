@@ -72,18 +72,18 @@ public class AssociationController {
         AssociationJoinApplicationListResponse response = associationService.getAssociationJoinApplicationList();
         return ResponseEntity.ok().body(response);
     }
-    // 가입 신청 목록에서 승인하기 - 승인이 완료되면 신청한 회원의 role 수정
+
     @Operation(summary = "협회 가입 신청 승인", description = "협회장만 접근 가능한 API")
-    @PutMapping("/join-requests/{memberId}/accept")
-    public ResponseEntity<Void> acceptAssociation(@PathVariable Long memberId) {
-        associationService.acceptJoinAssociation(memberId);
+    @PutMapping("/join-requests/{id}/accept")
+    public ResponseEntity<Void> acceptAssociationJoinRequest(@PathVariable Long id) {
+        associationService.acceptJoinAssociation(id);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "협회 가입 신청 반려", description = "협회장만 접근 가능한 API")
-    @PutMapping("/join-requests/{memberId}/reject")
-    public ResponseEntity<Void> rejectAssociationJoinRequest(@PathVariable Long memberId) {
-        associationService.rejectJoinAssociation(memberId);
+    @PutMapping("/join-requests/{id}/reject")
+    public ResponseEntity<Void> rejectAssociationJoinRequest(@PathVariable Long id) {
+        associationService.rejectJoinAssociation(id);
         return ResponseEntity.ok().build();
     }
 
