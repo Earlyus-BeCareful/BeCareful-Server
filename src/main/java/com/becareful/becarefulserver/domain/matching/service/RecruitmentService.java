@@ -22,7 +22,7 @@ import com.becareful.becarefulserver.domain.matching.dto.CaregiverSimpleDto;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.*;
-import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverDetailResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
@@ -54,7 +54,7 @@ public class RecruitmentService {
     private final CaregiverRepository caregiverRepository;
     private final CareerDetailRepository careerDetailRepository;
 
-    public CaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
+    public MatchingCaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
         authUtil.getLoggedInSocialWorker(); // 사회복지사가 호출하는 API
 
         Caregiver caregiver = caregiverRepository
@@ -75,7 +75,7 @@ public class RecruitmentService {
 
         List<CareerDetail> careerDetails = careerDetailRepository.findAllByCareer(career);
 
-        return CaregiverDetailResponse.of(matching, career, careerDetails);
+        return MatchingCaregiverDetailResponse.of(matching, career, careerDetails);
     }
 
     public List<CaregiverRecruitmentResponse> getCaregiverMatchingRecruitmentList() {

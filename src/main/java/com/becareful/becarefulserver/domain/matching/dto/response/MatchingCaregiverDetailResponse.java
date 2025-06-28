@@ -13,7 +13,7 @@ import java.util.List;
 import lombok.Builder;
 
 @Builder
-public record CaregiverDetailResponse(
+public record MatchingCaregiverDetailResponse(
         Long matchingId,
         String name,
         String profileImageUrl,
@@ -28,8 +28,9 @@ public record CaregiverDetailResponse(
         List<MediationType> mediationTypes,
         String mediationDescription) {
 
-    public static CaregiverDetailResponse of(Matching matching, Career career, List<CareerDetail> careerDetails) {
-        return CaregiverDetailResponse.builder()
+    public static MatchingCaregiverDetailResponse of(
+            Matching matching, Career career, List<CareerDetail> careerDetails) {
+        return MatchingCaregiverDetailResponse.builder()
                 .matchingId(matching.getId())
                 .name(matching.getWorkApplication().getCaregiver().getName())
                 .profileImageUrl(matching.getWorkApplication().getCaregiver().getProfileImageUrl())

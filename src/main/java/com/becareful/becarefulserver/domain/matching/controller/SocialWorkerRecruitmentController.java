@@ -1,10 +1,9 @@
 package com.becareful.becarefulserver.domain.matching.controller;
 
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
-import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverDetailResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusSimpleResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.NursingInstitutionRecruitmentStateResponse;
 import com.becareful.becarefulserver.domain.matching.service.RecruitmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,7 +46,7 @@ public class SocialWorkerRecruitmentController {
 
     @Operation(summary = "요양보호사 지원 정보 상세 조회 (사회복지사 호출)", description = "요양보호사의 지원 정보를 자세히 조회합니다.")
     @GetMapping("/recruitment/{recruitmentId}/caregiver/{caregiverId}")
-    public ResponseEntity<CaregiverDetailResponse> getCaregiverDetailInfo(
+    public ResponseEntity<MatchingCaregiverDetailResponse> getCaregiverDetailInfo(
             @PathVariable(name = "recruitmentId") Long recruitmentId,
             @PathVariable(name = "caregiverId") Long caregiverId) {
         var response = recruitmentService.getCaregiverDetailInfo(recruitmentId, caregiverId);

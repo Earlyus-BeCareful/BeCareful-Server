@@ -6,7 +6,7 @@ import static java.util.stream.Collectors.groupingBy;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-import com.becareful.becarefulserver.domain.matching.dto.response.ElderlyInfoResponse.CareInfoResponse;
+import com.becareful.becarefulserver.domain.matching.dto.ElderlyDto.CareInfoResponse;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import java.time.DayOfWeek;
 import java.util.List;
