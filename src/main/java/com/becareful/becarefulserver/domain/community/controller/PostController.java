@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/community")
-@Tag(name = "Post", description = "커뮤니티 탭 게시글 관련 API 입니다.")
+@Tag(name = "Community - Post", description = "커뮤니티 탭 게시글 관련 API 입니다.")
 public class PostController {
 
     private final PostService postService;

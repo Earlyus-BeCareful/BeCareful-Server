@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/community/board/{boardType}/post/{postId}/comment")
-@Tag(name = "Comment", description = "커뮤니티 탭 댓글 관련 API 입니다.")
+@Tag(name = "Community - Comment", description = "커뮤니티 탭 댓글 관련 API 입니다.")
 public class CommentController {
 
     private final CommentService commentService;

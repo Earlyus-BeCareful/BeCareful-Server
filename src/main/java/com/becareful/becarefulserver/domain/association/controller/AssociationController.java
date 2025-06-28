@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/association")
-@Tag(name = "Association", description = "협회 관련 API 입니다.")
+@Tag(name = "Community - Association", description = "커뮤니티 협회 관련 API 입니다.")
 public class AssociationController {
 
     private final AssociationService associationService;
