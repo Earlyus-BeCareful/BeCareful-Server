@@ -5,7 +5,6 @@ import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpda
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyListResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.service.ElderlyService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Hidden
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/elderly")

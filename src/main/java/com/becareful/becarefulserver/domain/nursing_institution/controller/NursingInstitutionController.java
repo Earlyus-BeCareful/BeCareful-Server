@@ -1,11 +1,11 @@
-package com.becareful.becarefulserver.domain.nursingInstitution.controller;
+package com.becareful.becarefulserver.domain.nursing_institution.controller;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.NURSING_INSTITUTION_REQUIRE_CODE;
 
-import com.becareful.becarefulserver.domain.nursingInstitution.dto.request.NursingInstitutionCreateRequest;
-import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionProfileUploadResponse;
-import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionSearchResponse;
-import com.becareful.becarefulserver.domain.nursingInstitution.service.NursingInstitutionService;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.request.NursingInstitutionCreateRequest;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.response.NursingInstitutionProfileUploadResponse;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.response.NursingInstitutionSearchResponse;
+import com.becareful.becarefulserver.domain.nursing_institution.service.NursingInstitutionService;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/nursingInstitution")
-@Tag(name = "nursingInstitution", description = "요양기관 관련 API 입니다.")
+@Tag(name = "Nursing Institution", description = "요양기관 관련 API 입니다.")
 public class NursingInstitutionController {
     private final NursingInstitutionService nursingInstitutionService;
 

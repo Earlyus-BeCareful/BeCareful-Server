@@ -1,11 +1,11 @@
-package com.becareful.becarefulserver.domain.nursingInstitution.domain;
+package com.becareful.becarefulserver.domain.nursing_institution.domain;
 
 import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.INSTITUTION_DEFAULT_PROFILE_IMAGE_URL;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
-import com.becareful.becarefulserver.domain.nursingInstitution.converter.FacilityTypeConverter;
-import com.becareful.becarefulserver.domain.nursingInstitution.vo.FacilityType;
+import com.becareful.becarefulserver.domain.nursing_institution.converter.FacilityTypeConverter;
+import com.becareful.becarefulserver.domain.nursing_institution.vo.FacilityType;
 import com.becareful.becarefulserver.domain.socialworker.domain.converter.DetailCareTypeConverter;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.Address;
 import jakarta.persistence.*;

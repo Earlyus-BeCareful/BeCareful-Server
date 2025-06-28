@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.community.dto;
 
-import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 
 public record AuthorSimpleDto(
