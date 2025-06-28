@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.dto.request;
 
-import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

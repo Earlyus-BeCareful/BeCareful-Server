@@ -2,9 +2,9 @@ package com.becareful.becarefulserver.domain.association.dto.response;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
-import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.nursingInstitution.vo.FacilityType;
-import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.nursing_institution.vo.FacilityType;
+import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import java.time.LocalDate;
