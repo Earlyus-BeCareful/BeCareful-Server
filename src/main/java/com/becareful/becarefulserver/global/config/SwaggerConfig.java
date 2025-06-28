@@ -8,7 +8,6 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.List;
-
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +40,8 @@ public class SwaggerConfig {
 
     @Bean
     public GroupedOpenApi group2() {
-        return GroupedOpenApi.builder().group("돌봄다리 커뮤니티")
+        return GroupedOpenApi.builder()
+                .group("돌봄다리 커뮤니티")
                 .pathsToMatch("/community/**", "/association/**")
                 .build();
     }
