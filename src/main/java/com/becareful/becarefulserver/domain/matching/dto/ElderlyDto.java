@@ -1,10 +1,8 @@
 package com.becareful.becarefulserver.domain.matching.dto;
 
-import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
-import java.util.List;
 
 public record ElderlyDto(
         String name,

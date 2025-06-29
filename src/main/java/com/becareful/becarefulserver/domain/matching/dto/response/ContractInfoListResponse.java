@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.matching.dto.response;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -20,7 +19,9 @@ public record ContractInfoListResponse(
                 matching.getRecruitment().getElderly().getName(),
                 matching.getRecruitment().getElderly().getNursingInstitution().getName(),
                 matching.getWorkApplication().getCaregiver().getName(),
-                contractList.stream().map(ContractInfoListResponse.ContractInfoResponse::from).toList());
+                contractList.stream()
+                        .map(ContractInfoListResponse.ContractInfoResponse::from)
+                        .toList());
     }
 
     public record ContractInfoResponse(

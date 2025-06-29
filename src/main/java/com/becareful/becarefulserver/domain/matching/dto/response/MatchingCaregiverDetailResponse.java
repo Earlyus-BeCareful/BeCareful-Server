@@ -10,7 +10,6 @@ import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MediationType;
 import java.time.DayOfWeek;
 import java.util.List;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 
@@ -39,7 +38,8 @@ public record MatchingCaregiverDetailResponse(
                 .workDays(matching.getWorkApplication().getWorkDays().stream().toList())
                 .workTimes(matching.getWorkApplication().getWorkTimes().stream().toList())
                 .workSalaryAmount(matching.getWorkApplication().getWorkSalaryAmount())
-                .careTypes(matching.getWorkApplication().getWorkCareTypes().stream().toList())
+                .careTypes(matching.getWorkApplication().getWorkCareTypes().stream()
+                        .toList())
                 .certificates(matching.getWorkApplication()
                         .getCaregiver()
                         .getCaregiverInfo()

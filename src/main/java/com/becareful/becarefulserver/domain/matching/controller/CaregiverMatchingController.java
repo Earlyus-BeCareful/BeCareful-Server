@@ -2,9 +2,9 @@ package com.becareful.becarefulserver.domain.matching.controller;
 
 import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
-import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverMatchingRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingRecruitmentResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverMatchingRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.matching.service.MatchingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -73,7 +73,8 @@ public class CaregiverMatchingController {
     @GetMapping("/my/recruitment")
     public ResponseEntity<List<CaregiverAppliedMatchingRecruitmentResponse>> getMyRecruitment(
             @RequestParam("matchingApplicationStatus") MatchingApplicationStatus matchingApplicationStatus) {
-        List<CaregiverAppliedMatchingRecruitmentResponse> response = recruitmentService.getMyRecruitment(matchingApplicationStatus);
+        List<CaregiverAppliedMatchingRecruitmentResponse> response =
+                recruitmentService.getMyRecruitment(matchingApplicationStatus);
         return ResponseEntity.ok(response);
     }
 

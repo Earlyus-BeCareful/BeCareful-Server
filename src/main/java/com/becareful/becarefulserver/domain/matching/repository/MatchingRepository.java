@@ -41,7 +41,8 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
     List<Matching> findByRecruitment(Recruitment recruitment);
 
-    int countByRecruitmentAndMatchingApplicationStatus(Recruitment recruitment, MatchingApplicationStatus matchingApplicationStatus);
+    int countByRecruitmentAndMatchingApplicationStatus(
+            Recruitment recruitment, MatchingApplicationStatus matchingApplicationStatus);
 
     Optional<Matching> findByWorkApplicationAndRecruitment(WorkApplication workApplication, Recruitment recruitment);
 

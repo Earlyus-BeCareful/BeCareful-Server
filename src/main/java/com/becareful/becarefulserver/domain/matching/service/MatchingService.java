@@ -98,13 +98,15 @@ public class MatchingService {
         return RecruitmentDetailResponse.from(recruitment, false, false, 98);
     }
 
-    public List<CaregiverAppliedMatchingRecruitmentResponse> getMyRecruitment(MatchingApplicationStatus matchingApplicationStatus) {
+    public List<CaregiverAppliedMatchingRecruitmentResponse> getMyRecruitment(
+            MatchingApplicationStatus matchingApplicationStatus) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         return workApplicationRepository
                 .findByCaregiver(caregiver)
-                .map(workApplication ->
-                        matchingRepository
-                                .findByWorkApplicationAndMatchingApplicationStatus(workApplication, matchingApplicationStatus)
+                .map(
+                        workApplication -> matchingRepository
+                                .findByWorkApplicationAndMatchingApplicationStatus(
+                                        workApplication, matchingApplicationStatus)
                                 .stream()
                                 .map(CaregiverAppliedMatchingRecruitmentResponse::from)
                                 .toList())
@@ -204,8 +206,8 @@ public class MatchingService {
                 .map(recruitment -> {
                     int notAppliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingApplicationStatus(
                             recruitment, MatchingApplicationStatus.미지원); // 거절 제거 할래말래
-                    int appliedMatchingCount =
-                            matchingRepository.countByRecruitmentAndMatchingApplicationStatus(recruitment, MatchingApplicationStatus.지원);
+                    int appliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingApplicationStatus(
+                            recruitment, MatchingApplicationStatus.지원);
 
                     return MatchingStatusSimpleResponse.of(recruitment, notAppliedMatchingCount, appliedMatchingCount);
                 })

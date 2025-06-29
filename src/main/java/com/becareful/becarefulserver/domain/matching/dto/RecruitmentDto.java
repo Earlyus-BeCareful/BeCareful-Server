@@ -1,14 +1,13 @@
 package com.becareful.becarefulserver.domain.matching.dto;
 
+import static java.util.stream.Collectors.groupingBy;
+
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryType;
-import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
-import static java.util.stream.Collectors.groupingBy;
 
 public record RecruitmentDto(
         Long recruitmentId,
