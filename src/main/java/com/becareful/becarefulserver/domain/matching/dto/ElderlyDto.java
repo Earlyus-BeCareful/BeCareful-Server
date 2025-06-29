@@ -16,7 +16,6 @@ public record ElderlyDto(
         String profileImageUrl,
         CareLevel careLevel,
         String healthCondition) {
-    public record CareInfoResponse(CareType careType, List<String> detailCareTypes) {}
 
     public static ElderlyDto from(Elderly elderly) {
         return new ElderlyDto(

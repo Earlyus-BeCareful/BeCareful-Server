@@ -4,7 +4,7 @@ import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCrea
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusSimpleResponse;
-import com.becareful.becarefulserver.domain.matching.service.RecruitmentService;
+import com.becareful.becarefulserver.domain.matching.service.MatchingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Social Worker Matching", description = "사회복지사가 사용하는 매칭 공고 관련 API 입니다.")
 public class SocialWorkerRecruitmentController {
 
-    private final RecruitmentService recruitmentService;
+    private final MatchingService recruitmentService;
 
     @Operation(summary = "매칭 공고 등록 (사회복지사 호출)")
     @PostMapping("/recruitment")
@@ -28,19 +28,19 @@ public class SocialWorkerRecruitmentController {
         return ResponseEntity.ok(recruitmentId);
     }
 
+    @Operation(summary = "매칭 현황 조회 (사회복지사 매칭 현황 조회)")
+    @GetMapping("/list")
+    public ResponseEntity<List<MatchingStatusSimpleResponse>> getMatchingList() {
+        var response = recruitmentService.getMatchingList();
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(
             summary = "매칭 현황 상세조회 (사회복지사 호출)",
             description = "매칭 현황 데이터의 상세화면을 조회합니다. 매칭된 요양보호사와 지원한 요양보호사 정보가 있습니다.")
     @GetMapping("/recruitment/{recruitmentId}")
     public ResponseEntity<MatchingStatusDetailResponse> getMatchingListDetail(@PathVariable Long recruitmentId) {
         var response = recruitmentService.getMatchingDetail(recruitmentId);
-        return ResponseEntity.ok(response);
-    }
-
-    @Operation(summary = "매칭 현황 조회 (사회복지사 매칭 현황 조회)")
-    @GetMapping("/list")
-    public ResponseEntity<List<MatchingStatusSimpleResponse>> getMatchingList() {
-        var response = recruitmentService.getMatchingList();
         return ResponseEntity.ok(response);
     }
 

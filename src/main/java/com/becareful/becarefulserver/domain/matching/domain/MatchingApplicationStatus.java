@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.domain;
 
-public enum MatchingStatus {
+public enum MatchingApplicationStatus {
     미지원,
     지원,
     합격,
