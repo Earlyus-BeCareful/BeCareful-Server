@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.common;
 
-import com.becareful.becarefulserver.domain.nursingInstitution.repository.NursingInstitutionRepository;
+import com.becareful.becarefulserver.domain.nursing_institution.repository.NursingInstitutionRepository;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
 import com.becareful.becarefulserver.fixture.SocialWorkerFixture;

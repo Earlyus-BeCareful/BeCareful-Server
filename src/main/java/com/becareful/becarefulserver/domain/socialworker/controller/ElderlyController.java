@@ -5,7 +5,6 @@ import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpda
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyListResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.service.ElderlyService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Hidden
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/elderly")
@@ -63,9 +61,8 @@ public class ElderlyController {
 
     @Operation(summary = "어르신 프로필 사진 업로드", description = "어르신 등록, 수정 시 사용하는 프로필 이미지 업로드 API 입니다.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ElderlyProfileUploadResponse> uploadProfileImg(
-            @RequestPart MultipartFile file, @RequestPart String institutionId) {
-        var response = elderlyService.uploadProfileImage(file, institutionId);
+    public ResponseEntity<ElderlyProfileUploadResponse> uploadProfileImg(@RequestPart MultipartFile file) {
+        var response = elderlyService.uploadProfileImage(file);
         return ResponseEntity.ok(response);
     }
 }

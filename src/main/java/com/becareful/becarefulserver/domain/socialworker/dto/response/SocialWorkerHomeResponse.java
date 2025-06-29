@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.dto.response;
 
-import com.becareful.becarefulserver.domain.nursingInstitution.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import java.util.List;
 import lombok.Builder;
