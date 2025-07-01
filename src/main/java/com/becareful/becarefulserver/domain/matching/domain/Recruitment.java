@@ -10,7 +10,6 @@ import com.becareful.becarefulserver.domain.common.vo.Location;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import jakarta.persistence.*;
-
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.EnumSet;
