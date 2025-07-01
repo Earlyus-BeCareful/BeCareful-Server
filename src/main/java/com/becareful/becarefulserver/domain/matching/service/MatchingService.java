@@ -18,6 +18,7 @@ import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
+import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.CaregiverSimpleDto;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
@@ -221,8 +222,8 @@ public class MatchingService {
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
         List<Matching> matchings = matchingRepository.findByRecruitment(recruitment);
 
-        List<CaregiverSimpleDto> unAppliedCaregivers = new ArrayList<>();
-        List<CaregiverSimpleDto> appliedCaregivers = new ArrayList<>();
+        List<MatchingCaregiverSimpleResponse> unAppliedCaregivers = new ArrayList<>();
+        List<MatchingCaregiverSimpleResponse> appliedCaregivers = new ArrayList<>();
 
         matchings.forEach(matching -> {
             Caregiver caregiver = matching.getWorkApplication().getCaregiver();
@@ -230,10 +231,16 @@ public class MatchingService {
                     .findByCaregiver(caregiver)
                     .orElseThrow(() -> new CaregiverException(CAREGIVER_CAREER_NOT_EXISTS));
 
+            CaregiverSimpleDto caregiverInfo = CaregiverSimpleDto.of(caregiver, career);
+            MatchingResultStatus matchingResult =
+                    matching.getSocialWorkerMatchingResultInfo().judgeMatchingResultStatus();
+
+            var matchedCaregiverInfo = MatchingCaregiverSimpleResponse.of(caregiverInfo, matchingResult);
+
             if (matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원)) {
-                appliedCaregivers.add(CaregiverSimpleDto.of(caregiver, career));
+                appliedCaregivers.add(matchedCaregiverInfo);
             } else if (matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.미지원)) {
-                unAppliedCaregivers.add(CaregiverSimpleDto.of(caregiver, career));
+                unAppliedCaregivers.add(matchedCaregiverInfo);
             }
         });
 
