@@ -84,7 +84,7 @@ public class Recruitment extends BaseEntity {
                 .workStartTime(request.workStartTime())
                 .workEndTime(request.workEndTime())
                 .careTypes(EnumSet.copyOf(request.careTypes()))
-                .workSalaryType(request.workSalaryUnitType())
+                .workSalaryUnitType(request.workSalaryUnitType())
                 .workSalaryAmount(request.workSalaryAmount())
                 .description(request.description())
                 .isRecruiting(true)

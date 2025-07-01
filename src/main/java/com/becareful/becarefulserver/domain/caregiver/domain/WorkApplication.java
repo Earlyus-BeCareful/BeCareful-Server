@@ -77,7 +77,7 @@ public class WorkApplication extends BaseEntity {
                 .workCareTypes(EnumSet.copyOf(request.careTypes()))
                 .workDays(EnumSet.copyOf(request.workDays()))
                 .workTimes(EnumSet.copyOf(request.workTimes()))
-                .workSalaryType(request.workSalaryUnitType())
+                .workSalaryUnitType(request.workSalaryUnitType())
                 .workSalaryAmount(request.workSalaryAmount())
                 .isActive(true)
                 .caregiver(caregiver)

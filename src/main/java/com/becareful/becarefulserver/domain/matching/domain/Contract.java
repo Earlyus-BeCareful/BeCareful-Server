@@ -69,7 +69,7 @@ public class Contract extends BaseEntity {
                 .workStartTime(recruitment.getWorkStartTime())
                 .workEndTime(recruitment.getWorkEndTime())
                 .workStartDate(workStartDate)
-                .workSalaryType(recruitment.getWorkSalaryUnitType())
+                .workSalaryUnitType(recruitment.getWorkSalaryUnitType())
                 .workSalaryAmount(recruitment.getWorkSalaryAmount())
                 .careTypes(recruitment.getCareTypes())
                 .build();
@@ -90,7 +90,7 @@ public class Contract extends BaseEntity {
                 .workStartTime(workStartTime)
                 .workEndTime(workEndTime)
                 .workStartDate(workStartDate)
-                .workSalaryType(workSalaryUnitType)
+                .workSalaryUnitType(workSalaryUnitType)
                 .workSalaryAmount(workSalaryAmount)
                 .careTypes(careTypes)
                 .build();
