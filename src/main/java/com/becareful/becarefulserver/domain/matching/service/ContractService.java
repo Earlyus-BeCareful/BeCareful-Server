@@ -71,7 +71,7 @@ public class ContractService {
                 EnumSet.copyOf(request.workDays()),
                 request.workStartTime(),
                 request.workEndTime(),
-                request.workSalaryType(),
+                request.workSalaryUnitType(),
                 request.workSalaryAmount(),
                 request.workStartDate(),
                 EnumSet.copyOf(request.careTypes()));

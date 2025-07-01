@@ -44,7 +44,7 @@ public class WorkApplication extends BaseEntity {
     private EnumSet<CareType> workCareTypes;
 
     @Enumerated(EnumType.STRING)
-    private WorkSalaryType workSalaryType;
+    private WorkSalaryUnitType workSalaryUnitType;
 
     private int workSalaryAmount;
 
@@ -59,14 +59,14 @@ public class WorkApplication extends BaseEntity {
             EnumSet<DayOfWeek> workDays,
             EnumSet<WorkTime> workTimes,
             EnumSet<CareType> workCareTypes,
-            WorkSalaryType workSalaryType,
+            WorkSalaryUnitType workSalaryUnitType,
             int workSalaryAmount,
             boolean isActive,
             Caregiver caregiver) {
         this.workDays = workDays;
         this.workTimes = workTimes;
         this.workCareTypes = workCareTypes;
-        this.workSalaryType = workSalaryType;
+        this.workSalaryUnitType = workSalaryUnitType;
         this.workSalaryAmount = workSalaryAmount;
         this.isActive = isActive;
         this.caregiver = caregiver;
@@ -77,7 +77,7 @@ public class WorkApplication extends BaseEntity {
                 .workCareTypes(EnumSet.copyOf(request.careTypes()))
                 .workDays(EnumSet.copyOf(request.workDays()))
                 .workTimes(EnumSet.copyOf(request.workTimes()))
-                .workSalaryType(request.workSalaryType())
+                .workSalaryType(request.workSalaryUnitType())
                 .workSalaryAmount(request.workSalaryAmount())
                 .isActive(true)
                 .caregiver(caregiver)
@@ -88,7 +88,7 @@ public class WorkApplication extends BaseEntity {
         this.workDays = EnumSet.copyOf(request.workDays());
         this.workTimes = EnumSet.copyOf(request.workTimes());
         this.workCareTypes = EnumSet.copyOf(request.careTypes());
-        this.workSalaryType = request.workSalaryType();
+        this.workSalaryUnitType = request.workSalaryUnitType();
         this.workSalaryAmount = request.workSalaryAmount();
     }
 

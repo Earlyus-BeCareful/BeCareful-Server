@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.dto.request;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryType;
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,7 +14,7 @@ public record ContractEditRequest(
         @Size(min = 1) List<DayOfWeek> workDays,
         @NotNull LocalTime workStartTime,
         @NotNull LocalTime workEndTime,
-        @NotNull WorkSalaryType workSalaryType,
+        @NotNull WorkSalaryUnitType workSalaryUnitType,
         @NotNull int workSalaryAmount,
         @NotNull LocalDate workStartDate,
         @Size(min = 1) List<CareType> careTypes) {}

@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.domain;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryType;
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
@@ -42,7 +42,7 @@ public class Recruitment extends BaseEntity {
     private EnumSet<CareType> careTypes;
 
     @Enumerated(EnumType.STRING)
-    private WorkSalaryType workSalaryType;
+    private WorkSalaryUnitType workSalaryUnitType;
 
     private int workSalaryAmount;
 
@@ -61,7 +61,7 @@ public class Recruitment extends BaseEntity {
             LocalTime workStartTime,
             LocalTime workEndTime,
             EnumSet<CareType> careTypes,
-            WorkSalaryType workSalaryType,
+            WorkSalaryUnitType workSalaryUnitType,
             int workSalaryAmount,
             String description,
             boolean isRecruiting,
@@ -71,7 +71,7 @@ public class Recruitment extends BaseEntity {
         this.workStartTime = workStartTime;
         this.workEndTime = workEndTime;
         this.careTypes = careTypes;
-        this.workSalaryType = workSalaryType;
+        this.workSalaryUnitType = workSalaryUnitType;
         this.workSalaryAmount = workSalaryAmount;
         this.description = description;
         this.isRecruiting = isRecruiting;
@@ -85,7 +85,7 @@ public class Recruitment extends BaseEntity {
                 .workStartTime(request.workStartTime())
                 .workEndTime(request.workEndTime())
                 .careTypes(EnumSet.copyOf(request.careTypes()))
-                .workSalaryType(request.workSalaryType())
+                .workSalaryType(request.workSalaryUnitType())
                 .workSalaryAmount(request.workSalaryAmount())
                 .description(request.description())
                 .isRecruiting(true)

@@ -2,7 +2,7 @@ package com.becareful.becarefulserver.domain.matching.dto;
 
 import static java.util.stream.Collectors.groupingBy;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryType;
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import java.time.DayOfWeek;
@@ -16,7 +16,7 @@ public record RecruitmentDto(
         List<DayOfWeek> workDays,
         String workStartTime,
         String workEndTime,
-        WorkSalaryType workSalaryType,
+        WorkSalaryUnitType workSalaryUnitType,
         Integer workSalaryAmount,
         String description,
         boolean isRecruiting,
@@ -40,7 +40,7 @@ public record RecruitmentDto(
                 recruitment.getWorkDays().stream().toList(),
                 recruitment.getWorkStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 recruitment.getWorkEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
-                recruitment.getWorkSalaryType(),
+                recruitment.getWorkSalaryUnitType(),
                 recruitment.getWorkSalaryAmount(),
                 recruitment.getDescription(),
                 recruitment.isRecruiting(),

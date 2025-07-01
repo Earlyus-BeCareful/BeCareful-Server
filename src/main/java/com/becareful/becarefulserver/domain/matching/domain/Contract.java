@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.domain;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryType;
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
@@ -34,7 +34,7 @@ public class Contract extends BaseEntity {
 
     private LocalTime workStartTime;
     private LocalTime workEndTime;
-    private WorkSalaryType workSalaryType;
+    private WorkSalaryUnitType workSalaryUnitType;
 
     private int workSalaryAmount;
     private LocalDate workStartDate;
@@ -49,7 +49,7 @@ public class Contract extends BaseEntity {
             LocalTime workStartTime,
             LocalTime workEndTime,
             LocalDate workStartDate,
-            WorkSalaryType workSalaryType,
+            WorkSalaryUnitType workSalaryUnitType,
             int workSalaryAmount,
             EnumSet<CareType> careTypes) {
         this.matching = matching;
@@ -57,7 +57,7 @@ public class Contract extends BaseEntity {
         this.workStartTime = workStartTime;
         this.workEndTime = workEndTime;
         this.workStartDate = workStartDate;
-        this.workSalaryType = workSalaryType;
+        this.workSalaryUnitType = workSalaryUnitType;
         this.workSalaryAmount = workSalaryAmount;
         this.careTypes = careTypes;
     }
@@ -69,7 +69,7 @@ public class Contract extends BaseEntity {
                 .workStartTime(recruitment.getWorkStartTime())
                 .workEndTime(recruitment.getWorkEndTime())
                 .workStartDate(workStartDate)
-                .workSalaryType(recruitment.getWorkSalaryType())
+                .workSalaryType(recruitment.getWorkSalaryUnitType())
                 .workSalaryAmount(recruitment.getWorkSalaryAmount())
                 .careTypes(recruitment.getCareTypes())
                 .build();
@@ -80,7 +80,7 @@ public class Contract extends BaseEntity {
             EnumSet<DayOfWeek> workDays,
             LocalTime workStartTime,
             LocalTime workEndTime,
-            WorkSalaryType workSalaryType,
+            WorkSalaryUnitType workSalaryUnitType,
             int workSalaryAmount,
             LocalDate workStartDate,
             EnumSet<CareType> careTypes) {
@@ -90,7 +90,7 @@ public class Contract extends BaseEntity {
                 .workStartTime(workStartTime)
                 .workEndTime(workEndTime)
                 .workStartDate(workStartDate)
-                .workSalaryType(workSalaryType)
+                .workSalaryType(workSalaryUnitType)
                 .workSalaryAmount(workSalaryAmount)
                 .careTypes(careTypes)
                 .build();
