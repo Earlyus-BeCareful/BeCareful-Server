@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Caregiver Matching", description = "요양보호사가 사용하는 매칭 공고 관련 API 입니다.")
 public class CaregiverMatchingController {
 
-    private final MatchingService recruitmentService;
+    private final MatchingService matchingService;
 
     @Operation(summary = "매칭 공고 리스트 조회 (요양보호사 일자리 리스트 조회)")
     @GetMapping("/list")
     public ResponseEntity<List<CaregiverMatchingRecruitmentResponse>> getCaregiverMatchingRecruitmentList() {
-        List<CaregiverMatchingRecruitmentResponse> responses = recruitmentService.getCaregiverMatchingRecruitmentList();
+        List<CaregiverMatchingRecruitmentResponse> responses = matchingService.getCaregiverMatchingRecruitmentList();
         System.out.println(responses);
         return ResponseEntity.ok(responses);
     }
@@ -40,21 +40,21 @@ public class CaregiverMatchingController {
     @GetMapping("/recruitment/{recruitmentId}")
     public ResponseEntity<RecruitmentDetailResponse> getRecruitmentDetail(
             @PathVariable("recruitmentId") Long recruitmentId) {
-        RecruitmentDetailResponse response = recruitmentService.getRecruitmentDetail(recruitmentId);
+        RecruitmentDetailResponse response = matchingService.getRecruitmentDetail(recruitmentId);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "매칭 공고 지원 (요양보호사 일자리 지원)")
     @PostMapping("/recruitment/{recruitmentId}/apply")
     public ResponseEntity<Void> applyRecruitment(@PathVariable("recruitmentId") Long recruitmentId) {
-        recruitmentService.applyRecruitment(recruitmentId);
+        matchingService.applyRecruitment(recruitmentId);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "매칭 공고 거절 (요양보호사 일자리 거절)")
     @PostMapping("/recruitment/{recruitmentId}/reject")
     public ResponseEntity<Void> rejectMatching(@PathVariable("recruitmentId") Long recruitmentId) {
-        recruitmentService.rejectMatching(recruitmentId);
+        matchingService.rejectMatching(recruitmentId);
         return ResponseEntity.ok().build();
     }
 
@@ -62,7 +62,7 @@ public class CaregiverMatchingController {
     @PostMapping("/recruitment/{recruitmentId}/mediate")
     public ResponseEntity<Void> mediateMatching(
             @PathVariable("recruitmentId") Long recruitmentId, @RequestBody RecruitmentMediateRequest request) {
-        recruitmentService.mediateMatching(recruitmentId, request);
+        matchingService.mediateMatching(recruitmentId, request);
         return ResponseEntity.ok().build();
     }
 
@@ -74,7 +74,7 @@ public class CaregiverMatchingController {
     public ResponseEntity<List<CaregiverAppliedMatchingRecruitmentResponse>> getMyRecruitment(
             @RequestParam("matchingApplicationStatus") MatchingApplicationStatus matchingApplicationStatus) {
         List<CaregiverAppliedMatchingRecruitmentResponse> response =
-                recruitmentService.getMyRecruitment(matchingApplicationStatus);
+                matchingService.getMyRecruitment(matchingApplicationStatus);
         return ResponseEntity.ok(response);
     }
 
@@ -85,7 +85,7 @@ public class CaregiverMatchingController {
     @GetMapping("/my/recruitment/{recruitmentId}")
     public ResponseEntity<CaregiverAppliedMatchingDetailResponse> getMyRecruitmentDetail(
             @PathVariable("recruitmentId") Long recruitmentId) {
-        CaregiverAppliedMatchingDetailResponse response = recruitmentService.getMyRecruitmentDetail(recruitmentId);
+        CaregiverAppliedMatchingDetailResponse response = matchingService.getMyRecruitmentDetail(recruitmentId);
         return ResponseEntity.ok(response);
     }
 }
