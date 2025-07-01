@@ -8,11 +8,11 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> {
 
-    @Query("""
-    select r
-      from Recruitment r
-     where r.elderly.nursingInstitution.id = :institutionId
-""")
+    @Query(
+            """
+        select r
+          from Recruitment r
+         where r.elderly.nursingInstitution.id = :institutionId""")
     List<Recruitment> findAllByInstitutionId(Long institutionId);
 
     boolean existsByElderly(Elderly elderly);
