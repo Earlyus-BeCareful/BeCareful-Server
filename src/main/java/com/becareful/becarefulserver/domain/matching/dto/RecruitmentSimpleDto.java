@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.dto;
 
 import com.becareful.becarefulserver.domain.common.domain.CareType;
-import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
