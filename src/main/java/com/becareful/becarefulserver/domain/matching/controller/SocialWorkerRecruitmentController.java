@@ -19,19 +19,19 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Social Worker Matching", description = "사회복지사가 사용하는 매칭 공고 관련 API 입니다.")
 public class SocialWorkerRecruitmentController {
 
-    private final MatchingService recruitmentService;
+    private final MatchingService matchingService;
 
     @Operation(summary = "매칭 공고 등록 (사회복지사 호출)")
     @PostMapping("/recruitment")
     public ResponseEntity<Long> createRecruitment(@Valid @RequestBody RecruitmentCreateRequest request) {
-        Long recruitmentId = recruitmentService.createRecruitment(request);
+        Long recruitmentId = matchingService.createRecruitment(request);
         return ResponseEntity.ok(recruitmentId);
     }
 
     @Operation(summary = "매칭 현황 조회 (사회복지사 매칭 현황 조회)")
     @GetMapping("/list")
     public ResponseEntity<List<MatchingStatusSimpleResponse>> getMatchingList() {
-        var response = recruitmentService.getMatchingList();
+        var response = matchingService.getMatchingList();
         return ResponseEntity.ok(response);
     }
 
@@ -40,7 +40,7 @@ public class SocialWorkerRecruitmentController {
             description = "매칭 현황 데이터의 상세화면을 조회합니다. 매칭된 요양보호사와 지원한 요양보호사 정보가 있습니다.")
     @GetMapping("/recruitment/{recruitmentId}")
     public ResponseEntity<MatchingStatusDetailResponse> getMatchingListDetail(@PathVariable Long recruitmentId) {
-        var response = recruitmentService.getMatchingDetail(recruitmentId);
+        var response = matchingService.getMatchingDetail(recruitmentId);
         return ResponseEntity.ok(response);
     }
 
@@ -49,7 +49,7 @@ public class SocialWorkerRecruitmentController {
     public ResponseEntity<MatchingCaregiverDetailResponse> getCaregiverDetailInfo(
             @PathVariable(name = "recruitmentId") Long recruitmentId,
             @PathVariable(name = "caregiverId") Long caregiverId) {
-        var response = recruitmentService.getCaregiverDetailInfo(recruitmentId, caregiverId);
+        var response = matchingService.getCaregiverDetailInfo(recruitmentId, caregiverId);
         return ResponseEntity.ok(response);
     }
 }
