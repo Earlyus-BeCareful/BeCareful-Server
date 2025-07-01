@@ -12,7 +12,8 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
             """
         select r
           from Recruitment r
-         where r.elderly.nursingInstitution.id = :institutionId""")
+         where r.elderly.nursingInstitution.id = :institutionId
+    """)
     List<Recruitment> findAllByInstitutionId(Long institutionId);
 
     boolean existsByElderly(Elderly elderly);
