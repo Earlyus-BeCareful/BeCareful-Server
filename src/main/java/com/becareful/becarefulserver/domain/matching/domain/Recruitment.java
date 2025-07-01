@@ -9,15 +9,8 @@ import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.vo.Location;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
+
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.EnumSet;
@@ -48,6 +41,7 @@ public class Recruitment extends BaseEntity {
     @Convert(converter = CareTypeSetConverter.class)
     private EnumSet<CareType> careTypes;
 
+    @Enumerated(EnumType.STRING)
     private WorkSalaryType workSalaryType;
 
     private int workSalaryAmount;
