@@ -8,11 +8,13 @@ import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerDetailR
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerResponse;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MediationType;
+import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.CaregiverSimpleDto;
 import java.util.List;
 
 public record MatchingCaregiverDetailResponse(
         Long matchingId,
+        MatchingResultStatus matchingResultStatus,
         CaregiverSimpleDto caregiverInfo,
         WorkApplicationDto caregiverWorkApplicationInfo,
         CareerResponse careerInfo,
@@ -25,6 +27,7 @@ public record MatchingCaregiverDetailResponse(
         WorkApplication workApplication = matching.getWorkApplication();
         return new MatchingCaregiverDetailResponse(
                 matching.getId(),
+                matching.getMatchingResultStatus(),
                 CaregiverSimpleDto.of(workApplication.getCaregiver(), career),
                 WorkApplicationDto.from(workApplication),
                 CareerResponse.of(
