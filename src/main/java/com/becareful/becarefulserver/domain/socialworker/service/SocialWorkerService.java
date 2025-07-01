@@ -7,7 +7,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
+import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
@@ -80,19 +80,19 @@ public class SocialWorkerService {
         List<Matching> matchingList = matchingRepository.findAllMatchingByElderlyIds(elderlyIds);
 
         Long processingMatchingCount = matchingList.stream()
-                .filter(matching -> matching.getMatchingStatus().equals(MatchingStatus.지원))
+                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원))
                 .count();
 
         Long recentlyMatchedCount = matchingList.stream()
                 .filter(matching ->
                         matching.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7)))
-                .filter(matching -> matching.getMatchingStatus().equals(MatchingStatus.합격))
+                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.합격))
                 .count();
 
         Integer totalMatchedCount = matchingList.size();
 
         Integer appliedCaregiverCount = matchingList.stream()
-                .filter(matching -> matching.getMatchingStatus().equals(MatchingStatus.지원))
+                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원))
                 .map(matching -> matching.getWorkApplication().getId())
                 .collect(Collectors.toSet())
                 .size();
@@ -104,8 +104,8 @@ public class SocialWorkerService {
 
         long wholeApplierCountForCompletedRecruitment = matchingList.stream()
                 .filter(matching -> !matching.getRecruitment().isRecruiting())
-                .filter(matching -> matching.getMatchingStatus().equals(MatchingStatus.합격)
-                        || matching.getMatchingStatus().equals(MatchingStatus.불합격))
+                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.합격)
+                        || matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.불합격))
                 .count();
 
         long wholeCompletedMatchingCount = matchingList.stream()

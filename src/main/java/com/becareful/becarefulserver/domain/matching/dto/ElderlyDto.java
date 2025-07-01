@@ -1,12 +1,10 @@
-package com.becareful.becarefulserver.domain.matching.dto.response;
+package com.becareful.becarefulserver.domain.matching.dto;
 
-import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
-import java.util.List;
 
-public record ElderlyInfoResponse(
+public record ElderlyDto(
         String name,
         String address,
         Gender gender,
@@ -16,10 +14,9 @@ public record ElderlyInfoResponse(
         String profileImageUrl,
         CareLevel careLevel,
         String healthCondition) {
-    public record CareInfoResponse(CareType careType, List<String> detailCareTypes) {}
 
-    public static ElderlyInfoResponse from(Elderly elderly) {
-        return new ElderlyInfoResponse(
+    public static ElderlyDto from(Elderly elderly) {
+        return new ElderlyDto(
                 elderly.getName(),
                 elderly.getResidentialLocation().getFullAddress(),
                 elderly.getGender(),

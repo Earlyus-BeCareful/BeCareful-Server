@@ -42,7 +42,7 @@ public class Matching extends BaseEntity {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private MatchingStatus matchingStatus;
+    private MatchingApplicationStatus matchingApplicationStatus;
 
     private LocalDate applicationDate;
 
@@ -83,12 +83,12 @@ public class Matching extends BaseEntity {
 
     @Builder(access = AccessLevel.PRIVATE)
     private Matching(
-            MatchingStatus matchingStatus,
+            MatchingApplicationStatus matchingApplicationStatus,
             Recruitment recruitment,
             WorkApplication workApplication,
             MatchingResultInfo caregiverMatchingResultInfo,
             MatchingResultInfo socialWorkerMatchingResultInfo) {
-        this.matchingStatus = matchingStatus;
+        this.matchingApplicationStatus = matchingApplicationStatus;
         this.recruitment = recruitment;
         this.workApplication = workApplication;
         this.caregiverMatchingResultInfo = caregiverMatchingResultInfo;
@@ -101,7 +101,7 @@ public class Matching extends BaseEntity {
             MatchingResultInfo caregiverMatchingResultInfo,
             MatchingResultInfo socialWorkerMatchingResultInfo) {
         return Matching.builder()
-                .matchingStatus(MatchingStatus.미지원)
+                .matchingApplicationStatus(MatchingApplicationStatus.미지원)
                 .recruitment(recruitment)
                 .workApplication(application)
                 .caregiverMatchingResultInfo(caregiverMatchingResultInfo)
@@ -114,18 +114,18 @@ public class Matching extends BaseEntity {
      */
     public void apply() {
         validateMatchingUpdatable();
-        this.matchingStatus = MatchingStatus.지원;
+        this.matchingApplicationStatus = MatchingApplicationStatus.지원;
         this.applicationDate = LocalDate.now();
     }
 
     public void reject() {
         validateMatchingUpdatable();
-        this.matchingStatus = MatchingStatus.거절;
+        this.matchingApplicationStatus = MatchingApplicationStatus.거절;
     }
 
     public void mediate(RecruitmentMediateRequest request) {
         validateMatchingUpdatable();
-        this.matchingStatus = MatchingStatus.지원;
+        this.matchingApplicationStatus = MatchingApplicationStatus.지원;
         this.applicationDate = LocalDate.now();
         this.mediationTypes = EnumSet.copyOf(request.mediationTypes());
         this.mediationDescription = request.mediationDescription();
@@ -133,22 +133,22 @@ public class Matching extends BaseEntity {
 
     public void hire() {
         validateMatchingCompletable();
-        this.matchingStatus = MatchingStatus.합격;
+        this.matchingApplicationStatus = MatchingApplicationStatus.합격;
     }
 
     public void failed() {
         validateMatchingCompletable();
-        this.matchingStatus = MatchingStatus.불합격;
+        this.matchingApplicationStatus = MatchingApplicationStatus.불합격;
     }
 
     private void validateMatchingCompletable() {
-        if (!this.matchingStatus.equals(MatchingStatus.지원)) {
+        if (!this.matchingApplicationStatus.equals(MatchingApplicationStatus.지원)) {
             throw new RecruitmentException("지원한 경우에만 합격, 불합격 처리할 수 있습니다.");
         }
     }
 
     private void validateMatchingUpdatable() {
-        if (!this.matchingStatus.equals(MatchingStatus.미지원)) {
+        if (!this.matchingApplicationStatus.equals(MatchingApplicationStatus.미지원)) {
             throw new RecruitmentException(MATCHING_CANNOT_REJECT);
         }
     }

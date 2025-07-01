@@ -16,7 +16,7 @@ import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.matching.domain.CompletedMatching;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
+import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
@@ -75,7 +75,7 @@ public class CaregiverService {
                 .findByCaregiver(caregiver)
                 .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
         Integer applicationCount = matchingRepository
-                .findByWorkApplicationAndMatchingStatus(workApplication, MatchingStatus.지원)
+                .findByWorkApplicationAndMatchingApplicationStatus(workApplication, MatchingApplicationStatus.지원)
                 .size();
         Integer recruitmentCount =
                 matchingRepository.findAllByWorkApplication(workApplication).size();
