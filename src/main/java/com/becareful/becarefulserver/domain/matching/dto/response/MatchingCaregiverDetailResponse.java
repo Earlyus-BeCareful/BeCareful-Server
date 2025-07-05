@@ -8,6 +8,7 @@ import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerDetailR
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerResponse;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MediationType;
+import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.CaregiverSimpleDto;
 import java.util.List;
@@ -15,6 +16,9 @@ import java.util.List;
 public record MatchingCaregiverDetailResponse(
         Long matchingId,
         MatchingResultStatus matchingResultStatus,
+        MatchingResultReasonType workLocationMatchingResultReason,
+        MatchingResultReasonType workDaysMatchingResultReason,
+        MatchingResultReasonType workTimeMatchingResultReason,
         CaregiverSimpleDto caregiverInfo,
         WorkApplicationDto caregiverWorkApplicationInfo,
         CareerResponse careerInfo,
@@ -25,9 +29,21 @@ public record MatchingCaregiverDetailResponse(
             Matching matching, Career career, List<CareerDetail> careerDetails) {
 
         WorkApplication workApplication = matching.getWorkApplication();
+        MatchingResultInfo socialWorkerMatchingResult = matching.getSocialWorkerMatchingResultInfo();
         return new MatchingCaregiverDetailResponse(
                 matching.getId(),
                 matching.getMatchingResultStatus(),
+                socialWorkerMatchingResult.isWorkLocationMatched()
+                        ? MatchingResultReasonType.MATCHED_ALL
+                        : MatchingResultReasonType.NOT_MATCHED,
+                socialWorkerMatchingResult.getWorkDayMatchingRate() == 0
+                        ? MatchingResultReasonType.NOT_MATCHED
+                        : socialWorkerMatchingResult.getWorkDayMatchingRate() < 1
+                                ? MatchingResultReasonType.MATCHED_PARTIALLY
+                                : MatchingResultReasonType.MATCHED_ALL,
+                socialWorkerMatchingResult.isWorkTimeMatched()
+                        ? MatchingResultReasonType.MATCHED_ALL
+                        : MatchingResultReasonType.NOT_MATCHED,
                 CaregiverSimpleDto.of(workApplication.getCaregiver(), career),
                 WorkApplicationDto.from(workApplication),
                 CareerResponse.of(
@@ -35,5 +51,11 @@ public record MatchingCaregiverDetailResponse(
                         careerDetails.stream().map(CareerDetailResponse::from).toList()),
                 matching.getMediationTypes().stream().toList(),
                 matching.getMediationDescription());
+    }
+
+    private enum MatchingResultReasonType {
+        MATCHED_ALL,
+        MATCHED_PARTIALLY,
+        NOT_MATCHED
     }
 }
