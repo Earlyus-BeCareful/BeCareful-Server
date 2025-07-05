@@ -6,6 +6,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.matching.domain.converter.MediationTypeSetConverter;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
+import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import jakarta.persistence.AttributeOverride;
@@ -139,6 +140,10 @@ public class Matching extends BaseEntity {
     public void failed() {
         validateMatchingCompletable();
         this.matchingApplicationStatus = MatchingApplicationStatus.불합격;
+    }
+
+    public MatchingResultStatus getMatchingResultStatus() {
+        return socialWorkerMatchingResultInfo.judgeMatchingResultStatus();
     }
 
     private void validateMatchingCompletable() {
