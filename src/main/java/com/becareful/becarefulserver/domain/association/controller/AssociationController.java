@@ -34,14 +34,14 @@ public class AssociationController {
     @GetMapping("/search")
     public ResponseEntity<AssociationSearchListResponse> searchAssociation(
             @RequestParam(required = false) String associationName) {
-        AssociationSearchListResponse response = associationService.searchAssociationByName(associationName);
+        var response = associationService.searchAssociationByName(associationName);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "협회 가입 전: 서비스에 등록된 협회 리스트 반환", description = "협회 가입 단계에서 협회 검색 API")
     @GetMapping("/list")
     public ResponseEntity<AssociationSearchListResponse> getAssociationList() {
-        AssociationSearchListResponse response = associationService.getAssociationList();
+        var response = associationService.getAssociationList();
         return ResponseEntity.ok(response);
     }
 
