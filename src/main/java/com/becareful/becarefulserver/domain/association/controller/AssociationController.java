@@ -30,18 +30,18 @@ public class AssociationController {
         return ResponseEntity.created(URI.create("association/" + id)).build();
     }
 
-    @Operation(summary = "회원가입 전: 서비스에 등록된 협회 검색", description = "협회 가입 단계에서 협회 검색 API")
+    @Operation(summary = "협회 가입 전: 서비스에 등록된 협회 검색", description = "협회 가입 단계에서 협회 검색 API")
     @GetMapping("/search")
-    public ResponseEntity<AssociationSearchResponse> searchAssociation(
+    public ResponseEntity<AssociationSearchListResponse> searchAssociation(
             @RequestParam(required = false) String associationName) {
-        AssociationSearchResponse response = associationService.searchAssociationByName(associationName);
+        AssociationSearchListResponse response = associationService.searchAssociationByName(associationName);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "회원가입 전: 서비스에 등록된 협회 리스트 반환", description = "협회 가입 단계에서 협회 검색 API")
+    @Operation(summary = "협회 가입 전: 서비스에 등록된 협회 리스트 반환", description = "협회 가입 단계에서 협회 검색 API")
     @GetMapping("/list")
-    public ResponseEntity<AssociationSearchResponse> getAssociationList() {
-        AssociationSearchResponse response = associationService.getAssociationList();
+    public ResponseEntity<AssociationSearchListResponse> getAssociationList() {
+        AssociationSearchListResponse response = associationService.getAssociationList();
         return ResponseEntity.ok(response);
     }
 
