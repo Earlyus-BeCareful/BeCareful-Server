@@ -6,9 +6,14 @@ public record AssociationSimpleDto(
         Long associationId,
         String associationName,
         Integer associationEstablishedYear,
+        String associationProfileImageUrl,
         Integer associationMemberCount) {
     public static AssociationSimpleDto of(Association association, Integer memberCount) {
         return new AssociationSimpleDto(
-                association.getId(), association.getName(), association.getEstablishedYear(), memberCount);
+                association.getId(),
+                association.getName(),
+                association.getEstablishedYear(),
+                association.getProfileImageUrl(),
+                memberCount);
     }
 }
