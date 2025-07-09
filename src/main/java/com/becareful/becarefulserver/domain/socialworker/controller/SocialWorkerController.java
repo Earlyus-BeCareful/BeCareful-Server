@@ -40,7 +40,6 @@ public class SocialWorkerController {
         return ResponseEntity.ok(sameNickName);
     }
 
-    @Hidden
     @Operation(summary = "채용하기", description = "근무 시작일 선택 후 근무조건 생성")
     @PostMapping("/matching/{matchingId}/hire")
     public ResponseEntity<Void> createContract(
@@ -49,7 +48,6 @@ public class SocialWorkerController {
         return ResponseEntity.ok().build();
     }
 
-    @Hidden
     @Operation(summary = "사회복지사 홈화면 조회")
     @GetMapping("/home")
     public ResponseEntity<SocialWorkerHomeResponse> getHomeData() {
@@ -57,7 +55,6 @@ public class SocialWorkerController {
         return ResponseEntity.ok(response);
     }
 
-    @Hidden
     @Operation(summary = "사회복지사 채팅 목록")
     @GetMapping("/chat/list")
     public ResponseEntity<ChatList> getChatInfoList() {
