@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.auth.controller;
 
 import com.becareful.becarefulserver.domain.auth.dto.response.OAuth2LoginResponse;
+import com.becareful.becarefulserver.domain.auth.dto.response.RegisteredUserLoginResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,10 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final RedisTemplate<String, OAuth2LoginResponse> oauth2RedisTemplate;
+    private final RedisTemplate<String, RegisteredUserLoginResponse> registeredUserRedisTemplate;
 
     public AuthController(
-            @Qualifier("oAuth2LoginResponseRedisTemplate") RedisTemplate<String, OAuth2LoginResponse> oauth2RedisTemplate) {
+            @Qualifier("oAuth2LoginResponseRedisTemplate") RedisTemplate<String, OAuth2LoginResponse> oauth2RedisTemplate,
+            @Qualifier("registeredUserRedisTemplate") RedisTemplate<String, RegisteredUserLoginResponse> registeredUserRedisTemplate) {
         this.oauth2RedisTemplate = oauth2RedisTemplate;
+        this.registeredUserRedisTemplate = registeredUserRedisTemplate;
     }
 
     @Operation(summary = "회원가입 전 사용자 정보 반환", description = "카카오 소셜 로그인 완료 후 받은 key로 사용자 정보 요청")
@@ -36,6 +40,22 @@ public class AuthController {
 
         // 1회성 조회 후 삭제
         oauth2RedisTemplate.delete(redisKey);
+        return ResponseEntity.ok(loginInfo);
+    }
+
+    @Operation(summary = "로그인 후 사용자 정보 반환", description = "카카오 소셜 로그인 완료 후 받은 key로 사용자 정보 요청")
+    @GetMapping("/user-info")
+    public ResponseEntity<?> getUserInfo(@RequestParam String userKey) {
+        String redisKey = "user:" + userKey;
+        RegisteredUserLoginResponse loginInfo =
+                registeredUserRedisTemplate.opsForValue().get(redisKey);
+
+        if (loginInfo == null) {
+            return ResponseEntity.status(HttpStatus.GONE).body("만료되었거나 존재하지 않는 userKey입니다.");
+        }
+
+        // 1회성 조회 후 삭제
+        registeredUserRedisTemplate.delete(redisKey);
         return ResponseEntity.ok(loginInfo);
     }
 }
