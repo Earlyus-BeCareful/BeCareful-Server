@@ -12,14 +12,15 @@ import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -57,26 +58,30 @@ public class CommunityService {
         Optional<AssociationJoinApplication> requestOpt =
                 associationMembershipRequestRepository.findBySocialWorker(socialWorker);
 
-        if (association != null) {
+        if (association != null) { //가입된 회원인 경우
             int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+            String associationName = association.getName();
 
             if (requestOpt.isPresent()) {
                 associationMembershipRequestRepository.delete(requestOpt.get());
-                return CommunityAccessResponse.approved(socialWorker, associationMemberCount);
+                return CommunityAccessResponse.approved(socialWorker, associationName, associationMemberCount);
             }
 
             return CommunityAccessResponse.alreadyApproved(socialWorker, associationMemberCount);
         }
 
-        return requestOpt
+        return requestOpt //가입된 회원이 아닌 경우
                 .map(request -> {
+                    String associationName = request.getAssociation().getName();
+
                     switch (request.getStatus()) {
                         case REJECTED -> {
+
                             associationMembershipRequestRepository.delete(request);
-                            return CommunityAccessResponse.rejected(socialWorker);
+                            return CommunityAccessResponse.rejected(socialWorker, associationName);
                         }
                         case PENDING -> {
-                            return CommunityAccessResponse.pending(socialWorker);
+                            return CommunityAccessResponse.pending(socialWorker, associationName);
                         }
                         default -> throw new IllegalStateException(
                                 "Unexpected community access status: " + request.getStatus());
