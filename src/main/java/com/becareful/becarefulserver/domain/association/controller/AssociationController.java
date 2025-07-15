@@ -7,12 +7,13 @@ import com.becareful.becarefulserver.domain.association.service.AssociationServi
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,7 +53,7 @@ public class AssociationController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "협회 회원 + 가입 신청자 요약", description = "커뮤니티 메인화면에서 회원 목록 요청")
+    @Operation(summary = "협회 회원 수, 가입 신청서 개수 반환")
     @GetMapping("/members/overview")
     public ResponseEntity<AssociationMemberOverviewResponse> getAssociationMemberOverview() {
         AssociationMemberOverviewResponse response = associationService.getAssociationMemberOverview();

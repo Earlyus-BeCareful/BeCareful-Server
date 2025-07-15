@@ -1,8 +1,5 @@
 package com.becareful.becarefulserver.domain.association.service;
 
-import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
-
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
 import com.becareful.becarefulserver.domain.association.dto.JoinApplicationSimpleDto;
@@ -24,15 +21,19 @@ import com.becareful.becarefulserver.global.exception.exception.ElderlyException
 import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+
+import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -127,10 +128,7 @@ public class AssociationService {
         int joinApplicationCount = associationJoinApplicationRepository.countByAssociationAndStatus(
                 association, AssociationJoinApplicationStatus.PENDING);
 
-        List<SocialWorker> members = socialWorkerRepository.findAllByAssociation(association);
-        List<MemberSimpleDto> memberSimpleDtos =
-                members.stream().map(MemberSimpleDto::of).toList();
-        return new AssociationMemberOverviewResponse(associationMemberCount, joinApplicationCount, memberSimpleDtos);
+        return new AssociationMemberOverviewResponse(associationMemberCount, joinApplicationCount);
     }
 
     // 협회 회원 목록 반환
