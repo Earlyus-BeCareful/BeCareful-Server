@@ -15,7 +15,7 @@ import com.becareful.becarefulserver.domain.association.repository.AssociationRe
 import com.becareful.becarefulserver.domain.association.vo.AssociationJoinApplicationStatus;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
-import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
@@ -201,5 +201,29 @@ public class AssociationService {
                 PostBoard.create(INFORMATION_SHARING, AssociationRank.MEMBER, AssociationRank.MEMBER, association),
                 PostBoard.create(
                         PARTICIPATION_APPLICATION, AssociationRank.MEMBER, AssociationRank.MEMBER, association));
+    }
+
+    public AssociationSearchResponse searchAssociationByName(String associationName) {
+        List<Association> associationList = associationName == null
+                ? associationRepository.findAll()
+                : associationRepository.findByNameContains(associationName);
+        List<AssociationSearchResponse.AssociationSimpleInfo> associationSimpleInfoList = associationList.stream()
+                .map(association -> {
+                    int memberCount = socialWorkerRepository.countByAssociation(association);
+                    return AssociationSearchResponse.AssociationSimpleInfo.of(association, memberCount);
+                })
+                .toList();
+        return new AssociationSearchResponse(associationList.size(), associationSimpleInfoList);
+    }
+
+    public AssociationSearchResponse getAssociationList() {
+        List<Association> associationList = associationRepository.findAll();
+        List<AssociationSearchResponse.AssociationSimpleInfo> associationSimpleInfoList = associationList.stream()
+                .map(association -> {
+                    int memberCount = socialWorkerRepository.countByAssociation(association);
+                    return AssociationSearchResponse.AssociationSimpleInfo.of(association, memberCount);
+                })
+                .toList();
+        return new AssociationSearchResponse(associationList.size(), associationSimpleInfoList);
     }
 }

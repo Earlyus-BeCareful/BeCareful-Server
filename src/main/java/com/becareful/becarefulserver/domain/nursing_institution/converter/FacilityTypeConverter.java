@@ -1,7 +1,7 @@
-package com.becareful.becarefulserver.domain.nursingInstitution.converter;
+package com.becareful.becarefulserver.domain.nursing_institution.converter;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.EnumSetConverter;
-import com.becareful.becarefulserver.domain.nursingInstitution.vo.FacilityType;
+import com.becareful.becarefulserver.domain.nursing_institution.vo.FacilityType;
 import jakarta.persistence.Converter;
 
 @Converter

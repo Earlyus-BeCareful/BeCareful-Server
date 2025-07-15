@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/association")
-@Tag(name = "association", description = "협회 관련 API 입니다.")
+@Tag(name = "Community - Association", description = "커뮤니티 협회 관련 API 입니다.")
 public class AssociationController {
 
     private final AssociationService associationService;
@@ -30,7 +30,20 @@ public class AssociationController {
         return ResponseEntity.created(URI.create("association/" + id)).build();
     }
 
-    // TODO(협회 가입 전 -검색(이름, 설립일, 회원수, 사진 반환/ 이름으로 검색))
+    @Operation(summary = "회원가입 전: 서비스에 등록된 협회 검색", description = "협회 가입 단계에서 협회 검색 API")
+    @GetMapping("/search")
+    public ResponseEntity<AssociationSearchResponse> searchAssociation(
+            @RequestParam(required = false) String associationName) {
+        AssociationSearchResponse response = associationService.searchAssociationByName(associationName);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "회원가입 전: 서비스에 등록된 협회 리스트 반환", description = "협회 가입 단계에서 협회 검색 API")
+    @GetMapping("/list")
+    public ResponseEntity<AssociationSearchResponse> getAssociationList() {
+        AssociationSearchResponse response = associationService.getAssociationList();
+        return ResponseEntity.ok(response);
+    }
 
     @Operation(summary = "협회 가입 신청", description = "협회 임원진, 회원 전용 API")
     @PostMapping("/join-requests")
@@ -59,18 +72,18 @@ public class AssociationController {
         AssociationJoinApplicationListResponse response = associationService.getAssociationJoinApplicationList();
         return ResponseEntity.ok().body(response);
     }
-    // 가입 신청 목록에서 승인하기 - 승인이 완료되면 신청한 회원의 role 수정
+
     @Operation(summary = "협회 가입 신청 승인", description = "협회장만 접근 가능한 API")
-    @PutMapping("/join-requests/{memberId}/accept")
-    public ResponseEntity<Void> acceptAssociation(@PathVariable Long memberId) {
-        associationService.acceptJoinAssociation(memberId);
+    @PutMapping("/join-requests/{id}/accept")
+    public ResponseEntity<Void> acceptAssociationJoinRequest(@PathVariable Long id) {
+        associationService.acceptJoinAssociation(id);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "협회 가입 신청 반려", description = "협회장만 접근 가능한 API")
-    @PutMapping("/join-requests/{memberId}/reject")
-    public ResponseEntity<Void> rejectAssociationJoinRequest(@PathVariable Long memberId) {
-        associationService.rejectJoinAssociation(memberId);
+    @PutMapping("/join-requests/{id}/reject")
+    public ResponseEntity<Void> rejectAssociationJoinRequest(@PathVariable Long id) {
+        associationService.rejectJoinAssociation(id);
         return ResponseEntity.ok().build();
     }
 

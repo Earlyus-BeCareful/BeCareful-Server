@@ -34,7 +34,8 @@ server:
 login:
   redirect_url:
     guest: "${LOGIN_REDIRECT_URL_GUEST}"
-    user: "${LOGIN_REDIRECT_URL_USER}"
+    social_worker: "${LOGIN_REDIRECT_URL_SOCIAL_WORKER}"
+    caregiver: "${LOGIN_REDIRECT_URL_CAREGIVER}"
 
 cookie:
   secure: "${COOKIE_SECURE}"

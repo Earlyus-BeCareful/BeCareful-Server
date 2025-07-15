@@ -1,13 +1,13 @@
-package com.becareful.becarefulserver.domain.nursingInstitution.service;
+package com.becareful.becarefulserver.domain.nursing_institution.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.nursingInstitution.dto.request.NursingInstitutionCreateRequest;
-import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionProfileUploadResponse;
-import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionSearchResponse;
-import com.becareful.becarefulserver.domain.nursingInstitution.repository.NursingInstitutionRepository;
-import com.becareful.becarefulserver.domain.nursingInstitution.vo.FacilityType;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.request.NursingInstitutionCreateRequest;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.response.NursingInstitutionProfileUploadResponse;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.response.NursingInstitutionSearchResponse;
+import com.becareful.becarefulserver.domain.nursing_institution.repository.NursingInstitutionRepository;
+import com.becareful.becarefulserver.domain.nursing_institution.vo.FacilityType;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
@@ -74,7 +74,24 @@ public class NursingInstitutionService {
 
     @Transactional
     public NursingInstitutionSearchResponse searchNursingInstitutionByName(String institutionName) {
-        List<NursingInstitution> institutions = nursingInstitutionRepository.findAllByNameContains(institutionName);
+        List<NursingInstitution> institutions = institutionName == null
+                ? nursingInstitutionRepository.findAll()
+                : nursingInstitutionRepository.findAllByNameContains(institutionName);
+        List<NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo> result = institutions.stream()
+                .map(institution -> new NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo(
+                        institution.getId(),
+                        institution.getName(),
+                        institution.getAddress().getStreetAddress(),
+                        institution.getAddress().getDetailAddress()))
+                .toList();
+
+        return new NursingInstitutionSearchResponse(result);
+    }
+
+    @Transactional(readOnly = true)
+    public NursingInstitutionSearchResponse getNursingInstitutionList() {
+        List<NursingInstitution> institutions = nursingInstitutionRepository.findAll();
+
         List<NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo> result = institutions.stream()
                 .map(institution -> new NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo(
                         institution.getId(),

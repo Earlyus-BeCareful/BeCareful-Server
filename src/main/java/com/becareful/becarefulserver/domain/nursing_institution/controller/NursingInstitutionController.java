@@ -1,11 +1,11 @@
-package com.becareful.becarefulserver.domain.nursingInstitution.controller;
+package com.becareful.becarefulserver.domain.nursing_institution.controller;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.NURSING_INSTITUTION_REQUIRE_CODE;
 
-import com.becareful.becarefulserver.domain.nursingInstitution.dto.request.NursingInstitutionCreateRequest;
-import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionProfileUploadResponse;
-import com.becareful.becarefulserver.domain.nursingInstitution.dto.response.NursingInstitutionSearchResponse;
-import com.becareful.becarefulserver.domain.nursingInstitution.service.NursingInstitutionService;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.request.NursingInstitutionCreateRequest;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.response.NursingInstitutionProfileUploadResponse;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.response.NursingInstitutionSearchResponse;
+import com.becareful.becarefulserver.domain.nursing_institution.service.NursingInstitutionService;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/nursingInstitution")
-@Tag(name = "nursingInstitution", description = "요양기관 관련 API 입니다.")
+@Tag(name = "Nursing Institution", description = "요양기관 관련 API 입니다.")
 public class NursingInstitutionController {
     private final NursingInstitutionService nursingInstitutionService;
 
@@ -31,6 +31,13 @@ public class NursingInstitutionController {
             @RequestParam(required = false) String nursingInstitutionName) {
         NursingInstitutionSearchResponse response =
                 nursingInstitutionService.searchNursingInstitutionByName(nursingInstitutionName);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "회원가입 전: 서비스에 등록된 요양 기관 리스트 조회", description = "회원가입 단계에서 요양 기관 조회 API")
+    @GetMapping("/for-guest/list")
+    public ResponseEntity<NursingInstitutionSearchResponse> getNursingInstitutionList() {
+        NursingInstitutionSearchResponse response = nursingInstitutionService.getNursingInstitutionList();
         return ResponseEntity.ok(response);
     }
 
@@ -44,8 +51,8 @@ public class NursingInstitutionController {
         return ResponseEntity.ok(isRegister);
     }
 
-    @Operation(summary = "회원가입 전: 요양 기관 프로필 사진 업로드(대표,센터장 전용)", description = "대표/센터장 회원가입 시 기관 프로필 이미지 저장 API.")
-    @PostMapping(value = "/for-guest/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "요양 기관 프로필 사진 업로드(대표,센터장 전용)", description = "요양기관 프로필 이미지 저장 API.")
+    @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<NursingInstitutionProfileUploadResponse> uploadProfileImg(
             @RequestPart MultipartFile file, @RequestPart String institutionName) {
 

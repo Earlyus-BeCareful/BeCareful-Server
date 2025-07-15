@@ -46,23 +46,29 @@ public class SecurityConfig {
                         .successHandler(customSuccessHandler))
                 .authorizeHttpRequests(auth -> auth.requestMatchers(
                                 "/caregiver/signup",
-                                "/caregiver/upload-profile-img",
                                 "/nursingInstitution/for-guest/**",
                                 "/socialworker/signup",
                                 "/socialworker/check-nickname")
                         .hasRole("GUEST")
-                        .requestMatchers(HttpMethod.GET, "association/join-requests")
+                        .requestMatchers("/nursingInstitution/upload-profile-img")
+                        .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE")
+                        .requestMatchers("/caregiver/upload-profile-img")
+                        .hasAnyRole("GUEST", "NONE")
+                        .requestMatchers(HttpMethod.GET, "/association/join-requests")
                         .hasRole("CHAIRMAN")
                         .requestMatchers(
-                                "association/create",
-                                "association/join-requests/*/accept",
-                                "association/join-requests/*/reject",
-                                "association/members/*/expel",
-                                "association/upload-profile-img")
+                                "/association/create",
+                                "/association/join-requests/*/accept",
+                                "/association/join-requests/*/reject",
+                                "/association/members/*/expel",
+                                "/association/upload-profile-img")
                         .hasRole("CHAIRMAN")
-                        .requestMatchers(HttpMethod.POST, "association/join-requests")
+                        .requestMatchers(HttpMethod.POST, "/association/join-requests")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
-                        .requestMatchers("association/members/overview", "association/members", "association/members/*")
+                        .requestMatchers("/association/search", "/association/list")
+                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
+                        .requestMatchers(
+                                "/association/members/overview", "/association/members", "/association/members/*")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE", "MEMBER")
                         .requestMatchers("/sms/**")
                         .authenticated()

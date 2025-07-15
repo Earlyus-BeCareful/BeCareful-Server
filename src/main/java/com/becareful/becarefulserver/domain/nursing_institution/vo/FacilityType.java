@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain.nursingInstitution.vo;
+package com.becareful.becarefulserver.domain.nursing_institution.vo;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

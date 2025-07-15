@@ -1,6 +1,6 @@
-package com.becareful.becarefulserver.domain.nursingInstitution.repository;
+package com.becareful.becarefulserver.domain.nursing_institution.repository;
 
-import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import java.util.List;
 import java.util.Optional;
 import org.jetbrains.annotations.NotNull;

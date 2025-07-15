@@ -5,7 +5,7 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERL
 
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
-import com.becareful.becarefulserver.domain.nursingInstitution.repository.NursingInstitutionRepository;
+import com.becareful.becarefulserver.domain.nursing_institution.repository.NursingInstitutionRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
@@ -80,7 +80,7 @@ public class ElderlyService {
         if (request.siDo().isPresent()
                 || request.siGuGun().isPresent()
                 || request.eupMyeonDong().isPresent()) {
-            elderly.updateResidentialAddress(
+            elderly.updateResidentialLocation(
                     request.siDo().orElse(null),
                     request.siGuGun().orElse(null),
                     request.eupMyeonDong().orElse(null));

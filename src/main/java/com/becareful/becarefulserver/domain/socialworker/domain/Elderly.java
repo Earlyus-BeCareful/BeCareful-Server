@@ -1,14 +1,15 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
 import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.ELDERLY_DEFAULT_PROFILE_IMAGE_URL;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
-import com.becareful.becarefulserver.domain.nursingInstitution.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.common.vo.Location;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.converter.DetailCareTypeConverter;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.ResidentialAddress;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.EnumSet;
@@ -48,7 +49,7 @@ public class Elderly extends BaseEntity {
     CareLevel careLevel;
 
     @Embedded
-    private ResidentialAddress residentialAddress;
+    private Location residentialLocation;
 
     @Convert(converter = DetailCareTypeConverter.class)
     private EnumSet<DetailCareType> detailCareTypes;
@@ -63,7 +64,7 @@ public class Elderly extends BaseEntity {
             String name,
             LocalDate birthday,
             Gender gender,
-            ResidentialAddress residentialAddress,
+            Location residentialLocation,
             String detailAddress,
             Boolean hasInmate,
             Boolean hasPet,
@@ -76,7 +77,7 @@ public class Elderly extends BaseEntity {
         this.name = name;
         this.birthday = birthday;
         this.gender = gender;
-        this.residentialAddress = residentialAddress;
+        this.residentialLocation = residentialLocation;
         this.detailAddress = detailAddress;
         this.hasInmate = hasInmate;
         this.hasPet = hasPet;
@@ -107,12 +108,12 @@ public class Elderly extends BaseEntity {
                 .birthday(birthday)
                 .gender(gender)
                 .hasInmate(hasInmate)
-                .residentialAddress(new ResidentialAddress(siDo, siGuGun, eupMyeonDong))
+                .residentialLocation(Location.of(siDo, siGuGun, eupMyeonDong))
                 .detailAddress(detailAddress)
                 .hasPet(hasPet)
                 .profileImageUrl(
                         profileImageUrl == null || profileImageUrl.isBlank()
-                                ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
+                                ? ELDERLY_DEFAULT_PROFILE_IMAGE_URL
                                 : profileImageUrl)
                 .institution(institution)
                 .careLevel(careLevel)
@@ -155,12 +156,12 @@ public class Elderly extends BaseEntity {
         if (careLevel != null) this.careLevel = careLevel;
     }
 
-    public void updateResidentialAddress(String siDo, String siGuGun, String eupMyeonDong) {
+    public void updateResidentialLocation(String siDo, String siGuGun, String eupMyeonDong) {
         if (siDo != null || siGuGun != null || eupMyeonDong != null) {
-            this.residentialAddress = new ResidentialAddress(
-                    siDo != null ? siDo : this.residentialAddress.getSiDo(),
-                    siGuGun != null ? siGuGun : this.residentialAddress.getSiGuGun(),
-                    eupMyeonDong != null ? eupMyeonDong : this.residentialAddress.getEupMyeonDong());
+            this.residentialLocation = Location.of(
+                    siDo != null ? siDo : this.residentialLocation.getSiDo(),
+                    siGuGun != null ? siGuGun : this.residentialLocation.getSiGuGun(),
+                    eupMyeonDong != null ? eupMyeonDong : this.residentialLocation.getEupMyeonDong());
         }
     }
 

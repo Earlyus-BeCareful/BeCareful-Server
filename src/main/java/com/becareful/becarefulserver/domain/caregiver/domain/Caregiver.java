@@ -6,14 +6,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.vo.Address;
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AccessLevel;
@@ -36,8 +29,6 @@ public class Caregiver extends BaseEntity {
     private LocalDate birthDate;
 
     private String phoneNumber;
-
-    private String password;
 
     private String profileImageUrl;
 
@@ -62,7 +53,6 @@ public class Caregiver extends BaseEntity {
             LocalDate birthDate,
             Gender gender,
             String phoneNumber,
-            String password,
             String profileImageUrl,
             Address address,
             CaregiverInfo caregiverInfo,
@@ -73,7 +63,6 @@ public class Caregiver extends BaseEntity {
         this.birthDate = birthDate;
         this.gender = gender;
         this.phoneNumber = phoneNumber;
-        this.password = password;
         this.profileImageUrl = profileImageUrl;
         this.address = address;
         this.caregiverInfo = caregiverInfo;
@@ -85,20 +74,18 @@ public class Caregiver extends BaseEntity {
     public static Caregiver create(
             String name,
             LocalDate birthDate,
-            String phoneNumber,
-            String encodedPassword,
             Gender gender,
+            String phoneNumber,
+            String profileImageUrl,
             String streetAddress,
             String detailAddress,
             CaregiverInfo caregiverInfo,
-            boolean isAgreedToReceiveMarketingInfo,
-            String profileImageUrl) {
+            boolean isAgreedToReceiveMarketingInfo) {
         return Caregiver.builder()
                 .name(name)
                 .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber(phoneNumber)
-                .password(encodedPassword)
                 .profileImageUrl(
                         profileImageUrl == null || profileImageUrl.isBlank()
                                 ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
