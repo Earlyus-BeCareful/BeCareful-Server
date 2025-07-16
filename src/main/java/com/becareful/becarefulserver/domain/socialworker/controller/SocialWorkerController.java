@@ -4,6 +4,7 @@ import com.becareful.becarefulserver.domain.matching.service.ContractService;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerMyInfo;
 import com.becareful.becarefulserver.domain.socialworker.service.SocialWorkerService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,6 +39,13 @@ public class SocialWorkerController {
     public ResponseEntity<Boolean> nickNameCheck(@RequestParam String nickname) {
         boolean sameNickName = socialworkerService.checkSameNickNameAtRegist(nickname);
         return ResponseEntity.ok(sameNickName);
+    }
+
+    @Operation(summary = "회원정보 반환", description = "센터장, 대표, 사회복지사 모두 같은 API")
+    @GetMapping("/me")
+    public ResponseEntity<SocialWorkerMyInfo> getSocialWorkerMyInfo() {
+        SocialWorkerMyInfo response = socialworkerService.getMyInfo();
+        return ResponseEntity.ok(response);
     }
 
     @Hidden

@@ -1,5 +1,8 @@
 package com.becareful.becarefulserver.domain.association.service;
 
+import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
 import com.becareful.becarefulserver.domain.association.dto.JoinApplicationSimpleDto;
@@ -21,19 +24,15 @@ import com.becareful.becarefulserver.global.exception.exception.ElderlyException
 import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import java.util.UUID;
-
-import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
