@@ -6,6 +6,7 @@ import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.*;
@@ -113,5 +114,22 @@ public class SocialWorker extends BaseEntity {
     public void leaveAssociation() {
         this.association = null;
         this.associationRank = AssociationRank.NONE;
+    }
+
+    public void updateBasicInfo(
+            SocialWorkerUpdateBasicInfoRequest request,
+            LocalDate birthday,
+            Gender gender,
+            NursingInstitution nursingInstitution) {
+        this.name = request.realName();
+        this.nickname = request.nickName();
+        this.birthday = birthday;
+        this.gender = gender;
+        this.phoneNumber = request.phoneNumber();
+        this.nursingInstitution = nursingInstitution;
+        this.institutionRank = request.institutionRank();
+        this.isAgreedToReceiveMarketingInfo = request.isAgreedToReceiveMarketingInfo();
+        this.isAgreedToTerms = request.isAgreedToTerms();
+        this.isAgreedToCollectPersonalInfo = request.isAgreedToCollectPersonalInfo();
     }
 }

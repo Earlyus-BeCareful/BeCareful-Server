@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.socialworker.controller;
 
 import com.becareful.becarefulserver.domain.matching.service.ContractService;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerCreateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerMyInfo;
@@ -46,6 +47,14 @@ public class SocialWorkerController {
     public ResponseEntity<SocialWorkerMyInfo> getSocialWorkerMyInfo() {
         SocialWorkerMyInfo response = socialworkerService.getMyInfo();
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "회원정보 수정", description = "센터장, 대표, 사회복지사 모두 같은 API")
+    @PutMapping("/me")
+    public ResponseEntity<Void> updateMyBasicInfo(
+            @Valid @RequestBody SocialWorkerUpdateBasicInfoRequest request, HttpServletResponse httpServletResponse) {
+        socialworkerService.updateMyBasicInfo(request, httpServletResponse);
+        return ResponseEntity.ok().build();
     }
 
     @Hidden
