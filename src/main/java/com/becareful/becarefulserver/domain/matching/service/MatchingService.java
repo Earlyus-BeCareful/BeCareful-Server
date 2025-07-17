@@ -215,7 +215,7 @@ public class MatchingService {
                     int notAppliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingApplicationStatus(
                             recruitment, MatchingApplicationStatus.미지원); // 거절 제거 할래말래
                     int appliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingApplicationStatus(
-                            recruitment, MatchingApplicationStatus.지원);
+                            recruitment, MatchingApplicationStatus.지원검토중);
 
                     return MatchingStatusSimpleResponse.of(recruitment, notAppliedMatchingCount, appliedMatchingCount);
                 })
@@ -244,7 +244,7 @@ public class MatchingService {
 
             var matchedCaregiverInfo = MatchingCaregiverSimpleResponse.of(caregiverInfo, matchingResult);
 
-            if (matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원)) {
+            if (matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중)) {
                 appliedCaregivers.add(matchedCaregiverInfo);
             } else if (matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.미지원)) {
                 unAppliedCaregivers.add(matchedCaregiverInfo);

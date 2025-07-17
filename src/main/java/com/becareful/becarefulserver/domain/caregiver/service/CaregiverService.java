@@ -70,7 +70,7 @@ public class CaregiverService {
                 .findByCaregiver(caregiver)
                 .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
         Integer applicationCount = matchingRepository
-                .findByWorkApplicationAndMatchingApplicationStatus(workApplication, MatchingApplicationStatus.지원)
+                .findByWorkApplicationAndMatchingApplicationStatus(workApplication, MatchingApplicationStatus.지원검토중)
                 .size();
         Integer recruitmentCount =
                 matchingRepository.findAllByWorkApplication(workApplication).size();

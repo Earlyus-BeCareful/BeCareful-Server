@@ -80,7 +80,7 @@ public class SocialWorkerService {
         List<Matching> matchingList = matchingRepository.findAllMatchingByElderlyIds(elderlyIds);
 
         Long processingMatchingCount = matchingList.stream()
-                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원))
+                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중))
                 .count();
 
         Long recentlyMatchedCount = matchingList.stream()
@@ -92,7 +92,7 @@ public class SocialWorkerService {
         Integer totalMatchedCount = matchingList.size();
 
         Integer appliedCaregiverCount = matchingList.stream()
-                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원))
+                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중))
                 .map(matching -> matching.getWorkApplication().getId())
                 .collect(Collectors.toSet())
                 .size();
@@ -105,7 +105,7 @@ public class SocialWorkerService {
         long wholeApplierCountForCompletedRecruitment = matchingList.stream()
                 .filter(matching -> !matching.getRecruitment().isRecruiting())
                 .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.합격)
-                        || matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.불합격))
+                        || matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원거절))
                 .count();
 
         long wholeCompletedMatchingCount = matchingList.stream()
