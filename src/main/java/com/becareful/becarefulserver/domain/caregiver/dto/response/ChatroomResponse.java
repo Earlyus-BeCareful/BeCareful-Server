@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.caregiver.dto.response;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -25,7 +24,7 @@ public record ChatroomResponse(
                 recentChat,
                 timeDifference,
                 0 // TODO : 안 읽은 메세지 카운팅 로직 구현
-        );
+                );
     }
 
     private static String getTimeDifferenceString(Contract contract) {
