@@ -29,6 +29,8 @@ import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepos
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
+import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
+import com.becareful.becarefulserver.domain.work_location.repository.WorkLocationRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
@@ -54,6 +56,7 @@ public class MatchingService {
     private final CareerRepository careerRepository;
     private final CaregiverRepository caregiverRepository;
     private final CareerDetailRepository careerDetailRepository;
+    private final WorkLocationRepository workLocationRepository;
 
     public MatchingCaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
         authUtil.getLoggedInSocialWorker(); // 사회복지사가 호출하는 API
@@ -67,6 +70,10 @@ public class MatchingService {
         Recruitment recruitment = recruitmentRepository
                 .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+        List<WorkLocationDto> locations =
+                workApplicationWorkLocationRepository.findAllByWorkApplication(workApplication).stream()
+                        .map(workLocation -> WorkLocationDto.from(workLocation.getWorkLocation()))
+                        .toList();
 
         Matching matching = matchingRepository
                 .findByWorkApplicationAndRecruitment(workApplication, recruitment)
@@ -76,7 +83,7 @@ public class MatchingService {
 
         List<CareerDetail> careerDetails = careerDetailRepository.findAllByCareer(career);
 
-        return MatchingCaregiverDetailResponse.of(matching, career, careerDetails);
+        return MatchingCaregiverDetailResponse.of(matching, career, careerDetails, locations);
     }
 
     public List<CaregiverMatchingRecruitmentResponse> getCaregiverMatchingRecruitmentList() {
@@ -208,7 +215,7 @@ public class MatchingService {
                     int notAppliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingApplicationStatus(
                             recruitment, MatchingApplicationStatus.미지원); // 거절 제거 할래말래
                     int appliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingApplicationStatus(
-                            recruitment, MatchingApplicationStatus.지원);
+                            recruitment, MatchingApplicationStatus.지원검토중);
 
                     return MatchingStatusSimpleResponse.of(recruitment, notAppliedMatchingCount, appliedMatchingCount);
                 })
@@ -237,7 +244,7 @@ public class MatchingService {
 
             var matchedCaregiverInfo = MatchingCaregiverSimpleResponse.of(caregiverInfo, matchingResult);
 
-            if (matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원)) {
+            if (matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중)) {
                 appliedCaregivers.add(matchedCaregiverInfo);
             } else if (matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.미지원)) {
                 unAppliedCaregivers.add(matchedCaregiverInfo);

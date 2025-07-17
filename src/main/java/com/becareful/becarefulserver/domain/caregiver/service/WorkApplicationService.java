@@ -5,8 +5,8 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGI
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplicationWorkLocation;
+import com.becareful.becarefulserver.domain.caregiver.dto.WorkApplicationDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.WorkApplicationResponse;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
 import com.becareful.becarefulserver.domain.common.vo.Location;
@@ -30,7 +30,7 @@ public class WorkApplicationService {
     private final WorkApplicationWorkLocationRepository workApplicationWorkLocationRepository;
     private final AuthUtil authUtil;
 
-    public WorkApplicationResponse getWorkApplication() {
+    public WorkApplicationDto getWorkApplication() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
         return workApplicationRepository
@@ -41,9 +41,9 @@ public class WorkApplicationService {
                                     .map(data -> WorkLocationDto.from(data.getWorkLocation()))
                                     .toList();
 
-                    return WorkApplicationResponse.of(locations, workApplication);
+                    return WorkApplicationDto.of(locations, workApplication);
                 })
-                .orElse(WorkApplicationResponse.empty());
+                .orElse(null);
     }
 
     @Transactional

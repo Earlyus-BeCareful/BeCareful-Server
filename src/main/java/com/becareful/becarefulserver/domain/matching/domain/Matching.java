@@ -115,18 +115,18 @@ public class Matching extends BaseEntity {
      */
     public void apply() {
         validateMatchingUpdatable();
-        this.matchingApplicationStatus = MatchingApplicationStatus.지원;
+        this.matchingApplicationStatus = MatchingApplicationStatus.지원검토중;
         this.applicationDate = LocalDate.now();
     }
 
     public void reject() {
         validateMatchingUpdatable();
-        this.matchingApplicationStatus = MatchingApplicationStatus.거절;
+        this.matchingApplicationStatus = MatchingApplicationStatus.매칭거절;
     }
 
     public void mediate(RecruitmentMediateRequest request) {
         validateMatchingUpdatable();
-        this.matchingApplicationStatus = MatchingApplicationStatus.지원;
+        this.matchingApplicationStatus = MatchingApplicationStatus.지원검토중;
         this.applicationDate = LocalDate.now();
         this.mediationTypes = EnumSet.copyOf(request.mediationTypes());
         this.mediationDescription = request.mediationDescription();
@@ -139,7 +139,7 @@ public class Matching extends BaseEntity {
 
     public void failed() {
         validateMatchingCompletable();
-        this.matchingApplicationStatus = MatchingApplicationStatus.불합격;
+        this.matchingApplicationStatus = MatchingApplicationStatus.지원거절;
     }
 
     public MatchingResultStatus getMatchingResultStatus() {
@@ -147,7 +147,7 @@ public class Matching extends BaseEntity {
     }
 
     private void validateMatchingCompletable() {
-        if (!this.matchingApplicationStatus.equals(MatchingApplicationStatus.지원)) {
+        if (!this.matchingApplicationStatus.equals(MatchingApplicationStatus.지원검토중)) {
             throw new RecruitmentException("지원한 경우에만 합격, 불합격 처리할 수 있습니다.");
         }
     }

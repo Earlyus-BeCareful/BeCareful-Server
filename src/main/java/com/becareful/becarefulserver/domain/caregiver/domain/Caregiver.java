@@ -108,4 +108,8 @@ public class Caregiver extends BaseEntity {
     public List<String> getCertificateNames() {
         return this.getCaregiverInfo().getCertificateNames();
     }
+
+    public int getAge() {
+        return LocalDate.now().getYear() - this.birthDate.getYear() + 1;
+    }
 }

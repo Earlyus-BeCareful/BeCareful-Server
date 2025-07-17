@@ -39,7 +39,7 @@ public class ContractService {
         recruitmentRepository.save(recruitment);
 
         matchingRepository.findByRecruitment(recruitment).stream()
-                .filter(match -> match.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원))
+                .filter(match -> match.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중))
                 .forEach(match -> {
                     match.failed();
                     matchingRepository.save(match);
