@@ -28,7 +28,7 @@ public class WorkApplicationController {
     @Operation(summary = "일자리 신청 정보 조회", description = "요양보호사 일자리 신청서 정보를 조회합니다. 신청서를 등록한 적이 없다면 null을 반환합니다.")
     @GetMapping
     public ResponseEntity<WorkApplicationDto> getWorkApplication() {
-        WorkApplicationDto response = workApplicationService.getWorkApplication();
+        var response = workApplicationService.getWorkApplication();
         return ResponseEntity.ok(response);
     }
 
