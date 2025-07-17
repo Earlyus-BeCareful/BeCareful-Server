@@ -43,7 +43,7 @@ public class WorkApplicationService {
 
                     return WorkApplicationResponse.of(locations, workApplication);
                 })
-                .orElse(WorkApplicationResponse.empty());
+                .orElse(null);
     }
 
     @Transactional

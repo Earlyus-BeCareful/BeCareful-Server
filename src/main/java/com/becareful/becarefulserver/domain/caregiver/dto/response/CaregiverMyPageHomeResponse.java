@@ -34,9 +34,7 @@ public record CaregiverMyPageHomeResponse(
                 caregiver.getCaregiverInfo().isCompleteDementiaEducation(),
                 career == null ? null : career.getTitle(),
                 career == null ? null : career.getUpdateDate().toLocalDate(),
-                workApplication == null
-                        ? WorkApplicationResponse.empty()
-                        : WorkApplicationResponse.of(locations, workApplication),
+                workApplication == null ? null : WorkApplicationResponse.of(locations, workApplication),
                 workApplication == null ? false : workApplication.isActive(),
                 workApplication == null ? null : workApplication.getUpdateDate().toLocalDate());
     }
