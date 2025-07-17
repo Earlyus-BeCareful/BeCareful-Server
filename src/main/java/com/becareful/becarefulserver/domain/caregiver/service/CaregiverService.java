@@ -83,6 +83,7 @@ public class CaregiverService {
         List<CompletedMatching> myWork = completedMatchingRepository.findByCaregiver(caregiver);
 
         boolean isWorking = !myWork.isEmpty();
+        boolean isApplying = workApplication.isActive();
         List<WorkScheduleResponse> workSchedules = myWork.stream()
                 .filter(completedMatching -> completedMatching
                         .getContract()
@@ -91,7 +92,8 @@ public class CaregiverService {
                 .map(WorkScheduleResponse::from)
                 .toList();
 
-        return CaregiverHomeResponse.of(caregiver, recruitmentCount, applicationCount, isWorking, workSchedules);
+        return CaregiverHomeResponse.of(
+                caregiver, recruitmentCount, applicationCount, isWorking, isApplying, workSchedules);
     }
 
     public CaregiverMyPageHomeResponse getMyPageHomeData() {
