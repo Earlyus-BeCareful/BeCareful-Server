@@ -194,8 +194,7 @@ public class SocialWorkerService {
                     Elderly elderly = matching.getRecruitment().getElderly();
                     String timeDifference = getTimeDifferenceString(matching);
                     Contract latestContract = contractRepository
-                            .findLatestContractByMatching(matching)
-                            .get(0);
+                            .findTop1ByMatchingOrderByCreateDateDesc(matching).get();
                     String recentChat = isContractInCompletedMatching(matching) ? "최종 승인이 확정되었습니다!" : "합격 축하드립니다.";
 
                     // ChatroomInfo 생성
@@ -217,16 +216,14 @@ public class SocialWorkerService {
     }
 
     public LocalDateTime findLatestContractCreatedDate(Matching matching) {
-        List<Contract> contracts = contractRepository.findLatestContractByMatching(matching);
-        Contract latestContract = contracts.isEmpty() ? null : contracts.get(0);
+        Contract latestContract = contractRepository.findTop1ByMatchingOrderByCreateDateDesc(matching).orElse(null);
         return latestContract != null ? latestContract.getCreateDate() : null;
     }
 
     public boolean isContractInCompletedMatching(Matching matching) {
-        List<Contract> contracts = contractRepository.findLatestContractByMatching(matching);
-        Contract latestContract = contracts.isEmpty() ? null : contracts.get(0);
+        Contract latestContract = contractRepository.findTop1ByMatchingOrderByCreateDateDesc(matching).orElse(null);
         if (latestContract != null) {
-            return completedMatchingRepository.existsInCompletedMatching(latestContract.getId());
+            return completedMatchingRepository.existsCompletedMatchingByContract(latestContract);
         }
         return false;
     }
