@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.global.config;
 
+import static com.becareful.becarefulserver.global.constant.UrlConstant.DEV_SERVER_URL;
+import static com.becareful.becarefulserver.global.constant.UrlConstant.LOCAL_SERVER_URL;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import io.swagger.v3.oas.models.Components;
@@ -18,10 +20,10 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI openAPI() {
         Server dev_server = new Server();
-        dev_server.setUrl("https://blaybus.everdu.com");
+        dev_server.setUrl(DEV_SERVER_URL);
 
         Server local_server = new Server();
-        local_server.setUrl("http://localhost:8080");
+        local_server.setUrl(LOCAL_SERVER_URL);
 
         return new OpenAPI()
                 .servers(List.of(dev_server, local_server))
