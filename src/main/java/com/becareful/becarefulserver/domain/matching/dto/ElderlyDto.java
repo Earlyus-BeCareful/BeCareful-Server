@@ -6,25 +6,27 @@ import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 
 public record ElderlyDto(
         String name,
-        String address,
         Gender gender,
         Integer age,
-        boolean hasInmate,
-        boolean hasPet,
+        String address,
         String profileImageUrl,
         CareLevel careLevel,
-        String healthCondition) {
+        String healthCondition,
+        String institutionName,
+        boolean hasInmate,
+        boolean hasPet) {
 
     public static ElderlyDto from(Elderly elderly) {
         return new ElderlyDto(
                 elderly.getName(),
-                elderly.getResidentialLocation().getFullAddress(),
                 elderly.getGender(),
                 elderly.getAge(),
-                elderly.isHasInmate(),
-                elderly.isHasPet(),
+                elderly.getResidentialLocation().getFullAddress(),
                 elderly.getProfileImageUrl(),
                 elderly.getCareLevel(),
-                elderly.getHealthCondition());
+                elderly.getHealthCondition(),
+                elderly.getNursingInstitution().getName(),
+                elderly.isHasInmate(),
+                elderly.isHasPet());
     }
 }
