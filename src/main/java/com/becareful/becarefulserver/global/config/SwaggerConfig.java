@@ -18,7 +18,7 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI openAPI() {
         Server dev_server = new Server();
-        dev_server.setUrl("https:// bus.everdu.com");
+        dev_server.setUrl("https://blaybus.everdu.com");
 
         Server local_server = new Server();
         local_server.setUrl("http://localhost:8080");
