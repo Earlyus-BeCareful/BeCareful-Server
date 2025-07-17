@@ -1,5 +1,8 @@
 package com.becareful.becarefulserver.global.config;
 
+import static com.becareful.becarefulserver.global.constant.UrlConstant.DEV_SERVER_URL;
+import static com.becareful.becarefulserver.global.constant.UrlConstant.LOCAL_SERVER_URL;
+
 import com.becareful.becarefulserver.domain.auth.handler.CustomSuccessHandler;
 import com.becareful.becarefulserver.domain.auth.service.CustomOAuth2UserService;
 import com.becareful.becarefulserver.global.security.JwtAuthenticationFilter;
@@ -21,9 +24,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import static com.becareful.becarefulserver.global.constant.UrlConstant.DEV_SERVER_URL;
-import static com.becareful.becarefulserver.global.constant.UrlConstant.LOCAL_SERVER_URL;
 
 @Configuration
 @EnableWebSecurity
