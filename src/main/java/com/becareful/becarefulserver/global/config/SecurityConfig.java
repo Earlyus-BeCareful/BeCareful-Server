@@ -22,6 +22,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import static com.becareful.becarefulserver.global.constant.UrlConstant.DEV_SERVER_URL;
+import static com.becareful.becarefulserver.global.constant.UrlConstant.LOCAL_SERVER_URL;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -98,11 +101,11 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of(
+                LOCAL_SERVER_URL,
+                DEV_SERVER_URL,
                 "https://becareful.vercel.app/",
                 "https://www.carebridges.kr/",
                 "https://localhost:5173",
-                "https://localhost:8080",
-                "https://blaybus.everdu.com",
                 "https://localhost:3000"));
         configuration.addExposedHeader("Set-Cookie");
         configuration.addAllowedHeader("*");
