@@ -8,7 +8,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
+import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
@@ -87,19 +87,19 @@ public class SocialWorkerService {
         List<Matching> matchingList = matchingRepository.findAllMatchingByElderlyIds(elderlyIds);
 
         Long processingMatchingCount = matchingList.stream()
-                .filter(matching -> matching.getMatchingStatus().equals(MatchingStatus.지원))
+                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중))
                 .count();
 
         Long recentlyMatchedCount = matchingList.stream()
                 .filter(matching ->
                         matching.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7)))
-                .filter(matching -> matching.getMatchingStatus().equals(MatchingStatus.합격))
+                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.합격))
                 .count();
 
         Integer totalMatchedCount = matchingList.size();
 
         Integer appliedCaregiverCount = matchingList.stream()
-                .filter(matching -> matching.getMatchingStatus().equals(MatchingStatus.지원))
+                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중))
                 .map(matching -> matching.getWorkApplication().getId())
                 .collect(Collectors.toSet())
                 .size();
@@ -111,8 +111,8 @@ public class SocialWorkerService {
 
         long wholeApplierCountForCompletedRecruitment = matchingList.stream()
                 .filter(matching -> !matching.getRecruitment().isRecruiting())
-                .filter(matching -> matching.getMatchingStatus().equals(MatchingStatus.합격)
-                        || matching.getMatchingStatus().equals(MatchingStatus.불합격))
+                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.합격)
+                        || matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원거절))
                 .count();
 
         long wholeCompletedMatchingCount = matchingList.stream()
@@ -198,8 +198,8 @@ public class SocialWorkerService {
                     Elderly elderly = matching.getRecruitment().getElderly();
                     String timeDifference = getTimeDifferenceString(matching);
                     Contract latestContract = contractRepository
-                            .findLatestContractByMatching(matching)
-                            .get(0);
+                            .findTop1ByMatchingOrderByCreateDateDesc(matching)
+                            .get();
                     String recentChat = isContractInCompletedMatching(matching) ? "최종 승인이 확정되었습니다!" : "합격 축하드립니다.";
 
                     // ChatroomInfo 생성
@@ -221,16 +221,18 @@ public class SocialWorkerService {
     }
 
     public LocalDateTime findLatestContractCreatedDate(Matching matching) {
-        List<Contract> contracts = contractRepository.findLatestContractByMatching(matching);
-        Contract latestContract = contracts.isEmpty() ? null : contracts.get(0);
+        Contract latestContract = contractRepository
+                .findTop1ByMatchingOrderByCreateDateDesc(matching)
+                .orElse(null);
         return latestContract != null ? latestContract.getCreateDate() : null;
     }
 
     public boolean isContractInCompletedMatching(Matching matching) {
-        List<Contract> contracts = contractRepository.findLatestContractByMatching(matching);
-        Contract latestContract = contracts.isEmpty() ? null : contracts.get(0);
+        Contract latestContract = contractRepository
+                .findTop1ByMatchingOrderByCreateDateDesc(matching)
+                .orElse(null);
         if (latestContract != null) {
-            return completedMatchingRepository.existsInCompletedMatching(latestContract.getId());
+            return completedMatchingRepository.existsCompletedMatchingByContract(latestContract);
         }
         return false;
     }

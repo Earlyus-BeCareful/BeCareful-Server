@@ -11,12 +11,14 @@ public record CaregiverHomeResponse(
         Integer applicationCount,
         Integer recruitmentCount,
         List<WorkScheduleResponse> workScheduleList,
-        boolean isWorking) {
+        boolean isWorking,
+        boolean isApplying) {
     public static CaregiverHomeResponse of(
             Caregiver caregiver,
             Integer applicationCount,
             Integer recruitmentCount,
             boolean isWorking,
+            boolean isApplying,
             List<WorkScheduleResponse> workScheduleList) {
         return CaregiverHomeResponse.builder()
                 .name(caregiver.getName())
@@ -24,6 +26,7 @@ public record CaregiverHomeResponse(
                 .recruitmentCount(recruitmentCount)
                 .workScheduleList(workScheduleList)
                 .isWorking(isWorking)
+                .isApplying(isApplying)
                 .build();
     }
 }
