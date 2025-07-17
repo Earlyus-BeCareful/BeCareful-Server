@@ -2,8 +2,10 @@ package com.becareful.becarefulserver.domain.socialworker.controller;
 
 import com.becareful.becarefulserver.domain.matching.service.ContractService;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerCreateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerMyInfo;
 import com.becareful.becarefulserver.domain.socialworker.service.SocialWorkerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,6 +39,21 @@ public class SocialWorkerController {
     public ResponseEntity<Boolean> nickNameCheck(@RequestParam String nickname) {
         boolean sameNickName = socialworkerService.checkSameNickNameAtRegist(nickname);
         return ResponseEntity.ok(sameNickName);
+    }
+
+    @Operation(summary = "회원정보 반환", description = "센터장, 대표, 사회복지사 모두 같은 API")
+    @GetMapping("/me")
+    public ResponseEntity<SocialWorkerMyInfo> getSocialWorkerMyInfo() {
+        SocialWorkerMyInfo response = socialworkerService.getMyInfo();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "회원정보 수정", description = "센터장, 대표, 사회복지사 모두 같은 API")
+    @PutMapping("/me")
+    public ResponseEntity<Void> updateMyBasicInfo(
+            @Valid @RequestBody SocialWorkerUpdateBasicInfoRequest request, HttpServletResponse httpServletResponse) {
+        socialworkerService.updateMyBasicInfo(request, httpServletResponse);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "채용하기", description = "근무 시작일 선택 후 근무조건 생성")

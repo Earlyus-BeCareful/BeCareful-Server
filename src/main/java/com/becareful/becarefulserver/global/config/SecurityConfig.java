@@ -50,6 +50,8 @@ public class SecurityConfig {
                                 "/socialworker/signup",
                                 "/socialworker/check-nickname")
                         .hasRole("GUEST")
+                        .requestMatchers("socialworker/me")
+                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/nursingInstitution/upload-profile-img")
                         .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE")
                         .requestMatchers("/caregiver/upload-profile-img")

@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
@@ -14,13 +15,16 @@ import com.becareful.becarefulserver.domain.matching.repository.ContractReposito
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.repository.NursingInstitutionRepository;
+import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerCreateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SimpleElderlyResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerMyInfo;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
@@ -31,10 +35,13 @@ import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -155,7 +162,7 @@ public class SocialWorkerService {
             throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
         }
 
-        LocalDate birthDate = parseBirthDate(String.valueOf(request.birthYymmdd()), request.genderCode());
+        LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
         Gender gender = parseGender(request.genderCode());
 
         // Socialworker 엔티티 생성
@@ -173,10 +180,7 @@ public class SocialWorkerService {
         socialworkerRepository.save(socialworker);
 
         updateJwtAndSecurityContext(
-                httpServletResponse,
-                request.phoneNumber(),
-                request.institutionRank().toString(),
-                AssociationRank.NONE.toString());
+                httpServletResponse, request.phoneNumber(), request.institutionRank(), AssociationRank.NONE);
 
         return socialworker.getId();
     }
@@ -310,7 +314,12 @@ public class SocialWorkerService {
     }
 
     private void updateJwtAndSecurityContext(
-            HttpServletResponse response, String phoneNumber, String institutionRank, String associationRank) {
+            HttpServletResponse response,
+            String phoneNumber,
+            InstitutionRank institutionRankParam,
+            AssociationRank associationRankParam) {
+        String institutionRank = institutionRankParam.toString();
+        String associationRank = associationRankParam.toString();
         String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
         String refreshToken = jwtUtil.createRefreshToken(phoneNumber, institutionRank, associationRank);
 
@@ -332,5 +341,52 @@ public class SocialWorkerService {
         cookie.setHttpOnly(true);
         cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
         return cookie;
+    }
+
+    public SocialWorkerMyInfo getMyInfo() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        NursingInstitution nursingInstitution = loggedInSocialWorker.getNursingInstitution();
+        Association association = loggedInSocialWorker.getAssociation();
+        Integer age = Period.between(loggedInSocialWorker.getBirthday(), LocalDate.now())
+                .getYears();
+        return SocialWorkerMyInfo.of(loggedInSocialWorker, age, nursingInstitution, association);
+    }
+
+    public void updateMyBasicInfo(@Valid SocialWorkerUpdateBasicInfoRequest request, HttpServletResponse response) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+
+        validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
+
+        // 기관ID로 기관 찾기
+        NursingInstitution nursingInstitution = nursingInstitutionRepository
+                .findById(request.nursingInstitutionId())
+                .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
+
+        // 닉네임 중복 검사
+        if (!Objects.equals(request.nickName(), loggedInSocialWorker.getNickname())) {
+            checkSameNickName(request.nickName());
+        }
+
+        // 사용자 전화번호 중복 검사
+        if (!Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber())
+                && socialworkerRepository.existsByPhoneNumber(request.phoneNumber())) {
+            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
+        }
+
+        LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
+        Gender gender = parseGender(request.genderCode());
+
+        boolean rankChanged = !Objects.equals(loggedInSocialWorker.getInstitutionRank(), request.institutionRank());
+        boolean phoneChanged = !Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber());
+
+        if (rankChanged || phoneChanged) {
+            updateJwtAndSecurityContext(
+                    response,
+                    request.phoneNumber(),
+                    request.institutionRank(),
+                    loggedInSocialWorker.getAssociationRank());
+        }
+
+        loggedInSocialWorker.updateBasicInfo(request, birthDate, gender, nursingInstitution);
     }
 }

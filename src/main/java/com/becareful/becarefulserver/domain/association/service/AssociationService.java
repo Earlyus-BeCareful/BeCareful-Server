@@ -128,10 +128,7 @@ public class AssociationService {
         int joinApplicationCount = associationJoinApplicationRepository.countByAssociationAndStatus(
                 association, AssociationJoinApplicationStatus.PENDING);
 
-        List<SocialWorker> members = socialWorkerRepository.findAllByAssociation(association);
-        List<MemberSimpleDto> memberSimpleDtos =
-                members.stream().map(MemberSimpleDto::of).toList();
-        return new AssociationMemberOverviewResponse(associationMemberCount, joinApplicationCount, memberSimpleDtos);
+        return new AssociationMemberOverviewResponse(associationMemberCount, joinApplicationCount);
     }
 
     // 협회 회원 목록 반환

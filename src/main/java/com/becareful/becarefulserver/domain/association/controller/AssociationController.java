@@ -52,7 +52,7 @@ public class AssociationController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "협회 회원 + 가입 신청자 요약", description = "커뮤니티 메인화면에서 회원 목록 요청")
+    @Operation(summary = "협회 회원 수, 가입 신청서 개수 반환")
     @GetMapping("/members/overview")
     public ResponseEntity<AssociationMemberOverviewResponse> getAssociationMemberOverview() {
         AssociationMemberOverviewResponse response = associationService.getAssociationMemberOverview();
