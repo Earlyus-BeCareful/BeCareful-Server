@@ -2,6 +2,8 @@ package com.becareful.becarefulserver.domain.community.domain;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.global.exception.exception.CommentException;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.COMMENT_NOT_UPDATABLE;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -38,5 +40,15 @@ public class Comment extends BaseEntity {
 
     public static Comment create(String content, SocialWorker author, Post post) {
         return Comment.builder().content(content).author(author).post(post).build();
+    }
+
+    public void update(String content) {
+        this.content = content;
+    }
+
+    public void validateAuthor(SocialWorker currentMember) {
+        if (!this.author.getId().equals(currentMember.getId())) {
+            throw new CommentException(COMMENT_NOT_UPDATABLE);
+        }
     }
 }
