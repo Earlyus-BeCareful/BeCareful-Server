@@ -52,9 +52,7 @@ public class CommentController {
     @Operation(summary = "댓글 삭제")
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(
-            @PathVariable String boardType,
-            @PathVariable Long postId,
-            @PathVariable Long commentId) {
+            @PathVariable String boardType, @PathVariable Long postId, @PathVariable Long commentId) {
         commentService.deleteComment(boardType, postId, commentId);
         return ResponseEntity.noContent().build();
     }

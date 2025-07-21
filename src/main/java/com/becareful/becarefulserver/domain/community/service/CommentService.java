@@ -1,8 +1,8 @@
 package com.becareful.becarefulserver.domain.community.service;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.COMMENT_NOT_FOUND;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_BOARD_NOT_FOUND;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_NOT_FOUND;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.COMMENT_NOT_FOUND;
 
 import com.becareful.becarefulserver.domain.community.domain.BoardType;
 import com.becareful.becarefulserver.domain.community.domain.Comment;
@@ -15,9 +15,9 @@ import com.becareful.becarefulserver.domain.community.repository.CommentReposito
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.global.exception.exception.CommentException;
 import com.becareful.becarefulserver.global.exception.exception.PostBoardException;
 import com.becareful.becarefulserver.global.exception.exception.PostException;
-import com.becareful.becarefulserver.global.exception.exception.CommentException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -74,18 +74,16 @@ public class CommentService {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
-        PostBoard postBoard =
-                postBoardRepository
-                        .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
-                        .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new CommentException(COMMENT_NOT_FOUND));
+        Comment comment =
+                commentRepository.findById(commentId).orElseThrow(() -> new CommentException(COMMENT_NOT_FOUND));
 
         postBoard.validateReadableFor(currentMember);
         post.validateBoard(postBoard.getId());
-        if (!comment.getPost().getId().equals(post.getId())) {
-            throw new CommentException(COMMENT_NOT_FOUND);
-        }
+        comment.validatePost(post);
         comment.validateAuthor(currentMember);
         comment.update(request.content());
     }
@@ -95,18 +93,16 @@ public class CommentService {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
-        PostBoard postBoard =
-                postBoardRepository
-                        .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
-                        .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new CommentException(COMMENT_NOT_FOUND));
+        Comment comment =
+                commentRepository.findById(commentId).orElseThrow(() -> new CommentException(COMMENT_NOT_FOUND));
 
         postBoard.validateReadableFor(currentMember);
         post.validateBoard(postBoard.getId());
-        if (!comment.getPost().getId().equals(post.getId())) {
-            throw new CommentException(COMMENT_NOT_FOUND);
-        }
+        comment.validatePost(post);
         comment.validateAuthor(currentMember);
         commentRepository.delete(comment);
     }

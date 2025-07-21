@@ -9,4 +9,3 @@ public class CommentException extends DomainException {
         super(message);
     }
 }
-
