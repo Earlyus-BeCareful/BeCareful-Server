@@ -7,6 +7,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.MyPageUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
@@ -41,7 +42,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -151,17 +151,24 @@ public class CaregiverService {
         }
     }
 
+    @Transactional
+    public void updateCaregiverInfo(MyPageUpdateRequest request) {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        CaregiverInfo caregiverInfo = new CaregiverInfo(
+                request.isHavingCar(),
+                request.isCompleteDementiaEducation(),
+                request.caregiverCertificate(),
+                request.socialWorkerCertificate(),
+                request.nursingCareCertificate());
+        caregiver.updateInfo(request.phoneNumber(), caregiverInfo);
+    }
+
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
         if (isAgreedToTerms && isAgreedToCollectPersonalInfo) {
             return;
         }
 
         throw new CaregiverException(CAREGIVER_REQUIRED_AGREEMENT);
-    }
-
-    private String getEncodedPassword(String rawPassword) {
-        var passwordEncoder = new BCryptPasswordEncoder();
-        return passwordEncoder.encode(rawPassword);
     }
 
     private String generateProfileImageFileName() {
