@@ -18,7 +18,7 @@ public class ErrorMessage {
     public static final String INVALID_TOKEN_FORMAT = "엑세스 토큰 형식이 유효하지 않습니다.";
     public static final String INVALID_TOKEN = "엑세스 토큰이 유효하지 않습니다.";
     public static final String TOKEN_NOT_CONTAINED = "요청에 토큰이 포함되지 않았습니다.";
-    public static String INVALID_REFRESH_TOKEN = "리프레시 토튼이 유효하지 않습니다.";
+    public static String INVALID_REFRESH_TOKEN = "리프레시 토큰이 유효하지 않습니다.";
 
     public static final String SOCIALWORKER_REQUIRED_AGREEMENT = "필수 약관에 동의해야 합니다.";
     public static final String SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER = "이미 가입된 전화번호 입니다.";

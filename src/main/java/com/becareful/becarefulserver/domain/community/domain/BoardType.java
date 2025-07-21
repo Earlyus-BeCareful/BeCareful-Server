@@ -1,15 +1,11 @@
 package com.becareful.becarefulserver.domain.community.domain;
 
 public enum BoardType {
-    /**
-     * ASSOCIATION = 협회 (각 기관장이 속한 협회)
-     * INSTITUTION = 기관 (사회복지사가 소속된 기관)
-     * SERVICE = 공단 (건강보험공단)
-     **/
-    ASSOCIATION_NOTICE,
-    SERVICE_NOTICE,
-    INFORMATION_SHARING,
-    PARTICIPATION_APPLICATION;
+    /** 게시판 종류 */
+    ASSOCIATION_NOTICE, // 협회 공지 게시판
+    SERVICE_NOTICE, // 공단 공지 게시판
+    INFORMATION_SHARING, // 정보 공유 게시판
+    PARTICIPATION_APPLICATION; // 행사/신청 게시판
 
     public static BoardType fromUrlBoardType(String boardType) {
         boardType = convertUrlBoardTypeToName(boardType);
