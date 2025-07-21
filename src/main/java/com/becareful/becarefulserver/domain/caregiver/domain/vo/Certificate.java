@@ -4,13 +4,11 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Embeddable
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Certificate {
 
@@ -32,9 +30,5 @@ public class Certificate {
         public String getValue() {
             return this.value;
         }
-    }
-
-    public static Certificate of(String grade, String certificateNumber) {
-        return new Certificate(CertificateGrade.valueOf(grade), certificateNumber);
     }
 }
