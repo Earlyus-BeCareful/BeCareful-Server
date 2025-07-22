@@ -5,7 +5,7 @@ import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorke
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerMyInfo;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerMyResponse;
 import com.becareful.becarefulserver.domain.socialworker.service.SocialWorkerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,8 +43,8 @@ public class SocialWorkerController {
 
     @Operation(summary = "회원정보 반환", description = "센터장, 대표, 사회복지사 모두 같은 API")
     @GetMapping("/me")
-    public ResponseEntity<SocialWorkerMyInfo> getSocialWorkerMyInfo() {
-        SocialWorkerMyInfo response = socialworkerService.getMyInfo();
+    public ResponseEntity<SocialWorkerMyResponse> getSocialWorkerMyInfo() {
+        var response = socialworkerService.getMyInfo();
         return ResponseEntity.ok(response);
     }
 

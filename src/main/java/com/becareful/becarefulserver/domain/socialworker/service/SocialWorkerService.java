@@ -2,7 +2,6 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
@@ -24,7 +23,7 @@ import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorke
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SimpleElderlyResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerMyInfo;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerMyResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
@@ -39,7 +38,6 @@ import jakarta.validation.Valid;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -172,9 +170,13 @@ public class SocialWorkerService {
                 elderlyList);
     }
 
-    @Transactional(readOnly = true)
     public boolean checkSameNickNameAtRegist(String nickName) {
         return socialworkerRepository.existsByNickname(nickName);
+    }
+
+    public SocialWorkerMyResponse getMyInfo() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        return SocialWorkerMyResponse.from(loggedInSocialWorker);
     }
 
     @Transactional
@@ -338,15 +340,6 @@ public class SocialWorkerService {
         cookie.setHttpOnly(true);
         cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
         return cookie;
-    }
-
-    public SocialWorkerMyInfo getMyInfo() {
-        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        NursingInstitution nursingInstitution = loggedInSocialWorker.getNursingInstitution();
-        Association association = loggedInSocialWorker.getAssociation();
-        Integer age = Period.between(loggedInSocialWorker.getBirthday(), LocalDate.now())
-                .getYears();
-        return SocialWorkerMyInfo.of(loggedInSocialWorker, age, nursingInstitution, association);
     }
 
     public void updateMyBasicInfo(@Valid SocialWorkerUpdateBasicInfoRequest request, HttpServletResponse response) {
