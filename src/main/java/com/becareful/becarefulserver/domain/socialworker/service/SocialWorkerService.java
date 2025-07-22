@@ -71,6 +71,39 @@ public class SocialWorkerService {
     private final CookieProperties cookieProperties;
     private final JwtProperties jwtProperties;
 
+    @Transactional
+    public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
+        validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
+
+        NursingInstitution nursingInstitution = nursingInstitutionRepository
+                .findById(request.nursingInstitutionId())
+                .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
+
+        validateNicknameNotDuplicated(request.nickName());
+        validatePhoneNumberNotDuplicated(request.phoneNumber());
+
+        LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
+        Gender gender = parseGender(request.genderCode());
+
+        SocialWorker socialWorker = SocialWorker.create(
+                request.realName(),
+                request.nickName(),
+                birthDate,
+                gender,
+                request.phoneNumber(),
+                request.institutionRank(),
+                AssociationRank.NONE,
+                request.isAgreedToReceiveMarketingInfo(),
+                nursingInstitution);
+
+        socialworkerRepository.save(socialWorker);
+
+        updateJwtAndSecurityContext(
+                httpServletResponse, request.phoneNumber(), request.institutionRank(), AssociationRank.NONE);
+
+        return socialWorker.getId();
+    }
+
     public SocialWorkerHomeResponse getHomeData() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         Integer elderlyCount = elderlyRepository
@@ -142,47 +175,6 @@ public class SocialWorkerService {
     @Transactional(readOnly = true)
     public boolean checkSameNickNameAtRegist(String nickName) {
         return socialworkerRepository.existsByNickname(nickName);
-    }
-
-    @Transactional
-    public Long saveSocialworker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
-
-        validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
-
-        // 기관ID로 기관 찾기
-        NursingInstitution nursingInstitution = nursingInstitutionRepository
-                .findById(request.nursingInstitutionId())
-                .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
-
-        // 닉네임 중복 검사
-        checkSameNickName(request.nickName());
-
-        // 사용자 전화번호 중복 검사
-        if (socialworkerRepository.existsByPhoneNumber(request.phoneNumber())) {
-            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
-        }
-
-        LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
-        Gender gender = parseGender(request.genderCode());
-
-        // Socialworker 엔티티 생성
-        SocialWorker socialworker = SocialWorker.create(
-                request.realName(),
-                request.nickName(),
-                birthDate,
-                gender,
-                request.phoneNumber(),
-                request.institutionRank(),
-                AssociationRank.NONE,
-                request.isAgreedToReceiveMarketingInfo(),
-                nursingInstitution);
-
-        socialworkerRepository.save(socialworker);
-
-        updateJwtAndSecurityContext(
-                httpServletResponse, request.phoneNumber(), request.institutionRank(), AssociationRank.NONE);
-
-        return socialworker.getId();
     }
 
     @Transactional
@@ -271,11 +263,16 @@ public class SocialWorkerService {
         throw new SocialWorkerException(SOCIALWORKER_REQUIRED_AGREEMENT);
     }
 
-    private void checkSameNickName(String nickName) {
-        if (!socialworkerRepository.existsByNickname(nickName)) {
-            return;
+    private void validateNicknameNotDuplicated(String nickName) {
+        if (socialworkerRepository.existsByNickname(nickName)) {
+            throw new SocialWorkerException(SOCIAlWORKER_ALREADY_EXISTS_NICKNAME);
         }
-        throw new SocialWorkerException(SOCIAlWORKER_ALREADY_EXISTS_NICKNAME);
+    }
+
+    private void validatePhoneNumberNotDuplicated(String phoneNumber) {
+        if (socialworkerRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
+        }
     }
 
     private LocalDate parseBirthDate(String yymmdd, int genderCode) {
@@ -364,7 +361,7 @@ public class SocialWorkerService {
 
         // 닉네임 중복 검사
         if (!Objects.equals(request.nickName(), loggedInSocialWorker.getNickname())) {
-            checkSameNickName(request.nickName());
+            validateNicknameNotDuplicated(request.nickName());
         }
 
         // 사용자 전화번호 중복 검사

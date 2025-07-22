@@ -28,9 +28,9 @@ public class SocialWorkerController {
 
     @Operation(summary = "사회복지사 회원가입", description = "센터장, 대표, 사회복지사 모두 같은 API")
     @PostMapping("/signup")
-    public ResponseEntity<Void> createSocialworker(
+    public ResponseEntity<Void> createSocialWorker(
             @Valid @RequestBody SocialWorkerCreateRequest request, HttpServletResponse response) {
-        Long id = socialworkerService.saveSocialworker(request, response);
+        Long id = socialworkerService.createSocialWorker(request, response);
         return ResponseEntity.created(URI.create("/socialworker/" + id)).build();
     }
 
