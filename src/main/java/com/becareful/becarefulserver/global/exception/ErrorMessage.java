@@ -18,7 +18,7 @@ public class ErrorMessage {
     public static final String INVALID_TOKEN_FORMAT = "엑세스 토큰 형식이 유효하지 않습니다.";
     public static final String INVALID_TOKEN = "엑세스 토큰이 유효하지 않습니다.";
     public static final String TOKEN_NOT_CONTAINED = "요청에 토큰이 포함되지 않았습니다.";
-    public static String INVALID_REFRESH_TOKEN = "리프레시 토튼이 유효하지 않습니다.";
+    public static String INVALID_REFRESH_TOKEN = "리프레시 토큰이 유효하지 않습니다.";
 
     public static final String SOCIALWORKER_REQUIRED_AGREEMENT = "필수 약관에 동의해야 합니다.";
     public static final String SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER = "이미 가입된 전화번호 입니다.";
@@ -54,6 +54,8 @@ public class ErrorMessage {
     public static final String POST_NOT_UPDATABLE = "글 작성자만 수정할 수 있습니다.";
     public static final String POST_DIFFERENT_POST_BOARD = "URL로 넘긴 board id 에 post가 없습니다.";
     public static final String POST_NOT_FOUND_IN_BOARD = "게시판에 해당 ID의 포스트가 존재하지 않습니다.";
+    public static final String COMMENT_NOT_FOUND = "댓글이 존재하지 않습니다.";
+    public static final String COMMENT_NOT_UPDATABLE = "댓글 작성자만 수정할 수 있습니다.";
 
     public static final String POST_MEDIA_FILE_HAS_NO_NAME = "미디어 파일의 이름이 없습니다.";
     public static final String POST_MEDIA_VALIDATION_FAILED = "미디어 파일 검증에 실패했습니다.";

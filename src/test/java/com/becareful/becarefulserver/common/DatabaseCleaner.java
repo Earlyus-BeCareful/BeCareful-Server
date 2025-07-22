@@ -1,11 +1,19 @@
 package com.becareful.becarefulserver.common;
 
+import com.becareful.becarefulserver.domain.association.domain.Association;
+import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
+import com.becareful.becarefulserver.domain.common.vo.Gender;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.repository.NursingInstitutionRepository;
+import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
 import com.becareful.becarefulserver.fixture.SocialWorkerFixture;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,17 +28,48 @@ public class DatabaseCleaner {
     private SocialWorkerRepository socialworkerRepository;
 
     @Autowired
+    private AssociationRepository associationRepository;
+
+    @Autowired
     private NursingInstitutionRepository institutionRepository;
 
     @Transactional
     public void clean() {
         em.createNativeQuery("set foreign_key_checks = 0").executeUpdate();
         em.getMetamodel().getEntities().forEach(entity -> {
-            em.createNativeQuery("truncate table " + entity.getName()).executeUpdate();
+            String tableName = camelToSnake(entity.getName());
+            em.createNativeQuery("truncate table " + tableName).executeUpdate();
         });
         em.createNativeQuery("set foreign_key_checks = 1").executeUpdate();
-        institutionRepository.save(NursingInstitutionFixture.NURSING_INSTITUTION);
+        NursingInstitutionFixture.NURSING_INSTITUTION = NursingInstitutionFixture.create();
+        NursingInstitution institution = institutionRepository.save(NursingInstitutionFixture.NURSING_INSTITUTION);
+        Association savedAssociation = associationRepository.save(Association.create("전주완주장기요양협회", "url", 2000));
+        SocialWorkerFixture.SOCIAL_WORKER_1 = SocialWorker.create(
+                "김복지",
+                "nickname",
+                LocalDate.of(2000, 5, 9),
+                Gender.FEMALE,
+                "010-1234-5678",
+                InstitutionRank.SOCIAL_WORKER,
+                AssociationRank.NONE,
+                true,
+                institution);
+        SocialWorkerFixture.SOCIAL_WORKER_MANAGER = SocialWorker.create(
+                "박복지",
+                "nickname",
+                LocalDate.of(2000, 5, 9),
+                Gender.FEMALE,
+                "010-1234-5678",
+                InstitutionRank.SOCIAL_WORKER,
+                AssociationRank.MEMBER,
+                true,
+                institution);
         socialworkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_1);
+        SocialWorkerFixture.SOCIAL_WORKER_MANAGER.joinAssociation(savedAssociation, AssociationRank.MEMBER);
         socialworkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_MANAGER);
+    }
+
+    private String camelToSnake(String value) {
+        return value.replaceAll("(?<=[a-z])[A-Z]", "_$0").toLowerCase();
     }
 }

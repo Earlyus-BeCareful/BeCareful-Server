@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.community.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.becareful.becarefulserver.common.IntegrationTest;
 import com.becareful.becarefulserver.common.WithSocialWorker;
@@ -11,24 +10,25 @@ import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.community.domain.BoardType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
-import com.becareful.becarefulserver.domain.community.dto.request.PostCreateOrUpdateRequest;
+import com.becareful.becarefulserver.domain.community.dto.request.CommentCreateRequest;
+import com.becareful.becarefulserver.domain.community.dto.request.CommentUpdateRequest;
+import com.becareful.becarefulserver.domain.community.repository.CommentRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
-import com.becareful.becarefulserver.domain.community.service.PostService;
+import com.becareful.becarefulserver.domain.community.service.CommentService;
 import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
-import com.becareful.becarefulserver.global.exception.exception.PostBoardException;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class PostIntegrationTest extends IntegrationTest {
+public class CommentIntegrationTest extends IntegrationTest {
 
     @Autowired
-    private PostService postService;
+    private CommentService commentService;
 
     @Autowired
     private PostBoardRepository postBoardRepository;
@@ -37,12 +37,15 @@ public class PostIntegrationTest extends IntegrationTest {
     private PostRepository postRepository;
 
     @Autowired
+    private CommentRepository commentRepository;
+
+    @Autowired
     private SocialWorkerRepository socialWorkerRepository;
 
     @Autowired
     private AssociationRepository associationRepository;
 
-    private SocialWorker createMember(String phone, AssociationRank rank) {
+    private SocialWorker createMember(String phone) {
         SocialWorker member = SocialWorker.create(
                 "name",
                 "nick",
@@ -50,11 +53,11 @@ public class PostIntegrationTest extends IntegrationTest {
                 Gender.FEMALE,
                 phone,
                 InstitutionRank.SOCIAL_WORKER,
-                rank,
+                AssociationRank.MEMBER,
                 true,
                 NursingInstitutionFixture.NURSING_INSTITUTION);
         Association association = associationRepository.findAll().get(0);
-        member.joinAssociation(association, rank);
+        member.joinAssociation(association, AssociationRank.MEMBER);
         return socialWorkerRepository.save(member);
     }
 
@@ -65,49 +68,26 @@ public class PostIntegrationTest extends IntegrationTest {
         return postBoardRepository.save(board);
     }
 
-    @Test
-    @WithSocialWorker(phoneNumber = "01010000000")
-    void 게시글_생성에_성공한다() {
-        createMember("01010000000", AssociationRank.MEMBER);
-        createBoard();
-
-        PostCreateOrUpdateRequest request =
-                new PostCreateOrUpdateRequest("title", "content", false, null, null, null, null);
-
-        Long postId = postService.createPost("association-notice", request);
-
-        assertThat(postRepository.findById(postId)).isPresent();
+    private Post createPost(PostBoard board, SocialWorker author) {
+        return postRepository.save(Post.create("t", "c", false, null, board, author));
     }
 
     @Test
-    @WithSocialWorker(phoneNumber = "01020000000")
-    void 작성권한이_없으면_게시글_생성에_실패한다() {
-        createMember("01020000000", AssociationRank.NONE);
-        createBoard();
+    @WithSocialWorker(phoneNumber = "01099999999")
+    void 댓글_수정과_삭제가_성공한다() {
+        SocialWorker member = createMember("01099999999");
+        PostBoard board = createBoard();
+        Post post = createPost(board, member);
 
-        PostCreateOrUpdateRequest request =
-                new PostCreateOrUpdateRequest("title", "content", false, null, null, null, null);
+        Long commentId =
+                commentService.createComment("association-notice", post.getId(), new CommentCreateRequest("hello"));
 
-        assertThatThrownBy(() -> postService.createPost("association-notice", request))
-                .isInstanceOf(PostBoardException.class);
-    }
+        commentService.updateComment("association-notice", post.getId(), commentId, new CommentUpdateRequest("hi"));
 
-    @Test
-    @WithSocialWorker(phoneNumber = "01030000000")
-    void 게시글_수정에_성공한다() {
-        createMember("01030000000", AssociationRank.MEMBER);
-        createBoard();
+        assertThat(commentRepository.findById(commentId).get().getContent()).isEqualTo("hi");
 
-        PostCreateOrUpdateRequest request =
-                new PostCreateOrUpdateRequest("title", "content", false, null, null, null, null);
-        Long postId = postService.createPost("association-notice", request);
+        commentService.deleteComment("association-notice", post.getId(), commentId);
 
-        postService.updatePost(
-                "association-notice",
-                postId,
-                new PostCreateOrUpdateRequest("title2", "content2", false, null, null, null, null));
-
-        Post post = postRepository.findById(postId).get();
-        assertThat(post.getTitle()).isEqualTo("title2");
+        assertThat(commentRepository.findById(commentId)).isEmpty();
     }
 }
