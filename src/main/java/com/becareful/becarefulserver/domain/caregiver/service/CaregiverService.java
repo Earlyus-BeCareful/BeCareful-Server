@@ -7,6 +7,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.MyPageUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
@@ -14,9 +15,7 @@ import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplication
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.matching.domain.CompletedMatching;
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
+import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
@@ -34,19 +33,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -75,7 +70,7 @@ public class CaregiverService {
                 .findByCaregiver(caregiver)
                 .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
         Integer applicationCount = matchingRepository
-                .findByWorkApplicationAndMatchingStatus(workApplication, MatchingStatus.지원)
+                .findByWorkApplicationAndMatchingApplicationStatus(workApplication, MatchingApplicationStatus.지원검토중)
                 .size();
         Integer recruitmentCount =
                 matchingRepository.findAllByWorkApplication(workApplication).size();
@@ -83,6 +78,7 @@ public class CaregiverService {
         List<CompletedMatching> myWork = completedMatchingRepository.findByCaregiver(caregiver);
 
         boolean isWorking = !myWork.isEmpty();
+        boolean isApplying = workApplication.isActive();
         List<WorkScheduleResponse> workSchedules = myWork.stream()
                 .filter(completedMatching -> completedMatching
                         .getContract()
@@ -91,7 +87,8 @@ public class CaregiverService {
                 .map(WorkScheduleResponse::from)
                 .toList();
 
-        return CaregiverHomeResponse.of(caregiver, recruitmentCount, applicationCount, isWorking, workSchedules);
+        return CaregiverHomeResponse.of(
+                caregiver, recruitmentCount, applicationCount, isWorking, isApplying, workSchedules);
     }
 
     public CaregiverMyPageHomeResponse getMyPageHomeData() {
@@ -154,17 +151,24 @@ public class CaregiverService {
         }
     }
 
+    @Transactional
+    public void updateCaregiverInfo(MyPageUpdateRequest request) {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        CaregiverInfo caregiverInfo = new CaregiverInfo(
+                request.isHavingCar(),
+                request.isCompleteDementiaEducation(),
+                request.caregiverCertificate(),
+                request.socialWorkerCertificate(),
+                request.nursingCareCertificate());
+        caregiver.updateInfo(request.phoneNumber(), caregiverInfo);
+    }
+
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
         if (isAgreedToTerms && isAgreedToCollectPersonalInfo) {
             return;
         }
 
         throw new CaregiverException(CAREGIVER_REQUIRED_AGREEMENT);
-    }
-
-    private String getEncodedPassword(String rawPassword) {
-        var passwordEncoder = new BCryptPasswordEncoder();
-        return passwordEncoder.encode(rawPassword);
     }
 
     private String generateProfileImageFileName() {
@@ -174,73 +178,6 @@ public class CaregiverService {
             return Base64.getUrlEncoder().encodeToString(hash);
         } catch (NoSuchAlgorithmException e) {
             throw new CaregiverException(CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE);
-        }
-    }
-
-    @Transactional
-    public ChatList getChatList() {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        List<Matching> matchingList = matchingRepository.findByCaregiver(caregiver);
-
-        List<ChatList.ChatroomInfo> chatroomInfoList = matchingList.stream()
-                .map(matching -> {
-                    String timeDifference = getTimeDifferenceString(matching);
-                    String recentChat = isContractInCompletedMatching(matching) ? "최종 승인이 확정되었습니다!" : "합격 축하드립니다.";
-
-                    // ChatroomInfo 생성
-                    return new ChatList.ChatroomInfo(
-                            matching.getId(),
-                            matching.getRecruitment()
-                                    .getElderly()
-                                    .getNursingInstitution()
-                                    .getName(),
-                            recentChat,
-                            timeDifference);
-                })
-                .collect(Collectors.toList());
-
-        // ChatList 반환
-        return new ChatList(chatroomInfoList);
-    }
-
-    public LocalDateTime findLatestContractCreatedDate(Matching matching) {
-        List<Contract> contracts = contractRepository.findLatestContractByMatching(matching);
-        Contract latestContract = contracts.isEmpty() ? null : contracts.get(0);
-        return latestContract != null ? latestContract.getCreateDate() : null;
-    }
-
-    public boolean isContractInCompletedMatching(Matching matching) {
-        List<Contract> contracts = contractRepository.findLatestContractByMatching(matching);
-        Contract latestContract = contracts.isEmpty() ? null : contracts.get(0);
-        if (latestContract != null) {
-            return completedMatchingRepository.existsInCompletedMatching(latestContract.getId());
-        }
-        return false;
-    }
-
-    public String getTimeDifferenceString(Matching matching) {
-        // 현재 시간
-        LocalDateTime currentTime = LocalDateTime.now();
-
-        // 가장 최신 Contract의 생성 시간
-        LocalDateTime contractCreatedTime = findLatestContractCreatedDate(matching);
-
-        // Duration을 사용하여 차이 계산
-        Duration duration = Duration.between(contractCreatedTime, currentTime);
-
-        // 차이에 따라 다른 시간 단위로 변환
-        if (duration.toHours() < 1) {
-            // 1시간 이내이면 분 단위로 반환
-            long minutes = duration.toMinutes();
-            return minutes + "분 전";
-        } else if (duration.toDays() < 1) {
-            // 1일 이내이면 시간 단위로 반환
-            long hours = duration.toHours();
-            return hours + "시간 전";
-        } else {
-            // 1일 이상이면 일 단위로 반환
-            long days = duration.toDays();
-            return days + "일 전";
         }
     }
 

@@ -7,16 +7,16 @@ import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerMyInfo;
 import com.becareful.becarefulserver.domain.socialworker.service.SocialWorkerService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import java.net.URI;
-import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,7 +57,6 @@ public class SocialWorkerController {
         return ResponseEntity.ok().build();
     }
 
-    @Hidden
     @Operation(summary = "채용하기", description = "근무 시작일 선택 후 근무조건 생성")
     @PostMapping("/matching/{matchingId}/hire")
     public ResponseEntity<Void> createContract(
@@ -66,7 +65,6 @@ public class SocialWorkerController {
         return ResponseEntity.ok().build();
     }
 
-    @Hidden
     @Operation(summary = "사회복지사 홈화면 조회")
     @GetMapping("/home")
     public ResponseEntity<SocialWorkerHomeResponse> getHomeData() {
@@ -74,7 +72,6 @@ public class SocialWorkerController {
         return ResponseEntity.ok(response);
     }
 
-    @Hidden
     @Operation(summary = "사회복지사 채팅 목록")
     @GetMapping("/chat/list")
     public ResponseEntity<ChatList> getChatInfoList() {

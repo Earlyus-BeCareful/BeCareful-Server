@@ -2,11 +2,11 @@ package com.becareful.becarefulserver.domain.matching.service;
 
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
+import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.dto.request.ContractEditRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.ContractDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.ContractInfoResponseList;
+import com.becareful.becarefulserver.domain.matching.dto.response.ContractInfoListResponse;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
@@ -39,7 +39,7 @@ public class ContractService {
         recruitmentRepository.save(recruitment);
 
         matchingRepository.findByRecruitment(recruitment).stream()
-                .filter(match -> match.getMatchingStatus().equals(MatchingStatus.지원))
+                .filter(match -> match.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중))
                 .forEach(match -> {
                     match.failed();
                     matchingRepository.save(match);
@@ -50,28 +50,13 @@ public class ContractService {
     }
 
     @Transactional(readOnly = true)
-    public ContractInfoResponseList getContractListAndInfo(Long matchingId) {
+    public ContractInfoListResponse getContractListAndInfo(Long matchingId) {
         List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matchingId);
         Matching matching = matchingRepository
                 .findById(matchingId)
                 .orElseThrow(() -> new EntityNotFoundException("Matching not found with id: " + matchingId));
 
-        String elderlyName = matching.getRecruitment().getElderly().getName();
-        String institutionName =
-                matching.getRecruitment().getElderly().getNursingInstitution().getName();
-        String caregiverName = matching.getWorkApplication().getCaregiver().getName();
-
-        List<ContractInfoResponseList.ContractInfoResponse> contractList = contracts.stream()
-                .map(contract -> new ContractInfoResponseList.ContractInfoResponse(
-                        contract.getId(),
-                        contract.getCareTypes().stream().toList(),
-                        contract.getWorkDays().stream().toList(),
-                        contract.getWorkStartTime(),
-                        contract.getWorkEndTime(),
-                        contract.getWorkSalaryAmount(),
-                        contract.getWorkStartDate()))
-                .toList();
-        return new ContractInfoResponseList(elderlyName, institutionName, caregiverName, contractList);
+        return ContractInfoListResponse.of(matching, contracts);
     }
 
     @Transactional
@@ -86,7 +71,7 @@ public class ContractService {
                 EnumSet.copyOf(request.workDays()),
                 request.workStartTime(),
                 request.workEndTime(),
-                request.workSalaryType(),
+                request.workSalaryUnitType(),
                 request.workSalaryAmount(),
                 request.workStartDate(),
                 EnumSet.copyOf(request.careTypes()));

@@ -2,6 +2,13 @@ package com.becareful.becarefulserver.domain.auth.handler;
 
 import com.becareful.becarefulserver.domain.auth.dto.response.CustomOAuth2User;
 import com.becareful.becarefulserver.domain.auth.dto.response.OAuth2LoginResponse;
+import com.becareful.becarefulserver.domain.auth.dto.response.RegisteredUserLoginResponse;
+import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
+import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
+import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
 import com.becareful.becarefulserver.global.properties.JwtProperties;
 import com.becareful.becarefulserver.global.properties.LoginRedirectUrlProperties;
@@ -10,10 +17,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.List;
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,6 +27,11 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
+import java.time.Duration;
+import java.util.List;
+import java.util.UUID;
+
 @Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private static final Logger logger = LoggerFactory.getLogger(CustomSuccessHandler.class);
@@ -33,6 +41,10 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final JwtProperties jwtProperties;
     private final RedisTemplate<String, String> stringRedisTemplate;
     private final RedisTemplate<String, OAuth2LoginResponse> oauth2LoginRedisTemplate;
+    private final RedisTemplate<String, RegisteredUserLoginResponse> registeredUserLoginRedisTemplate;
+
+    private final CaregiverRepository caregiverRepository;
+    private final SocialWorkerRepository socialworkerRepository;
 
     public CustomSuccessHandler(
             JwtUtil jwtUtil,
@@ -40,13 +52,19 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             LoginRedirectUrlProperties loginRedirectUrlProperties,
             JwtProperties jwtProperties,
             @Qualifier("oAuth2LoginResponseRedisTemplate") RedisTemplate<String, OAuth2LoginResponse> oauth2LoginRedisTemplate,
-            RedisTemplate<String, String> stringRedisTemplate) {
+            @Qualifier("registeredUserRedisTemplate") RedisTemplate<String, RegisteredUserLoginResponse> registeredUserLoginRedisTemplate,
+            RedisTemplate<String, String> stringRedisTemplate,
+            CaregiverRepository caregiverRepository,
+            SocialWorkerRepository socialworkerRepository) {
         this.jwtUtil = jwtUtil;
         this.cookieProperties = cookieProperties;
         this.loginRedirectUrlProperties = loginRedirectUrlProperties;
         this.jwtProperties = jwtProperties;
         this.oauth2LoginRedisTemplate = oauth2LoginRedisTemplate;
+        this.registeredUserLoginRedisTemplate = registeredUserLoginRedisTemplate;
         this.stringRedisTemplate = stringRedisTemplate;
+        this.caregiverRepository = caregiverRepository;
+        this.socialworkerRepository = socialworkerRepository;
     }
 
     @Override
@@ -58,16 +76,17 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         OAuth2LoginResponse loginInfo = oAuthUser.getLoginResponse();
 
         // JWT 생성용 정보만 메서드로 꺼냄
-        String name = oAuthUser.getName(); // phoneNumber
+        String phoneNumber = oAuthUser.getName(); // phoneNumber
         List<String> roles = oAuthUser.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .map(role -> role.replace("ROLE_", ""))
                 .toList();
 
-        String accessToken = jwtUtil.createAccessToken(name, roles.get(0), roles.get(1));
-        String refreshToken = jwtUtil.createRefreshToken(name, roles.get(0), roles.get(1));
 
-        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry())); // 24시간
+        String accessToken = jwtUtil.createAccessToken(name, roles.get(0), roles.get(1));
+        String refreshToken = jwtUtil.createRefreshToken(name);
+
+        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry())); // 15분
         response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry())); // 일주일
 
         String state = request.getParameter("state");
@@ -96,19 +115,49 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .toUriString();
 
             response.sendRedirect(redirectUrl);
+            return;
+        }
+
+        RegisteredUserLoginResponse userResponse;
+        String redirectUrlPath;
+
+        if (roles.get(0).equals("NONE")) {
+            Caregiver caregiver = caregiverRepository
+                    .findByPhoneNumber(phoneNumber)
+                    .orElseThrow(() -> new IllegalStateException("Caregiver not found"));
+            userResponse = new RegisteredUserLoginResponse(
+                    caregiver.getName(), null, AssociationRank.NONE, InstitutionRank.NONE);
+            redirectUrlPath = loginRedirectUrlProperties.getCaregiverLoginRedirectUrl();
         } else {
 
-            String redirectUrlPath = roles.get(0).equals("NONE")
-                    ? loginRedirectUrlProperties.getCaregiverLoginRedirectUrl()
-                    : loginRedirectUrlProperties.getSocialWorkerLoginRedirectUrl();
-            String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
-                    .path(redirectUrlPath)
-                    .build()
-                    .toUriString();
+            SocialWorker socialWorker = socialworkerRepository
+                    .findByPhoneNumber(phoneNumber)
+                    .orElseThrow(() -> new IllegalStateException("SocialWorker not found"));
 
-            response.sendRedirect(redirectUrl);
+            userResponse = new RegisteredUserLoginResponse(
+                    socialWorker.getName(),
+                    socialWorker.getNickname(),
+                    socialWorker.getAssociationRank(),
+                    socialWorker.getInstitutionRank());
+            redirectUrlPath = loginRedirectUrlProperties.getSocialWorkerLoginRedirectUrl();
         }
+
+        String userKey = UUID.randomUUID().toString();
+        registeredUserLoginRedisTemplate
+                .opsForValue()
+                .set(
+                        "user:" + userKey, userResponse, Duration.ofMinutes(5) // 5분 후 만료
+                        );
+
+        String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
+                .path(redirectUrlPath)
+                .queryParam("userKey", userKey)
+                .build()
+                .toUriString();
+
+        response.sendRedirect(redirectUrl);
     }
+
 
     private Cookie createCookie(String key, String value, int maxAge) {
         Cookie cookie = new Cookie(key, value);

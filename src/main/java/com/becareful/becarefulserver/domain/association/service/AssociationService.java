@@ -1,14 +1,13 @@
 package com.becareful.becarefulserver.domain.association.service;
 
-import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
-
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
+import com.becareful.becarefulserver.domain.association.dto.AssociationSimpleDto;
 import com.becareful.becarefulserver.domain.association.dto.JoinApplicationSimpleDto;
 import com.becareful.becarefulserver.domain.association.dto.MemberSimpleDto;
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationJoinRequest;
+import com.becareful.becarefulserver.domain.association.dto.request.UpdateAssociationRankRequest;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.repository.AssociationJoinApplicationRepository;
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
@@ -24,15 +23,20 @@ import com.becareful.becarefulserver.global.exception.exception.ElderlyException
 import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+
+import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -200,27 +204,35 @@ public class AssociationService {
                         PARTICIPATION_APPLICATION, AssociationRank.MEMBER, AssociationRank.MEMBER, association));
     }
 
-    public AssociationSearchResponse searchAssociationByName(String associationName) {
+    public AssociationSearchListResponse searchAssociationByName(String associationName) {
         List<Association> associationList = associationName == null
                 ? associationRepository.findAll()
                 : associationRepository.findByNameContains(associationName);
-        List<AssociationSearchResponse.AssociationSimpleInfo> associationSimpleInfoList = associationList.stream()
+        List<AssociationSimpleDto> associationSimpleInfoList = associationList.stream()
                 .map(association -> {
                     int memberCount = socialWorkerRepository.countByAssociation(association);
-                    return AssociationSearchResponse.AssociationSimpleInfo.of(association, memberCount);
+                    return AssociationSimpleDto.of(association, memberCount);
                 })
                 .toList();
-        return new AssociationSearchResponse(associationList.size(), associationSimpleInfoList);
+        return new AssociationSearchListResponse(associationList.size(), associationSimpleInfoList);
     }
 
-    public AssociationSearchResponse getAssociationList() {
-        List<Association> associationList = associationRepository.findAll();
-        List<AssociationSearchResponse.AssociationSimpleInfo> associationSimpleInfoList = associationList.stream()
+    public AssociationSearchListResponse getAssociationList() {
+        List<AssociationSimpleDto> associationSimpleDtoList = associationRepository.findAll().stream()
                 .map(association -> {
                     int memberCount = socialWorkerRepository.countByAssociation(association);
-                    return AssociationSearchResponse.AssociationSimpleInfo.of(association, memberCount);
+                    return AssociationSimpleDto.of(association, memberCount);
                 })
                 .toList();
-        return new AssociationSearchResponse(associationList.size(), associationSimpleInfoList);
+        return AssociationSearchListResponse.from(associationSimpleDtoList);
     }
+
+    public void updateAssociationRank(@Valid UpdateAssociationRankRequest request) {
+        SocialWorker member = socialWorkerRepository
+                .findById(request.memberId())
+                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+
+        member.updateAssociationRank(request.associationRank());
+    }
+
 }

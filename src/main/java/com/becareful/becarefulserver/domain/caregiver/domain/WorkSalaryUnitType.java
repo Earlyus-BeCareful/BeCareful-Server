@@ -1,7 +1,8 @@
 package com.becareful.becarefulserver.domain.caregiver.domain;
 
-public enum WorkSalaryType {
+public enum WorkSalaryUnitType {
     HOUR,
+    DAY,
     MONTH,
     YEAR
 }

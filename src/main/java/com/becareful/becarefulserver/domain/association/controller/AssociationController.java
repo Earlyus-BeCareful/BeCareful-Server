@@ -2,17 +2,19 @@ package com.becareful.becarefulserver.domain.association.controller;
 
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationJoinRequest;
+import com.becareful.becarefulserver.domain.association.dto.request.UpdateAssociationRankRequest;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.service.AssociationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,18 +32,18 @@ public class AssociationController {
         return ResponseEntity.created(URI.create("association/" + id)).build();
     }
 
-    @Operation(summary = "회원가입 전: 서비스에 등록된 협회 검색", description = "협회 가입 단계에서 협회 검색 API")
+    @Operation(summary = "협회 가입 전: 서비스에 등록된 협회 검색", description = "협회 가입 단계에서 협회 검색 API")
     @GetMapping("/search")
-    public ResponseEntity<AssociationSearchResponse> searchAssociation(
+    public ResponseEntity<AssociationSearchListResponse> searchAssociation(
             @RequestParam(required = false) String associationName) {
-        AssociationSearchResponse response = associationService.searchAssociationByName(associationName);
+        var response = associationService.searchAssociationByName(associationName);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "회원가입 전: 서비스에 등록된 협회 리스트 반환", description = "협회 가입 단계에서 협회 검색 API")
+    @Operation(summary = "협회 가입 전: 서비스에 등록된 협회 리스트 반환", description = "협회 가입 단계에서 협회 검색 API")
     @GetMapping("/list")
-    public ResponseEntity<AssociationSearchResponse> getAssociationList() {
-        AssociationSearchResponse response = associationService.getAssociationList();
+    public ResponseEntity<AssociationSearchListResponse> getAssociationList() {
+        var response = associationService.getAssociationList();
         return ResponseEntity.ok(response);
     }
 
@@ -51,6 +53,7 @@ public class AssociationController {
         associationService.joinAssociation(request);
         return ResponseEntity.ok().build();
     }
+
 
     @Operation(summary = "협회 회원 수, 가입 신청서 개수 반환")
     @GetMapping("/members/overview")
@@ -64,6 +67,13 @@ public class AssociationController {
     public ResponseEntity<AssociationMemberListResponse> getAssociationMembers() {
         AssociationMemberListResponse response = associationService.getAssociationMemberList();
         return ResponseEntity.ok().body(response);
+    }
+
+    @Operation(summary = "회원 유형 변경", description = "협회장 권한")
+    @GetMapping("/update/association-rank")
+    public ResponseEntity<Void> updateAssociationRank(@Valid @RequestBody UpdateAssociationRankRequest request){
+        associationService.updateAssociationRank(request);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "협회 가입 신청 목록 보기")

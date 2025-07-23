@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.domain;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryType;
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
@@ -9,15 +9,7 @@ import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.vo.Location;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.EnumSet;
@@ -48,7 +40,8 @@ public class Recruitment extends BaseEntity {
     @Convert(converter = CareTypeSetConverter.class)
     private EnumSet<CareType> careTypes;
 
-    private WorkSalaryType workSalaryType;
+    @Enumerated(EnumType.STRING)
+    private WorkSalaryUnitType workSalaryUnitType;
 
     private int workSalaryAmount;
 
@@ -67,7 +60,7 @@ public class Recruitment extends BaseEntity {
             LocalTime workStartTime,
             LocalTime workEndTime,
             EnumSet<CareType> careTypes,
-            WorkSalaryType workSalaryType,
+            WorkSalaryUnitType workSalaryUnitType,
             int workSalaryAmount,
             String description,
             boolean isRecruiting,
@@ -77,7 +70,7 @@ public class Recruitment extends BaseEntity {
         this.workStartTime = workStartTime;
         this.workEndTime = workEndTime;
         this.careTypes = careTypes;
-        this.workSalaryType = workSalaryType;
+        this.workSalaryUnitType = workSalaryUnitType;
         this.workSalaryAmount = workSalaryAmount;
         this.description = description;
         this.isRecruiting = isRecruiting;
@@ -91,7 +84,7 @@ public class Recruitment extends BaseEntity {
                 .workStartTime(request.workStartTime())
                 .workEndTime(request.workEndTime())
                 .careTypes(EnumSet.copyOf(request.careTypes()))
-                .workSalaryType(request.workSalaryType())
+                .workSalaryUnitType(request.workSalaryUnitType())
                 .workSalaryAmount(request.workSalaryAmount())
                 .description(request.description())
                 .isRecruiting(true)

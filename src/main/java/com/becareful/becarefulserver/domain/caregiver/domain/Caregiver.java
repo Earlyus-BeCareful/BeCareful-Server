@@ -108,4 +108,13 @@ public class Caregiver extends BaseEntity {
     public List<String> getCertificateNames() {
         return this.getCaregiverInfo().getCertificateNames();
     }
+
+    public int getAge() {
+        return LocalDate.now().getYear() - this.birthDate.getYear() + 1;
+    }
+
+    public void updateInfo(String phoneNumber, CaregiverInfo caregiverInfo) {
+        this.phoneNumber = phoneNumber;
+        this.caregiverInfo = caregiverInfo;
+    }
 }

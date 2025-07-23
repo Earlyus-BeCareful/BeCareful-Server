@@ -4,12 +4,13 @@ import com.becareful.becarefulserver.global.properties.JwtProperties;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
@@ -70,11 +71,9 @@ public class JwtUtil {
     }
 
     // 리프레시 토큰 생성
-    public String createRefreshToken(String phoneNumber, String institutionRank, String associationRank) {
+    public String createRefreshToken(String phoneNumber) {
         return Jwts.builder()
                 .subject(phoneNumber)
-                .claim("institutionRank", "ROLE_" + institutionRank)
-                .claim("associationRank", "ROLE_" + associationRank)
                 .expiration(new Date(System.currentTimeMillis() + jwtProperties.getRefreshTokenExpiry() * 1000L))
                 .signWith(secretKey)
                 .compact();
