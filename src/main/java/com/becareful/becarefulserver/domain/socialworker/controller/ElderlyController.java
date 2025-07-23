@@ -56,7 +56,7 @@ public class ElderlyController {
     public ResponseEntity<Void> updateElderly(
             @PathVariable Long elderlyId, @Valid @RequestBody ElderlyUpdateRequest request) {
         elderlyService.updateElderly(elderlyId, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     // 어르신 상세 - 생년월일, 나이, 거주지 상세 주소, 동거인, 동물, 건강상태, 요양등급, 케어필요항목, 담당 보호사(프로필, 성함, 요일, 시간, 케어항목), 모집중인 공고(요일, 시간, 케어항목)

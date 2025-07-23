@@ -28,7 +28,7 @@ public class SocialWorkerMatchingController {
     @PostMapping("/recruitment")
     public ResponseEntity<Long> createRecruitment(@Valid @RequestBody RecruitmentCreateRequest request) {
         Long recruitmentId = matchingService.createRecruitment(request);
-        return ResponseEntity.ok(recruitmentId);
+        return ResponseEntity.ok(recruitmentId); // TODO : Created 응답으로 변경
     }
 
     @Operation(summary = "매칭 현황 조회 (사회복지사 매칭 현황 조회)")
