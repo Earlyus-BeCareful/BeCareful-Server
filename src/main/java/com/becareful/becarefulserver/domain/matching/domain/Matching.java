@@ -109,6 +109,20 @@ public class Matching extends BaseEntity {
                 .socialWorkerMatchingResultInfo(socialWorkerMatchingResultInfo)
                 .build();
     }
+    /**
+     * Get Method
+     */
+    public boolean isApplicationReviewing() {
+        return matchingApplicationStatus.equals(MatchingApplicationStatus.지원검토중);
+    }
+
+    public boolean isApplicationPassed() {
+        return matchingApplicationStatus.equals(MatchingApplicationStatus.합격);
+    }
+
+    public boolean isApplicationRefused() {
+        return matchingApplicationStatus.equals(MatchingApplicationStatus.지원거절);
+    }
 
     /**
      * Entity Method

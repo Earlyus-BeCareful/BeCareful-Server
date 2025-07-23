@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.matching.controller;
 import com.becareful.becarefulserver.domain.matching.dto.request.ContractEditRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.ContractDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.ContractInfoListResponse;
+import com.becareful.becarefulserver.domain.matching.service.CompletedMatchingService;
 import com.becareful.becarefulserver.domain.matching.service.ContractService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,19 +18,19 @@ import org.springframework.web.bind.annotation.*;
 public class ContractController {
 
     private final ContractService contractService;
-
-    // 계약서 생성은 사회복지사 controller에 있음
+    private final CompletedMatchingService completedMatchingService;
 
     @Operation(summary = "계약서(근무조건) 리스트", description = "채팅화면에 계약서 반환")
-    @GetMapping("/list/{matchingId}")
-    public ResponseEntity<ContractInfoListResponse> getContractListAndInfo(@PathVariable Long matchingId) {
+    @GetMapping("/list")
+    public ResponseEntity<ContractInfoListResponse> getContractListAndInfo(
+            @RequestParam(name = "matchingId") Long matchingId) {
         var response = contractService.getContractListAndInfo(matchingId);
         return ResponseEntity.ok(response);
     }
 
     // 계약서 상세 정보 불러오기(수정할때 사용)
     @Operation(summary = "근무조건 상세 내용 반환", description = "근무조건 수정시 이전 조건 내용을 불러오는데 사용하는 API.")
-    @GetMapping("/{contractId}/detail")
+    @GetMapping("/{contractId}")
     public ResponseEntity<ContractDetailResponse> getContractDetail(@PathVariable Long contractId) {
         var response = contractService.getContractDetail(contractId);
         return ResponseEntity.ok(response);
@@ -37,10 +38,17 @@ public class ContractController {
 
     // TODO
     // 계약서 수정 내용 저장 - 직전 계약서 필요
-    @Operation(summary = "근무조건 수정 내용 저장")
+    @Operation(summary = "근무조건 수정 내용 저장 (사회복지사 호출)")
     @PostMapping("/edit")
     public ResponseEntity<Void> editContract(@RequestBody ContractEditRequest request) {
         contractService.editContract(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "계약서를 기반으로 매칭을 확정합니다. (요양보호사 호출)")
+    @PostMapping("/confirm")
+    public ResponseEntity<Void> createCompleteMatching(@RequestParam(name = "contractId") Long contractId) {
+        completedMatchingService.createCompletedMatching(contractId);
         return ResponseEntity.ok().build();
     }
 }
