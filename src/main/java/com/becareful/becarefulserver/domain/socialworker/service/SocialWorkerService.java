@@ -2,13 +2,12 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.common.vo.Gender;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
@@ -18,10 +17,10 @@ import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRa
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.domain.socialworker.dto.SocialWorkerSimpleDto;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.SimpleElderlyResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerMyResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
@@ -38,15 +37,16 @@ import jakarta.validation.Valid;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,9 +60,7 @@ public class SocialWorkerService {
     private final MatchingRepository matchingRepository;
     private final ContractRepository contractRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final ElderlyRepository elderlyRepository;
-    private final AssociationRepository associationRepository;
 
     private final AuthUtil authUtil;
     private final JwtUtil jwtUtil;
@@ -104,69 +102,71 @@ public class SocialWorkerService {
 
     public SocialWorkerHomeResponse getHomeData() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        Integer elderlyCount = elderlyRepository
-                .findByNursingInstitution(loggedInSocialWorker.getNursingInstitution())
-                .size();
-        Integer socialWorkerCount =
-                socialworkerRepository.countByNursingInstitution(loggedInSocialWorker.getNursingInstitution());
+        NursingInstitution institution = loggedInSocialWorker.getNursingInstitution();
 
-        List<Long> elderlyIds =
-                elderlyRepository.findByNursingInstitution(loggedInSocialWorker.getNursingInstitution()).stream()
-                        .map(Elderly::getId)
+        List<Long> elderlyIds = elderlyRepository.findByNursingInstitution(institution).stream()
+                .map(Elderly::getId)
+                .toList();
+
+        List<SocialWorkerSimpleDto> socialWorkers =
+                socialworkerRepository.findAllByNursingInstitution(institution).stream()
+                        .map(SocialWorkerSimpleDto::from)
                         .toList();
+
+        Integer elderlyCount = elderlyIds.size();
+        Integer socialWorkerCount = socialWorkers.size();
 
         List<Matching> matchingList = matchingRepository.findAllMatchingByElderlyIds(elderlyIds);
 
-        Long processingMatchingCount = matchingList.stream()
-                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중))
-                .count();
+        int totalMatchedCount = matchingList.size();
+        int reviewingMatchingCount = 0;
+        int recentlyMatchedCount = 0;
+        int wholeCompletedMatchingCount = 0;
+        int wholeApplierCountForCompletedRecruitment = 0;
+        Set<Long> workApplicationIds = new HashSet<>();
 
-        Long recentlyMatchedCount = matchingList.stream()
-                .filter(matching ->
-                        matching.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7)))
-                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.합격))
-                .count();
+        for (Matching matching : matchingList) {
+            if (matching.isApplicationReviewing()) {
+                reviewingMatchingCount++;
+                workApplicationIds.add(matching.getWorkApplication().getId());
+            } else if (matching.isApplicationPassed()) {
+                if (matching.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7))) {
+                    recentlyMatchedCount++;
+                }
+            }
 
-        Integer totalMatchedCount = matchingList.size();
+            if (!matching.getRecruitment().isRecruiting()) {
+                wholeCompletedMatchingCount++;
+                if (matching.isApplicationPassed() || matching.isApplicationRefused()) {
+                    wholeApplierCountForCompletedRecruitment++;
+                }
+            }
+        }
 
-        Integer appliedCaregiverCount = matchingList.stream()
-                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중))
-                .map(matching -> matching.getWorkApplication().getId())
-                .collect(Collectors.toSet())
-                .size();
+        Integer appliedCaregiverCount = workApplicationIds.size();
 
-        long completedRecruitmentCount = matchingList.stream()
-                .map(Matching::getRecruitment)
-                .filter(recruitment -> !recruitment.isRecruiting())
-                .count();
-
-        long wholeApplierCountForCompletedRecruitment = matchingList.stream()
-                .filter(matching -> !matching.getRecruitment().isRecruiting())
-                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.합격)
-                        || matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원거절))
-                .count();
-
-        long wholeCompletedMatchingCount = matchingList.stream()
-                .filter(matching -> !matching.getRecruitment().isRecruiting())
-                .count();
-
-        List<SimpleElderlyResponse> elderlyList = matchingList.stream()
+        List<ElderlySimpleDto> elderlyList = matchingList.stream()
                 .map(Matching::getRecruitment)
                 .filter(Recruitment::isRecruiting)
                 .map(Recruitment::getElderly)
-                .map(SimpleElderlyResponse::from)
+                .map(ElderlySimpleDto::from)
                 .toList();
 
         return SocialWorkerHomeResponse.of(
                 loggedInSocialWorker,
                 elderlyCount,
-                socialWorkerCount,
-                processingMatchingCount,
+                socialWorkerCount, // TODO 요양보호사 숫자로 변경
+                socialWorkers,
+                reviewingMatchingCount,
                 recentlyMatchedCount,
                 totalMatchedCount,
                 appliedCaregiverCount,
-                ((double) wholeApplierCountForCompletedRecruitment / completedRecruitmentCount) * 100,
-                ((double) wholeApplierCountForCompletedRecruitment / wholeCompletedMatchingCount) * 100,
+                wholeCompletedMatchingCount == 0
+                        ? 0
+                        : (double) wholeApplierCountForCompletedRecruitment / wholeCompletedMatchingCount,
+                wholeCompletedMatchingCount == 0
+                        ? 0
+                        : ((double) wholeApplierCountForCompletedRecruitment / wholeCompletedMatchingCount) * 100,
                 elderlyList);
     }
 
