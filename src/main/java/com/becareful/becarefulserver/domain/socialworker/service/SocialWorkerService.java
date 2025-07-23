@@ -113,12 +113,12 @@ public class SocialWorkerService {
                         .map(SocialWorkerSimpleDto::from)
                         .toList();
 
-        Integer elderlyCount = elderlyIds.size();
-        Integer socialWorkerCount = socialWorkers.size();
-
         List<Matching> matchingList = matchingRepository.findAllMatchingByElderlyIds(elderlyIds);
 
+        int elderlyCount = elderlyIds.size();
+        int socialWorkerCount = socialWorkers.size();
         int totalMatchedCount = matchingList.size();
+
         int reviewingMatchingCount = 0;
         int recentlyMatchedCount = 0;
         int wholeCompletedMatchingCount = 0;
@@ -143,7 +143,7 @@ public class SocialWorkerService {
             }
         }
 
-        Integer appliedCaregiverCount = workApplicationIds.size();
+        int appliedCaregiverCount = workApplicationIds.size();
 
         List<ElderlySimpleDto> elderlyList = matchingList.stream()
                 .map(Matching::getRecruitment)
