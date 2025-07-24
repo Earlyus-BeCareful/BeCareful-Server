@@ -1,12 +1,12 @@
 package com.becareful.becarefulserver.domain.matching.dto.response;
 
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
-import com.becareful.becarefulserver.domain.matching.dto.CaregiverSimpleDto;
+import com.becareful.becarefulserver.domain.matching.dto.MatchedCaregiverDto;
 
 public record MatchingCaregiverSimpleResponse(
-        CaregiverSimpleDto caregiverInfo, MatchingResultStatus matchingResultStatus) {
+        MatchedCaregiverDto caregiverInfo, MatchingResultStatus matchingResultStatus) {
     public static MatchingCaregiverSimpleResponse of(
-            CaregiverSimpleDto caregiverInfo, MatchingResultStatus matchingResultStatus) {
+            MatchedCaregiverDto caregiverInfo, MatchingResultStatus matchingResultStatus) {
         return new MatchingCaregiverSimpleResponse(caregiverInfo, matchingResultStatus);
     }
 }

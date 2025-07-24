@@ -1,12 +1,14 @@
 package com.becareful.becarefulserver.domain.chat.controller;
 
+import com.becareful.becarefulserver.domain.chat.dto.request.ContractEditRequest;
+import com.becareful.becarefulserver.domain.chat.dto.response.SocialWorkerChatroomResponse;
 import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService;
-import com.becareful.becarefulserver.domain.matching.dto.request.ContractEditRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.ContractDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.ContractInfoListResponse;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +23,8 @@ public class SocialWorkerChatController {
 
     @Operation(summary = "사회복지사 채팅 목록")
     @GetMapping("/list")
-    public ResponseEntity<ChatList> getChatInfoList() {
-        ChatList response = socialWorkerChatService.getChatList();
+    public ResponseEntity<List<SocialWorkerChatroomResponse>> getChatInfoList() {
+        var response = socialWorkerChatService.getChatList();
         return ResponseEntity.ok(response);
     }
 
@@ -43,8 +45,8 @@ public class SocialWorkerChatController {
 
     // 계약서 수정 내용 저장 - 직전 계약서 필요
     @Operation(summary = "수정 계약서 생성")
-    @PostMapping("/edit")
-    public ResponseEntity<Void> editContract(@RequestBody ContractEditRequest request) {
+    @PostMapping("/contract/edit")
+    public ResponseEntity<Void> editContract(@RequestBody @Valid ContractEditRequest request) {
         socialWorkerChatService.editContract(request);
         return ResponseEntity.ok().build();
     }

@@ -4,7 +4,7 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.CONTRA
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_NOT_EXISTS;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.chat.dto.ChatroomResponse;
+import com.becareful.becarefulserver.domain.chat.dto.response.CaregiverChatroomResponse;
 import com.becareful.becarefulserver.domain.matching.domain.CompletedMatching;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
@@ -31,15 +31,16 @@ public class CaregiverChatService {
     private final CompletedMatchingRepository completedMatchingRepository;
 
     @Transactional(readOnly = true)
-    public List<ChatroomResponse> getChatList() {
+    public List<CaregiverChatroomResponse> getChatList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         List<Matching> matchingList = matchingRepository.findByCaregiver(caregiver);
 
-        List<ChatroomResponse> responses = new ArrayList<>();
+        List<CaregiverChatroomResponse> responses = new ArrayList<>();
         matchingList.forEach(matching -> {
             contractRepository.findTop1ByMatchingOrderByCreateDateDesc(matching).ifPresent(contract -> {
                 boolean isCompleted = completedMatchingRepository.existsCompletedMatchingByContract(contract);
-                ChatroomResponse.of(matching, contract, isCompleted);
+                var response = CaregiverChatroomResponse.of(matching, contract, isCompleted);
+                responses.add(response);
             });
         });
 
