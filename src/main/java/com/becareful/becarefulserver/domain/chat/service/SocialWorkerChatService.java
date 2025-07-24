@@ -4,11 +4,11 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.CONTRA
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_NOT_EXISTS;
 
 import com.becareful.becarefulserver.domain.chat.dto.request.ContractEditRequest;
+import com.becareful.becarefulserver.domain.chat.dto.response.ChatroomContentResponse;
 import com.becareful.becarefulserver.domain.chat.dto.response.SocialWorkerChatroomResponse;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.dto.response.ContractDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.ContractInfoListResponse;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
@@ -51,7 +51,7 @@ public class SocialWorkerChatService {
         return responses;
     }
 
-    public ContractInfoListResponse getChatRoomDetailData(Long matchingId) {
+    public ChatroomContentResponse getChatRoomDetailData(Long matchingId) {
         SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
 
         List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matchingId);
@@ -60,7 +60,7 @@ public class SocialWorkerChatService {
 
         matching.validateSocialWorker(socialWorker.getId());
 
-        return ContractInfoListResponse.of(matching, contracts);
+        return ChatroomContentResponse.of(matching, contracts);
     }
 
     // 직전 계약서 내용 불러오기

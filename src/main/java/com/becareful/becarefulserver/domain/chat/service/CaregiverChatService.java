@@ -5,10 +5,10 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHI
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.chat.dto.response.CaregiverChatroomResponse;
+import com.becareful.becarefulserver.domain.chat.dto.response.ChatroomContentResponse;
 import com.becareful.becarefulserver.domain.matching.domain.CompletedMatching;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.dto.response.ContractInfoListResponse;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CaregiverChatService {
 
     private final AuthUtil authUtil;
@@ -30,7 +31,6 @@ public class CaregiverChatService {
     private final ContractRepository contractRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
 
-    @Transactional(readOnly = true)
     public List<CaregiverChatroomResponse> getChatList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         List<Matching> matchingList = matchingRepository.findByCaregiver(caregiver);
@@ -47,8 +47,7 @@ public class CaregiverChatService {
         return responses;
     }
 
-    @Transactional(readOnly = true)
-    public ContractInfoListResponse getChatRoomDetailData(Long matchingId) {
+    public ChatroomContentResponse getChatRoomDetailData(Long matchingId) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
         List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matchingId);
@@ -57,7 +56,7 @@ public class CaregiverChatService {
 
         matching.validateCaregiver(caregiver.getId());
 
-        return ContractInfoListResponse.of(matching, contracts);
+        return ChatroomContentResponse.of(matching, contracts);
     }
 
     @Transactional
