@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain.caregiver.dto.response;
+package com.becareful.becarefulserver.domain.chat.dto;
 
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
@@ -13,6 +13,7 @@ public record ChatroomResponse(
         String recentChat,
         String lastSendTime,
         Integer unreadCount) {
+
     public static ChatroomResponse of(Matching matching, Contract contract, boolean isCompleted) {
         NursingInstitution institution = matching.getRecruitment().getElderly().getNursingInstitution();
         String recentChat = isCompleted ? "최종 승인이 확정되었습니다!" : "합격 축하드립니다.";

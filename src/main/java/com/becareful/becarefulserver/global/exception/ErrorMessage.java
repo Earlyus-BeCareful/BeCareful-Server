@@ -43,6 +43,10 @@ public class ErrorMessage {
     public static final String MATCHING_NOT_EXISTS = "매칭 또는 지원 정보가 존재하지 않습니다.";
     public static final String MATCHING_CANNOT_APPLY = "미지원 공고에만 지원할 수 있습니다.";
     public static final String MATCHING_CANNOT_REJECT = "미지원 공고만 거절할 수 있습니다.";
+    public static final String MATCHING_CAREGIVER_DIFFERENT = "해당 요양보호사의 매칭 데이터가 아닙니다.";
+    public static final String MATCHING_SOCIAL_WORKER_DIFFERENT = "해당 사회복지사의 매칭 데이터가 아닙니다.";
+
+    public static final String CONTRACT_NOT_EXISTS = "계약서가 존재하지 않습니다.";
 
     public static final String USER_CREATE_INVALID_GENDER_CODE = "유효하지 않은 성별 번호입니다.";
 
