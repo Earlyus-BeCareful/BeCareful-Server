@@ -12,15 +12,14 @@ import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +57,7 @@ public class CommunityService {
         Optional<AssociationJoinApplication> requestOpt =
                 associationMembershipRequestRepository.findBySocialWorker(socialWorker);
 
-        if (association != null) { //가입된 회원인 경우
+        if (association != null) { // 가입된 회원인 경우
             int associationMemberCount = socialWorkerRepository.countByAssociation(association);
             String associationName = association.getName();
 
@@ -70,13 +69,12 @@ public class CommunityService {
             return CommunityAccessResponse.alreadyApproved(socialWorker, associationMemberCount);
         }
 
-        return requestOpt //가입된 회원이 아닌 경우
+        return requestOpt // 가입된 회원이 아닌 경우
                 .map(request -> {
                     String associationName = request.getAssociation().getName();
 
                     switch (request.getStatus()) {
                         case REJECTED -> {
-
                             associationMembershipRequestRepository.delete(request);
                             return CommunityAccessResponse.rejected(socialWorker, associationName);
                         }
