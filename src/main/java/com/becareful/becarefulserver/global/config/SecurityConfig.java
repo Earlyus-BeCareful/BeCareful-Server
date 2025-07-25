@@ -1,5 +1,8 @@
 package com.becareful.becarefulserver.global.config;
 
+import static com.becareful.becarefulserver.global.constant.UrlConstant.DEV_SERVER_URL;
+import static com.becareful.becarefulserver.global.constant.UrlConstant.LOCAL_SERVER_URL;
+
 import com.becareful.becarefulserver.domain.auth.handler.CustomSuccessHandler;
 import com.becareful.becarefulserver.domain.auth.service.CustomOAuth2UserService;
 import com.becareful.becarefulserver.global.security.JwtAuthenticationFilter;
@@ -50,6 +53,8 @@ public class SecurityConfig {
                                 "/socialworker/signup",
                                 "/socialworker/check-nickname")
                         .hasRole("GUEST")
+                        .requestMatchers("socialworker/me")
+                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/nursingInstitution/upload-profile-img")
                         .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE")
                         .requestMatchers("/caregiver/upload-profile-img")
@@ -76,7 +81,7 @@ public class SecurityConfig {
                         .authenticated()
                         .requestMatchers("/auth/**", "/login/**", "/oauth2/**", "/favicon.ico")
                         .permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/test/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
@@ -96,11 +101,11 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of(
+                LOCAL_SERVER_URL,
+                DEV_SERVER_URL,
                 "https://becareful.vercel.app/",
                 "https://www.carebridges.kr/",
                 "https://localhost:5173",
-                "https://localhost:8080",
-                "https://blaybus.everdu.com",
                 "https://localhost:3000"));
         configuration.addExposedHeader("Set-Cookie");
         configuration.addAllowedHeader("*");

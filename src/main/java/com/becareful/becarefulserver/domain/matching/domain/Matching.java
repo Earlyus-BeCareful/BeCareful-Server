@@ -1,12 +1,14 @@
 package com.becareful.becarefulserver.domain.matching.domain;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_CANNOT_REJECT;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.matching.domain.converter.MediationTypeSetConverter;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
+import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
+import com.becareful.becarefulserver.global.exception.exception.MatchingException;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
@@ -42,7 +44,7 @@ public class Matching extends BaseEntity {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private MatchingStatus matchingStatus;
+    private MatchingApplicationStatus matchingApplicationStatus;
 
     private LocalDate applicationDate;
 
@@ -83,12 +85,12 @@ public class Matching extends BaseEntity {
 
     @Builder(access = AccessLevel.PRIVATE)
     private Matching(
-            MatchingStatus matchingStatus,
+            MatchingApplicationStatus matchingApplicationStatus,
             Recruitment recruitment,
             WorkApplication workApplication,
             MatchingResultInfo caregiverMatchingResultInfo,
             MatchingResultInfo socialWorkerMatchingResultInfo) {
-        this.matchingStatus = matchingStatus;
+        this.matchingApplicationStatus = matchingApplicationStatus;
         this.recruitment = recruitment;
         this.workApplication = workApplication;
         this.caregiverMatchingResultInfo = caregiverMatchingResultInfo;
@@ -101,12 +103,26 @@ public class Matching extends BaseEntity {
             MatchingResultInfo caregiverMatchingResultInfo,
             MatchingResultInfo socialWorkerMatchingResultInfo) {
         return Matching.builder()
-                .matchingStatus(MatchingStatus.미지원)
+                .matchingApplicationStatus(MatchingApplicationStatus.미지원)
                 .recruitment(recruitment)
                 .workApplication(application)
                 .caregiverMatchingResultInfo(caregiverMatchingResultInfo)
                 .socialWorkerMatchingResultInfo(socialWorkerMatchingResultInfo)
                 .build();
+    }
+    /**
+     * Get Method
+     */
+    public boolean isApplicationReviewing() {
+        return matchingApplicationStatus.equals(MatchingApplicationStatus.지원검토중);
+    }
+
+    public boolean isApplicationPassed() {
+        return matchingApplicationStatus.equals(MatchingApplicationStatus.합격);
+    }
+
+    public boolean isApplicationRefused() {
+        return matchingApplicationStatus.equals(MatchingApplicationStatus.지원거절);
     }
 
     /**
@@ -114,18 +130,18 @@ public class Matching extends BaseEntity {
      */
     public void apply() {
         validateMatchingUpdatable();
-        this.matchingStatus = MatchingStatus.지원;
+        this.matchingApplicationStatus = MatchingApplicationStatus.지원검토중;
         this.applicationDate = LocalDate.now();
     }
 
     public void reject() {
         validateMatchingUpdatable();
-        this.matchingStatus = MatchingStatus.거절;
+        this.matchingApplicationStatus = MatchingApplicationStatus.매칭거절;
     }
 
     public void mediate(RecruitmentMediateRequest request) {
         validateMatchingUpdatable();
-        this.matchingStatus = MatchingStatus.지원;
+        this.matchingApplicationStatus = MatchingApplicationStatus.지원검토중;
         this.applicationDate = LocalDate.now();
         this.mediationTypes = EnumSet.copyOf(request.mediationTypes());
         this.mediationDescription = request.mediationDescription();
@@ -133,23 +149,43 @@ public class Matching extends BaseEntity {
 
     public void hire() {
         validateMatchingCompletable();
-        this.matchingStatus = MatchingStatus.합격;
+        this.matchingApplicationStatus = MatchingApplicationStatus.합격;
     }
 
     public void failed() {
         validateMatchingCompletable();
-        this.matchingStatus = MatchingStatus.불합격;
+        this.matchingApplicationStatus = MatchingApplicationStatus.지원거절;
+    }
+
+    public MatchingResultStatus getMatchingResultStatus() {
+        return socialWorkerMatchingResultInfo.judgeMatchingResultStatus();
     }
 
     private void validateMatchingCompletable() {
-        if (!this.matchingStatus.equals(MatchingStatus.지원)) {
-            throw new RecruitmentException("지원한 경우에만 합격, 불합격 처리할 수 있습니다.");
+        if (matchingApplicationStatus.equals(MatchingApplicationStatus.지원검토중)) {
+            return;
         }
+        throw new RecruitmentException("지원한 경우에만 합격, 불합격 처리할 수 있습니다.");
     }
 
     private void validateMatchingUpdatable() {
-        if (!this.matchingStatus.equals(MatchingStatus.미지원)) {
-            throw new RecruitmentException(MATCHING_CANNOT_REJECT);
+        if (matchingApplicationStatus.equals(MatchingApplicationStatus.미지원)) {
+            return;
         }
+        throw new RecruitmentException(MATCHING_CANNOT_REJECT);
+    }
+
+    public void validateCaregiver(Long caregiverId) {
+        if (workApplication.getCaregiver().getId().equals(caregiverId)) {
+            return;
+        }
+        throw new MatchingException(MATCHING_CAREGIVER_DIFFERENT);
+    }
+
+    public void validateSocialWorker(Long socialWorkerId) {
+        if (workApplication.getCaregiver().getId().equals(socialWorkerId)) {
+            return;
+        }
+        throw new MatchingException(MATCHING_SOCIAL_WORKER_DIFFERENT);
     }
 }

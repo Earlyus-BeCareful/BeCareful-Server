@@ -1,49 +1,56 @@
 package com.becareful.becarefulserver.domain.socialworker.dto.response;
 
-import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.domain.socialworker.dto.SocialWorkerSimpleDto;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Builder;
 
-@Builder
+@Builder(access = AccessLevel.PRIVATE)
 public record SocialWorkerHomeResponse(
-        String socialWorkerName,
-        InstitutionRank socialWorkerRank,
-        String institutionName,
-        Integer elderlyCount,
-        Integer socialWorkerCount,
-        Integer matchingProcessingCount,
-        Integer recentlyMatchedCount,
-        Integer matchingCompletedCount,
-        Integer appliedCaregiverCount,
-        Integer averageAppliedCaregiver,
-        Integer averageApplyingRate,
-        List<SimpleElderlyResponse> matchingElderlyList) {
+        SocialWorkerSimpleDto socialWorkerInfo,
+        InstitutionInfo institutionInfo,
+        MatchingStatistics matchingStatistics,
+        ApplicationStatistics applicationStatistics,
+        List<ElderlySimpleDto> matchingElderlyList) {
 
     public static SocialWorkerHomeResponse of(
             SocialWorker socialWorker,
             Integer elderlyCount,
             Integer socialWorkerCount,
-            Long matchingProcessingCount,
-            Long recentlyMatchedCount,
+            List<SocialWorkerSimpleDto> socialWorkerList,
+            Integer matchingProcessingCount,
+            Integer recentlyMatchedCount,
             Integer totalMatchedCount,
             Integer appliedCaregiverCount,
             Double averageAppliedCaregiver,
             Double averageApplyingRate,
-            List<SimpleElderlyResponse> matchingElderlyList) {
+            List<ElderlySimpleDto> matchingElderlyList) {
         return SocialWorkerHomeResponse.builder()
-                .socialWorkerName(socialWorker.getName())
-                .socialWorkerRank(socialWorker.getInstitutionRank())
-                .institutionName(socialWorker.getNursingInstitution().getName())
-                .elderlyCount(elderlyCount)
-                .socialWorkerCount(socialWorkerCount)
-                .matchingProcessingCount(matchingProcessingCount.intValue())
-                .recentlyMatchedCount(recentlyMatchedCount.intValue())
-                .matchingCompletedCount(totalMatchedCount)
-                .appliedCaregiverCount(appliedCaregiverCount)
-                .averageAppliedCaregiver(averageAppliedCaregiver.intValue())
-                .averageApplyingRate(averageApplyingRate.intValue())
+                .socialWorkerInfo(SocialWorkerSimpleDto.from(socialWorker))
+                .institutionInfo(new InstitutionInfo(
+                        socialWorker.getNursingInstitution().getName(),
+                        elderlyCount,
+                        socialWorkerCount,
+                        socialWorkerList))
+                .matchingStatistics(
+                        new MatchingStatistics(matchingProcessingCount, recentlyMatchedCount, totalMatchedCount))
+                .applicationStatistics(new ApplicationStatistics(
+                        appliedCaregiverCount, averageAppliedCaregiver.intValue(), averageApplyingRate.intValue()))
                 .matchingElderlyList(matchingElderlyList)
                 .build();
     }
+
+    private record InstitutionInfo(
+            String institutionName,
+            Integer elderlyCount,
+            Integer socialWorkerCount,
+            List<SocialWorkerSimpleDto> socialWorkerList) {}
+
+    private record MatchingStatistics(
+            Integer matchingProcessingCount, Integer recentlyMatchedCount, Integer totalMatchingCompletedCount) {}
+
+    private record ApplicationStatistics(
+            Integer appliedCaregiverCount, Integer averageAppliedCaregiver, Integer averageApplyingRate) {}
 }

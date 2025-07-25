@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.global.security;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.INVALID_REFRESH_TOKEN;
 
 import com.becareful.becarefulserver.global.constant.SecurityConstant;
+import com.becareful.becarefulserver.global.exception.ErrorMessage;
 import com.becareful.becarefulserver.global.exception.exception.AuthException;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
 import com.becareful.becarefulserver.global.properties.JwtProperties;
@@ -59,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // AccessToken이 만료되었는지 확인
         if (accessToken == null || !jwtUtil.isValid(accessToken)) {
 
-            // 리프레시 토큰도 없는 경우 에러 응답
+            // 리프레시 토큰이 존재하고 유효할 때만 재발급 시도
             if (refreshToken != null && jwtUtil.isValid(refreshToken)) {
                 // 액세스 토큰이 만료되었으면 리프레시 토큰을 사용하여 새 토큰 발급
                 accessToken = getAccessTokenFromRefresh(refreshToken);
@@ -73,6 +74,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 newAccessTokenCookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
 
                 response.addCookie(newAccessTokenCookie);
+            } else if (accessToken == null && refreshToken == null) {
+                throw new AuthException(ErrorMessage.TOKEN_NOT_CONTAINED);
             } else {
                 throw new AuthException(INVALID_REFRESH_TOKEN);
             }

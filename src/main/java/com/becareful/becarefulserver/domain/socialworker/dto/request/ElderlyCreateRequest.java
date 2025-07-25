@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record ElderlyCreateRequest(
+        // TODO : 에러 메세지 구체화
         @NotBlank String name,
         @NotNull LocalDate birthday,
         @NotNull boolean inmate,

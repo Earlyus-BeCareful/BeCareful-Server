@@ -1,16 +1,14 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.ELDERLY_NOT_EXISTS;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
-import com.becareful.becarefulserver.domain.nursing_institution.repository.NursingInstitutionRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpdateRequest;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyListResponse;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyInfoResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
@@ -20,10 +18,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,21 +30,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ElderlyService {
+
     private final ElderlyRepository elderlyRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
-    private final NursingInstitutionRepository nursingInstitutionRepository;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
 
     @Transactional
     public Long saveElderly(ElderlyCreateRequest request) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
-        /*
-        NursingInstitution institution = nursingInstitutionRepository.findById(request.institutionId())
-                .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
-        */
 
         Elderly elderly = Elderly.create(
                 request.name(),
@@ -94,59 +90,40 @@ public class ElderlyService {
         elderlyRepository.save(elderly);
     }
 
-    @Transactional
-    public List<ElderlyListResponse> getElderlyListBySearch(String searchString) {
+    public List<ElderlyInfoResponse> getElderlyListBySearch(String searchString) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
-        List<Elderly> elderlyList;
-        elderlyList = elderlyRepository.findByNursingInstitutionAndNameContaining(
+        List<Elderly> elderlyList = elderlyRepository.findByNursingInstitutionAndNameContaining(
                 socialworker.getNursingInstitution(), searchString);
 
         return elderlyList.stream()
                 .map(elderly -> {
                     boolean hasRecruitment = recruitmentRepository.existsByElderly(elderly);
                     int caregiverNum = completedMatchingRepository.countDistinctCaregiversByElderly(elderly);
-                    return new ElderlyListResponse(
-                            elderly.getId(),
-                            elderly.getName(),
-                            elderly.getAge(),
-                            elderly.getGender(),
-                            elderly.getProfileImageUrl(),
-                            elderly.getCareLevel(),
-                            caregiverNum, // 매칭 완료 테이블에서 어르신
-                            hasRecruitment);
+                    return ElderlyInfoResponse.of(elderly, caregiverNum, hasRecruitment);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    @Transactional
-    public List<ElderlyListResponse> getElderlyList() {
+    public List<ElderlyInfoResponse> getElderlyList() {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
-
-        List<Elderly> elderlyList =
-                elderlyList = elderlyRepository.findByNursingInstitution(socialworker.getNursingInstitution());
+        List<Elderly> elderlyList = elderlyRepository.findByNursingInstitution(socialworker.getNursingInstitution());
 
         return elderlyList.stream()
                 .map(elderly -> {
                     boolean hasRecruitment = recruitmentRepository.existsByElderly(elderly);
                     int caregiverNum = completedMatchingRepository.countDistinctCaregiversByElderly(elderly);
-                    return new ElderlyListResponse(
-                            elderly.getId(),
-                            elderly.getName(),
-                            elderly.getAge(),
-                            elderly.getGender(),
-                            elderly.getProfileImageUrl(),
-                            elderly.getCareLevel(),
-                            caregiverNum, // 매칭 완료 테이블에서 어르신
-                            hasRecruitment);
+                    return ElderlyInfoResponse.of(elderly, caregiverNum, hasRecruitment);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
-    public ElderlyProfileUploadResponse uploadProfileImage(MultipartFile file, String institutionId) {
+    public ElderlyProfileUploadResponse uploadProfileImage(MultipartFile file) {
+        authUtil.getLoggedInSocialWorker();
         try {
-            String fileName = generateProfileImageFileName(institutionId);
+            String fileName = generateProfileImageFileName(
+                    DateTimeFormatter.ofPattern("yyyyMMddHHmmssnn").format(LocalDateTime.now()));
             String profileImageUrl = fileUtil.upload(file, "profile-image", fileName);
             return new ElderlyProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
@@ -154,13 +131,13 @@ public class ElderlyService {
         }
     }
 
-    private String generateProfileImageFileName(String institutionId) {
+    private String generateProfileImageFileName(String source) {
         try {
             var md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(institutionId.getBytes(StandardCharsets.UTF_8));
+            byte[] hash = md.digest(source.getBytes(StandardCharsets.UTF_8));
             return Base64.getUrlEncoder().encodeToString(hash);
         } catch (NoSuchAlgorithmException e) {
-            throw new ElderlyException(ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE);
+            throw new ElderlyException(ELDERLY_FAILED_TO_CREATE_PROFILE_IMAGE_NAME);
         }
     }
 }

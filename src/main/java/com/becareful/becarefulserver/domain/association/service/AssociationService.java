@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.association.service;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
+import com.becareful.becarefulserver.domain.association.dto.AssociationSimpleDto;
 import com.becareful.becarefulserver.domain.association.dto.JoinApplicationSimpleDto;
 import com.becareful.becarefulserver.domain.association.dto.MemberSimpleDto;
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
@@ -201,27 +202,26 @@ public class AssociationService {
                         PARTICIPATION_APPLICATION, AssociationRank.MEMBER, AssociationRank.MEMBER, association));
     }
 
-    public AssociationSearchResponse searchAssociationByName(String associationName) {
+    public AssociationSearchListResponse searchAssociationByName(String associationName) {
         List<Association> associationList = associationName == null
                 ? associationRepository.findAll()
                 : associationRepository.findByNameContains(associationName);
-        List<AssociationSearchResponse.AssociationSimpleInfo> associationSimpleInfoList = associationList.stream()
+        List<AssociationSimpleDto> associationSimpleInfoList = associationList.stream()
                 .map(association -> {
                     int memberCount = socialWorkerRepository.countByAssociation(association);
-                    return AssociationSearchResponse.AssociationSimpleInfo.of(association, memberCount);
+                    return AssociationSimpleDto.of(association, memberCount);
                 })
                 .toList();
-        return new AssociationSearchResponse(associationList.size(), associationSimpleInfoList);
+        return new AssociationSearchListResponse(associationList.size(), associationSimpleInfoList);
     }
 
-    public AssociationSearchResponse getAssociationList() {
-        List<Association> associationList = associationRepository.findAll();
-        List<AssociationSearchResponse.AssociationSimpleInfo> associationSimpleInfoList = associationList.stream()
+    public AssociationSearchListResponse getAssociationList() {
+        List<AssociationSimpleDto> associationSimpleDtoList = associationRepository.findAll().stream()
                 .map(association -> {
                     int memberCount = socialWorkerRepository.countByAssociation(association);
-                    return AssociationSearchResponse.AssociationSimpleInfo.of(association, memberCount);
+                    return AssociationSimpleDto.of(association, memberCount);
                 })
                 .toList();
-        return new AssociationSearchResponse(associationList.size(), associationSimpleInfoList);
+        return AssociationSearchListResponse.from(associationSimpleDtoList);
     }
 }
