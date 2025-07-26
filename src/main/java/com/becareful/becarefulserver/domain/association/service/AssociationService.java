@@ -2,35 +2,39 @@ package com.becareful.becarefulserver.domain.association.service;
 
 import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
-
-import com.becareful.becarefulserver.domain.association.domain.*;
-import com.becareful.becarefulserver.domain.association.dto.*;
-import com.becareful.becarefulserver.domain.association.dto.request.*;
+import com.becareful.becarefulserver.domain.association.domain.Association;
+import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
+import com.becareful.becarefulserver.domain.association.dto.AssociationSimpleDto;
+import com.becareful.becarefulserver.domain.association.dto.JoinApplicationSimpleDto;
+import com.becareful.becarefulserver.domain.association.dto.MemberSimpleDto;
+import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
+import com.becareful.becarefulserver.domain.association.dto.request.AssociationJoinRequest;
+import com.becareful.becarefulserver.domain.association.dto.request.UpdateAssociationInfoRequest;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
-import com.becareful.becarefulserver.domain.association.repository.*;
-import com.becareful.becarefulserver.domain.association.vo.*;
-import com.becareful.becarefulserver.domain.community.domain.*;
-import com.becareful.becarefulserver.domain.community.repository.*;
-import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.*;
-import com.becareful.becarefulserver.domain.socialworker.domain.*;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
-import com.becareful.becarefulserver.domain.socialworker.repository.*;
-import com.becareful.becarefulserver.global.exception.exception.*;
-import com.becareful.becarefulserver.global.properties.*;
-import com.becareful.becarefulserver.global.util.*;
-import jakarta.servlet.http.*;
-import jakarta.validation.*;
-import java.io.*;
-import java.time.*;
-import java.util.*;
-import lombok.*;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.*;
-import org.springframework.security.core.context.*;
-import org.springframework.stereotype.*;
-import org.springframework.transaction.annotation.*;
-import org.springframework.web.multipart.*;
+import com.becareful.becarefulserver.domain.association.repository.AssociationJoinApplicationRepository;
+import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
+import com.becareful.becarefulserver.domain.association.vo.AssociationJoinApplicationStatus;
+import com.becareful.becarefulserver.domain.community.domain.PostBoard;
+import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
+import com.becareful.becarefulserver.global.exception.exception.AssociationException;
+import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
+import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
+import com.becareful.becarefulserver.global.util.AuthUtil;
+import com.becareful.becarefulserver.global.util.FileUtil;
+import jakarta.validation.Valid;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -201,6 +205,7 @@ public class AssociationService {
                         PARTICIPATION_APPLICATION, AssociationRank.MEMBER, AssociationRank.MEMBER, association));
     }
 
+    @Transactional(readOnly = true)
     public AssociationSearchListResponse searchAssociationByName(String associationName) {
         List<Association> associationList = associationName == null
                 ? associationRepository.findAll()
@@ -214,6 +219,7 @@ public class AssociationService {
         return new AssociationSearchListResponse(associationList.size(), associationSimpleInfoList);
     }
 
+    @Transactional(readOnly = true)
     public AssociationSearchListResponse getAssociationList() {
         List<AssociationSimpleDto> associationSimpleDtoList = associationRepository.findAll().stream()
                 .map(association -> {
@@ -224,6 +230,25 @@ public class AssociationService {
         return AssociationSearchListResponse.from(associationSimpleDtoList);
     }
 
+    @Transactional(readOnly = true)
+    public AssociationInfoResponse getAssociationInfo() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Association association = loggedInSocialWorker.getAssociation();
+        SocialWorker chairman = socialWorkerRepository
+                .findByAssociationAndAssociationRank(association, AssociationRank.CHAIRMAN)
+                .orElseThrow(() -> new AssociationException(ASSOCIATION_CHAIRMAN_NOT_EXISTS));
+        int memberCount = socialWorkerRepository.countByAssociation(association);
+
+        return AssociationInfoResponse.of(association, memberCount, chairman);
+    }
+
+    @Transactional
+    public void updateAssociationInfo(@Valid UpdateAssociationInfoRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Association association = loggedInSocialWorker.getAssociation();
+
+        association.updateAssociationInfo(request);
+      
     @Transactional
     public void updateAssociationRank(@Valid UpdateAssociationRankRequest request) {
 

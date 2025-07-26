@@ -59,12 +59,13 @@ public class SecurityConfig {
                         .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE")
                         .requestMatchers("/caregiver/upload-profile-img")
                         .hasAnyRole("GUEST", "NONE")
-                        .requestMatchers(HttpMethod.GET, "/association/join-requests")
+                        .requestMatchers(HttpMethod.GET, "/association/join-requests", "/association/info")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE")
                         .requestMatchers(
                                 "/association/create",
                                 "/association/join-requests/*/accept",
                                 "/association/join-requests/*/reject",
+                                "/association/info",
                                 "/association/members/*/expel",
                                 "/association/upload-profile-img",
                                 "/association/members/rank")
@@ -84,7 +85,7 @@ public class SecurityConfig {
                         .authenticated()
                         .requestMatchers("/auth/**", "/login/**", "/oauth2/**", "/favicon.ico")
                         .permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/test/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())

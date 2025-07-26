@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain.matching.dto.request;
+package com.becareful.becarefulserver.domain.chat.dto.request;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.common.domain.CareType;

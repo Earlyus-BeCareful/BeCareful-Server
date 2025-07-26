@@ -9,6 +9,7 @@ import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRa
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.Period;
 import lombok.*;
 
 @Entity
@@ -81,6 +82,16 @@ public class SocialWorker extends BaseEntity {
         this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
     }
 
+    /**
+     * get method
+     */
+    public Integer getAge() {
+        return Period.between(this.birthday, LocalDate.now()).getYears();
+    }
+
+    /**
+     * update method
+     * */
     public static SocialWorker create(
             String name,
             String nickname,
