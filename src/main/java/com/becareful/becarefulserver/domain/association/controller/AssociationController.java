@@ -1,20 +1,17 @@
 package com.becareful.becarefulserver.domain.association.controller;
 
-import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
-import com.becareful.becarefulserver.domain.association.dto.request.AssociationJoinRequest;
-import com.becareful.becarefulserver.domain.association.dto.request.UpdateAssociationInfoRequest;
+import com.becareful.becarefulserver.domain.association.dto.request.*;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
-import com.becareful.becarefulserver.domain.association.service.AssociationService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.becareful.becarefulserver.domain.association.service.*;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.tags.*;
 import jakarta.servlet.http.*;
-import jakarta.validation.Valid;
-import java.net.URI;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import jakarta.validation.*;
+import java.net.*;
+import lombok.*;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.*;
 
 @RestController
 @RequiredArgsConstructor
