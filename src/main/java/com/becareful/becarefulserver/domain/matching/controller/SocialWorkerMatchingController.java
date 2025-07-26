@@ -4,10 +4,12 @@ import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCrea
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusSimpleResponse;
+import com.becareful.becarefulserver.domain.matching.service.ContractService;
 import com.becareful.becarefulserver.domain.matching.service.MatchingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,15 +19,16 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/matching/social-worker")
 @Tag(name = "Social Worker Matching", description = "사회복지사가 사용하는 매칭 공고 관련 API 입니다.")
-public class SocialWorkerRecruitmentController {
+public class SocialWorkerMatchingController {
 
     private final MatchingService matchingService;
+    private final ContractService contractService;
 
     @Operation(summary = "매칭 공고 등록 (사회복지사 호출)")
     @PostMapping("/recruitment")
     public ResponseEntity<Long> createRecruitment(@Valid @RequestBody RecruitmentCreateRequest request) {
         Long recruitmentId = matchingService.createRecruitment(request);
-        return ResponseEntity.ok(recruitmentId);
+        return ResponseEntity.ok(recruitmentId); // TODO : Created 응답으로 변경
     }
 
     @Operation(summary = "매칭 현황 조회 (사회복지사 매칭 현황 조회)")
@@ -51,5 +54,13 @@ public class SocialWorkerRecruitmentController {
             @PathVariable(name = "caregiverId") Long caregiverId) {
         var response = matchingService.getCaregiverDetailInfo(recruitmentId, caregiverId);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "채용하기", description = "근무 시작일 선택 후 근무조건 생성")
+    @PostMapping("/{matchingId}/hire")
+    public ResponseEntity<Void> createContract(
+            @PathVariable("matchingId") Long matchingId, @RequestParam LocalDate workStartDate) {
+        contractService.createContract(matchingId, workStartDate);
+        return ResponseEntity.ok().build();
     }
 }

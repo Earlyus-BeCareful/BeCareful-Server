@@ -201,6 +201,7 @@ public class AssociationService {
                         PARTICIPATION_APPLICATION, AssociationRank.MEMBER, AssociationRank.MEMBER, association));
     }
 
+    @Transactional(readOnly = true)
     public AssociationSearchListResponse searchAssociationByName(String associationName) {
         List<Association> associationList = associationName == null
                 ? associationRepository.findAll()
@@ -214,6 +215,7 @@ public class AssociationService {
         return new AssociationSearchListResponse(associationList.size(), associationSimpleInfoList);
     }
 
+    @Transactional(readOnly = true)
     public AssociationSearchListResponse getAssociationList() {
         List<AssociationSimpleDto> associationSimpleDtoList = associationRepository.findAll().stream()
                 .map(association -> {
@@ -222,6 +224,26 @@ public class AssociationService {
                 })
                 .toList();
         return AssociationSearchListResponse.from(associationSimpleDtoList);
+    }
+
+    @Transactional(readOnly = true)
+    public AssociationInfoResponse getAssociationInfo() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Association association = loggedInSocialWorker.getAssociation();
+        SocialWorker chairman = socialWorkerRepository
+                .findByAssociationAndAssociationRank(association, AssociationRank.CHAIRMAN)
+                .orElseThrow(() -> new AssociationException(ASSOCIATION_CHAIRMAN_NOT_EXISTS));
+        int memberCount = socialWorkerRepository.countByAssociation(association);
+
+        return AssociationInfoResponse.of(association, memberCount, chairman);
+    }
+
+    @Transactional
+    public void updateAssociationInfo(@Valid UpdateAssociationInfoRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Association association = loggedInSocialWorker.getAssociation();
+
+        association.updateAssociationInfo(request);
     }
 
     @Transactional
@@ -241,7 +263,8 @@ public class AssociationService {
         }
 
         if (currentRank.equals(AssociationRank.EXECUTIVE) && targetRank.equals(AssociationRank.MEMBER)) {
-            int executiveCount = socialWorkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
+            int executiveCount =
+                    socialWorkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
             if (executiveCount <= 1) {
                 throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
             }

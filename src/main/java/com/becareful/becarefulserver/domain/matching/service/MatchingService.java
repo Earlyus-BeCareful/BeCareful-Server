@@ -19,7 +19,7 @@ import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationS
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
-import com.becareful.becarefulserver.domain.matching.dto.CaregiverSimpleDto;
+import com.becareful.becarefulserver.domain.matching.dto.MatchedCaregiverDto;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.*;
@@ -238,7 +238,7 @@ public class MatchingService {
                     .findByCaregiver(caregiver)
                     .orElseThrow(() -> new CaregiverException(CAREGIVER_CAREER_NOT_EXISTS));
 
-            CaregiverSimpleDto caregiverInfo = CaregiverSimpleDto.of(caregiver, career);
+            MatchedCaregiverDto caregiverInfo = MatchedCaregiverDto.of(caregiver, career);
             MatchingResultStatus matchingResult =
                     matching.getSocialWorkerMatchingResultInfo().judgeMatchingResultStatus();
 

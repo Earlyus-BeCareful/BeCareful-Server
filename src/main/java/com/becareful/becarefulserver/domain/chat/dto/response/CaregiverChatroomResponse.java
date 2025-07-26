@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain.caregiver.dto.response;
+package com.becareful.becarefulserver.domain.chat.dto.response;
 
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
@@ -6,18 +6,19 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingIn
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public record ChatroomResponse(
+public record CaregiverChatroomResponse(
         Long matchingId,
         String nursingInstitutionProfileImageUrl,
         String nursingInstitutionName,
         String recentChat,
         String lastSendTime,
         Integer unreadCount) {
-    public static ChatroomResponse of(Matching matching, Contract contract, boolean isCompleted) {
+
+    public static CaregiverChatroomResponse of(Matching matching, Contract contract, boolean isCompleted) {
         NursingInstitution institution = matching.getRecruitment().getElderly().getNursingInstitution();
         String recentChat = isCompleted ? "최종 승인이 확정되었습니다!" : "합격 축하드립니다.";
         String timeDifference = getTimeDifferenceString(contract);
-        return new ChatroomResponse(
+        return new CaregiverChatroomResponse(
                 matching.getId(),
                 institution.getProfileImageUrl(),
                 institution.getName(),

@@ -34,6 +34,7 @@ public class ErrorMessage {
 
     public static final String ASSOCIATION_NOT_EXISTS = "존재하지 않는 협회입니다.";
     public static final String ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS = "존재하지 않는 협회 가입 요청입니다.";
+    public static final String ASSOCIATION_CHAIRMAN_NOT_EXISTS = "협회장이 존재하지 않습니다.";
 
     public static final String ELDERLY_FAILED_TO_CREATE_PROFILE_IMAGE_NAME = "프로필 이미지 이름을 생성하는 중 문제가 발생했습니다.";
     public static final String ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
@@ -43,6 +44,10 @@ public class ErrorMessage {
     public static final String MATCHING_NOT_EXISTS = "매칭 또는 지원 정보가 존재하지 않습니다.";
     public static final String MATCHING_CANNOT_APPLY = "미지원 공고에만 지원할 수 있습니다.";
     public static final String MATCHING_CANNOT_REJECT = "미지원 공고만 거절할 수 있습니다.";
+    public static final String MATCHING_CAREGIVER_DIFFERENT = "해당 요양보호사의 매칭 데이터가 아닙니다.";
+    public static final String MATCHING_SOCIAL_WORKER_DIFFERENT = "해당 사회복지사의 매칭 데이터가 아닙니다.";
+
+    public static final String CONTRACT_NOT_EXISTS = "계약서가 존재하지 않습니다.";
 
     public static final String USER_CREATE_INVALID_GENDER_CODE = "유효하지 않은 성별 번호입니다.";
 
