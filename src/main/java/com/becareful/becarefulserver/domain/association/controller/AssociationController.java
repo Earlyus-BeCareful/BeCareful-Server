@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.association.controller;
 
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationJoinRequest;
+import com.becareful.becarefulserver.domain.association.dto.request.UpdateAssociationInfoRequest;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.service.AssociationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -98,6 +99,20 @@ public class AssociationController {
     @DeleteMapping("/members/{memberId}/expel") // api url 수정
     public ResponseEntity<Void> expelAssociationMember(@PathVariable Long memberId) {
         associationService.expelMember(memberId); // 메서드 이름 수정
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "협회 정보 조회", description = "홈화면에서 협회이름 클릭하면 반환하는 페이지")
+    @GetMapping("/info")
+    public ResponseEntity<AssociationInfoResponse> getAssociationInfo() {
+        AssociationInfoResponse response = associationService.getAssociationInfo();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "협회 정보 수정")
+    @PutMapping("/info")
+    public ResponseEntity<Void> updateMyBasicInfo(@Valid @RequestBody UpdateAssociationInfoRequest request) {
+        associationService.updateAssociationInfo(request);
         return ResponseEntity.ok().build();
     }
 
