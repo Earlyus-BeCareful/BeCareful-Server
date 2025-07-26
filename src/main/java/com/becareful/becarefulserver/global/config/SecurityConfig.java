@@ -60,18 +60,21 @@ public class SecurityConfig {
                         .requestMatchers("/caregiver/upload-profile-img")
                         .hasAnyRole("GUEST", "NONE")
                         .requestMatchers(HttpMethod.GET, "/association/join-requests")
-                        .hasRole("CHAIRMAN")
+                        .hasAnyRole("CHAIRMAN", "EXECUTIVE")
                         .requestMatchers(
                                 "/association/create",
                                 "/association/join-requests/*/accept",
                                 "/association/join-requests/*/reject",
                                 "/association/members/*/expel",
-                                "/association/upload-profile-img")
-                        .hasRole("CHAIRMAN")
+                                "/association/upload-profile-img",
+                                "/association/members/rank")
+                        .hasAnyRole("CHAIRMAN", "EXECUTIVE")
                         .requestMatchers(HttpMethod.POST, "/association/join-requests")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/association/search", "/association/list")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
+                        .requestMatchers("/association/chairman/delegate")
+                        .hasRole("CHAIRMAN")
                         .requestMatchers(
                                 "/association/members/overview", "/association/members", "/association/members/*")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE", "MEMBER")

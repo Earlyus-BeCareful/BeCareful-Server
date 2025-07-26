@@ -8,9 +8,8 @@ import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRa
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDate;
+import lombok.*;
 
 @Entity
 @Getter
@@ -134,7 +133,7 @@ public class SocialWorker extends BaseEntity {
         this.isAgreedToCollectPersonalInfo = request.isAgreedToCollectPersonalInfo();
     }
 
-    public void updateAssociationRank(AssociationRank rank){
+    public void updateAssociationRank(AssociationRank rank) {
         this.associationRank = rank;
     }
 }

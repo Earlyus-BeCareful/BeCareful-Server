@@ -321,7 +321,7 @@ public class SocialWorkerService {
         String institutionRank = institutionRankParam.toString();
         String associationRank = associationRankParam.toString();
         String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
-        String refreshToken = jwtUtil.createRefreshToken(phoneNumber, institutionRank, associationRank);
+        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
         response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
         response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));

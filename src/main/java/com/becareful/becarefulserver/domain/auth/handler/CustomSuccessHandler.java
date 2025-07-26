@@ -17,6 +17,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.List;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,11 +30,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.util.List;
-import java.util.UUID;
 
 @Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -82,9 +81,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .map(role -> role.replace("ROLE_", ""))
                 .toList();
 
-
-        String accessToken = jwtUtil.createAccessToken(name, roles.get(0), roles.get(1));
-        String refreshToken = jwtUtil.createRefreshToken(name);
+        String accessToken = jwtUtil.createAccessToken(phoneNumber, roles.get(0), roles.get(1));
+        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
         response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry())); // 15분
         response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry())); // 일주일
@@ -157,7 +155,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         response.sendRedirect(redirectUrl);
     }
-
 
     private Cookie createCookie(String key, String value, int maxAge) {
         Cookie cookie = new Cookie(key, value);

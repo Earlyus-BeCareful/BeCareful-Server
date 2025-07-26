@@ -88,7 +88,7 @@ public class CommunityService {
     private void updateJwtAndSecurityContext(
             HttpServletResponse response, String phoneNumber, String institutionRank, String associationRank) {
         String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
-        String refreshToken = jwtUtil.createRefreshToken(phoneNumber, institutionRank, associationRank);
+        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
         response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
         response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
