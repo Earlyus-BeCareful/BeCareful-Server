@@ -231,6 +231,8 @@ public class AssociationService {
                 .findById(request.memberId())
                 .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
 
+        Association association = member.getAssociation();
+
         AssociationRank currentRank = member.getAssociationRank();
         AssociationRank targetRank = request.associationRank();
 
@@ -239,7 +241,7 @@ public class AssociationService {
         }
 
         if (currentRank.equals(AssociationRank.EXECUTIVE) && targetRank.equals(AssociationRank.MEMBER)) {
-            int executiveCount = socialWorkerRepository.countByAssociationRank(AssociationRank.EXECUTIVE);
+            int executiveCount = socialWorkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
             if (executiveCount <= 1) {
                 throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
             }
