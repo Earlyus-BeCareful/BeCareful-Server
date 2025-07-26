@@ -7,6 +7,7 @@ import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.service.AssociationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.*;
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
@@ -65,6 +66,21 @@ public class AssociationController {
     public ResponseEntity<AssociationMemberListResponse> getAssociationMembers() {
         AssociationMemberListResponse response = associationService.getAssociationMemberList();
         return ResponseEntity.ok().body(response);
+    }
+
+    @Operation(summary = "회원 등급 변경", description = "협회장&임원진 권한" + "임원진과 회원 등급만 변경 가능" + "임원진은 최소 한 명 이상이어야함.")
+    @PutMapping("/members/rank")
+    public ResponseEntity<Void> updateAssociationRank(@Valid @RequestBody UpdateAssociationRankRequest request) {
+        associationService.updateAssociationRank(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "협회장 위임", description = "협회장 권한 API")
+    @PutMapping("/chairman/delegate")
+    public ResponseEntity<Void> updateAssociationChairman(
+            @Valid @RequestBody UpdateAssociationChairmanRequest request, HttpServletResponse response) {
+        associationService.updateAssociationChairman(request, response);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "협회 가입 신청 목록 보기")

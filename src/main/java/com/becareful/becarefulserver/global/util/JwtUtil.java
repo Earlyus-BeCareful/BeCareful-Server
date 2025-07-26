@@ -70,11 +70,9 @@ public class JwtUtil {
     }
 
     // 리프레시 토큰 생성
-    public String createRefreshToken(String phoneNumber, String institutionRank, String associationRank) {
+    public String createRefreshToken(String phoneNumber) {
         return Jwts.builder()
                 .subject(phoneNumber)
-                .claim("institutionRank", "ROLE_" + institutionRank)
-                .claim("associationRank", "ROLE_" + associationRank)
                 .expiration(new Date(System.currentTimeMillis() + jwtProperties.getRefreshTokenExpiry() * 1000L))
                 .signWith(secretKey)
                 .compact();

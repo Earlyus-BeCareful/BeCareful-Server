@@ -82,9 +82,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .toList();
 
         String accessToken = jwtUtil.createAccessToken(phoneNumber, roles.get(0), roles.get(1));
-        String refreshToken = jwtUtil.createRefreshToken(phoneNumber, roles.get(0), roles.get(1));
+        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
-        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry())); // 24시간
+        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry())); // 15분
         response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry())); // 일주일
 
         String state = request.getParameter("state");

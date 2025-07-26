@@ -2,7 +2,6 @@ package com.becareful.becarefulserver.domain.association.service;
 
 import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
-
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
 import com.becareful.becarefulserver.domain.association.dto.AssociationSimpleDto;
@@ -43,6 +42,9 @@ public class AssociationService {
 
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
+    private final JwtUtil jwtUtil;
+    private final CookieProperties cookieProperties;
+    private final JwtProperties jwtProperties;
     private final SocialWorkerRepository socialWorkerRepository;
     private final AssociationRepository associationRepository;
     private final AssociationJoinApplicationRepository associationMembershipRequestRepository;
@@ -246,5 +248,78 @@ public class AssociationService {
         Association association = loggedInSocialWorker.getAssociation();
 
         association.updateAssociationInfo(request);
+      
+    @Transactional
+    public void updateAssociationRank(@Valid UpdateAssociationRankRequest request) {
+
+        SocialWorker member = socialWorkerRepository
+                .findById(request.memberId())
+                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+
+        Association association = member.getAssociation();
+
+        AssociationRank currentRank = member.getAssociationRank();
+        AssociationRank targetRank = request.associationRank();
+
+        if (currentRank.equals(AssociationRank.CHAIRMAN)) {
+            throw new DomainException("협회장의 회원 유형은 협회장만 수정할 수 있습니다. 협회장인 경우 다른 페이지에서 수정해주시기 바랍니다.");
+        }
+
+        if (currentRank.equals(AssociationRank.EXECUTIVE) && targetRank.equals(AssociationRank.MEMBER)) {
+            int executiveCount = socialWorkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
+            if (executiveCount <= 1) {
+                throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
+            }
+        }
+
+        member.updateAssociationRank(request.associationRank());
+    }
+
+    @Transactional
+    public void updateAssociationChairman(
+            @Valid UpdateAssociationChairmanRequest request, HttpServletResponse response) {
+        SocialWorker currentChairman = authUtil.getLoggedInSocialWorker();
+        SocialWorker newChairman = socialWorkerRepository
+                .findById(request.newChairmanId())
+                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+
+        currentChairman.updateAssociationRank(request.nextRankOfCurrentChairman());
+        newChairman.updateAssociationRank(AssociationRank.CHAIRMAN);
+
+        updateJwtAndSecurityContext(
+                response,
+                currentChairman.getPhoneNumber(),
+                currentChairman.getInstitutionRank(),
+                request.nextRankOfCurrentChairman());
+    }
+
+    private void updateJwtAndSecurityContext(
+            HttpServletResponse response,
+            String phoneNumber,
+            InstitutionRank institutionRankParam,
+            AssociationRank associationRankParam) {
+        String institutionRank = institutionRankParam.toString();
+        String associationRank = associationRankParam.toString();
+        String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
+        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
+
+        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
+        response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
+
+        List<GrantedAuthority> authorities =
+                List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    private Cookie createCookie(String key, String value, int maxAge) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(maxAge);
+        cookie.setSecure(cookieProperties.getCookieSecure());
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
+        return cookie;
     }
 }

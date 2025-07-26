@@ -67,12 +67,15 @@ public class SecurityConfig {
                                 "/association/join-requests/*/reject",
                                 "/association/info",
                                 "/association/members/*/expel",
-                                "/association/upload-profile-img")
+                                "/association/upload-profile-img",
+                                "/association/members/rank")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE")
                         .requestMatchers(HttpMethod.POST, "/association/join-requests")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/association/search", "/association/list")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
+                        .requestMatchers("/association/chairman/delegate")
+                        .hasRole("CHAIRMAN")
                         .requestMatchers(
                                 "/association/members/overview", "/association/members", "/association/members/*")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE", "MEMBER")
