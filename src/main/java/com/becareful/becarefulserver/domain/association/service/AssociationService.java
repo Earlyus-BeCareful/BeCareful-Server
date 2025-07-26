@@ -10,6 +10,7 @@ import com.becareful.becarefulserver.domain.association.dto.JoinApplicationSimpl
 import com.becareful.becarefulserver.domain.association.dto.MemberSimpleDto;
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
 import com.becareful.becarefulserver.domain.association.dto.request.AssociationJoinRequest;
+import com.becareful.becarefulserver.domain.association.dto.request.UpdateAssociationInfoRequest;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.repository.AssociationJoinApplicationRepository;
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
@@ -25,6 +26,7 @@ import com.becareful.becarefulserver.global.exception.exception.ElderlyException
 import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
@@ -201,6 +203,7 @@ public class AssociationService {
                         PARTICIPATION_APPLICATION, AssociationRank.MEMBER, AssociationRank.MEMBER, association));
     }
 
+    @Transactional(readOnly = true)
     public AssociationSearchListResponse searchAssociationByName(String associationName) {
         List<Association> associationList = associationName == null
                 ? associationRepository.findAll()
@@ -214,6 +217,7 @@ public class AssociationService {
         return new AssociationSearchListResponse(associationList.size(), associationSimpleInfoList);
     }
 
+    @Transactional(readOnly = true)
     public AssociationSearchListResponse getAssociationList() {
         List<AssociationSimpleDto> associationSimpleDtoList = associationRepository.findAll().stream()
                 .map(association -> {
@@ -222,5 +226,25 @@ public class AssociationService {
                 })
                 .toList();
         return AssociationSearchListResponse.from(associationSimpleDtoList);
+    }
+
+    @Transactional(readOnly = true)
+    public AssociationInfoResponse getAssociationInfo() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Association association = loggedInSocialWorker.getAssociation();
+        SocialWorker chairman = socialWorkerRepository
+                .findByAssociationAndAssociationRank(association, AssociationRank.CHAIRMAN)
+                .orElseThrow(() -> new AssociationException(ASSOCIATION_CHAIRMAN_NOT_EXISTS));
+        int memberCount = socialWorkerRepository.countByAssociation(association);
+
+        return AssociationInfoResponse.of(association, memberCount, chairman);
+    }
+
+    @Transactional
+    public void updateAssociationInfo(@Valid UpdateAssociationInfoRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Association association = loggedInSocialWorker.getAssociation();
+
+        association.updateAssociationInfo(request);
     }
 }
