@@ -2,8 +2,8 @@ package com.becareful.becarefulserver.domain.community.dto.response;
 
 import com.becareful.becarefulserver.domain.community.domain.FileType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
-import com.becareful.becarefulserver.domain.community.domain.PostMedia;
 import com.becareful.becarefulserver.domain.community.dto.AuthorSimpleDto;
+import com.becareful.becarefulserver.domain.community.dto.PostMediaDto;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -16,9 +16,9 @@ public record PostDetailResponse(
         boolean isEdited,
         String postedDate,
         AuthorSimpleDto author,
-        List<String> imageUrls,
-        List<String> videoUrls,
-        List<String> fileUrls,
+        List<PostMediaDto> imageList,
+        List<PostMediaDto> videoList,
+        List<PostMediaDto> fileUList,
         boolean isMyPost,
         String originalUrl) {
 
@@ -34,13 +34,13 @@ public record PostDetailResponse(
                 post.getUpdateDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 AuthorSimpleDto.from(author),
                 post.getMediaListByType(FileType.IMAGE).stream()
-                        .map(PostMedia::getMediaUrl)
+                        .map(PostMediaDto::from)
                         .toList(),
                 post.getMediaListByType(FileType.VIDEO).stream()
-                        .map(PostMedia::getMediaUrl)
+                        .map(PostMediaDto::from)
                         .toList(),
                 post.getMediaListByType(FileType.FILE).stream()
-                        .map(PostMedia::getMediaUrl)
+                        .map(PostMediaDto::from)
                         .toList(),
                 isMyPost,
                 post.getOriginalUrl());
