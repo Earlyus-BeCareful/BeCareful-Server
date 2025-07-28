@@ -1,21 +1,11 @@
 package com.becareful.becarefulserver.domain.test.controller;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_NOT_EXISTS;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.SOCIAL_WORKER_NOT_EXISTS;
-
-import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
-import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
-import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
+import com.becareful.becarefulserver.domain.test.service.TestService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,24 +13,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/test")
 public class TestController {
 
-    private final SocialWorkerRepository socialWorkerRepository;
-    private final CaregiverRepository caregiverRepository;
+    private final TestService testService;
 
     @DeleteMapping("/social-worker")
     public ResponseEntity<Void> deleteSocialWorker(@RequestParam String phoneNumber) {
-        SocialWorker socialWorker = socialWorkerRepository
-                .findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
-        socialWorkerRepository.delete(socialWorker);
+        testService.deleteSocialWorker(phoneNumber);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/caregiver")
     public ResponseEntity<Void> deleteCaregiver(@RequestParam String phoneNumber) {
-        Caregiver caregiver = caregiverRepository
-                .findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new CaregiverException(CAREGIVER_NOT_EXISTS));
-        caregiverRepository.delete(caregiver);
+        testService.deleteCaregiver(phoneNumber);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/token-setting")
+    public ResponseEntity<Void> tokenSetting(@RequestParam String phoneNumber, HttpServletResponse response) {
+        testService.tokenSetting(phoneNumber, response);
+        return ResponseEntity.ok().build();
     }
 }
