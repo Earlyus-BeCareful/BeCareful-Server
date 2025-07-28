@@ -2,7 +2,12 @@ package com.becareful.becarefulserver.global.security;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.INVALID_REFRESH_TOKEN;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
+import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.constant.SecurityConstant;
+import com.becareful.becarefulserver.global.exception.ErrorMessage;
 import com.becareful.becarefulserver.global.exception.exception.AuthException;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
 import com.becareful.becarefulserver.global.properties.JwtProperties;
@@ -14,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final JwtProperties jwtProperties;
     private final CookieProperties cookieProperties;
+    private final SocialWorkerRepository socialWorkerRepository;
+    private final CaregiverRepository caregiverRepository;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
@@ -59,7 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // AccessToken이 만료되었는지 확인
         if (accessToken == null || !jwtUtil.isValid(accessToken)) {
 
-            // 리프레시 토큰도 없는 경우 에러 응답
+            // 리프레시 토큰이 존재하고 유효할 때만 재발급 시도
             if (refreshToken != null && jwtUtil.isValid(refreshToken)) {
                 // 액세스 토큰이 만료되었으면 리프레시 토큰을 사용하여 새 토큰 발급
                 accessToken = getAccessTokenFromRefresh(refreshToken);
@@ -73,6 +81,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 newAccessTokenCookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
 
                 response.addCookie(newAccessTokenCookie);
+            } else if (accessToken == null && refreshToken == null) {
+                throw new AuthException(ErrorMessage.TOKEN_NOT_CONTAINED);
             } else {
                 throw new AuthException(INVALID_REFRESH_TOKEN);
             }
@@ -89,12 +99,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Refresh Token에서 사용자 정보 추출
         String phoneNumber = jwtUtil.getPhoneNumber(refreshToken);
-        String institutionRank = jwtUtil.getInstitutionRank(refreshToken);
-        String associationRank = jwtUtil.getAssociationRank(refreshToken); // ROLE_ 형태
+
+        String newInstitutionRank;
+        String newAssociationRank;
+
+        Optional<SocialWorker> socialWorker = socialWorkerRepository.findByPhoneNumber(phoneNumber);
+        if (socialWorker.isPresent()) {
+            newInstitutionRank = socialWorker.get().getInstitutionRank().toString();
+            newAssociationRank = socialWorker.get().getAssociationRank().toString();
+        } else {
+            Optional<Caregiver> caregiver = caregiverRepository.findByPhoneNumber(phoneNumber);
+            if (caregiver.isPresent()) {
+                newInstitutionRank = "NONE";
+                newAssociationRank = "NONE";
+            } else {
+                newInstitutionRank = "GUEST";
+                newAssociationRank = "GUEST";
+            }
+        }
 
         // 새로운 Access Token 생성
-        return jwtUtil.createAccessToken(
-                phoneNumber, institutionRank.split("_")[1], associationRank.split("_")[1]);
+        return jwtUtil.createAccessToken(phoneNumber, newInstitutionRank, newAssociationRank);
     }
 
     private void updateSecurityContext(String accessToken) {

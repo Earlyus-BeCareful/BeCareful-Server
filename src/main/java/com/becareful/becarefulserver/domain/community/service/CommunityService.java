@@ -57,26 +57,29 @@ public class CommunityService {
         Optional<AssociationJoinApplication> requestOpt =
                 associationMembershipRequestRepository.findBySocialWorker(socialWorker);
 
-        if (association != null) {
+        if (association != null) { // 가입된 회원인 경우
             int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+            String associationName = association.getName();
 
             if (requestOpt.isPresent()) {
                 associationMembershipRequestRepository.delete(requestOpt.get());
-                return CommunityAccessResponse.approved(socialWorker, associationMemberCount);
+                return CommunityAccessResponse.approved(socialWorker, associationName, associationMemberCount);
             }
 
             return CommunityAccessResponse.alreadyApproved(socialWorker, associationMemberCount);
         }
 
-        return requestOpt
+        return requestOpt // 가입된 회원이 아닌 경우
                 .map(request -> {
+                    String associationName = request.getAssociation().getName();
+
                     switch (request.getStatus()) {
                         case REJECTED -> {
                             associationMembershipRequestRepository.delete(request);
-                            return CommunityAccessResponse.rejected(socialWorker);
+                            return CommunityAccessResponse.rejected(socialWorker, associationName);
                         }
                         case PENDING -> {
-                            return CommunityAccessResponse.pending(socialWorker);
+                            return CommunityAccessResponse.pending(socialWorker, associationName);
                         }
                         default -> throw new IllegalStateException(
                                 "Unexpected community access status: " + request.getStatus());
@@ -88,7 +91,7 @@ public class CommunityService {
     private void updateJwtAndSecurityContext(
             HttpServletResponse response, String phoneNumber, String institutionRank, String associationRank) {
         String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
-        String refreshToken = jwtUtil.createRefreshToken(phoneNumber, institutionRank, associationRank);
+        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
         response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
         response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));

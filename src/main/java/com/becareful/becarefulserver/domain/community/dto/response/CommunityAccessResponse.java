@@ -5,31 +5,32 @@ import com.becareful.becarefulserver.domain.community.vo.CommunityAccessStatus;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 
 public record CommunityAccessResponse(
-        CommunityAccessStatus accessStatus, AssociationMyResponse associationInfo, String socialWorkerNickname) {
+        CommunityAccessStatus accessStatus, String associationName, AssociationMyResponse associationInfo) {
 
     public static CommunityAccessResponse alreadyApproved(SocialWorker socialWorker, Integer associationMemberCount) {
         return new CommunityAccessResponse(
                 CommunityAccessStatus.ALREADY_APPROVED,
-                AssociationMyResponse.from(socialWorker.getAssociation(), associationMemberCount),
-                socialWorker.getNickname());
+                null,
+                AssociationMyResponse.from(socialWorker.getAssociation(), associationMemberCount));
     }
 
-    public static CommunityAccessResponse approved(SocialWorker socialWorker, Integer associationMemberCount) {
+    public static CommunityAccessResponse approved(
+            SocialWorker socialWorker, String associationName, Integer associationMemberCount) {
         return new CommunityAccessResponse(
                 CommunityAccessStatus.APPROVED,
-                AssociationMyResponse.from(socialWorker.getAssociation(), associationMemberCount),
-                socialWorker.getNickname());
+                associationName,
+                AssociationMyResponse.from(socialWorker.getAssociation(), associationMemberCount));
     }
 
-    public static CommunityAccessResponse rejected(SocialWorker socialWorker) {
-        return new CommunityAccessResponse(CommunityAccessStatus.REJECTED, null, socialWorker.getNickname());
+    public static CommunityAccessResponse rejected(SocialWorker socialWorker, String associationName) {
+        return new CommunityAccessResponse(CommunityAccessStatus.REJECTED, associationName, null);
     }
 
-    public static CommunityAccessResponse pending(SocialWorker socialWorker) {
-        return new CommunityAccessResponse(CommunityAccessStatus.PENDING, null, socialWorker.getNickname());
+    public static CommunityAccessResponse pending(SocialWorker socialWorker, String associationName) {
+        return new CommunityAccessResponse(CommunityAccessStatus.PENDING, associationName, null);
     }
 
     public static CommunityAccessResponse notApplied(SocialWorker socialWorker) {
-        return new CommunityAccessResponse(CommunityAccessStatus.NOT_APPLIED, null, socialWorker.getNickname());
+        return new CommunityAccessResponse(CommunityAccessStatus.NOT_APPLIED, null, null);
     }
 }

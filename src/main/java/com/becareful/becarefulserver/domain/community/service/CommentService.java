@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.community.service;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.COMMENT_NOT_FOUND;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_BOARD_NOT_FOUND;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_NOT_FOUND;
 
@@ -8,11 +9,13 @@ import com.becareful.becarefulserver.domain.community.domain.Comment;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
 import com.becareful.becarefulserver.domain.community.dto.request.CommentCreateRequest;
+import com.becareful.becarefulserver.domain.community.dto.request.CommentUpdateRequest;
 import com.becareful.becarefulserver.domain.community.dto.response.CommentResponse;
 import com.becareful.becarefulserver.domain.community.repository.CommentRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.global.exception.exception.CommentException;
 import com.becareful.becarefulserver.global.exception.exception.PostBoardException;
 import com.becareful.becarefulserver.global.exception.exception.PostException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
@@ -64,5 +67,43 @@ public class CommentService {
         return commentRepository.findAllByPost(post).stream()
                 .map(CommentResponse::from)
                 .toList();
+    }
+
+    @Transactional
+    public void updateComment(String boardType, Long postId, Long commentId, CommentUpdateRequest request) {
+        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        BoardType type = BoardType.fromUrlBoardType(boardType);
+
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
+        Comment comment =
+                commentRepository.findById(commentId).orElseThrow(() -> new CommentException(COMMENT_NOT_FOUND));
+
+        postBoard.validateReadableFor(currentMember);
+        post.validateBoard(postBoard.getId());
+        comment.validatePost(post);
+        comment.validateAuthor(currentMember);
+        comment.update(request.content());
+    }
+
+    @Transactional
+    public void deleteComment(String boardType, Long postId, Long commentId) {
+        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        BoardType type = BoardType.fromUrlBoardType(boardType);
+
+        PostBoard postBoard = postBoardRepository
+                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
+        Comment comment =
+                commentRepository.findById(commentId).orElseThrow(() -> new CommentException(COMMENT_NOT_FOUND));
+
+        postBoard.validateReadableFor(currentMember);
+        post.validateBoard(postBoard.getId());
+        comment.validatePost(post);
+        comment.validateAuthor(currentMember);
+        commentRepository.delete(comment);
     }
 }
