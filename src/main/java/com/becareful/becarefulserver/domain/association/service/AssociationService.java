@@ -39,7 +39,7 @@ public class AssociationService {
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
     private final JwtUtil jwtUtil;
-    private final CookieProperties cookieProperties;
+    private final CookieUtil cookieUtil;
     private final JwtProperties jwtProperties;
     private final SocialWorkerRepository socialWorkerRepository;
     private final AssociationRepository associationRepository;
@@ -301,23 +301,14 @@ public class AssociationService {
         String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
         String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
-        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
-        response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
+        response.addCookie(cookieUtil.createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
+        response.addCookie(
+                cookieUtil.createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
 
         List<GrantedAuthority> authorities =
                 List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
-    private Cookie createCookie(String key, String value, int maxAge) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(maxAge);
-        cookie.setSecure(cookieProperties.getCookieSecure());
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
-        return cookie;
     }
 }
