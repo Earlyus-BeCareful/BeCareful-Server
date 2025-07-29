@@ -4,8 +4,8 @@ import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationS
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingRecruitmentResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentListItemResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentDetailResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentListItemResponse;
 import com.becareful.becarefulserver.domain.matching.service.MatchingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

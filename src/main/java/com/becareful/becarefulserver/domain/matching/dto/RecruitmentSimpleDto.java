@@ -3,22 +3,21 @@ package com.becareful.becarefulserver.domain.matching.dto;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-
 import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public record RecruitmentSimpleDto(
-    Long recruitmentId,
-    String title,
-    List<CareType> careTypes,
-    List<DayOfWeek> workDays,
-    String workStartTime,
-    String workEndTime,
-    WorkSalaryUnitType workSalaryUnitType,
-    Integer workSalaryAmount,
-    boolean isRecruiting,
-    InstitutionDto institutionInfo) {
+        Long recruitmentId,
+        String title,
+        List<CareType> careTypes,
+        List<DayOfWeek> workDays,
+        String workStartTime,
+        String workEndTime,
+        WorkSalaryUnitType workSalaryUnitType,
+        Integer workSalaryAmount,
+        boolean isRecruiting,
+        InstitutionDto institutionInfo) {
 
     public static RecruitmentSimpleDto from(Recruitment recruitment) {
         return new RecruitmentSimpleDto(
@@ -31,7 +30,6 @@ public record RecruitmentSimpleDto(
                 recruitment.getWorkSalaryUnitType(),
                 recruitment.getWorkSalaryAmount(),
                 recruitment.isRecruiting(),
-                InstitutionDto.from(recruitment.getElderly().getNursingInstitution())
-        );
+                InstitutionDto.from(recruitment.getElderly().getNursingInstitution()));
     }
 }

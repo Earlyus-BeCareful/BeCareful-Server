@@ -9,6 +9,7 @@ import com.becareful.becarefulserver.domain.chat.dto.response.ChatroomContentRes
 import com.becareful.becarefulserver.domain.matching.domain.CompletedMatching;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
+import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
@@ -33,7 +34,8 @@ public class CaregiverChatService {
 
     public List<CaregiverChatroomResponse> getChatList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        List<Matching> matchingList = matchingRepository.findByCaregiver(caregiver);
+        List<Matching> matchingList =
+                matchingRepository.findAllByCaregiverAndApplicationStatus(caregiver, MatchingApplicationStatus.합격);
 
         List<CaregiverChatroomResponse> responses = new ArrayList<>();
         matchingList.forEach(matching -> {

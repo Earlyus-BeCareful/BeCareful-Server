@@ -104,7 +104,7 @@ public class SocialWorkerService {
                         .map(SocialWorkerSimpleDto::from)
                         .toList();
 
-        List<Matching> matchingList = matchingRepository.findAllMatchingByElderlyIds(elderlyIds);
+        List<Matching> matchingList = matchingRepository.findAllByElderlyIds(elderlyIds);
 
         int elderlyCount = elderlyIds.size();
         int socialWorkerCount = socialWorkers.size();
