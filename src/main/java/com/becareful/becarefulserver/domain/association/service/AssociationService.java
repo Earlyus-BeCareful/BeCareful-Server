@@ -4,15 +4,15 @@ import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.association.domain.vo.AssociationJoinApplicationStatus;
 import com.becareful.becarefulserver.domain.association.dto.*;
 import com.becareful.becarefulserver.domain.association.dto.request.*;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.repository.*;
-import com.becareful.becarefulserver.domain.association.vo.*;
 import com.becareful.becarefulserver.domain.community.domain.*;
 import com.becareful.becarefulserver.domain.community.repository.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;

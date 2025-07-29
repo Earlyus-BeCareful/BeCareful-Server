@@ -18,7 +18,7 @@ import com.becareful.becarefulserver.domain.chat.service.CaregiverChatService;
 import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
-import com.becareful.becarefulserver.domain.common.vo.Gender;
+import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;

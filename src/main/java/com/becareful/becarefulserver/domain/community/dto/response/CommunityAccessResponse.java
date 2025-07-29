@@ -1,7 +1,7 @@
 package com.becareful.becarefulserver.domain.community.dto.response;
 
 import com.becareful.becarefulserver.domain.association.dto.response.AssociationMyResponse;
-import com.becareful.becarefulserver.domain.community.vo.CommunityAccessStatus;
+import com.becareful.becarefulserver.domain.community.domain.vo.CommunityAccessStatus;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 
 public record CommunityAccessResponse(

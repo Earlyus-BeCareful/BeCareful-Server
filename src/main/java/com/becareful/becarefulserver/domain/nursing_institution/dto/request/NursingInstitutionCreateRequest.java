@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.nursing_institution.dto.request;
 
-import com.becareful.becarefulserver.domain.nursing_institution.vo.FacilityType;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

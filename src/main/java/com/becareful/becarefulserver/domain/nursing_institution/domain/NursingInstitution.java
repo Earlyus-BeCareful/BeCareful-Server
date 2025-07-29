@@ -3,9 +3,9 @@ package com.becareful.becarefulserver.domain.nursing_institution.domain;
 import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.*;
 
 import com.becareful.becarefulserver.domain.common.domain.*;
-import com.becareful.becarefulserver.domain.nursing_institution.converter.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.converter.FacilityTypeConverter;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;
 import com.becareful.becarefulserver.domain.nursing_institution.dto.request.*;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.converter.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import jakarta.persistence.*;

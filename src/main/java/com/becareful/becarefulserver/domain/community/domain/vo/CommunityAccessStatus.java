@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain.community.vo;
+package com.becareful.becarefulserver.domain.community.domain.vo;
 
 public enum CommunityAccessStatus {
     ALREADY_APPROVED,

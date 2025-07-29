@@ -1,7 +1,7 @@
 package com.becareful.becarefulserver.domain.work_location.domain;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-import com.becareful.becarefulserver.domain.common.vo.Location;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

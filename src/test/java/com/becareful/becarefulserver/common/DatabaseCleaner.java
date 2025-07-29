@@ -2,10 +2,10 @@ package com.becareful.becarefulserver.common;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
-import com.becareful.becarefulserver.domain.common.vo.Gender;
+import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.repository.NursingInstitutionRepository;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
