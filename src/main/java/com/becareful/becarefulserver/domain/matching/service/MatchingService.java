@@ -86,12 +86,12 @@ public class MatchingService {
         return MatchingCaregiverDetailResponse.of(matching, career, careerDetails, locations);
     }
 
-    public List<CaregiverMatchingRecruitmentResponse> getCaregiverMatchingRecruitmentList() {
+    public List<RecruitmentListItemResponse> getCaregiverMatchingRecruitmentList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         return workApplicationRepository
                 .findByCaregiver(caregiver)
                 .map(workApplication -> matchingRepository.findAllByWorkApplication(workApplication).stream()
-                        .map(CaregiverMatchingRecruitmentResponse::from)
+                        .map(RecruitmentListItemResponse::from)
                         .toList())
                 .orElse(null);
     }

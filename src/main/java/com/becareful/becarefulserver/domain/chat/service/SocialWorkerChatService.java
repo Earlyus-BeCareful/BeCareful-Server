@@ -8,7 +8,7 @@ import com.becareful.becarefulserver.domain.chat.dto.response.ChatroomContentRes
 import com.becareful.becarefulserver.domain.chat.dto.response.SocialWorkerChatroomResponse;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.dto.response.ContractDetailResponse;
+import com.becareful.becarefulserver.domain.chat.dto.response.ContractDetailResponse;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;

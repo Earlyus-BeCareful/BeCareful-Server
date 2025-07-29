@@ -4,7 +4,7 @@ import com.becareful.becarefulserver.domain.chat.dto.request.ContractEditRequest
 import com.becareful.becarefulserver.domain.chat.dto.response.ChatroomContentResponse;
 import com.becareful.becarefulserver.domain.chat.dto.response.SocialWorkerChatroomResponse;
 import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService;
-import com.becareful.becarefulserver.domain.matching.dto.response.ContractDetailResponse;
+import com.becareful.becarefulserver.domain.chat.dto.response.ContractDetailResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
