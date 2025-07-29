@@ -4,6 +4,8 @@ import jakarta.persistence.Embeddable;
 import lombok.*;
 
 @Getter
+@ToString
+@EqualsAndHashCode
 @Embeddable
 @Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
