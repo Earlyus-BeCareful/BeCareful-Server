@@ -2,27 +2,22 @@ package com.becareful.becarefulserver.domain.nursing_institution.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.nursing_institution.dto.request.NursingInstitutionCreateRequest;
-import com.becareful.becarefulserver.domain.nursing_institution.dto.response.NursingInstitutionProfileUploadResponse;
-import com.becareful.becarefulserver.domain.nursing_institution.dto.response.NursingInstitutionSearchResponse;
-import com.becareful.becarefulserver.domain.nursing_institution.repository.NursingInstitutionRepository;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.FacilityType;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
-import com.becareful.becarefulserver.global.util.AuthUtil;
-import com.becareful.becarefulserver.global.util.FileUtil;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.EnumSet;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.request.*;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.response.*;
+import com.becareful.becarefulserver.domain.nursing_institution.repository.*;
+import com.becareful.becarefulserver.domain.nursing_institution.vo.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
+import com.becareful.becarefulserver.global.util.*;
+import java.io.*;
+import java.nio.charset.*;
+import java.security.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.*;
+import org.springframework.web.multipart.*;
 
 @Service
 @RequiredArgsConstructor
@@ -70,6 +65,14 @@ public class NursingInstitutionService {
 
         nursingInstitutionRepository.save(newInstitution);
         return newInstitution.getId();
+    }
+
+    @Transactional
+    public void UpdateNursingInstitutionInfo(UpdateNursingInstitutionInfoRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        NursingInstitution institution = loggedInSocialWorker.getNursingInstitution();
+
+        institution.updateNursingInstitutionInfo(request);
     }
 
     @Transactional

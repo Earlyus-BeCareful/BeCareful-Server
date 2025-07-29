@@ -74,6 +74,8 @@ public class SecurityConfig {
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/association/search", "/association/list")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
+                        .requestMatchers(HttpMethod.PUT, "/nursingInstitution/info")
+                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE")
                         .requestMatchers("/association/chairman/delegate")
                         .hasRole("CHAIRMAN")
                         .requestMatchers(
