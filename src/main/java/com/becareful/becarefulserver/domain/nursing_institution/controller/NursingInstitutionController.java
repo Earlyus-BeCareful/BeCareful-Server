@@ -1,22 +1,19 @@
 package com.becareful.becarefulserver.domain.nursing_institution.controller;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.NURSING_INSTITUTION_REQUIRE_CODE;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.nursing_institution.dto.request.NursingInstitutionCreateRequest;
-import com.becareful.becarefulserver.domain.nursing_institution.dto.response.NursingInstitutionProfileUploadResponse;
-import com.becareful.becarefulserver.domain.nursing_institution.dto.response.NursingInstitutionSearchResponse;
-import com.becareful.becarefulserver.domain.nursing_institution.service.NursingInstitutionService;
-import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import java.net.URI;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.request.*;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.response.*;
+import com.becareful.becarefulserver.domain.nursing_institution.service.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.tags.*;
+import jakarta.validation.*;
+import java.net.*;
+import lombok.*;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,6 +62,14 @@ public class NursingInstitutionController {
     public ResponseEntity<Void> createNursingInstitution(@Valid @RequestBody NursingInstitutionCreateRequest request) {
         Long id = nursingInstitutionService.saveNursingInstitution(request);
         return ResponseEntity.created(URI.create("nursingInstitution/" + id)).build();
+    }
+
+    @Operation(summary = "요양 기관 수정")
+    @PutMapping("/info")
+    public ResponseEntity<Void> updateNursingInstitution(
+            @Valid @RequestBody UpdateNursingInstitutionInfoRequest request) {
+        nursingInstitutionService.UpdateNursingInstitutionInfo(request);
+        return ResponseEntity.ok().build();
     }
 
     @Hidden
