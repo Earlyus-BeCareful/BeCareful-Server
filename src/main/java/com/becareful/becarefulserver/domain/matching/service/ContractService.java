@@ -31,7 +31,7 @@ public class ContractService {
         Recruitment recruitment = matching.getRecruitment();
         recruitment.complete();
 
-        matchingRepository.findByRecruitment(recruitment).stream()
+        matchingRepository.findAllByRecruitment(recruitment).stream()
                 .filter(match -> match.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중))
                 .forEach(match -> {
                     match.failed();

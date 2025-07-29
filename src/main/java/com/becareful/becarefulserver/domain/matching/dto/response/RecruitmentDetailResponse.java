@@ -1,6 +1,8 @@
 package com.becareful.becarefulserver.domain.matching.dto.response;
 
+import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.ElderlyDto;
 import com.becareful.becarefulserver.domain.matching.dto.InstitutionDto;
 import com.becareful.becarefulserver.domain.matching.dto.RecruitmentDto;
@@ -11,12 +13,13 @@ public record RecruitmentDetailResponse(
         RecruitmentDto recruitmentInfo,
         ElderlyDto elderlyInfo,
         InstitutionDto institutionInfo,
+        MatchingResultStatus matchingResultStatus,
         boolean isHotRecruitment,
-        boolean isHourlySalaryTop,
-        Integer matchRate) {
+        boolean isHourlySalaryTop) {
 
     public static RecruitmentDetailResponse from(
-            Recruitment recruitment, boolean isHotRecruitment, boolean isHourlySalaryTop, Integer matchRate) {
+            Matching matching, boolean isHotRecruitment, boolean isHourlySalaryTop) {
+        Recruitment recruitment = matching.getRecruitment();
         Elderly elderly = recruitment.getElderly();
         NursingInstitution institution = elderly.getNursingInstitution();
 
@@ -24,8 +27,8 @@ public record RecruitmentDetailResponse(
                 RecruitmentDto.from(recruitment),
                 ElderlyDto.from(elderly),
                 InstitutionDto.from(institution),
+                matching.getMatchingResultStatus(),
                 isHotRecruitment,
-                isHourlySalaryTop,
-                matchRate);
+                isHourlySalaryTop);
     }
 }

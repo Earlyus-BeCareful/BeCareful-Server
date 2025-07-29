@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.미지원;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Career;
@@ -32,6 +33,7 @@ import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepos
 import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import com.becareful.becarefulserver.domain.work_location.repository.WorkLocationRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
+import com.becareful.becarefulserver.global.exception.exception.MatchingException;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import java.time.DayOfWeek;
@@ -86,24 +88,25 @@ public class MatchingService {
         return MatchingCaregiverDetailResponse.of(matching, career, careerDetails, locations);
     }
 
-    public List<CaregiverMatchingRecruitmentResponse> getCaregiverMatchingRecruitmentList() {
+    public List<RecruitmentListItemResponse> getCaregiverMatchingRecruitmentList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         return workApplicationRepository
                 .findByCaregiver(caregiver)
-                .map(workApplication -> matchingRepository.findAllByWorkApplication(workApplication).stream()
-                        .map(CaregiverMatchingRecruitmentResponse::from)
-                        .toList())
+                .map(workApplication ->
+                        matchingRepository.findAllByCaregiverAndApplicationStatus(caregiver, 미지원).stream()
+                                .map(RecruitmentListItemResponse::from)
+                                .toList())
                 .orElse(null);
     }
 
     public RecruitmentDetailResponse getRecruitmentDetail(Long recruitmentId) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Recruitment recruitment = recruitmentRepository
-                .findById(recruitmentId)
-                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+        Matching matching = matchingRepository
+                .findByCaregiverAndRecruitmentId(caregiver, recruitmentId)
+                .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
 
         // TODO : recruit 매칭 적합도 및 태그 부여 판단
-        return RecruitmentDetailResponse.from(recruitment, false, false, 98);
+        return RecruitmentDetailResponse.from(matching, false, false);
     }
 
     public List<CaregiverAppliedMatchingRecruitmentResponse> getMyRecruitment(
@@ -135,7 +138,7 @@ public class MatchingService {
                 .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
 
         // TODO : recruit 매칭 적합도 및 태그 부여 판단
-        return CaregiverAppliedMatchingDetailResponse.of(recruitment, false, false, 98, matching.getApplicationDate());
+        return CaregiverAppliedMatchingDetailResponse.of(matching, false, false);
     }
 
     @Transactional
@@ -213,7 +216,7 @@ public class MatchingService {
                 .filter(Recruitment::isRecruiting)
                 .map(recruitment -> {
                     int notAppliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingApplicationStatus(
-                            recruitment, MatchingApplicationStatus.미지원); // 거절 제거 할래말래
+                            recruitment, 미지원); // 거절 제거 할래말래
                     int appliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingApplicationStatus(
                             recruitment, MatchingApplicationStatus.지원검토중);
 
@@ -227,7 +230,7 @@ public class MatchingService {
         Recruitment recruitment = recruitmentRepository
                 .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        List<Matching> matchings = matchingRepository.findByRecruitment(recruitment);
+        List<Matching> matchings = matchingRepository.findAllByRecruitment(recruitment);
 
         List<MatchingCaregiverSimpleResponse> unAppliedCaregivers = new ArrayList<>();
         List<MatchingCaregiverSimpleResponse> appliedCaregivers = new ArrayList<>();
@@ -240,13 +243,13 @@ public class MatchingService {
 
             MatchedCaregiverDto caregiverInfo = MatchedCaregiverDto.of(caregiver, career);
             MatchingResultStatus matchingResult =
-                    matching.getSocialWorkerMatchingResultInfo().judgeMatchingResultStatus();
+                    matching.getMatchingResultInfo().judgeMatchingResultStatus();
 
             var matchedCaregiverInfo = MatchingCaregiverSimpleResponse.of(caregiverInfo, matchingResult);
 
             if (matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중)) {
                 appliedCaregivers.add(matchedCaregiverInfo);
-            } else if (matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.미지원)) {
+            } else if (matching.getMatchingApplicationStatus().equals(미지원)) {
                 unAppliedCaregivers.add(matchedCaregiverInfo);
             }
         });

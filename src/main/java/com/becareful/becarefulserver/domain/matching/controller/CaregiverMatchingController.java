@@ -4,8 +4,8 @@ import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationS
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingRecruitmentResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverMatchingRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentDetailResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentListItemResponse;
 import com.becareful.becarefulserver.domain.matching.service.MatchingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,9 +30,8 @@ public class CaregiverMatchingController {
 
     @Operation(summary = "매칭 공고 리스트 조회 (요양보호사 일자리 리스트 조회)")
     @GetMapping("/list")
-    public ResponseEntity<List<CaregiverMatchingRecruitmentResponse>> getCaregiverMatchingRecruitmentList() {
-        List<CaregiverMatchingRecruitmentResponse> responses = matchingService.getCaregiverMatchingRecruitmentList();
-        System.out.println(responses);
+    public ResponseEntity<List<RecruitmentListItemResponse>> getCaregiverMatchingRecruitmentList() {
+        var responses = matchingService.getCaregiverMatchingRecruitmentList();
         return ResponseEntity.ok(responses);
     }
 
@@ -40,7 +39,7 @@ public class CaregiverMatchingController {
     @GetMapping("/recruitment/{recruitmentId}")
     public ResponseEntity<RecruitmentDetailResponse> getRecruitmentDetail(
             @PathVariable("recruitmentId") Long recruitmentId) {
-        RecruitmentDetailResponse response = matchingService.getRecruitmentDetail(recruitmentId);
+        var response = matchingService.getRecruitmentDetail(recruitmentId);
         return ResponseEntity.ok(response);
     }
 

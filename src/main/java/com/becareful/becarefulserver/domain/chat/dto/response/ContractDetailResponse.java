@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain.matching.dto.response;
+package com.becareful.becarefulserver.domain.chat.dto.response;
 
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;

@@ -20,7 +20,7 @@ public record RecruitmentDto(
         Integer workSalaryAmount,
         String description,
         boolean isRecruiting,
-        String institutionName) {
+        InstitutionDto institutionInfo) {
 
     public static RecruitmentDto from(Recruitment recruitment) {
         return new RecruitmentDto(
@@ -44,6 +44,6 @@ public record RecruitmentDto(
                 recruitment.getWorkSalaryAmount(),
                 recruitment.getDescription(),
                 recruitment.isRecruiting(),
-                recruitment.getElderly().getNursingInstitution().getName());
+                InstitutionDto.from(recruitment.getElderly().getNursingInstitution()));
     }
 }

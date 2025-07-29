@@ -1,23 +1,35 @@
 package com.becareful.becarefulserver.domain.matching.dto;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.util.EnumSet;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public record RecruitmentSimpleDto(
-        ElderlyDto elderlyInfo,
-        EnumSet<CareType> careType,
-        EnumSet<DayOfWeek> workDays,
-        LocalTime workStartTime,
-        LocalTime workEndTime) {
+        Long recruitmentId,
+        String title,
+        List<CareType> careTypes,
+        List<DayOfWeek> workDays,
+        String workStartTime,
+        String workEndTime,
+        WorkSalaryUnitType workSalaryUnitType,
+        Integer workSalaryAmount,
+        boolean isRecruiting,
+        InstitutionDto institutionInfo) {
+
     public static RecruitmentSimpleDto from(Recruitment recruitment) {
         return new RecruitmentSimpleDto(
-                ElderlyDto.from(recruitment.getElderly()),
-                recruitment.getCareTypes(),
-                recruitment.getWorkDays(),
-                recruitment.getWorkStartTime(),
-                recruitment.getWorkEndTime());
+                recruitment.getId(),
+                recruitment.getTitle(),
+                recruitment.getCareTypes().stream().toList(),
+                recruitment.getWorkDays().stream().toList(),
+                recruitment.getWorkStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                recruitment.getWorkEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                recruitment.getWorkSalaryUnitType(),
+                recruitment.getWorkSalaryAmount(),
+                recruitment.isRecruiting(),
+                InstitutionDto.from(recruitment.getElderly().getNursingInstitution()));
     }
 }
