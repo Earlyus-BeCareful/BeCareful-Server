@@ -199,7 +199,6 @@ public class Matching extends BaseEntity {
     private static boolean isWorkTimeMatched(EnumSet<WorkTime> recruitmentTimes, EnumSet<WorkTime> applyTimes) {
         EnumSet<WorkTime> intersection = EnumSet.copyOf(recruitmentTimes);
         intersection.retainAll(applyTimes);
-
-        return ((double) intersection.size() / recruitmentTimes.size()) * 100 != 100;
+        return ((double) intersection.size() / recruitmentTimes.size()) * 100 == 100;
     }
 }
