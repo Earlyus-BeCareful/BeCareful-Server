@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain.association.vo;
+package com.becareful.becarefulserver.domain.association.domain.vo;
 
 public enum AssociationJoinApplicationStatus {
     PENDING,

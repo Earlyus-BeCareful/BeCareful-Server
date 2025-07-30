@@ -1,7 +1,7 @@
 package com.becareful.becarefulserver.domain.socialworker.dto;
 
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.FacilityType;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;
 import java.time.LocalDate;
 import java.util.EnumSet;
 

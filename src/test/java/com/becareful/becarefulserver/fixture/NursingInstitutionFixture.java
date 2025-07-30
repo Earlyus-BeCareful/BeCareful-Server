@@ -1,7 +1,7 @@
 package com.becareful.becarefulserver.fixture;
 
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.FacilityType;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;
 import java.util.EnumSet;
 
 public class NursingInstitutionFixture {

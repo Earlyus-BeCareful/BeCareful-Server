@@ -3,10 +3,10 @@ package com.becareful.becarefulserver.domain.nursing_institution.service;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;
 import com.becareful.becarefulserver.domain.nursing_institution.dto.request.*;
 import com.becareful.becarefulserver.domain.nursing_institution.dto.response.*;
 import com.becareful.becarefulserver.domain.nursing_institution.repository.*;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;

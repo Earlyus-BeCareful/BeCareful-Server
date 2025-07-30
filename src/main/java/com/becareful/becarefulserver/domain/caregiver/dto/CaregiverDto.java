@@ -2,7 +2,7 @@ package com.becareful.becarefulserver.domain.caregiver.dto;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
-import com.becareful.becarefulserver.domain.common.vo.Gender;
+import com.becareful.becarefulserver.domain.common.domain.Gender;
 import java.util.List;
 
 public record CaregiverDto(
