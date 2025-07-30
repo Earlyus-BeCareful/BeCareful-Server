@@ -4,6 +4,7 @@ import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -14,7 +15,8 @@ public record ContractDto(
         LocalTime workStartTime,
         LocalTime workEndTime,
         Integer workSalaryAmount,
-        LocalDate workStartDate) {
+        LocalDate workStartDate,
+        LocalDateTime createDate) {
 
     public static ContractDto from(Contract contract) {
         return new ContractDto(
@@ -24,6 +26,7 @@ public record ContractDto(
                 contract.getWorkStartTime(),
                 contract.getWorkEndTime(),
                 contract.getWorkSalaryAmount(),
-                contract.getWorkStartDate());
+                contract.getWorkStartDate(),
+                contract.getCreateDate());
     }
 }
