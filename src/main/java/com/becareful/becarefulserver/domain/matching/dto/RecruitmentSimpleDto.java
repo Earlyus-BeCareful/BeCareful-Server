@@ -17,7 +17,7 @@ public record RecruitmentSimpleDto(
         WorkSalaryUnitType workSalaryUnitType,
         Integer workSalaryAmount,
         boolean isRecruiting,
-        InstitutionDto institutionInfo) {
+        InstitutionSimpleDto institutionInfo) {
 
     public static RecruitmentSimpleDto from(Recruitment recruitment) {
         return new RecruitmentSimpleDto(
@@ -30,6 +30,6 @@ public record RecruitmentSimpleDto(
                 recruitment.getWorkSalaryUnitType(),
                 recruitment.getWorkSalaryAmount(),
                 recruitment.isRecruiting(),
-                InstitutionDto.from(recruitment.getElderly().getNursingInstitution()));
+                InstitutionSimpleDto.from(recruitment.getElderly().getNursingInstitution()));
     }
 }
