@@ -1,6 +1,8 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.*;
 import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.미지원;
+import static com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus.제외;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Career;
@@ -16,6 +18,7 @@ import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplication
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
+import com.becareful.becarefulserver.domain.matching.domain.MatchingStatusFilter;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.MatchedCaregiverDto;
@@ -200,18 +203,26 @@ public class MatchingService {
         return recruitment.getId();
     }
 
-    public List<MatchingStatusSimpleResponse> getMatchingList() {
+    public List<MatchingStatusSimpleResponse> getMatchingList(MatchingStatusFilter matchingStatusFilter) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
         List<Recruitment> recruitments = recruitmentRepository.findAllByInstitutionId(
                 socialworker.getNursingInstitution().getId());
 
         return recruitments.stream()
-                .filter(Recruitment::isRecruiting)
+                .filter(recruitment -> {
+                    if (matchingStatusFilter.equals(MatchingStatusFilter.진행중)) {
+                        return recruitment.isRecruiting();
+                    }
+                    if (matchingStatusFilter.equals(MatchingStatusFilter.완료)) {
+                        return !recruitment.isRecruiting();
+                    }
+                    return true;
+                })
                 .map(recruitment -> {
                     int notAppliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingApplicationStatus(
                             recruitment, 미지원); // 거절 제거 할래말래
-                    int appliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingApplicationStatus(
-                            recruitment, MatchingApplicationStatus.지원검토중);
+                    int appliedMatchingCount =
+                            matchingRepository.countByRecruitmentAndMatchingApplicationStatus(recruitment, 지원검토중);
 
                     return MatchingStatusSimpleResponse.of(recruitment, notAppliedMatchingCount, appliedMatchingCount);
                 })
@@ -240,7 +251,7 @@ public class MatchingService {
 
             var matchedCaregiverInfo = MatchingCaregiverSimpleResponse.of(caregiverInfo, matchingResult);
 
-            if (matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중)) {
+            if (matching.getMatchingApplicationStatus().equals(지원검토중)) {
                 appliedCaregivers.add(matchedCaregiverInfo);
             } else if (matching.getMatchingApplicationStatus().equals(미지원)) {
                 unAppliedCaregivers.add(matchedCaregiverInfo);
@@ -260,8 +271,7 @@ public class MatchingService {
 
                     return Matching.create(recruitment, application, locations);
                 })
-                // TODO : 매칭 알고리즘 해제하기.
-                // .filter((matching -> isMatchedWithSocialWorker(matching.getSocialWorkerMatchingInfo())))
+                .filter((matching -> !matching.getMatchingResultStatus().equals(제외)))
                 .forEach(matchingRepository::save);
     }
 }
