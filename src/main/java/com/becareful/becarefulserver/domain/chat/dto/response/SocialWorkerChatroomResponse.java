@@ -32,7 +32,7 @@ public record SocialWorkerChatroomResponse(
                 timeDifference,
                 ElderlySimpleDto.from(elderly),
                 0 // TODO : unread count 구현
-        );
+                );
     }
 
     private static String getTimeDifferenceString(Contract contract) {
