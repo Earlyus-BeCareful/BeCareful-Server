@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 public record CaregiverChatroomResponse(
         Long matchingId,
+        Long recruitmentId,
         String nursingInstitutionProfileImageUrl,
         String nursingInstitutionName,
         String recentChat,
@@ -20,6 +21,7 @@ public record CaregiverChatroomResponse(
         String timeDifference = getTimeDifferenceString(contract);
         return new CaregiverChatroomResponse(
                 matching.getId(),
+                matching.getRecruitment().getId(),
                 institution.getProfileImageUrl(),
                 institution.getName(),
                 recentChat,
