@@ -124,12 +124,11 @@ public class Matching extends BaseEntity {
     }
 
     public void hire() {
-        validateMatchingCompletable();
         this.matchingApplicationStatus = MatchingApplicationStatus.합격;
     }
 
     public void failed() {
-        validateMatchingCompletable();
+        validateMatchingFailable();
         this.matchingApplicationStatus = MatchingApplicationStatus.지원거절;
     }
 
@@ -137,11 +136,11 @@ public class Matching extends BaseEntity {
         return matchingResultInfo.judgeMatchingResultStatus();
     }
 
-    private void validateMatchingCompletable() {
+    private void validateMatchingFailable() {
         if (matchingApplicationStatus.equals(MatchingApplicationStatus.지원검토중)) {
             return;
         }
-        throw new RecruitmentException("지원한 경우에만 합격, 불합격 처리할 수 있습니다.");
+        throw new RecruitmentException("지원한 경우에만 불합격 처리할 수 있습니다.");
     }
 
     private void validateMatchingUpdatable() {
