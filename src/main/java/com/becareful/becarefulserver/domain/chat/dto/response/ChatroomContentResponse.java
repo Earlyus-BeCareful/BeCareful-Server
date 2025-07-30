@@ -10,6 +10,8 @@ import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import java.util.List;
 
 public record ChatroomContentResponse(
+        Long matchingId,
+        Long recruitmentId,
         ElderlySimpleDto elderlyInfo,
         InstitutionSimpleDto institutionInfo,
         CaregiverSimpleDto caregiverInfo,
@@ -18,6 +20,8 @@ public record ChatroomContentResponse(
     public static ChatroomContentResponse of(Matching matching, List<Contract> contractList) {
         Elderly elderly = matching.getRecruitment().getElderly();
         return new ChatroomContentResponse(
+                matching.getId(),
+                matching.getRecruitment().getId(),
                 ElderlySimpleDto.from(elderly),
                 InstitutionSimpleDto.from(elderly.getNursingInstitution()),
                 CaregiverSimpleDto.from(matching.getWorkApplication().getCaregiver()),
