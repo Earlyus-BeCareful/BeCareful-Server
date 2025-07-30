@@ -4,7 +4,6 @@ import com.becareful.becarefulserver.domain.chat.dto.ContractDto;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
-
 import java.util.List;
 
 public record ChatroomContentResponse(
