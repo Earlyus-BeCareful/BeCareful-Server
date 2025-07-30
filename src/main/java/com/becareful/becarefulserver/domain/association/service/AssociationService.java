@@ -177,6 +177,31 @@ public class AssociationService {
         return AssociationMemberDetailInfoResponse.of(member, age, institution, association);
     }
 
+    @Transactional
+    public void leaveAssociation(HttpServletResponse response) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Association association = loggedInSocialWorker.getAssociation();
+        AssociationRank currentRank = loggedInSocialWorker.getAssociationRank();
+
+        if (loggedInSocialWorker.getAssociationRank() == AssociationRank.CHAIRMAN) {
+            throw new DomainException("협회장은 탈퇴할 수 없습니다.");
+        }
+        if (currentRank.equals(AssociationRank.EXECUTIVE)) {
+            int executiveCount =
+                    socialWorkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
+            if (executiveCount <= 1) {
+                throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
+            }
+        }
+        loggedInSocialWorker.leaveAssociation();
+
+        updateJwtAndSecurityContext(
+                response,
+                loggedInSocialWorker.getPhoneNumber(),
+                loggedInSocialWorker.getInstitutionRank(),
+                loggedInSocialWorker.getAssociationRank());
+    }
+
     // 회원을 협회에서 탈퇴 시키는 메서드. 회원정보를 삭제하는게 아님
     @Transactional
     public void expelMember(Long memberId) {

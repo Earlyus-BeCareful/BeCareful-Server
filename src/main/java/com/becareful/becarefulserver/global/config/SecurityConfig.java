@@ -80,7 +80,10 @@ public class SecurityConfig {
                         .requestMatchers("/association/chairman/delegate")
                         .hasRole("CHAIRMAN")
                         .requestMatchers(
-                                "/association/members/overview", "/association/members", "/association/members/*")
+                                "/association/members/overview",
+                                "/association/members",
+                                "/association/members/*",
+                                "/association/leave")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE", "MEMBER")
                         .requestMatchers("/sms/**")
                         .authenticated()
