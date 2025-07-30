@@ -8,7 +8,6 @@ import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplicationWorkLocation;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerDetailRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
@@ -18,7 +17,6 @@ import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.MatchedCaregiverDto;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
@@ -31,14 +29,11 @@ import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
-import com.becareful.becarefulserver.domain.work_location.repository.WorkLocationRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.exception.exception.MatchingException;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
-import java.time.DayOfWeek;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -58,7 +53,6 @@ public class MatchingService {
     private final CareerRepository careerRepository;
     private final CaregiverRepository caregiverRepository;
     private final CareerDetailRepository careerDetailRepository;
-    private final WorkLocationRepository workLocationRepository;
 
     public MatchingCaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
         authUtil.getLoggedInSocialWorker(); // 사회복지사가 호출하는 API
@@ -137,7 +131,6 @@ public class MatchingService {
                 .findByWorkApplicationAndRecruitment(workApplication, recruitment)
                 .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
 
-        // TODO : recruit 매칭 적합도 및 태그 부여 판단
         return CaregiverAppliedMatchingDetailResponse.of(matching, false, false);
     }
 
@@ -265,63 +258,10 @@ public class MatchingService {
                                     .map(WorkApplicationWorkLocation::getLocation)
                                     .toList();
 
-                    MatchingResultInfo caregiverMatchingResultInfo =
-                            calculateMatchingRate(recruitment, application, locations, true);
-                    MatchingResultInfo socialworkerMatchingResultInfo =
-                            calculateMatchingRate(recruitment, application, locations, false);
-
-                    return Matching.create(
-                            recruitment, application, caregiverMatchingResultInfo, socialworkerMatchingResultInfo);
+                    return Matching.create(recruitment, application, locations);
                 })
                 // TODO : 매칭 알고리즘 해제하기.
                 // .filter((matching -> isMatchedWithSocialWorker(matching.getSocialWorkerMatchingInfo())))
                 .forEach(matchingRepository::save);
-    }
-
-    /**
-     * @param recruitment       - 사회복지사가 등록한 공고
-     * @param workApplication   - 요양보호사가 등록한 지원서
-     * @param locations         - 지원서에 등록된 희망 근무 장소
-     * @param isForCaregiver    - 요양보호사 기준 적합도인지, 사회복지사 기준 적합도인지 기준
-     * @return                  - MatchingInfo
-     */
-    private MatchingResultInfo calculateMatchingRate(
-            Recruitment recruitment,
-            WorkApplication workApplication,
-            List<Location> locations,
-            boolean isForCaregiver) {
-        boolean workLocationMatchingRate = isWorkLocationMatched(recruitment.getResidentialLocation(), locations);
-        Double workDayMatchingRate =
-                calculateDayMatchingRate(recruitment.getWorkDays(), workApplication.getWorkDays(), isForCaregiver);
-        boolean workTimeMatchingRate =
-                isWorkTimeMatched(recruitment.getWorkTimes(), workApplication.getWorkTimes(), isForCaregiver);
-
-        return MatchingResultInfo.create(workLocationMatchingRate, workDayMatchingRate, workTimeMatchingRate);
-    }
-
-    private boolean isWorkLocationMatched(Location residentialLocation, List<Location> workableLocations) {
-        return workableLocations.contains(residentialLocation);
-    }
-
-    private Double calculateDayMatchingRate(
-            EnumSet<DayOfWeek> recruitmentDays, EnumSet<DayOfWeek> applyDays, boolean isForCaregiver) {
-        EnumSet<DayOfWeek> intersection = EnumSet.copyOf(recruitmentDays);
-        intersection.retainAll(applyDays);
-
-        if (isForCaregiver) {
-            return ((double) intersection.size() / applyDays.size()) * 100;
-        }
-        return ((double) intersection.size() / recruitmentDays.size()) * 100;
-    }
-
-    private boolean isWorkTimeMatched(
-            EnumSet<WorkTime> recruitmentTimes, EnumSet<WorkTime> applyTimes, boolean isForCaregiver) {
-        EnumSet<WorkTime> intersection = EnumSet.copyOf(recruitmentTimes);
-        intersection.retainAll(applyTimes);
-
-        if (isForCaregiver) {
-            return ((double) intersection.size()) / applyTimes.size() * 100 == 100;
-        }
-        return ((double) intersection.size() / recruitmentTimes.size()) * 100 != 100;
     }
 }
