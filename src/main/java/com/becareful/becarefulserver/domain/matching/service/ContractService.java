@@ -1,10 +1,10 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_NOT_EXISTS;
 
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
@@ -31,12 +31,13 @@ public class ContractService {
         Recruitment recruitment = matching.getRecruitment();
         recruitment.complete();
 
-        matchingRepository.findAllByRecruitment(recruitment).stream()
-                .filter(match -> match.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중))
-                .forEach(match -> {
-                    match.failed();
-                    matchingRepository.save(match);
-                });
+        matchingRepository.findAllByRecruitment(recruitment).forEach(match -> {
+            if (match.getMatchingApplicationStatus().equals(지원검토중)) {
+                match.failed();
+            } else if (match.getMatchingApplicationStatus().equals(미지원)) {
+                matchingRepository.delete(match);
+            }
+        });
 
         Contract contract = Contract.create(matching, matching.getRecruitment(), workStartDate);
         contractRepository.save(contract);
