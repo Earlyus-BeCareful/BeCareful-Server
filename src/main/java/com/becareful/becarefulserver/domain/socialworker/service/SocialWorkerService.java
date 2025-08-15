@@ -170,6 +170,17 @@ public class SocialWorkerService {
         return SocialWorkerMyResponse.from(loggedInSocialWorker);
     }
 
+    public void logout(HttpServletResponse response) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        // AccessToken 쿠키 삭제
+        response.addCookie(deleteCookie("AccessToken"));
+        // RefreshToken 쿠키 삭제
+        response.addCookie(deleteCookie("RefreshToken"));
+
+        // SecurityContext 초기화
+        SecurityContextHolder.clearContext();
+    }
+
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
         if (isAgreedToTerms && isAgreedToCollectPersonalInfo) {
             return;
@@ -251,6 +262,16 @@ public class SocialWorkerService {
         cookie.setSecure(cookieProperties.getCookieSecure());
         cookie.setPath("/");
         cookie.setHttpOnly(true);
+        cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
+        return cookie;
+    }
+
+    private Cookie deleteCookie(String name) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setMaxAge(0); // 즉시 만료
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(cookieProperties.getCookieSecure());
         cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
         return cookie;
     }
