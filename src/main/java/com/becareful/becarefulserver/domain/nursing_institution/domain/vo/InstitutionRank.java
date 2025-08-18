@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain.nursing_institution.vo;
+package com.becareful.becarefulserver.domain.nursing_institution.domain.vo;
 
 public enum InstitutionRank {
     CENTER_DIRECTOR,

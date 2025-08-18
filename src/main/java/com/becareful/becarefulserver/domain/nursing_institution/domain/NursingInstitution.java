@@ -1,19 +1,16 @@
 package com.becareful.becarefulserver.domain.nursing_institution.domain;
 
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.INSTITUTION_DEFAULT_PROFILE_IMAGE_URL;
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.*;
 
-import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
-import com.becareful.becarefulserver.domain.nursing_institution.converter.FacilityTypeConverter;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.FacilityType;
-import com.becareful.becarefulserver.domain.socialworker.domain.converter.DetailCareTypeConverter;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.Address;
+import com.becareful.becarefulserver.domain.common.domain.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.converter.FacilityTypeConverter;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.request.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.converter.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import jakarta.persistence.*;
-import java.util.EnumSet;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.util.*;
+import lombok.*;
 
 @Entity
 @Getter
@@ -88,6 +85,20 @@ public class NursingInstitution extends BaseEntity {
                                 ? INSTITUTION_DEFAULT_PROFILE_IMAGE_URL
                                 : profileImageUrl)
                 .build();
+    }
+
+    public void updateNursingInstitutionInfo(UpdateNursingInstitutionInfoRequest request) {
+        EnumSet<FacilityType> facilityTypes =
+                request.facilityTypeList() == null || request.facilityTypeList().isEmpty()
+                        ? EnumSet.noneOf(FacilityType.class)
+                        : EnumSet.copyOf(request.facilityTypeList());
+
+        this.name = request.institutionName();
+        this.code = request.institutionCode();
+        this.openYear = request.openYear();
+        this.facilityTypes = facilityTypes;
+        this.institutionPhoneNumber = request.phoneNumber();
+        this.profileImageUrl = request.profileImageUrl();
     }
 
     public void updateProfileImageUrl(String profileImageUrl) {

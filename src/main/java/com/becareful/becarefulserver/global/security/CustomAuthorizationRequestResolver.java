@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.global.config;
+package com.becareful.becarefulserver.global.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Duration;

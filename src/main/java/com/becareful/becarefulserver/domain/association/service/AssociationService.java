@@ -4,15 +4,15 @@ import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.association.domain.vo.AssociationJoinApplicationStatus;
 import com.becareful.becarefulserver.domain.association.dto.*;
 import com.becareful.becarefulserver.domain.association.dto.request.*;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.repository.*;
-import com.becareful.becarefulserver.domain.association.vo.*;
 import com.becareful.becarefulserver.domain.community.domain.*;
 import com.becareful.becarefulserver.domain.community.repository.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
@@ -39,7 +39,7 @@ public class AssociationService {
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
     private final JwtUtil jwtUtil;
-    private final CookieProperties cookieProperties;
+    private final CookieUtil cookieUtil;
     private final JwtProperties jwtProperties;
     private final SocialWorkerRepository socialWorkerRepository;
     private final AssociationRepository associationRepository;
@@ -177,6 +177,31 @@ public class AssociationService {
         return AssociationMemberDetailInfoResponse.of(member, age, institution, association);
     }
 
+    @Transactional
+    public void leaveAssociation(HttpServletResponse response) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Association association = loggedInSocialWorker.getAssociation();
+        AssociationRank currentRank = loggedInSocialWorker.getAssociationRank();
+
+        if (loggedInSocialWorker.getAssociationRank() == AssociationRank.CHAIRMAN) {
+            throw new DomainException("협회장은 탈퇴할 수 없습니다.");
+        }
+        if (currentRank.equals(AssociationRank.EXECUTIVE)) {
+            int executiveCount =
+                    socialWorkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
+            if (executiveCount <= 1) {
+                throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
+            }
+        }
+        loggedInSocialWorker.leaveAssociation();
+
+        updateJwtAndSecurityContext(
+                response,
+                loggedInSocialWorker.getPhoneNumber(),
+                loggedInSocialWorker.getInstitutionRank(),
+                loggedInSocialWorker.getAssociationRank());
+    }
+
     // 회원을 협회에서 탈퇴 시키는 메서드. 회원정보를 삭제하는게 아님
     @Transactional
     public void expelMember(Long memberId) {
@@ -301,23 +326,14 @@ public class AssociationService {
         String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
         String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
-        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
-        response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
+        response.addCookie(cookieUtil.createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
+        response.addCookie(
+                cookieUtil.createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
 
         List<GrantedAuthority> authorities =
                 List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
-    private Cookie createCookie(String key, String value, int maxAge) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(maxAge);
-        cookie.setSecure(cookieProperties.getCookieSecure());
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
-        return cookie;
     }
 }

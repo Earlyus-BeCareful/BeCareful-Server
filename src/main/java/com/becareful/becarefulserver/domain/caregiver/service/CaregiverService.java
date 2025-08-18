@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.caregiver.service;
 
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.미지원;
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.지원검토중;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Career;
@@ -13,9 +15,8 @@ import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepositor
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
-import com.becareful.becarefulserver.domain.common.vo.Gender;
+import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.matching.domain.CompletedMatching;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
@@ -70,10 +71,11 @@ public class CaregiverService {
                 .findByCaregiver(caregiver)
                 .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
         Integer applicationCount = matchingRepository
-                .findByWorkApplicationAndMatchingApplicationStatus(workApplication, MatchingApplicationStatus.지원검토중)
+                .findByWorkApplicationAndMatchingApplicationStatus(workApplication, 지원검토중)
                 .size();
-        Integer recruitmentCount =
-                matchingRepository.findAllByWorkApplication(workApplication).size();
+        Integer recruitmentCount = matchingRepository
+                .findAllByCaregiverAndApplicationStatus(caregiver, 미지원)
+                .size();
 
         List<CompletedMatching> myWork = completedMatchingRepository.findByCaregiver(caregiver);
 

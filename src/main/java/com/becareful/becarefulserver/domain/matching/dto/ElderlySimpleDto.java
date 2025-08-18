@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.dto;
 
-import com.becareful.becarefulserver.domain.common.vo.Gender;
+import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 
 public record ElderlySimpleDto(

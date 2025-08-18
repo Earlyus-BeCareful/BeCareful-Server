@@ -2,46 +2,32 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.common.vo.Gender;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
-import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
-import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.nursing_institution.repository.NursingInstitutionRepository;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
-import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
-import com.becareful.becarefulserver.domain.socialworker.dto.SocialWorkerSimpleDto;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerCreateRequest;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerMyResponse;
-import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
-import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
-import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
-import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
-import com.becareful.becarefulserver.global.properties.CookieProperties;
-import com.becareful.becarefulserver.global.properties.JwtProperties;
-import com.becareful.becarefulserver.global.util.AuthUtil;
-import com.becareful.becarefulserver.global.util.JwtUtil;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.becareful.becarefulserver.domain.common.domain.*;
+import com.becareful.becarefulserver.domain.matching.domain.*;
+import com.becareful.becarefulserver.domain.matching.dto.*;
+import com.becareful.becarefulserver.domain.matching.repository.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
+import com.becareful.becarefulserver.domain.nursing_institution.repository.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
+import com.becareful.becarefulserver.domain.socialworker.dto.*;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
+import com.becareful.becarefulserver.domain.socialworker.repository.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
+import com.becareful.becarefulserver.global.properties.*;
+import com.becareful.becarefulserver.global.util.*;
+import jakarta.servlet.http.*;
+import jakarta.validation.*;
+import java.time.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.*;
+import org.springframework.security.core.context.*;
+import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.*;
 
 @Service
 @RequiredArgsConstructor
@@ -104,7 +90,7 @@ public class SocialWorkerService {
                         .map(SocialWorkerSimpleDto::from)
                         .toList();
 
-        List<Matching> matchingList = matchingRepository.findAllMatchingByElderlyIds(elderlyIds);
+        List<Matching> matchingList = matchingRepository.findAllByElderlyIds(elderlyIds);
 
         int elderlyCount = elderlyIds.size();
         int socialWorkerCount = socialWorkers.size();
@@ -168,6 +154,72 @@ public class SocialWorkerService {
     public SocialWorkerMyResponse getMyInfo() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         return SocialWorkerMyResponse.from(loggedInSocialWorker);
+    }
+
+    @Transactional
+    public void updateMyBasicInfo(@Valid SocialWorkerUpdateBasicInfoRequest request, HttpServletResponse response) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+
+        validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
+
+        // 기관ID로 기관 찾기
+        NursingInstitution nursingInstitution = nursingInstitutionRepository
+                .findById(request.nursingInstitutionId())
+                .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
+
+        // 닉네임 중복 검사
+        if (!Objects.equals(request.nickName(), loggedInSocialWorker.getNickname())) {
+            validateNicknameNotDuplicated(request.nickName());
+        }
+
+        // 사용자 전화번호 중복 검사
+        if (!Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber())
+                && socialworkerRepository.existsByPhoneNumber(request.phoneNumber())) {
+            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
+        }
+
+        LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
+        Gender gender = parseGender(request.genderCode());
+
+        boolean rankChanged = !Objects.equals(loggedInSocialWorker.getInstitutionRank(), request.institutionRank());
+        boolean phoneChanged = !Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber());
+
+        if (rankChanged || phoneChanged) {
+            updateJwtAndSecurityContext(
+                    response,
+                    request.phoneNumber(),
+                    request.institutionRank(),
+                    loggedInSocialWorker.getAssociationRank());
+        }
+
+        loggedInSocialWorker.updateBasicInfo(request, birthDate, gender, nursingInstitution);
+    }
+
+    public void logout(HttpServletResponse response) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        // AccessToken 쿠키 삭제
+        response.addCookie(deleteCookie("AccessToken"));
+        // RefreshToken 쿠키 삭제
+        response.addCookie(deleteCookie("RefreshToken"));
+
+        // SecurityContext 초기화
+        SecurityContextHolder.clearContext();
+    }
+
+    @Transactional
+    public void leave(HttpServletResponse response) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        AssociationRank associationrank = loggedInSocialWorker.getAssociationRank();
+
+        if (associationrank == AssociationRank.CHAIRMAN || associationrank == AssociationRank.EXECUTIVE) {
+            throw new DomainException("협회 탈퇴를 먼저 완료하십시오.");
+        }
+        socialworkerRepository.delete(loggedInSocialWorker);
+
+        response.addCookie(deleteCookie("AccessToken"));
+        response.addCookie(deleteCookie("RefreshToken"));
+
+        SecurityContextHolder.clearContext();
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
@@ -255,41 +307,13 @@ public class SocialWorkerService {
         return cookie;
     }
 
-    public void updateMyBasicInfo(@Valid SocialWorkerUpdateBasicInfoRequest request, HttpServletResponse response) {
-        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-
-        validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
-
-        // 기관ID로 기관 찾기
-        NursingInstitution nursingInstitution = nursingInstitutionRepository
-                .findById(request.nursingInstitutionId())
-                .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
-
-        // 닉네임 중복 검사
-        if (!Objects.equals(request.nickName(), loggedInSocialWorker.getNickname())) {
-            validateNicknameNotDuplicated(request.nickName());
-        }
-
-        // 사용자 전화번호 중복 검사
-        if (!Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber())
-                && socialworkerRepository.existsByPhoneNumber(request.phoneNumber())) {
-            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
-        }
-
-        LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
-        Gender gender = parseGender(request.genderCode());
-
-        boolean rankChanged = !Objects.equals(loggedInSocialWorker.getInstitutionRank(), request.institutionRank());
-        boolean phoneChanged = !Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber());
-
-        if (rankChanged || phoneChanged) {
-            updateJwtAndSecurityContext(
-                    response,
-                    request.phoneNumber(),
-                    request.institutionRank(),
-                    loggedInSocialWorker.getAssociationRank());
-        }
-
-        loggedInSocialWorker.updateBasicInfo(request, birthDate, gender, nursingInstitution);
+    private Cookie deleteCookie(String name) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setMaxAge(0); // 즉시 만료
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(cookieProperties.getCookieSecure());
+        cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
+        return cookie;
     }
 }

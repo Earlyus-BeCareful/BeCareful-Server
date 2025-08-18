@@ -30,7 +30,7 @@ public record MatchingCaregiverDetailResponse(
             Matching matching, Career career, List<CareerDetail> careerDetails, List<WorkLocationDto> locations) {
 
         WorkApplication workApplication = matching.getWorkApplication();
-        MatchingResultInfo socialWorkerMatchingResult = matching.getSocialWorkerMatchingResultInfo();
+        MatchingResultInfo socialWorkerMatchingResult = matching.getMatchingResultInfo();
         return new MatchingCaregiverDetailResponse(
                 matching.getId(),
                 matching.getMatchingResultStatus(),

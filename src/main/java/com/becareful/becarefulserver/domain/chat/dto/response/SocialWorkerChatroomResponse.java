@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 
 public record SocialWorkerChatroomResponse(
         Long matchingId,
+        Long recruitmentId,
         CaregiverSimpleDto caregiverInfo,
         String recentChat,
         String time,
@@ -24,6 +25,7 @@ public record SocialWorkerChatroomResponse(
 
         return new SocialWorkerChatroomResponse(
                 matching.getId(),
+                matching.getRecruitment().getId(),
                 CaregiverSimpleDto.from(caregiver),
                 recentChat,
                 timeDifference,

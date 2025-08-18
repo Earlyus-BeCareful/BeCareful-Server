@@ -136,4 +136,11 @@ public class AssociationController {
         var response = associationService.uploadProfileImage(file);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "협회 탈퇴", description = "마이페이지-센터장, 대표")
+    @PutMapping("/leave")
+    public ResponseEntity<Void> leaveAssociation(HttpServletResponse response) {
+        associationService.leaveAssociation(response);
+        return ResponseEntity.ok().build();
+    }
 }

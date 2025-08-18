@@ -5,10 +5,10 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHI
 
 import com.becareful.becarefulserver.domain.chat.dto.request.ContractEditRequest;
 import com.becareful.becarefulserver.domain.chat.dto.response.ChatroomContentResponse;
+import com.becareful.becarefulserver.domain.chat.dto.response.ContractDetailResponse;
 import com.becareful.becarefulserver.domain.chat.dto.response.SocialWorkerChatroomResponse;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.dto.response.ContractDetailResponse;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
@@ -37,7 +37,7 @@ public class SocialWorkerChatService {
     public List<SocialWorkerChatroomResponse> getChatList() {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
         NursingInstitution nursingInstitution = socialworker.getNursingInstitution();
-        List<Matching> matchingList = matchingRepository.findByNursingInstitution(nursingInstitution);
+        List<Matching> matchingList = matchingRepository.findAllByNursingInstitution(nursingInstitution);
 
         List<SocialWorkerChatroomResponse> responses = new ArrayList<>();
         matchingList.forEach(matching -> {

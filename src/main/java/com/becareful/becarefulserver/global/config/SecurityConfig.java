@@ -5,6 +5,7 @@ import static com.becareful.becarefulserver.global.constant.UrlConstant.LOCAL_SE
 
 import com.becareful.becarefulserver.domain.auth.handler.CustomSuccessHandler;
 import com.becareful.becarefulserver.domain.auth.service.CustomOAuth2UserService;
+import com.becareful.becarefulserver.global.security.CustomAuthorizationRequestResolver;
 import com.becareful.becarefulserver.global.security.JwtAuthenticationFilter;
 import com.becareful.becarefulserver.global.security.JwtExceptionHandlingFilter;
 import com.becareful.becarefulserver.global.util.JwtUtil;
@@ -40,8 +41,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin((auth) -> auth.disable())
-                .httpBasic((auth) -> auth.disable())
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2Login(oauth2 -> oauth2.authorizationEndpoint(
                                 endpoint -> endpoint.authorizationRequestResolver(customResolver))
@@ -53,7 +54,7 @@ public class SecurityConfig {
                                 "/socialworker/signup",
                                 "/socialworker/check-nickname")
                         .hasRole("GUEST")
-                        .requestMatchers("socialworker/me")
+                        .requestMatchers("/socialworker/me", "/socialworker/logout", "/socialworker/leave")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/nursingInstitution/upload-profile-img")
                         .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE")
@@ -74,10 +75,15 @@ public class SecurityConfig {
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/association/search", "/association/list")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
+                        .requestMatchers(HttpMethod.PUT, "/nursingInstitution/info")
+                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE")
                         .requestMatchers("/association/chairman/delegate")
                         .hasRole("CHAIRMAN")
                         .requestMatchers(
-                                "/association/members/overview", "/association/members", "/association/members/*")
+                                "/association/members/overview",
+                                "/association/members",
+                                "/association/members/*",
+                                "/association/leave")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE", "MEMBER")
                         .requestMatchers("/sms/**")
                         .authenticated()

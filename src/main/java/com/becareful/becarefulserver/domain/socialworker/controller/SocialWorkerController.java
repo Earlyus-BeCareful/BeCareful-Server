@@ -58,4 +58,18 @@ public class SocialWorkerController {
         socialworkerService.updateMyBasicInfo(request, httpServletResponse);
         return ResponseEntity.ok().build();
     }
+
+    @Operation(summary = "로그아웃")
+    @PutMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse httpServletResponse) {
+        socialworkerService.logout(httpServletResponse);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "탈퇴")
+    @DeleteMapping("/leave")
+    public ResponseEntity<Void> leave(HttpServletResponse httpServletResponse) {
+        socialworkerService.leave(httpServletResponse);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -1,9 +1,11 @@
-package com.becareful.becarefulserver.domain.common.vo;
+package com.becareful.becarefulserver.domain.common.domain.vo;
 
 import jakarta.persistence.Embeddable;
 import lombok.*;
 
 @Getter
+@ToString
+@EqualsAndHashCode
 @Embeddable
 @Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

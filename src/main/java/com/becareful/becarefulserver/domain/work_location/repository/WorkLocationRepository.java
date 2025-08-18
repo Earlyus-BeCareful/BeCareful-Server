@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.work_location.repository;
 
-import com.becareful.becarefulserver.domain.common.vo.Location;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

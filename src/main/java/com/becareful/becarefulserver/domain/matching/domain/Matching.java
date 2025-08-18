@@ -3,15 +3,15 @@ package com.becareful.becarefulserver.domain.matching.domain;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.converter.MediationTypeSetConverter;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.global.exception.exception.MatchingException;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
@@ -24,8 +24,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.EnumSet;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,26 +56,7 @@ public class Matching extends BaseEntity {
     private String mediationDescription;
 
     @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "workDayMatchingRate", column = @Column(name = "caregiver_work_day_matching_rate")),
-        @AttributeOverride(name = "isWorkTimeMatched", column = @Column(name = "caregiver_is_work_time_matched")),
-        @AttributeOverride(
-                name = "isWorkLocationMatched",
-                column = @Column(name = "caregiver_is_work_location_matched"))
-    })
-    private MatchingResultInfo caregiverMatchingResultInfo;
-
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(
-                name = "workDayMatchingRate",
-                column = @Column(name = "social_worker_work_day_matching_rate")),
-        @AttributeOverride(name = "isWorkTimeMatched", column = @Column(name = "social_worker_is_work_time_matched")),
-        @AttributeOverride(
-                name = "isWorkLocationMatched",
-                column = @Column(name = "social_worker_is_work_location_matched"))
-    })
-    private MatchingResultInfo socialWorkerMatchingResultInfo;
+    private MatchingResultInfo matchingResultInfo;
 
     @JoinColumn(name = "recruitment_id")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -88,26 +71,19 @@ public class Matching extends BaseEntity {
             MatchingApplicationStatus matchingApplicationStatus,
             Recruitment recruitment,
             WorkApplication workApplication,
-            MatchingResultInfo caregiverMatchingResultInfo,
-            MatchingResultInfo socialWorkerMatchingResultInfo) {
+            MatchingResultInfo matchingResultInfo) {
         this.matchingApplicationStatus = matchingApplicationStatus;
         this.recruitment = recruitment;
         this.workApplication = workApplication;
-        this.caregiverMatchingResultInfo = caregiverMatchingResultInfo;
-        this.socialWorkerMatchingResultInfo = socialWorkerMatchingResultInfo;
+        this.matchingResultInfo = matchingResultInfo;
     }
 
-    public static Matching create(
-            Recruitment recruitment,
-            WorkApplication application,
-            MatchingResultInfo caregiverMatchingResultInfo,
-            MatchingResultInfo socialWorkerMatchingResultInfo) {
+    public static Matching create(Recruitment recruitment, WorkApplication application, List<Location> locations) {
         return Matching.builder()
                 .matchingApplicationStatus(MatchingApplicationStatus.미지원)
                 .recruitment(recruitment)
                 .workApplication(application)
-                .caregiverMatchingResultInfo(caregiverMatchingResultInfo)
-                .socialWorkerMatchingResultInfo(socialWorkerMatchingResultInfo)
+                .matchingResultInfo(calculateMatchingRate(recruitment, application, locations))
                 .build();
     }
     /**
@@ -148,24 +124,23 @@ public class Matching extends BaseEntity {
     }
 
     public void hire() {
-        validateMatchingCompletable();
         this.matchingApplicationStatus = MatchingApplicationStatus.합격;
     }
 
     public void failed() {
-        validateMatchingCompletable();
+        validateMatchingFailable();
         this.matchingApplicationStatus = MatchingApplicationStatus.지원거절;
     }
 
     public MatchingResultStatus getMatchingResultStatus() {
-        return socialWorkerMatchingResultInfo.judgeMatchingResultStatus();
+        return matchingResultInfo.judgeMatchingResultStatus();
     }
 
-    private void validateMatchingCompletable() {
+    private void validateMatchingFailable() {
         if (matchingApplicationStatus.equals(MatchingApplicationStatus.지원검토중)) {
             return;
         }
-        throw new RecruitmentException("지원한 경우에만 합격, 불합격 처리할 수 있습니다.");
+        throw new RecruitmentException("지원한 경우에만 불합격 처리할 수 있습니다.");
     }
 
     private void validateMatchingUpdatable() {
@@ -187,5 +162,42 @@ public class Matching extends BaseEntity {
             return;
         }
         throw new MatchingException(MATCHING_SOCIAL_WORKER_DIFFERENT);
+    }
+
+    /**
+     * @param recruitment       - 사회복지사가 등록한 공고
+     * @param workApplication   - 요양보호사가 등록한 지원서
+     * @param locations         - 지원서에 등록된 희망 근무 장소
+     * @return                  - MatchingInfo
+     */
+    private static MatchingResultInfo calculateMatchingRate(
+            Recruitment recruitment, WorkApplication workApplication, List<Location> locations) {
+        boolean workLocationMatchingRate = isWorkLocationMatched(recruitment.getResidentialLocation(), locations);
+        Double workDayMatchingRate = calculateDayMatchingRate(recruitment.getWorkDays(), workApplication.getWorkDays());
+        boolean workTimeMatchingRate = isWorkTimeMatched(recruitment.getWorkTimes(), workApplication.getWorkTimes());
+
+        return MatchingResultInfo.create(workLocationMatchingRate, workDayMatchingRate, workTimeMatchingRate);
+    }
+
+    private static boolean isWorkLocationMatched(Location residentialLocation, List<Location> workableLocations) {
+        for (Location location : workableLocations) {
+            if (location.equals(residentialLocation)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Double calculateDayMatchingRate(EnumSet<DayOfWeek> recruitmentDays, EnumSet<DayOfWeek> applyDays) {
+        EnumSet<DayOfWeek> intersection = EnumSet.copyOf(recruitmentDays);
+        intersection.retainAll(applyDays);
+
+        return ((double) intersection.size() / recruitmentDays.size()) * 100;
+    }
+
+    private static boolean isWorkTimeMatched(EnumSet<WorkTime> recruitmentTimes, EnumSet<WorkTime> applyTimes) {
+        EnumSet<WorkTime> intersection = EnumSet.copyOf(recruitmentTimes);
+        intersection.retainAll(applyTimes);
+        return ((double) intersection.size() / recruitmentTimes.size()) * 100 == 100;
     }
 }
