@@ -85,6 +85,8 @@ public class SecurityConfig {
                                 "/association/members/*",
                                 "/association/leave")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE", "MEMBER")
+                        .requestMatchers("/caregiver/logout")
+                        .hasAnyRole("NONE")
                         .requestMatchers("/sms/**")
                         .authenticated()
                         .requestMatchers("/post")
