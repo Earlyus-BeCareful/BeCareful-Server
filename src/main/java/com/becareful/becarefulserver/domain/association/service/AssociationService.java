@@ -4,7 +4,7 @@ import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
-import com.becareful.becarefulserver.domain.association.domain.vo.AssociationJoinApplicationStatus;
+import com.becareful.becarefulserver.domain.association.domain.vo.*;
 import com.becareful.becarefulserver.domain.association.dto.*;
 import com.becareful.becarefulserver.domain.association.dto.request.*;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
@@ -12,10 +12,11 @@ import com.becareful.becarefulserver.domain.association.repository.*;
 import com.becareful.becarefulserver.domain.community.domain.*;
 import com.becareful.becarefulserver.domain.community.repository.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
-import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
+import com.becareful.becarefulserver.global.exception.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.util.*;
@@ -25,6 +26,7 @@ import java.io.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
+import org.springframework.data.crossstore.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.*;
 import org.springframework.security.core.context.*;
@@ -46,6 +48,7 @@ public class AssociationService {
     private final AssociationJoinApplicationRepository associationMembershipRequestRepository;
     private final PostBoardRepository postBoardRepository;
     private final AssociationJoinApplicationRepository associationJoinApplicationRepository;
+    private final GlobalExceptionHandler globalExceptionHandler;
 
     @Transactional
     public void joinAssociation(AssociationJoinRequest request) {
@@ -299,12 +302,13 @@ public class AssociationService {
     }
 
     @Transactional
-    public void updateAssociationChairman(
-            @Valid UpdateAssociationChairmanRequest request, HttpServletResponse response) {
+    public void updateAssociationChairman(@Valid UpdateAssociationChairmanRequest request, HttpServletResponse response)
+            throws ChangeSetPersister.NotFoundException {
         SocialWorker currentChairman = authUtil.getLoggedInSocialWorker();
         SocialWorker newChairman = socialWorkerRepository
-                .findById(request.newChairmanId())
-                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+                .findByNameAndNicknameAndPhoneNumber(
+                        request.newChairmanName(), request.newChairmanNickName(), request.newChairmanPhoneNUmber())
+                .orElseThrow(() -> new NotFoundException("회원 정보를 잘못 입력하였습니다."));
 
         currentChairman.updateAssociationRank(request.nextRankOfCurrentChairman());
         newChairman.updateAssociationRank(AssociationRank.CHAIRMAN);

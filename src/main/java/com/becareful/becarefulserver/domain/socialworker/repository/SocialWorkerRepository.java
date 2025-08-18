@@ -26,4 +26,6 @@ public interface SocialWorkerRepository extends JpaRepository<SocialWorker, Long
 
     Optional<SocialWorker> findByAssociationAndAssociationRank(
             Association association, AssociationRank associationRank);
+
+    Optional<SocialWorker> findByNameAndNicknameAndPhoneNumber(String name, String nickname, String phoneNumber);
 }
