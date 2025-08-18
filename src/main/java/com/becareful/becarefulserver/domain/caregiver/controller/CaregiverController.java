@@ -41,6 +41,13 @@ public class CaregiverController {
         return ResponseEntity.created(URI.create("/caregiver/" + id)).build();
     }
 
+    @Operation(summary = "요양보호사 로그아웃")
+    @PutMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse httpServletResponse) {
+        caregiverService.logout(httpServletResponse);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "요양보호사 프로필 사진 신규 업로드", description = "요양보호사 프로필 이미지 업로드 API 입니다.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CaregiverProfileUploadResponse> uploadProfileImg(@RequestPart MultipartFile file) {
