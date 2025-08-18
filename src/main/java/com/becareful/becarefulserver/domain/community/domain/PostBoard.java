@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.community.domain;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
@@ -10,8 +12,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Entity
 @Getter
