@@ -1,7 +1,5 @@
 package com.becareful.becarefulserver.domain.community.domain;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_BOARD_NOT_READABLE;
-
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
@@ -12,6 +10,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Entity
 @Getter
@@ -57,9 +57,31 @@ public class PostBoard extends BaseEntity {
     /**
      * 검증 로직
      */
-    public void validateReadableFor(SocialWorker currentMember) {
-        if (!this.getReadableRank().equals(currentMember.getAssociationRank())) {
+    public void validateReadableFor(SocialWorker socialWorker) {
+        validateAssociationOf(socialWorker);
+        validateReadableRankFor(socialWorker);
+    }
+
+    public void validateWritableFor(SocialWorker socialWorker) {
+        validateAssociationOf(socialWorker);
+        validateWritableRankFor(socialWorker);
+    }
+
+    private void validateReadableRankFor(SocialWorker socialWorker) {
+        if (socialWorker.getAssociationRank().isLowerThan(readableRank)) {
             throw new PostBoardException(POST_BOARD_NOT_READABLE);
+        }
+    }
+
+    private void validateWritableRankFor(SocialWorker socialWorker) {
+        if (socialWorker.getAssociationRank().isLowerThan(writableRank)) {
+            throw new PostBoardException(POST_BOARD_NOT_WRITABLE);
+        }
+    }
+
+    private void validateAssociationOf(SocialWorker socialWorker) {
+        if (!socialWorker.getAssociation().equals(association)) {
+            throw new PostBoardException(POST_BOARD_NOT_MY_ASSOCIATION);
         }
     }
 }
