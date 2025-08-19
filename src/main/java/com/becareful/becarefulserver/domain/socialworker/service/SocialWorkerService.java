@@ -57,7 +57,7 @@ public class SocialWorkerService {
         validatePhoneNumberNotDuplicated(request.phoneNumber());
 
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
-        Gender gender = parseGender(request.genderCode());
+        Gender gender = genderStringtoCode(request.genderCode());
 
         SocialWorker socialWorker = SocialWorker.create(
                 request.realName(),
@@ -157,6 +157,11 @@ public class SocialWorkerService {
         return SocialWorkerMyResponse.from(loggedInSocialWorker);
     }
 
+    public SocialWorkerEditResponse getEditMyInfo() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        return SocialWorkerEditResponse.from(loggedInSocialWorker);
+    }
+
     @Transactional
     public void updateMyBasicInfo(@Valid SocialWorkerUpdateBasicInfoRequest request, HttpServletResponse response) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
@@ -180,7 +185,7 @@ public class SocialWorkerService {
         }
 
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
-        Gender gender = parseGender(request.genderCode());
+        Gender gender = genderStringtoCode(request.genderCode());
 
         boolean rankChanged = !Objects.equals(loggedInSocialWorker.getInstitutionRank(), request.institutionRank());
         boolean phoneChanged = !Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber());
@@ -263,7 +268,7 @@ public class SocialWorkerService {
         return LocalDate.of(year, month, day);
     }
 
-    private Gender parseGender(int genderCode) {
+    private Gender genderStringtoCode(int genderCode) {
         switch (genderCode) {
             case 1:
             case 3:
@@ -274,6 +279,14 @@ public class SocialWorkerService {
             default:
                 throw new SocialWorkerException(USER_CREATE_INVALID_GENDER_CODE);
         }
+    }
+
+    private int genderCodeToString(Gender gender, int birthYear) {
+        int genderCode = gender == Gender.MALE ? 1 : 2;
+        if (birthYear >= 2000) {
+            genderCode += 2;
+        }
+        return genderCode;
     }
 
     private void updateJwtAndSecurityContext(
