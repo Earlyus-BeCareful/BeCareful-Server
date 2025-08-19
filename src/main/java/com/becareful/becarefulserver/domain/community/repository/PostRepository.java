@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.community.repository;
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,8 +24,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         select p
           from Post p
          where p.isImportant = true
-           and p.board.readableRank = :readableRank
            and p.board.association = :association
     """)
-    Page<Post> findAllReadableImportantPosts(AssociationRank readableRank, Association association, Pageable pageable);
+    Page<Post> findAllImportantPosts(Association association, Pageable pageable);
 }

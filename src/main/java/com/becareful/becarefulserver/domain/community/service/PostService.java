@@ -185,10 +185,10 @@ public class PostService {
     @Transactional(readOnly = true)
     public List<PostSimpleDto> getImportantPosts(Pageable pageable) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        Association association = currentMember.getAssociation();
 
-        return postRepository
-                .findAllReadableImportantPosts(
-                        currentMember.getAssociationRank(), currentMember.getAssociation(), pageable)
+        return postRepository.findAllImportantPosts(association, pageable).stream()
+                .filter(post -> post.getBoard().isReadableFor(currentMember))
                 .map(PostSimpleDto::from)
                 .toList();
     }
