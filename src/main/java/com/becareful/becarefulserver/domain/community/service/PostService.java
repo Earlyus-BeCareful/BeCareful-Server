@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.community.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.community.domain.BoardType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
@@ -167,15 +168,16 @@ public class PostService {
     public List<PostSimpleDto> getPosts(String boardType, Pageable pageable) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
         BoardType type = BoardType.fromUrlBoardType(boardType);
+        Association association = currentMember.getAssociation();
 
         PostBoard postBoard = postBoardRepository
-                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .findByBoardTypeAndAssociation(type, association)
                 .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
         postBoard.validateReadableFor(currentMember);
 
         return postRepository
-                .findAllByBoard(postBoard, pageable)
+                .findAllByBoardAndAssociation(postBoard, association, pageable)
                 .map(PostSimpleDto::from)
                 .toList();
     }
@@ -185,7 +187,8 @@ public class PostService {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
 
         return postRepository
-                .findAllReadableImportantPosts(currentMember.getAssociationRank(), pageable)
+                .findAllReadableImportantPosts(
+                        currentMember.getAssociationRank(), currentMember.getAssociation(), pageable)
                 .map(PostSimpleDto::from)
                 .toList();
     }
