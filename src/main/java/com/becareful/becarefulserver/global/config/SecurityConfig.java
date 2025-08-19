@@ -119,6 +119,9 @@ public class SecurityConfig {
                 "https://www.carebridges.kr/",
                 "https://localhost:5173",
                 "https://localhost:3000"));
+
+        configuration.setAllowedOriginPatterns(List.of("https://be-careful-client-*.vercel.app"));
+
         configuration.addExposedHeader("Set-Cookie");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
