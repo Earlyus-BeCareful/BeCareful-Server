@@ -54,6 +54,16 @@ public class PostBoard extends BaseEntity {
                 .build();
     }
 
+    public boolean isReadableFor(SocialWorker socialWorker) {
+        if (socialWorker.getAssociationRank().isLowerThan(readableRank)) {
+            return false;
+        }
+        if (!socialWorker.getAssociation().equals(association)) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * 검증 로직
      */
