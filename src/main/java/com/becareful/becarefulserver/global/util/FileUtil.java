@@ -13,8 +13,8 @@ public class FileUtil {
 
     private final AmazonS3Client amazonS3Client;
 
-    private static final String bucket = "becareful-s3";
-    private static final String baseUrl = "https://becareful-s3.s3.ap-northeast-2.amazonaws.com/";
+    private static final String bucket = "care-bridges-bucket";
+    private static final String baseUrl = "https://care-bridges-bucket.s3.ap-northeast-2.amazonaws.com/";
 
     public String upload(MultipartFile file, String directory, String fileName) throws IOException {
         String key = directory + "/" + fileName;

@@ -1,18 +1,18 @@
 package com.becareful.becarefulserver.domain.association.controller;
 
-import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
-import com.becareful.becarefulserver.domain.association.dto.request.AssociationJoinRequest;
+import com.becareful.becarefulserver.domain.association.dto.request.*;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
-import com.becareful.becarefulserver.domain.association.service.AssociationService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import java.net.URI;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import com.becareful.becarefulserver.domain.association.service.*;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.tags.*;
+import jakarta.servlet.http.*;
+import jakarta.validation.*;
+import java.net.*;
+import lombok.*;
+import org.springframework.data.crossstore.*;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -66,6 +66,22 @@ public class AssociationController {
         return ResponseEntity.ok().body(response);
     }
 
+    @Operation(summary = "회원 등급 변경", description = "협회장&임원진 권한" + "임원진과 회원 등급만 변경 가능" + "임원진은 최소 한 명 이상이어야함.")
+    @PutMapping("/members/rank")
+    public ResponseEntity<Void> updateAssociationRank(@Valid @RequestBody UpdateAssociationRankRequest request) {
+        associationService.updateAssociationRank(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "협회장 위임", description = "협회장 권한 API")
+    @PutMapping("/chairman/delegate")
+    public ResponseEntity<Void> updateAssociationChairman(
+            @Valid @RequestBody UpdateAssociationChairmanRequest request, HttpServletResponse response)
+            throws ChangeSetPersister.NotFoundException {
+        associationService.updateAssociationChairman(request, response);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "협회 가입 신청 목록 보기")
     @GetMapping("/join-requests")
     public ResponseEntity<AssociationJoinApplicationListResponse> getPendingJoinApplications() {
@@ -101,11 +117,32 @@ public class AssociationController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "협회 정보 조회", description = "홈화면에서 협회이름 클릭하면 반환하는 페이지")
+    @GetMapping("/info")
+    public ResponseEntity<AssociationInfoResponse> getAssociationInfo() {
+        AssociationInfoResponse response = associationService.getAssociationInfo();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "협회 정보 수정")
+    @PutMapping("/info")
+    public ResponseEntity<Void> updateMyBasicInfo(@Valid @RequestBody UpdateAssociationInfoRequest request) {
+        associationService.updateAssociationInfo(request);
+        return ResponseEntity.ok().build();
+    }
+
     // 사진 등록
     @Operation(summary = "협회 프로필 사진 업로드", description = "협회 등록 전 프로필 이미지 저장 API")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AssociationProfileImageUploadResponse> uploadProfileImg(@RequestPart MultipartFile file) {
         var response = associationService.uploadProfileImage(file);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "협회 탈퇴", description = "마이페이지-센터장, 대표")
+    @PutMapping("/leave")
+    public ResponseEntity<Void> leaveAssociation(HttpServletResponse response) {
+        associationService.leaveAssociation(response);
+        return ResponseEntity.ok().build();
     }
 }

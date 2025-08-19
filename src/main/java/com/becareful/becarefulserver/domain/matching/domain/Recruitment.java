@@ -6,7 +6,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeS
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
-import com.becareful.becarefulserver.domain.common.vo.Location;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import jakarta.persistence.*;

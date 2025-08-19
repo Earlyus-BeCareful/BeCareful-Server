@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.auth.dto.response;
 
-import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 
 public record RegisteredUserLoginResponse(

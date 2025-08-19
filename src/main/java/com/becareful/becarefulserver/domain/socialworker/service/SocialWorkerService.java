@@ -2,55 +2,32 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.association.domain.Association;
-import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
-import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.common.vo.Gender;
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
-import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
-import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
-import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
-import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.nursing_institution.repository.NursingInstitutionRepository;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
-import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerCreateRequest;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.ChatList;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.SimpleElderlyResponse;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerMyInfo;
-import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
-import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
-import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
-import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
-import com.becareful.becarefulserver.global.properties.CookieProperties;
-import com.becareful.becarefulserver.global.properties.JwtProperties;
-import com.becareful.becarefulserver.global.util.AuthUtil;
-import com.becareful.becarefulserver.global.util.JwtUtil;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.becareful.becarefulserver.domain.common.domain.*;
+import com.becareful.becarefulserver.domain.matching.domain.*;
+import com.becareful.becarefulserver.domain.matching.dto.*;
+import com.becareful.becarefulserver.domain.matching.repository.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
+import com.becareful.becarefulserver.domain.nursing_institution.repository.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
+import com.becareful.becarefulserver.domain.socialworker.dto.*;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
+import com.becareful.becarefulserver.domain.socialworker.repository.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
+import com.becareful.becarefulserver.global.properties.*;
+import com.becareful.becarefulserver.global.util.*;
+import jakarta.servlet.http.*;
+import jakarta.validation.*;
+import java.time.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.*;
+import org.springframework.security.core.context.*;
+import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.*;
 
 @Service
 @RequiredArgsConstructor
@@ -60,113 +37,29 @@ public class SocialWorkerService {
     private final NursingInstitutionRepository nursingInstitutionRepository;
 
     private final MatchingRepository matchingRepository;
-    private final ContractRepository contractRepository;
-    private final CompletedMatchingRepository completedMatchingRepository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final ElderlyRepository elderlyRepository;
-    private final AssociationRepository associationRepository;
 
     private final AuthUtil authUtil;
     private final JwtUtil jwtUtil;
     private final CookieProperties cookieProperties;
     private final JwtProperties jwtProperties;
-
-    public SocialWorkerHomeResponse getHomeData() {
-        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        Integer elderlyCount = elderlyRepository
-                .findByNursingInstitution(loggedInSocialWorker.getNursingInstitution())
-                .size();
-        Integer socialWorkerCount =
-                socialworkerRepository.countByNursingInstitution(loggedInSocialWorker.getNursingInstitution());
-
-        List<Long> elderlyIds =
-                elderlyRepository.findByNursingInstitution(loggedInSocialWorker.getNursingInstitution()).stream()
-                        .map(Elderly::getId)
-                        .toList();
-
-        List<Matching> matchingList = matchingRepository.findAllMatchingByElderlyIds(elderlyIds);
-
-        Long processingMatchingCount = matchingList.stream()
-                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중))
-                .count();
-
-        Long recentlyMatchedCount = matchingList.stream()
-                .filter(matching ->
-                        matching.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7)))
-                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.합격))
-                .count();
-
-        Integer totalMatchedCount = matchingList.size();
-
-        Integer appliedCaregiverCount = matchingList.stream()
-                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원검토중))
-                .map(matching -> matching.getWorkApplication().getId())
-                .collect(Collectors.toSet())
-                .size();
-
-        long completedRecruitmentCount = matchingList.stream()
-                .map(Matching::getRecruitment)
-                .filter(recruitment -> !recruitment.isRecruiting())
-                .count();
-
-        long wholeApplierCountForCompletedRecruitment = matchingList.stream()
-                .filter(matching -> !matching.getRecruitment().isRecruiting())
-                .filter(matching -> matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.합격)
-                        || matching.getMatchingApplicationStatus().equals(MatchingApplicationStatus.지원거절))
-                .count();
-
-        long wholeCompletedMatchingCount = matchingList.stream()
-                .filter(matching -> !matching.getRecruitment().isRecruiting())
-                .count();
-
-        List<SimpleElderlyResponse> elderlyList = matchingList.stream()
-                .map(Matching::getRecruitment)
-                .filter(Recruitment::isRecruiting)
-                .map(Recruitment::getElderly)
-                .map(SimpleElderlyResponse::from)
-                .toList();
-
-        return SocialWorkerHomeResponse.of(
-                loggedInSocialWorker,
-                elderlyCount,
-                socialWorkerCount,
-                processingMatchingCount,
-                recentlyMatchedCount,
-                totalMatchedCount,
-                appliedCaregiverCount,
-                ((double) wholeApplierCountForCompletedRecruitment / completedRecruitmentCount) * 100,
-                ((double) wholeApplierCountForCompletedRecruitment / wholeCompletedMatchingCount) * 100,
-                elderlyList);
-    }
-
-    @Transactional(readOnly = true)
-    public boolean checkSameNickNameAtRegist(String nickName) {
-        return socialworkerRepository.existsByNickname(nickName);
-    }
+    private final CookieUtil cookieUtil;
 
     @Transactional
-    public Long saveSocialworker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
-
+    public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
         validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
 
-        // 기관ID로 기관 찾기
         NursingInstitution nursingInstitution = nursingInstitutionRepository
                 .findById(request.nursingInstitutionId())
                 .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
 
-        // 닉네임 중복 검사
-        checkSameNickName(request.nickName());
-
-        // 사용자 전화번호 중복 검사
-        if (socialworkerRepository.existsByPhoneNumber(request.phoneNumber())) {
-            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
-        }
+        validateNicknameNotDuplicated(request.nickName());
+        validatePhoneNumberNotDuplicated(request.phoneNumber());
 
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
         Gender gender = parseGender(request.genderCode());
 
-        // Socialworker 엔티티 생성
-        SocialWorker socialworker = SocialWorker.create(
+        SocialWorker socialWorker = SocialWorker.create(
                 request.realName(),
                 request.nickName(),
                 birthDate,
@@ -177,90 +70,155 @@ public class SocialWorkerService {
                 request.isAgreedToReceiveMarketingInfo(),
                 nursingInstitution);
 
-        socialworkerRepository.save(socialworker);
+        socialworkerRepository.save(socialWorker);
 
         updateJwtAndSecurityContext(
                 httpServletResponse, request.phoneNumber(), request.institutionRank(), AssociationRank.NONE);
 
-        return socialworker.getId();
+        return socialWorker.getId();
+    }
+
+    public SocialWorkerHomeResponse getHomeData() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        NursingInstitution institution = loggedInSocialWorker.getNursingInstitution();
+
+        List<Long> elderlyIds = elderlyRepository.findByNursingInstitution(institution).stream()
+                .map(Elderly::getId)
+                .toList();
+
+        List<SocialWorkerSimpleDto> socialWorkers =
+                socialworkerRepository.findAllByNursingInstitution(institution).stream()
+                        .map(SocialWorkerSimpleDto::from)
+                        .toList();
+
+        List<Matching> matchingList = matchingRepository.findAllByElderlyIds(elderlyIds);
+
+        int elderlyCount = elderlyIds.size();
+        int socialWorkerCount = socialWorkers.size();
+        int totalMatchedCount = matchingList.size();
+
+        int reviewingMatchingCount = 0;
+        int recentlyMatchedCount = 0;
+        int wholeCompletedMatchingCount = 0;
+        int wholeApplierCountForCompletedRecruitment = 0;
+        Set<Long> workApplicationIds = new HashSet<>();
+
+        for (Matching matching : matchingList) {
+            if (matching.isApplicationReviewing()) {
+                reviewingMatchingCount++;
+                workApplicationIds.add(matching.getWorkApplication().getId());
+            } else if (matching.isApplicationPassed()) {
+                if (matching.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7))) {
+                    recentlyMatchedCount++;
+                }
+            }
+
+            if (!matching.getRecruitment().isRecruiting()) {
+                wholeCompletedMatchingCount++;
+                if (matching.isApplicationPassed() || matching.isApplicationRefused()) {
+                    wholeApplierCountForCompletedRecruitment++;
+                }
+            }
+        }
+
+        int appliedCaregiverCount = workApplicationIds.size();
+
+        List<ElderlySimpleDto> elderlyList = matchingList.stream()
+                .map(Matching::getRecruitment)
+                .filter(Recruitment::isRecruiting)
+                .map(Recruitment::getElderly)
+                .map(ElderlySimpleDto::from)
+                .toList();
+
+        return SocialWorkerHomeResponse.of(
+                loggedInSocialWorker,
+                elderlyCount,
+                socialWorkerCount, // TODO 요양보호사 숫자로 변경
+                socialWorkers,
+                reviewingMatchingCount,
+                recentlyMatchedCount,
+                totalMatchedCount,
+                appliedCaregiverCount,
+                wholeCompletedMatchingCount == 0
+                        ? 0
+                        : (double) wholeApplierCountForCompletedRecruitment / wholeCompletedMatchingCount,
+                wholeCompletedMatchingCount == 0
+                        ? 0
+                        : ((double) wholeApplierCountForCompletedRecruitment / wholeCompletedMatchingCount) * 100,
+                elderlyList);
+    }
+
+    public boolean checkSameNickNameAtRegist(String nickName) {
+        return socialworkerRepository.existsByNickname(nickName);
+    }
+
+    public SocialWorkerMyResponse getMyInfo() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        return SocialWorkerMyResponse.from(loggedInSocialWorker);
     }
 
     @Transactional
-    public ChatList getChatList() {
-        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
-        NursingInstitution nursingInstitution = socialworker.getNursingInstitution();
-        List<Matching> matchingList = matchingRepository.findByNursingInstitution(nursingInstitution);
+    public void updateMyBasicInfo(@Valid SocialWorkerUpdateBasicInfoRequest request, HttpServletResponse response) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
 
-        List<ChatList.ChatroomInfo> chatroomInfoList = matchingList.stream()
-                .map(matching -> {
-                    // Elderly와 Caregiver 정보를 가져오기
-                    Caregiver caregiver = matching.getWorkApplication().getCaregiver();
-                    Elderly elderly = matching.getRecruitment().getElderly();
-                    String timeDifference = getTimeDifferenceString(matching);
-                    Contract latestContract = contractRepository
-                            .findTop1ByMatchingOrderByCreateDateDesc(matching)
-                            .get();
-                    String recentChat = isContractInCompletedMatching(matching) ? "최종 승인이 확정되었습니다!" : "합격 축하드립니다.";
+        validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
 
-                    // ChatroomInfo 생성
-                    return new ChatList.ChatroomInfo(
-                            matching.getId(),
-                            caregiver.getProfileImageUrl(), // 어르신 프로필 이미지 URL
-                            caregiver.getName(), // 요양보호자 이름
-                            recentChat, // 최근 채팅
-                            timeDifference,
-                            elderly.getName(), // 어르신 이름
-                            elderly.getAge(), // 어르신 나이
-                            elderly.getGender() // 어르신 성별
-                            );
-                })
-                .collect(Collectors.toList());
+        // 기관ID로 기관 찾기
+        NursingInstitution nursingInstitution = nursingInstitutionRepository
+                .findById(request.nursingInstitutionId())
+                .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
 
-        // ChatList 반환
-        return new ChatList(chatroomInfoList);
-    }
-
-    public LocalDateTime findLatestContractCreatedDate(Matching matching) {
-        Contract latestContract = contractRepository
-                .findTop1ByMatchingOrderByCreateDateDesc(matching)
-                .orElse(null);
-        return latestContract != null ? latestContract.getCreateDate() : null;
-    }
-
-    public boolean isContractInCompletedMatching(Matching matching) {
-        Contract latestContract = contractRepository
-                .findTop1ByMatchingOrderByCreateDateDesc(matching)
-                .orElse(null);
-        if (latestContract != null) {
-            return completedMatchingRepository.existsCompletedMatchingByContract(latestContract);
+        // 닉네임 중복 검사
+        if (!Objects.equals(request.nickName(), loggedInSocialWorker.getNickname())) {
+            validateNicknameNotDuplicated(request.nickName());
         }
-        return false;
+
+        // 사용자 전화번호 중복 검사
+        if (!Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber())
+                && socialworkerRepository.existsByPhoneNumber(request.phoneNumber())) {
+            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
+        }
+
+        LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
+        Gender gender = parseGender(request.genderCode());
+
+        boolean rankChanged = !Objects.equals(loggedInSocialWorker.getInstitutionRank(), request.institutionRank());
+        boolean phoneChanged = !Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber());
+
+        if (rankChanged || phoneChanged) {
+            updateJwtAndSecurityContext(
+                    response,
+                    request.phoneNumber(),
+                    request.institutionRank(),
+                    loggedInSocialWorker.getAssociationRank());
+        }
+
+        loggedInSocialWorker.updateBasicInfo(request, birthDate, gender, nursingInstitution);
     }
 
-    public String getTimeDifferenceString(Matching matching) {
-        // 현재 시간
-        LocalDateTime currentTime = LocalDateTime.now();
+    public void logout(HttpServletResponse response) {
+        // AccessToken 쿠키 삭제
+        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
+        // RefreshToken 쿠키 삭제
+        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
+        // SecurityContext 초기화
+        SecurityContextHolder.clearContext();
+    }
 
-        // 가장 최신 Contract의 생성 시간
-        LocalDateTime contractCreatedTime = findLatestContractCreatedDate(matching);
+    @Transactional
+    public void leave(HttpServletResponse response) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        AssociationRank associationrank = loggedInSocialWorker.getAssociationRank();
 
-        // Duration을 사용하여 차이 계산
-        Duration duration = Duration.between(contractCreatedTime, currentTime);
-
-        // 차이에 따라 다른 시간 단위로 변환
-        if (duration.toHours() < 1) {
-            // 1시간 이내이면 분 단위로 반환
-            long minutes = duration.toMinutes();
-            return minutes + "분 전";
-        } else if (duration.toDays() < 1) {
-            // 1일 이내이면 시간 단위로 반환
-            long hours = duration.toHours();
-            return hours + "시간 전";
-        } else {
-            // 1일 이상이면 일 단위로 반환
-            long days = duration.toDays();
-            return days + "일 전";
+        if (associationrank == AssociationRank.CHAIRMAN || associationrank == AssociationRank.EXECUTIVE) {
+            throw new DomainException("협회 탈퇴를 먼저 완료하십시오.");
         }
+        socialworkerRepository.delete(loggedInSocialWorker);
+
+        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
+        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
+
+        SecurityContextHolder.clearContext();
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
@@ -271,11 +229,16 @@ public class SocialWorkerService {
         throw new SocialWorkerException(SOCIALWORKER_REQUIRED_AGREEMENT);
     }
 
-    private void checkSameNickName(String nickName) {
-        if (!socialworkerRepository.existsByNickname(nickName)) {
-            return;
+    private void validateNicknameNotDuplicated(String nickName) {
+        if (socialworkerRepository.existsByNickname(nickName)) {
+            throw new SocialWorkerException(SOCIAlWORKER_ALREADY_EXISTS_NICKNAME);
         }
-        throw new SocialWorkerException(SOCIAlWORKER_ALREADY_EXISTS_NICKNAME);
+    }
+
+    private void validatePhoneNumberNotDuplicated(String phoneNumber) {
+        if (socialworkerRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
+        }
     }
 
     private LocalDate parseBirthDate(String yymmdd, int genderCode) {
@@ -321,72 +284,16 @@ public class SocialWorkerService {
         String institutionRank = institutionRankParam.toString();
         String associationRank = associationRankParam.toString();
         String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
-        String refreshToken = jwtUtil.createRefreshToken(phoneNumber, institutionRank, associationRank);
+        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
-        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
-        response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
+        response.addCookie(cookieUtil.createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
+        response.addCookie(
+                cookieUtil.createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
 
         List<GrantedAuthority> authorities =
                 List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
-    private Cookie createCookie(String key, String value, int maxAge) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(maxAge);
-        cookie.setSecure(cookieProperties.getCookieSecure());
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
-        return cookie;
-    }
-
-    public SocialWorkerMyInfo getMyInfo() {
-        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        NursingInstitution nursingInstitution = loggedInSocialWorker.getNursingInstitution();
-        Association association = loggedInSocialWorker.getAssociation();
-        Integer age = Period.between(loggedInSocialWorker.getBirthday(), LocalDate.now())
-                .getYears();
-        return SocialWorkerMyInfo.of(loggedInSocialWorker, age, nursingInstitution, association);
-    }
-
-    public void updateMyBasicInfo(@Valid SocialWorkerUpdateBasicInfoRequest request, HttpServletResponse response) {
-        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-
-        validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
-
-        // 기관ID로 기관 찾기
-        NursingInstitution nursingInstitution = nursingInstitutionRepository
-                .findById(request.nursingInstitutionId())
-                .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
-
-        // 닉네임 중복 검사
-        if (!Objects.equals(request.nickName(), loggedInSocialWorker.getNickname())) {
-            checkSameNickName(request.nickName());
-        }
-
-        // 사용자 전화번호 중복 검사
-        if (!Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber())
-                && socialworkerRepository.existsByPhoneNumber(request.phoneNumber())) {
-            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
-        }
-
-        LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
-        Gender gender = parseGender(request.genderCode());
-
-        boolean rankChanged = !Objects.equals(loggedInSocialWorker.getInstitutionRank(), request.institutionRank());
-        boolean phoneChanged = !Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber());
-
-        if (rankChanged || phoneChanged) {
-            updateJwtAndSecurityContext(
-                    response,
-                    request.phoneNumber(),
-                    request.institutionRank(),
-                    loggedInSocialWorker.getAssociationRank());
-        }
-
-        loggedInSocialWorker.updateBasicInfo(request, birthDate, gender, nursingInstitution);
     }
 }

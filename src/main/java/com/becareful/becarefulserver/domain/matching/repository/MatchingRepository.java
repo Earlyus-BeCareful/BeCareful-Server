@@ -14,12 +14,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
-    @Query("SELECT m "
-            + "FROM Matching m "
-            + "WHERE m.workApplication = :workApplication "
-            + "AND m.matchingApplicationStatus = '미지원'")
-    List<Matching> findAllByWorkApplication(WorkApplication workApplication);
-
     @Query(
             """
     SELECT m FROM Matching m
@@ -28,27 +22,32 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     WHERE e.nursingInstitution = :nursingInstitution
     AND m.matchingApplicationStatus = '합격'
     """)
-    List<Matching> findByNursingInstitution(@Param("nursingInstitution") NursingInstitution nursingInstitution);
+    List<Matching> findAllByNursingInstitution(@Param("nursingInstitution") NursingInstitution nursingInstitution);
 
     @Query(
             """
     SELECT m FROM Matching m
     JOIN m.workApplication w
     WHERE w.caregiver = :caregiver
-    AND m.matchingApplicationStatus = '합격'
+    AND m.matchingApplicationStatus = :applicationStatus
     """)
-    List<Matching> findByCaregiver(@Param("caregiver") Caregiver caregiver);
+    List<Matching> findAllByCaregiverAndApplicationStatus(
+            Caregiver caregiver, MatchingApplicationStatus applicationStatus);
 
-    List<Matching> findByRecruitment(Recruitment recruitment);
+    List<Matching> findAllByRecruitment(Recruitment recruitment);
 
     int countByRecruitmentAndMatchingApplicationStatus(
             Recruitment recruitment, MatchingApplicationStatus matchingApplicationStatus);
 
     Optional<Matching> findByWorkApplicationAndRecruitment(WorkApplication workApplication, Recruitment recruitment);
 
+    @Query(
+            "SELECT m FROM Matching m WHERE m.workApplication.caregiver = :caregiver AND m.recruitment.id = :recruitmentId")
+    Optional<Matching> findByCaregiverAndRecruitmentId(Caregiver caregiver, Long recruitmentId);
+
     List<Matching> findByWorkApplicationAndMatchingApplicationStatus(
             WorkApplication workApplication, MatchingApplicationStatus matchingApplicationStatus);
 
-    @Query("SELECT m " + "FROM Matching m " + "WHERE m.recruitment.elderly.id IN :elderlyIds ")
-    List<Matching> findAllMatchingByElderlyIds(@Param("elderlyIds") List<Long> elderlyIds);
+    @Query("SELECT m FROM Matching m WHERE m.recruitment.elderly.id IN :elderlyIds ")
+    List<Matching> findAllByElderlyIds(@Param("elderlyIds") List<Long> elderlyIds);
 }

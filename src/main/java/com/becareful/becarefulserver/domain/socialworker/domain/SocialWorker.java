@@ -2,13 +2,14 @@ package com.becareful.becarefulserver.domain.socialworker.domain;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-import com.becareful.becarefulserver.domain.common.vo.Gender;
+import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.Period;
 import lombok.*;
 
 @Entity
@@ -81,6 +82,16 @@ public class SocialWorker extends BaseEntity {
         this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
     }
 
+    /**
+     * get method
+     */
+    public Integer getAge() {
+        return Period.between(this.birthday, LocalDate.now()).getYears();
+    }
+
+    /**
+     * update method
+     * */
     public static SocialWorker create(
             String name,
             String nickname,
@@ -131,5 +142,9 @@ public class SocialWorker extends BaseEntity {
         this.isAgreedToReceiveMarketingInfo = request.isAgreedToReceiveMarketingInfo();
         this.isAgreedToTerms = request.isAgreedToTerms();
         this.isAgreedToCollectPersonalInfo = request.isAgreedToCollectPersonalInfo();
+    }
+
+    public void updateAssociationRank(AssociationRank rank) {
+        this.associationRank = rank;
     }
 }

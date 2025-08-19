@@ -1,10 +1,10 @@
 package com.becareful.becarefulserver.domain.association.dto.response;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
-import com.becareful.becarefulserver.domain.common.vo.Gender;
+import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.FacilityType;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import java.time.LocalDate;
@@ -19,6 +19,7 @@ public record AssociationMemberDetailInfoResponse(
         Gender gender,
         String institutionImageUrl,
         String institutionName,
+        Integer institutionOpenYear,
         LocalDate institutionLastUpdate,
         EnumSet<FacilityType> facilityTypes,
         String institutionPhoneNumber,
@@ -36,6 +37,7 @@ public record AssociationMemberDetailInfoResponse(
                 member.getGender(),
                 association.getProfileImageUrl(),
                 institution.getName(),
+                institution.getOpenYear(),
                 institution.getUpdateDate().toLocalDate(),
                 institution.getFacilityTypes(),
                 institution.getInstitutionPhoneNumber(),

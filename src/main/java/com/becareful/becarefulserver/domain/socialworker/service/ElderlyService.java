@@ -8,7 +8,7 @@ import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpdateRequest;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyListResponse;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyInfoResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
@@ -23,7 +23,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +30,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ElderlyService {
+
     private final ElderlyRepository elderlyRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
@@ -89,33 +90,22 @@ public class ElderlyService {
         elderlyRepository.save(elderly);
     }
 
-    @Transactional
-    public List<ElderlyListResponse> getElderlyListBySearch(String searchString) {
+    public List<ElderlyInfoResponse> getElderlyListBySearch(String searchString) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
-        List<Elderly> elderlyList;
-        elderlyList = elderlyRepository.findByNursingInstitutionAndNameContaining(
+        List<Elderly> elderlyList = elderlyRepository.findByNursingInstitutionAndNameContaining(
                 socialworker.getNursingInstitution(), searchString);
 
         return elderlyList.stream()
                 .map(elderly -> {
                     boolean hasRecruitment = recruitmentRepository.existsByElderly(elderly);
                     int caregiverNum = completedMatchingRepository.countDistinctCaregiversByElderly(elderly);
-                    return new ElderlyListResponse(
-                            elderly.getId(),
-                            elderly.getName(),
-                            elderly.getAge(),
-                            elderly.getGender(),
-                            elderly.getProfileImageUrl(),
-                            elderly.getCareLevel(),
-                            caregiverNum, // 매칭 완료 테이블에서 어르신
-                            hasRecruitment);
+                    return ElderlyInfoResponse.of(elderly, caregiverNum, hasRecruitment);
                 })
                 .toList();
     }
 
-    @Transactional
-    public List<ElderlyListResponse> getElderlyList() {
+    public List<ElderlyInfoResponse> getElderlyList() {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
         List<Elderly> elderlyList = elderlyRepository.findByNursingInstitution(socialworker.getNursingInstitution());
 
@@ -123,17 +113,9 @@ public class ElderlyService {
                 .map(elderly -> {
                     boolean hasRecruitment = recruitmentRepository.existsByElderly(elderly);
                     int caregiverNum = completedMatchingRepository.countDistinctCaregiversByElderly(elderly);
-                    return new ElderlyListResponse(
-                            elderly.getId(),
-                            elderly.getName(),
-                            elderly.getAge(),
-                            elderly.getGender(),
-                            elderly.getProfileImageUrl(),
-                            elderly.getCareLevel(),
-                            caregiverNum, // 매칭 완료 테이블에서 어르신
-                            hasRecruitment);
+                    return ElderlyInfoResponse.of(elderly, caregiverNum, hasRecruitment);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional

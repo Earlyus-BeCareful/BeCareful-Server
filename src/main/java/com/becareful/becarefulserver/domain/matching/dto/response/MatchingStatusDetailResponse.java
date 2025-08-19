@@ -1,11 +1,11 @@
 package com.becareful.becarefulserver.domain.matching.dto.response;
 
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-import com.becareful.becarefulserver.domain.matching.dto.RecruitmentSimpleDto;
+import com.becareful.becarefulserver.domain.matching.dto.SocialWorkerRecruitmentSimpleDto;
 import java.util.List;
 
 public record MatchingStatusDetailResponse(
-        RecruitmentSimpleDto recruitmentInfo,
+        SocialWorkerRecruitmentSimpleDto recruitmentInfo,
         List<MatchingCaregiverSimpleResponse> matchedCaregivers,
         List<MatchingCaregiverSimpleResponse> appliedCaregivers) {
 
@@ -14,6 +14,6 @@ public record MatchingStatusDetailResponse(
             List<MatchingCaregiverSimpleResponse> matchedCaregivers,
             List<MatchingCaregiverSimpleResponse> appliedCaregivers) {
         return new MatchingStatusDetailResponse(
-                RecruitmentSimpleDto.from(recruitment), matchedCaregivers, appliedCaregivers);
+                SocialWorkerRecruitmentSimpleDto.from(recruitment), matchedCaregivers, appliedCaregivers);
     }
 }

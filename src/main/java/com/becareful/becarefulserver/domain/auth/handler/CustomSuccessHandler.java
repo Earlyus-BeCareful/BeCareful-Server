@@ -5,7 +5,7 @@ import com.becareful.becarefulserver.domain.auth.dto.response.OAuth2LoginRespons
 import com.becareful.becarefulserver.domain.auth.dto.response.RegisteredUserLoginResponse;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
@@ -82,9 +82,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .toList();
 
         String accessToken = jwtUtil.createAccessToken(phoneNumber, roles.get(0), roles.get(1));
-        String refreshToken = jwtUtil.createRefreshToken(phoneNumber, roles.get(0), roles.get(1));
+        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
-        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry())); // 24시간
+        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry())); // 15분
         response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry())); // 일주일
 
         String state = request.getParameter("state");

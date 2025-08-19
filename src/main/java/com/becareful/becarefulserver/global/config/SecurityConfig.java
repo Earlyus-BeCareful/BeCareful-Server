@@ -1,7 +1,11 @@
 package com.becareful.becarefulserver.global.config;
 
+import static com.becareful.becarefulserver.global.constant.UrlConstant.DEV_SERVER_URL;
+import static com.becareful.becarefulserver.global.constant.UrlConstant.LOCAL_SERVER_URL;
+
 import com.becareful.becarefulserver.domain.auth.handler.CustomSuccessHandler;
 import com.becareful.becarefulserver.domain.auth.service.CustomOAuth2UserService;
+import com.becareful.becarefulserver.global.security.CustomAuthorizationRequestResolver;
 import com.becareful.becarefulserver.global.security.JwtAuthenticationFilter;
 import com.becareful.becarefulserver.global.security.JwtExceptionHandlingFilter;
 import com.becareful.becarefulserver.global.util.JwtUtil;
@@ -37,8 +41,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin((auth) -> auth.disable())
-                .httpBasic((auth) -> auth.disable())
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2Login(oauth2 -> oauth2.authorizationEndpoint(
                                 endpoint -> endpoint.authorizationRequestResolver(customResolver))
@@ -50,35 +54,46 @@ public class SecurityConfig {
                                 "/socialworker/signup",
                                 "/socialworker/check-nickname")
                         .hasRole("GUEST")
-                        .requestMatchers("socialworker/me")
+                        .requestMatchers("/socialworker/me", "/socialworker/logout", "/socialworker/leave")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/nursingInstitution/upload-profile-img")
                         .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE")
                         .requestMatchers("/caregiver/upload-profile-img")
                         .hasAnyRole("GUEST", "NONE")
-                        .requestMatchers(HttpMethod.GET, "/association/join-requests")
-                        .hasRole("CHAIRMAN")
+                        .requestMatchers(HttpMethod.GET, "/association/join-requests", "/association/info")
+                        .hasAnyRole("CHAIRMAN", "EXECUTIVE")
                         .requestMatchers(
                                 "/association/create",
                                 "/association/join-requests/*/accept",
                                 "/association/join-requests/*/reject",
+                                "/association/info",
                                 "/association/members/*/expel",
-                                "/association/upload-profile-img")
-                        .hasRole("CHAIRMAN")
+                                "/association/upload-profile-img",
+                                "/association/members/rank")
+                        .hasAnyRole("CHAIRMAN", "EXECUTIVE")
                         .requestMatchers(HttpMethod.POST, "/association/join-requests")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/association/search", "/association/list")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
+                        .requestMatchers(HttpMethod.PUT, "/nursingInstitution/info")
+                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE")
+                        .requestMatchers("/association/chairman/delegate")
+                        .hasRole("CHAIRMAN")
                         .requestMatchers(
-                                "/association/members/overview", "/association/members", "/association/members/*")
+                                "/association/members/overview",
+                                "/association/members",
+                                "/association/members/*",
+                                "/association/leave")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE", "MEMBER")
+                        .requestMatchers("/caregiver/logout")
+                        .hasAnyRole("NONE")
                         .requestMatchers("/sms/**")
                         .authenticated()
                         .requestMatchers("/post")
                         .authenticated()
                         .requestMatchers("/auth/**", "/login/**", "/oauth2/**", "/favicon.ico")
                         .permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/test/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
@@ -98,12 +113,15 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of(
+                LOCAL_SERVER_URL,
+                DEV_SERVER_URL,
                 "https://becareful.vercel.app/",
                 "https://www.carebridges.kr/",
                 "https://localhost:5173",
-                "https://localhost:8080",
-                "https://blaybus.everdu.com",
                 "https://localhost:3000"));
+
+        configuration.setAllowedOriginPatterns(List.of("https://be-careful-client-*.vercel.app"));
+
         configuration.addExposedHeader("Set-Cookie");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
