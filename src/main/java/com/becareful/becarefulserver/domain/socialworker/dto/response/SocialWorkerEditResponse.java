@@ -8,7 +8,7 @@ import java.time.format.*;
 public record SocialWorkerEditResponse(
         String name,
         String nickName,
-        Integer birthYymmdd,
+        String birthYymmdd,
         Integer genderCode,
         String phoneNumber,
         String institutionName,
@@ -22,7 +22,7 @@ public record SocialWorkerEditResponse(
             genderCode += 2;
         }
 
-        int birthYymmdd = Integer.parseInt(socialWorker.getBirthday().format(DateTimeFormatter.ofPattern("yyMMdd")));
+        String birthYymmdd = socialWorker.getBirthday().format(DateTimeFormatter.ofPattern("yyMMdd"));
 
         return new SocialWorkerEditResponse(
                 socialWorker.getName(),
