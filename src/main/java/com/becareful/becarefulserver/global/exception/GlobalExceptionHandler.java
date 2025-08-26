@@ -1,13 +1,10 @@
 package com.becareful.becarefulserver.global.exception;
 
-import com.becareful.becarefulserver.global.exception.exception.AuthException;
-import com.becareful.becarefulserver.global.exception.exception.DomainException;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import com.becareful.becarefulserver.global.exception.exception.*;
+import lombok.extern.slf4j.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.*;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestControllerAdvice
@@ -38,5 +35,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUnknownException(Exception e) {
         log.error("Unknown exception: {} {}", e.getMessage(), e);
         return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException e) {
+        log.info("NotFoundException: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
     }
 }

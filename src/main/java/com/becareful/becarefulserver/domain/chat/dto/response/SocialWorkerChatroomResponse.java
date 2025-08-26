@@ -15,7 +15,8 @@ public record SocialWorkerChatroomResponse(
         CaregiverSimpleDto caregiverInfo,
         String recentChat,
         String time,
-        ElderlySimpleDto elderlyInfo) {
+        ElderlySimpleDto elderlyInfo,
+        Integer unreadCount) {
 
     public static SocialWorkerChatroomResponse of(Matching matching, Contract contract, boolean isCompleted) {
         Caregiver caregiver = matching.getWorkApplication().getCaregiver();
@@ -29,7 +30,9 @@ public record SocialWorkerChatroomResponse(
                 CaregiverSimpleDto.from(caregiver),
                 recentChat,
                 timeDifference,
-                ElderlySimpleDto.from(elderly));
+                ElderlySimpleDto.from(elderly),
+                0 // TODO : unread count 구현
+                );
     }
 
     private static String getTimeDifferenceString(Contract contract) {

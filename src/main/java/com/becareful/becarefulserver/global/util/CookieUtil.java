@@ -20,4 +20,14 @@ public class CookieUtil {
         cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
         return cookie;
     }
+
+    public Cookie deleteCookie(String name) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setMaxAge(0); // 즉시 만료
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(cookieProperties.getCookieSecure());
+        cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
+        return cookie;
+    }
 }

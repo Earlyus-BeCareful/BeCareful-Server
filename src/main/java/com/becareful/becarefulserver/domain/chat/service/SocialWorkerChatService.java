@@ -73,6 +73,7 @@ public class SocialWorkerChatService {
                 contract.getWorkDays().stream().toList(),
                 contract.getWorkStartTime(),
                 contract.getWorkEndTime(),
+                contract.getWorkSalaryUnitType(),
                 contract.getWorkSalaryAmount(),
                 contract.getWorkStartDate());
     }

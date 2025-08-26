@@ -25,9 +25,7 @@ import com.becareful.becarefulserver.global.exception.exception.CaregiverExcepti
 import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
 import com.becareful.becarefulserver.global.properties.JwtProperties;
-import com.becareful.becarefulserver.global.util.AuthUtil;
-import com.becareful.becarefulserver.global.util.FileUtil;
-import com.becareful.becarefulserver.global.util.JwtUtil;
+import com.becareful.becarefulserver.global.util.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -64,6 +62,7 @@ public class CaregiverService {
     private final JwtUtil jwtUtil;
     private final CookieProperties cookieProperties;
     private final JwtProperties jwtProperties;
+    private final CookieUtil cookieUtil;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -243,5 +242,11 @@ public class CaregiverService {
         cookie.setHttpOnly(true);
         cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
         return cookie;
+    }
+
+    public void logout(HttpServletResponse response) {
+        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
+        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
+        SecurityContextHolder.clearContext();
     }
 }

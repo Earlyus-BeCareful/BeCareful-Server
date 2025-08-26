@@ -9,6 +9,7 @@ import jakarta.servlet.http.*;
 import jakarta.validation.*;
 import java.net.*;
 import lombok.*;
+import org.springframework.data.crossstore.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.*;
@@ -75,7 +76,8 @@ public class AssociationController {
     @Operation(summary = "협회장 위임", description = "협회장 권한 API")
     @PutMapping("/chairman/delegate")
     public ResponseEntity<Void> updateAssociationChairman(
-            @Valid @RequestBody UpdateAssociationChairmanRequest request, HttpServletResponse response) {
+            @Valid @RequestBody UpdateAssociationChairmanRequest request, HttpServletResponse response)
+            throws ChangeSetPersister.NotFoundException {
         associationService.updateAssociationChairman(request, response);
         return ResponseEntity.ok().build();
     }

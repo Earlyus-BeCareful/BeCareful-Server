@@ -4,4 +4,7 @@ import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import jakarta.validation.constraints.*;
 
 public record UpdateAssociationChairmanRequest(
-        @NotNull Long newChairmanId, @NotNull AssociationRank nextRankOfCurrentChairman) {}
+        @NotBlank String newChairmanName,
+        @NotBlank String newChairmanNickName,
+        @NotNull String newChairmanPhoneNUmber,
+        @NotNull AssociationRank nextRankOfCurrentChairman) {}

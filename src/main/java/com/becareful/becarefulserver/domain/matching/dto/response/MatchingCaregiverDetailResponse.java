@@ -47,9 +47,13 @@ public record MatchingCaregiverDetailResponse(
                         : MatchingResultReasonType.NOT_MATCHED,
                 CaregiverDto.from(workApplication.getCaregiver()),
                 WorkApplicationDto.of(locations, workApplication),
-                CareerResponse.of(
-                        career,
-                        careerDetails.stream().map(CareerDetailResponse::from).toList()),
+                career != null
+                        ? CareerResponse.of(
+                                career,
+                                careerDetails.stream()
+                                        .map(CareerDetailResponse::from)
+                                        .toList())
+                        : null,
                 matching.getMediationTypes().stream().toList(),
                 matching.getMediationDescription());
     }

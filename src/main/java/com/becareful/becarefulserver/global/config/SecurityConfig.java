@@ -54,7 +54,13 @@ public class SecurityConfig {
                                 "/socialworker/signup",
                                 "/socialworker/check-nickname")
                         .hasRole("GUEST")
-                        .requestMatchers("/socialworker/me", "/socialworker/logout", "/socialworker/leave")
+                        .requestMatchers("/nursingInstitution/search", "/nursingInstitution/list")
+                        .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
+                        .requestMatchers(
+                                "/socialworker/me",
+                                "/socialworker/me/edit",
+                                "/socialworker/logout",
+                                "/socialworker/leave")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/nursingInstitution/upload-profile-img")
                         .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE")
@@ -85,6 +91,8 @@ public class SecurityConfig {
                                 "/association/members/*",
                                 "/association/leave")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE", "MEMBER")
+                        .requestMatchers("/caregiver/logout")
+                        .hasAnyRole("NONE")
                         .requestMatchers("/sms/**")
                         .authenticated()
                         .requestMatchers("/post")
@@ -117,6 +125,9 @@ public class SecurityConfig {
                 "https://www.carebridges.kr/",
                 "https://localhost:5173",
                 "https://localhost:3000"));
+
+        configuration.setAllowedOriginPatterns(List.of("https://be-careful-client-*.vercel.app"));
+
         configuration.addExposedHeader("Set-Cookie");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");

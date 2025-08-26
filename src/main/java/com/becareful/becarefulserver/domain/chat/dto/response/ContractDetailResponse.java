@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.chat.dto.response;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
@@ -14,6 +15,7 @@ public record ContractDetailResponse(
         List<DayOfWeek> workDays,
         LocalTime workStartTime,
         LocalTime workEndTime,
+        WorkSalaryUnitType workSalaryUnitType,
         Integer workSalaryAmount,
         LocalDate workStartDate,
         List<CareInfoResponse> careInfoList) {
@@ -24,6 +26,7 @@ public record ContractDetailResponse(
             List<DayOfWeek> workDays,
             LocalTime workStartTime,
             LocalTime workEndTime,
+            WorkSalaryUnitType workSalaryUnitType,
             Integer workSalaryAmount,
             LocalDate workStartDate) {
         // CareType별로 detailCareTypes 그룹화
@@ -38,6 +41,12 @@ public record ContractDetailResponse(
                 .collect(Collectors.toList());
 
         return new ContractDetailResponse(
-                workDays, workStartTime, workEndTime, workSalaryAmount, workStartDate, careInfoList);
+                workDays,
+                workStartTime,
+                workEndTime,
+                workSalaryUnitType,
+                workSalaryAmount,
+                workStartDate,
+                careInfoList);
     }
 }
