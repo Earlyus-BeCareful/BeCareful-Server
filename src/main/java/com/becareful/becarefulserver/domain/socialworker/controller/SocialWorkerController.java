@@ -28,7 +28,7 @@ public class SocialWorkerController {
         return ResponseEntity.created(URI.create("/socialworker/" + id)).build();
     }
 
-    @Operation(summary = "닉네임 중복 확인", description = "회원가입시 닉네임 중복 확인 API. 동일한 닉네임이 있다면 true 반환")
+    @Operation(summary = "닉네임 중복 확인", description = "닉네임 중복 확인 API. 동일한 닉네임이 있다면 true 반환")
     @GetMapping("/check-nickname")
     public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
         boolean sameNickName = socialworkerService.checkSameNickNameAtRegist(nickname);
