@@ -22,8 +22,8 @@ import org.springframework.web.multipart.*;
 public class NursingInstitutionController {
     private final NursingInstitutionService nursingInstitutionService;
 
-    @Operation(summary = "회원가입 전: 서비스에 등록된 요양 기관 검색", description = "회원가입 단계에서 요양 기관 검색 API")
-    @GetMapping("/for-guest/search")
+    @Operation(summary = "서비스에 등록된 요양 기관 검색", description = "서비스에 등록된 요양 기관 검색 API")
+    @GetMapping("/search")
     public ResponseEntity<NursingInstitutionSearchResponse> searchNursingInstitution(
             @RequestParam(required = false) String nursingInstitutionName) {
         NursingInstitutionSearchResponse response =
@@ -31,8 +31,8 @@ public class NursingInstitutionController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "회원가입 전: 서비스에 등록된 요양 기관 리스트 조회", description = "회원가입 단계에서 요양 기관 조회 API")
-    @GetMapping("/for-guest/list")
+    @Operation(summary = "서비스에 등록된 요양 기관 리스트 조회", description = "서비스에 등록된 모든 요양 기관 반환 API")
+    @GetMapping("/list")
     public ResponseEntity<NursingInstitutionSearchResponse> getNursingInstitutionList() {
         NursingInstitutionSearchResponse response = nursingInstitutionService.getNursingInstitutionList();
         return ResponseEntity.ok(response);
