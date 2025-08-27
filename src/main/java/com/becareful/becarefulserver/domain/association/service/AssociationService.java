@@ -16,7 +16,6 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
-import com.becareful.becarefulserver.global.exception.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.util.*;
@@ -337,5 +336,22 @@ public class AssociationService {
 
         Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    @Transactional
+    public void cancelMyJoinRequest() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        AssociationJoinApplication application = associationJoinApplicationRepository
+                .findBySocialWorker(loggedInSocialWorker)
+                .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
+
+        if (application.getStatus().equals(AssociationJoinApplicationStatus.APPROVED)) {
+            throw new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_ACCEPTED);
+        }
+        if (application.getStatus().equals(AssociationJoinApplicationStatus.REJECTED)) {
+            throw new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_REJECTED);
+        }
+
+        associationJoinApplicationRepository.delete(application);
     }
 }

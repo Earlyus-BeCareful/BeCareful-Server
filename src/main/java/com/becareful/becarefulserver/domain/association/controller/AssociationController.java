@@ -52,6 +52,13 @@ public class AssociationController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "협회 가입 신청 취소", description = "본인의 협회 가입 신청을 취소하는 API")
+    @DeleteMapping("/join-requests")
+    public ResponseEntity<Void> cancelMyJoinRequest() {
+        associationService.cancelMyJoinRequest();
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "협회 회원 수, 가입 신청서 개수 반환")
     @GetMapping("/members/overview")
     public ResponseEntity<AssociationMemberOverviewResponse> getAssociationMemberOverview() {
