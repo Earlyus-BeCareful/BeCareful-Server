@@ -77,7 +77,7 @@ public class SecurityConfig {
                                 "/association/upload-profile-img",
                                 "/association/members/rank")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE")
-                        .requestMatchers(HttpMethod.POST, "/association/join-requests")
+                        .requestMatchers("/association/join-requests")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/association/search", "/association/list")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")

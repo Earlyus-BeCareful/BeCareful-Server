@@ -18,14 +18,13 @@ public class ErrorMessage {
     public static final String INVALID_TOKEN_FORMAT = "엑세스 토큰 형식이 유효하지 않습니다.";
     public static final String INVALID_TOKEN = "엑세스 토큰이 유효하지 않습니다.";
     public static final String TOKEN_NOT_CONTAINED = "요청에 토큰이 포함되지 않았습니다.";
-    public static String INVALID_REFRESH_TOKEN = "리프레시 토큰이 유효하지 않습니다.";
+    public static final String INVALID_REFRESH_TOKEN = "리프레시 토큰이 유효하지 않습니다.";
 
     public static final String SOCIALWORKER_REQUIRED_AGREEMENT = "필수 약관에 동의해야 합니다.";
     public static final String SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER = "이미 가입된 전화번호 입니다.";
     public static final String SOCIAlWORKER_ALREADY_EXISTS_NICKNAME = "이미 존재하는 닉네임 입니다.";
     public static final String SOCIALWORKER_NOT_EXISTS = "해당하는 사회복지사가 없습니다.";
     public static final String NURSING_INSTITUTION_REQUIRE_CODE = "기관코드는 필수입니다.";
-
     public static final String SOCIAL_WORKER_NOT_EXISTS = "존재하지 않는 회원번호입니다.";
 
     public static final String NURSING_INSTITUTION_ALREADY_EXISTS = "이미 등록된 기관입니다.";
@@ -34,6 +33,10 @@ public class ErrorMessage {
 
     public static final String ASSOCIATION_NOT_EXISTS = "존재하지 않는 협회입니다.";
     public static final String ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS = "존재하지 않는 협회 가입 요청입니다.";
+    public static final String ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_ACCEPTED =
+            "가입 신청이 이미 승인되었습니다. 서비스를 이용하고 싶지 않으시다면 탈퇴해 주십시오.";
+    public static final String ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_REJECTED = "가입 신청이 이미 반려되었습니다";
+
     public static final String ASSOCIATION_CHAIRMAN_NOT_EXISTS = "협회장이 존재하지 않습니다.";
     public static final String ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST = "커뮤니티 협회장 위임을 먼저 해야합니다.";
     public static final String ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST = "커뮤니티 임원진 위임을 먼저 해야합니다.";
