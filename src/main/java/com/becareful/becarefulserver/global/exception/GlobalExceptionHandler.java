@@ -31,6 +31,18 @@ public class GlobalExceptionHandler {
                         ex.getBindingResult().getAllErrors().get(0).getDefaultMessage()));
     }
 
+    @ExceptionHandler(SocialWorkerException.class)
+    public ResponseEntity<ErrorResponse> socialWorkerException(SocialWorkerException e) {
+        log.info("SocialWorkerException: {}", e.getMessage());
+        return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(AssociationException.class)
+    public ResponseEntity<ErrorResponse> associationException(AssociationException e) {
+        log.info("AssociationException: {}", e.getMessage());
+        return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnknownException(Exception e) {
         log.error("Unknown exception: {} {}", e.getMessage(), e);
