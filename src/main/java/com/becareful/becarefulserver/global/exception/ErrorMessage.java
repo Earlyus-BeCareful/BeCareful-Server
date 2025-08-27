@@ -35,6 +35,8 @@ public class ErrorMessage {
     public static final String ASSOCIATION_NOT_EXISTS = "존재하지 않는 협회입니다.";
     public static final String ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS = "존재하지 않는 협회 가입 요청입니다.";
     public static final String ASSOCIATION_CHAIRMAN_NOT_EXISTS = "협회장이 존재하지 않습니다.";
+    public static final String ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST = "커뮤니티 협회장 위임을 먼저 해야합니다.";
+    public static final String ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST = "커뮤니티 임원진 위임을 먼저 해야합니다.";
 
     public static final String ELDERLY_FAILED_TO_CREATE_PROFILE_IMAGE_NAME = "프로필 이미지 이름을 생성하는 중 문제가 발생했습니다.";
     public static final String ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
