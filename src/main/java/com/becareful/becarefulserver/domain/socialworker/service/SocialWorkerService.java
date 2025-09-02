@@ -4,6 +4,7 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
 import com.becareful.becarefulserver.domain.association.repository.*;
+import com.becareful.becarefulserver.domain.chat.service.*;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
@@ -47,6 +48,7 @@ public class SocialWorkerService {
     private final JwtProperties jwtProperties;
     private final CookieUtil cookieUtil;
     private final AssociationRepository associationRepository;
+    private final SocialWorkerChatService socialWorkerChatService;
 
     @Transactional
     public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
@@ -84,6 +86,8 @@ public class SocialWorkerService {
     public SocialWorkerHomeResponse getHomeData() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         NursingInstitution institution = loggedInSocialWorker.getNursingInstitution();
+
+        boolean hasNewChat = socialWorkerChatService.checkNewChat();
 
         List<Long> elderlyIds = elderlyRepository.findByNursingInstitution(institution).stream()
                 .map(Elderly::getId)
@@ -135,6 +139,7 @@ public class SocialWorkerService {
 
         return SocialWorkerHomeResponse.of(
                 loggedInSocialWorker,
+                hasNewChat,
                 elderlyCount,
                 socialWorkerCount, // TODO 요양보호사 숫자로 변경
                 socialWorkers,

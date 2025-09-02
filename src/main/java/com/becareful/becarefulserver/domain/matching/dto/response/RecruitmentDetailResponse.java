@@ -15,10 +15,11 @@ public record RecruitmentDetailResponse(
         InstitutionSimpleDto institutionInfo,
         MatchingResultStatus matchingResultStatus,
         boolean isHotRecruitment,
-        boolean isHourlySalaryTop) {
+        boolean isHourlySalaryTop,
+        boolean hasNewChat) {
 
     public static RecruitmentDetailResponse from(
-            Matching matching, boolean isHotRecruitment, boolean isHourlySalaryTop) {
+            Matching matching, boolean isHotRecruitment, boolean isHourlySalaryTop, boolean hasNewChat) {
         Recruitment recruitment = matching.getRecruitment();
         Elderly elderly = recruitment.getElderly();
         NursingInstitution institution = elderly.getNursingInstitution();
@@ -29,6 +30,7 @@ public record RecruitmentDetailResponse(
                 InstitutionSimpleDto.from(institution),
                 matching.getMatchingResultStatus(),
                 isHotRecruitment,
-                isHourlySalaryTop);
+                isHourlySalaryTop,
+                hasNewChat);
     }
 }

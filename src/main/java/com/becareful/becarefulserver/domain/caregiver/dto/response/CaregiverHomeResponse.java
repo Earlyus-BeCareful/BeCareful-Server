@@ -8,6 +8,7 @@ import lombok.Builder;
 @Builder(access = AccessLevel.PRIVATE)
 public record CaregiverHomeResponse(
         String name,
+        boolean hasNewChat,
         Integer applicationCount,
         Integer recruitmentCount,
         List<WorkScheduleResponse> workScheduleList,
@@ -15,6 +16,7 @@ public record CaregiverHomeResponse(
         boolean isApplying) {
     public static CaregiverHomeResponse of(
             Caregiver caregiver,
+            boolean isNewChat,
             Integer applicationCount,
             Integer recruitmentCount,
             boolean isWorking,
@@ -22,6 +24,7 @@ public record CaregiverHomeResponse(
             List<WorkScheduleResponse> workScheduleList) {
         return CaregiverHomeResponse.builder()
                 .name(caregiver.getName())
+                .hasNewChat(isNewChat)
                 .applicationCount(applicationCount)
                 .recruitmentCount(recruitmentCount)
                 .workScheduleList(workScheduleList)

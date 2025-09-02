@@ -1,7 +1,7 @@
 package com.becareful.becarefulserver.domain.caregiver.controller;
 
-import com.becareful.becarefulserver.domain.caregiver.dto.WorkApplicationDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.service.WorkApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,8 +27,8 @@ public class WorkApplicationController {
 
     @Operation(summary = "일자리 신청 정보 조회", description = "요양보호사 일자리 신청서 정보를 조회합니다. 신청서를 등록한 적이 없다면 null을 반환합니다.")
     @GetMapping
-    public ResponseEntity<WorkApplicationDto> getWorkApplication() {
-        var response = workApplicationService.getWorkApplication();
+    public ResponseEntity<CaregiverMyWorkApplicationPageResponse> getWorkApplication() {
+        var response = workApplicationService.getMyWorkApplicationPageInfo();
         return ResponseEntity.ok(response);
     }
 
