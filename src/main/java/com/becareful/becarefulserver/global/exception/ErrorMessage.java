@@ -77,4 +77,7 @@ public class ErrorMessage {
     public static final String POST_MEDIA_FILE_SIZE_EXCEEDED = "파일은 1개당 최대 10MB까지 업로드할 수 있습니다.";
     public static final String POST_MEDIA_TOTAL_FILE_SIZE_EXCEEDED = "파일은 한 게시글당 최대 30MB까지 업로드할 수 있습니다.";
     public static final String POST_MEDIA_UNSUPPORTED_FILE_TYPE = "지원하지 않는 파일 타입입니다.";
+
+    public static final String CAREGIVER_CHAT_READ_STATUS_NOT_EXISTS = "요양보호사의 마지막 채팅방 입장 시간 기록이 없습니다.";
+    public static final String SOCIAL_WORKER_CHAT_READ_STATUS_NOT_EXISTS = "사회복지사의 마지막 채팅방 입장 시간 기록이 없습니다.";
 }

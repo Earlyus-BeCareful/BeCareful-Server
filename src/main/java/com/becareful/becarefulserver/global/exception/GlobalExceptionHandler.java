@@ -54,4 +54,10 @@ public class GlobalExceptionHandler {
         log.info("NotFoundException: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
     }
+
+    @ExceptionHandler(ChatException.class)
+    public ResponseEntity<ErrorResponse> handleChatException(ChatException e) {
+        log.info("ChatException: {}", e.getMessage());
+        return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage()));
+    }
 }
