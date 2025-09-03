@@ -9,7 +9,7 @@ import java.time.format.*;
 public record SocialWorkerEditResponse(
         String name,
         String nickName,
-        Integer birthYymmdd,
+        String birthYymmdd,
         Integer genderCode,
         String phoneNumber,
         InstitutionSimpleDto institutionInfo,
@@ -17,13 +17,14 @@ public record SocialWorkerEditResponse(
         boolean isAgreedToTerms,
         boolean isAgreedToCollectPersonalInfo,
         boolean isAgreedToReceiveMarketingInfo) {
+
     public static SocialWorkerEditResponse from(SocialWorker socialWorker) {
         int genderCode = socialWorker.getGender() == Gender.MALE ? 1 : 2;
         if (socialWorker.getBirthday().getYear() >= 2000) {
             genderCode += 2;
         }
 
-        int birthYymmdd = Integer.parseInt(socialWorker.getBirthday().format(DateTimeFormatter.ofPattern("yyMMdd")));
+        String birthYymmdd = socialWorker.getBirthday().format(DateTimeFormatter.ofPattern("yyMMdd"));
 
         return new SocialWorkerEditResponse(
                 socialWorker.getName(),

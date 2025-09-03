@@ -66,18 +66,11 @@ public class SocialWorkerChatService {
         Contract contract =
                 contractRepository.findById(contractId).orElseThrow(() -> new ContractException(CONTRACT_NOT_EXISTS));
 
-        return ContractDetailResponse.from(
-                contract.getMatching().getRecruitment().getElderly(),
-                contract.getWorkDays().stream().toList(),
-                contract.getWorkStartTime(),
-                contract.getWorkEndTime(),
-                contract.getWorkSalaryUnitType(),
-                contract.getWorkSalaryAmount(),
-                contract.getWorkStartDate());
+        return ContractDetailResponse.from(contract);
     }
 
     @Transactional
-    public void editContract(ContractEditRequest request) {
+    public Long editContract(ContractEditRequest request) {
         Matching matching = matchingRepository
                 .findById(request.matchingId())
                 .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
@@ -92,7 +85,7 @@ public class SocialWorkerChatService {
                 request.workStartDate(),
                 EnumSet.copyOf(request.careTypes()));
 
-        contractRepository.save(contract);
+        return contractRepository.save(contract).getId();
     }
 
     // TODO(계약서 조율하기 채팅 엔티티 추가시 코드 수정)

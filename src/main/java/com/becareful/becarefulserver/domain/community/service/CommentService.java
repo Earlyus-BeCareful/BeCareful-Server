@@ -65,7 +65,7 @@ public class CommentService {
         post.validateBoard(postBoard.getId());
 
         return commentRepository.findAllByPost(post).stream()
-                .map(CommentResponse::from)
+                .map(comment -> CommentResponse.of(comment, currentMember == comment.getAuthor()))
                 .toList();
     }
 
