@@ -6,7 +6,6 @@ import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionSimpleDto;
-
 import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
