@@ -8,6 +8,8 @@ import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +48,7 @@ public class SocialWorkerChatController {
     @Operation(summary = "수정 계약서 생성")
     @PostMapping("/contract/edit")
     public ResponseEntity<Void> editContract(@RequestBody @Valid ContractEditRequest request) {
-        socialWorkerChatService.editContract(request);
-        return ResponseEntity.ok().build();
+        Long contractId = socialWorkerChatService.editContract(request);
+        return ResponseEntity.created(URI.create("/contract/" + contractId)).build();
     }
 }

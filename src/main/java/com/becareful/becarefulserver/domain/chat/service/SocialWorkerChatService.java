@@ -70,7 +70,7 @@ public class SocialWorkerChatService {
     }
 
     @Transactional
-    public void editContract(ContractEditRequest request) {
+    public Long editContract(ContractEditRequest request) {
         Matching matching = matchingRepository
                 .findById(request.matchingId())
                 .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
@@ -85,7 +85,7 @@ public class SocialWorkerChatService {
                 request.workStartDate(),
                 EnumSet.copyOf(request.careTypes()));
 
-        contractRepository.save(contract);
+        return contractRepository.save(contract).getId();
     }
 
     // TODO(계약서 조율하기 채팅 엔티티 추가시 코드 수정)
