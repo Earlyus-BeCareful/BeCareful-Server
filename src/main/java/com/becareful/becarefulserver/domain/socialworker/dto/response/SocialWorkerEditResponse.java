@@ -31,7 +31,7 @@ public record SocialWorkerEditResponse(
                 birthYymmdd,
                 genderCode,
                 socialWorker.getPhoneNumber(),
-                socialWorker.getNursingInstitution().getName(),
+                InstitutionSimpleDto.from(socialWorker.getNursingInstitution()),
                 socialWorker.getInstitutionRank(),
                 socialWorker.isAgreedToTerms(),
                 socialWorker.isAgreedToCollectPersonalInfo(),
