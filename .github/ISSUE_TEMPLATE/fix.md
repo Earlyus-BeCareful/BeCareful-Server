@@ -1,8 +1,8 @@
 ---
-name: Fix
+name: 🐛 Fix
 about: 버그 발생
-title: ''
-labels: ''
+title: '🐛 '
+labels: 'fix'
 assignees: ''
 
 ---
