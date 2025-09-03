@@ -2,8 +2,8 @@ package com.becareful.becarefulserver.domain.socialworker.dto.response;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionDto;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.dto.InstitutionDto;
 import com.becareful.becarefulserver.domain.socialworker.dto.SocialWorkerSimpleDto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;

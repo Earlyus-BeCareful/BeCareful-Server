@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.socialworker.dto.response;
 
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionSimpleDto;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import java.time.format.*;
 
@@ -11,7 +12,7 @@ public record SocialWorkerEditResponse(
         Integer birthYymmdd,
         Integer genderCode,
         String phoneNumber,
-        String institutionName,
+        InstitutionSimpleDto institutionInfo,
         InstitutionRank institutionRank,
         boolean isAgreedToTerms,
         boolean isAgreedToCollectPersonalInfo,
@@ -30,7 +31,7 @@ public record SocialWorkerEditResponse(
                 birthYymmdd,
                 genderCode,
                 socialWorker.getPhoneNumber(),
-                socialWorker.getNursingInstitution().getName(),
+                InstitutionSimpleDto.from(socialWorker.getNursingInstitution()),
                 socialWorker.getInstitutionRank(),
                 socialWorker.isAgreedToTerms(),
                 socialWorker.isAgreedToCollectPersonalInfo(),
