@@ -66,14 +66,7 @@ public class SocialWorkerChatService {
         Contract contract =
                 contractRepository.findById(contractId).orElseThrow(() -> new ContractException(CONTRACT_NOT_EXISTS));
 
-        return ContractDetailResponse.from(
-                contract.getMatching().getRecruitment().getElderly(),
-                contract.getWorkDays().stream().toList(),
-                contract.getWorkStartTime(),
-                contract.getWorkEndTime(),
-                contract.getWorkSalaryUnitType(),
-                contract.getWorkSalaryAmount(),
-                contract.getWorkStartDate());
+        return ContractDetailResponse.from(contract);
     }
 
     @Transactional
