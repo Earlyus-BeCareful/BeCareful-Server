@@ -55,12 +55,17 @@ public class CaregiverService {
 
         boolean hasNewChat = chatService.checkNewChat(caregiver);
 
-        WorkApplication workApplication = workApplicationRepository
-                .findByCaregiver(caregiver)
-                .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
-        Integer applicationCount = matchingRepository
-                .findByWorkApplicationAndMatchingApplicationStatus(workApplication, 지원검토중)
-                .size();
+        Optional<WorkApplication> optionalWorkApplication = workApplicationRepository.findByCaregiver(caregiver);
+
+        Integer applicationCount = 0;
+        boolean isApplying = false;
+        if (optionalWorkApplication.isPresent()) {
+            WorkApplication workApplication = optionalWorkApplication.get();
+            applicationCount = matchingRepository
+                    .findByWorkApplicationAndMatchingApplicationStatus(workApplication, 지원검토중)
+                    .size();
+            isApplying = workApplication.isActive();
+        }
         Integer recruitmentCount = matchingRepository
                 .findAllByCaregiverAndApplicationStatus(caregiver, 미지원)
                 .size();
@@ -68,7 +73,7 @@ public class CaregiverService {
         List<CompletedMatching> myWork = completedMatchingRepository.findByCaregiver(caregiver);
 
         boolean isWorking = !myWork.isEmpty();
-        boolean isApplying = workApplication.isActive();
+
         List<WorkScheduleResponse> workSchedules = myWork.stream()
                 .filter(completedMatching -> completedMatching
                         .getContract()
