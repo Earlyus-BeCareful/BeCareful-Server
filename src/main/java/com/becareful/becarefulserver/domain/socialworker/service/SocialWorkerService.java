@@ -2,6 +2,9 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.association.repository.*;
+import com.becareful.becarefulserver.domain.chat.service.*;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
@@ -43,6 +46,9 @@ public class SocialWorkerService {
     private final JwtUtil jwtUtil;
     private final CookieProperties cookieProperties;
     private final JwtProperties jwtProperties;
+    private final CookieUtil cookieUtil;
+    private final AssociationRepository associationRepository;
+    private final SocialWorkerChatService socialWorkerChatService;
 
     @Transactional
     public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
@@ -56,7 +62,7 @@ public class SocialWorkerService {
         validatePhoneNumberNotDuplicated(request.phoneNumber());
 
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
-        Gender gender = parseGender(request.genderCode());
+        Gender gender = genderStringtoCode(request.genderCode());
 
         SocialWorker socialWorker = SocialWorker.create(
                 request.realName(),
@@ -80,6 +86,8 @@ public class SocialWorkerService {
     public SocialWorkerHomeResponse getHomeData() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         NursingInstitution institution = loggedInSocialWorker.getNursingInstitution();
+
+        boolean hasNewChat = socialWorkerChatService.checkNewChat();
 
         List<Long> elderlyIds = elderlyRepository.findByNursingInstitution(institution).stream()
                 .map(Elderly::getId)
@@ -131,6 +139,7 @@ public class SocialWorkerService {
 
         return SocialWorkerHomeResponse.of(
                 loggedInSocialWorker,
+                hasNewChat,
                 elderlyCount,
                 socialWorkerCount, // TODO 요양보호사 숫자로 변경
                 socialWorkers,
@@ -156,6 +165,11 @@ public class SocialWorkerService {
         return SocialWorkerMyResponse.from(loggedInSocialWorker);
     }
 
+    public SocialWorkerEditResponse getEditMyInfo() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        return SocialWorkerEditResponse.from(loggedInSocialWorker);
+    }
+
     @Transactional
     public void updateMyBasicInfo(@Valid SocialWorkerUpdateBasicInfoRequest request, HttpServletResponse response) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
@@ -179,7 +193,7 @@ public class SocialWorkerService {
         }
 
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
-        Gender gender = parseGender(request.genderCode());
+        Gender gender = genderStringtoCode(request.genderCode());
 
         boolean rankChanged = !Objects.equals(loggedInSocialWorker.getInstitutionRank(), request.institutionRank());
         boolean phoneChanged = !Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber());
@@ -196,12 +210,10 @@ public class SocialWorkerService {
     }
 
     public void logout(HttpServletResponse response) {
-        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         // AccessToken 쿠키 삭제
-        response.addCookie(deleteCookie("AccessToken"));
+        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
         // RefreshToken 쿠키 삭제
-        response.addCookie(deleteCookie("RefreshToken"));
-
+        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
         // SecurityContext 초기화
         SecurityContextHolder.clearContext();
     }
@@ -209,15 +221,23 @@ public class SocialWorkerService {
     @Transactional
     public void leave(HttpServletResponse response) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        AssociationRank associationrank = loggedInSocialWorker.getAssociationRank();
+        AssociationRank rank = loggedInSocialWorker.getAssociationRank();
+        Association association = loggedInSocialWorker.getAssociation();
 
-        if (associationrank == AssociationRank.CHAIRMAN || associationrank == AssociationRank.EXECUTIVE) {
-            throw new DomainException("협회 탈퇴를 먼저 완료하십시오.");
+        if (rank == AssociationRank.CHAIRMAN) {
+            throw new AssociationException(ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST);
         }
+
+        if (rank == AssociationRank.EXECUTIVE
+                & socialworkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE)
+                        == 1) {
+            throw new AssociationException(ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST);
+        }
+
         socialworkerRepository.delete(loggedInSocialWorker);
 
-        response.addCookie(deleteCookie("AccessToken"));
-        response.addCookie(deleteCookie("RefreshToken"));
+        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
+        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
 
         SecurityContextHolder.clearContext();
     }
@@ -264,7 +284,7 @@ public class SocialWorkerService {
         return LocalDate.of(year, month, day);
     }
 
-    private Gender parseGender(int genderCode) {
+    private Gender genderStringtoCode(int genderCode) {
         switch (genderCode) {
             case 1:
             case 3:
@@ -277,6 +297,14 @@ public class SocialWorkerService {
         }
     }
 
+    private int genderCodeToString(Gender gender, int birthYear) {
+        int genderCode = gender == Gender.MALE ? 1 : 2;
+        if (birthYear >= 2000) {
+            genderCode += 2;
+        }
+        return genderCode;
+    }
+
     private void updateJwtAndSecurityContext(
             HttpServletResponse response,
             String phoneNumber,
@@ -287,33 +315,14 @@ public class SocialWorkerService {
         String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
         String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
-        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
-        response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
+        response.addCookie(cookieUtil.createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
+        response.addCookie(
+                cookieUtil.createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
 
         List<GrantedAuthority> authorities =
                 List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
-    private Cookie createCookie(String key, String value, int maxAge) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(maxAge);
-        cookie.setSecure(cookieProperties.getCookieSecure());
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
-        return cookie;
-    }
-
-    private Cookie deleteCookie(String name) {
-        Cookie cookie = new Cookie(name, null);
-        cookie.setMaxAge(0); // 즉시 만료
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setSecure(cookieProperties.getCookieSecure());
-        cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
-        return cookie;
     }
 }

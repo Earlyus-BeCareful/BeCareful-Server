@@ -49,12 +49,18 @@ public class SecurityConfig {
                         .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
                         .successHandler(customSuccessHandler))
                 .authorizeHttpRequests(auth -> auth.requestMatchers(
-                                "/caregiver/signup",
-                                "/nursingInstitution/for-guest/**",
-                                "/socialworker/signup",
-                                "/socialworker/check-nickname")
+                                "/caregiver/signup", "/nursingInstitution/for-guest/**", "/socialworker/signup")
                         .hasRole("GUEST")
-                        .requestMatchers("/socialworker/me", "/socialworker/logout", "/socialworker/leave")
+                        .requestMatchers(
+                                "/nursingInstitution/search",
+                                "/nursingInstitution/list",
+                                "/socialworker/check-nickname")
+                        .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
+                        .requestMatchers(
+                                "/socialworker/me",
+                                "/socialworker/me/edit",
+                                "/socialworker/logout",
+                                "/socialworker/leave")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/nursingInstitution/upload-profile-img")
                         .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE")
@@ -71,7 +77,7 @@ public class SecurityConfig {
                                 "/association/upload-profile-img",
                                 "/association/members/rank")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE")
-                        .requestMatchers(HttpMethod.POST, "/association/join-requests")
+                        .requestMatchers("/association/join-requests")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/association/search", "/association/list")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
@@ -80,11 +86,14 @@ public class SecurityConfig {
                         .requestMatchers("/association/chairman/delegate")
                         .hasRole("CHAIRMAN")
                         .requestMatchers(
+                                "/community/home",
                                 "/association/members/overview",
                                 "/association/members",
                                 "/association/members/*",
                                 "/association/leave")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE", "MEMBER")
+                        .requestMatchers("/caregiver/logout")
+                        .hasAnyRole("NONE")
                         .requestMatchers("/sms/**")
                         .authenticated()
                         .requestMatchers("/post")
@@ -117,6 +126,9 @@ public class SecurityConfig {
                 "https://www.carebridges.kr/",
                 "https://localhost:5173",
                 "https://localhost:3000"));
+
+        configuration.setAllowedOriginPatterns(List.of("https://be-careful-client-*.vercel.app"));
+
         configuration.addExposedHeader("Set-Cookie");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");

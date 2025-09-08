@@ -8,6 +8,7 @@ import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRa
 public record SocialWorkerSimpleDto(
         String name,
         String nickName,
+        String profileImageUrl,
         String phoneNumber,
         Integer age,
         Gender gender,
@@ -17,6 +18,7 @@ public record SocialWorkerSimpleDto(
         return new SocialWorkerSimpleDto(
                 socialWorker.getName(),
                 socialWorker.getNickname(),
+                socialWorker.getNursingInstitution().getProfileImageUrl(),
                 socialWorker.getPhoneNumber(),
                 socialWorker.getAge(),
                 socialWorker.getGender(),

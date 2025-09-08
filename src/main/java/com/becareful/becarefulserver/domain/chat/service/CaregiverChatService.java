@@ -1,26 +1,19 @@
 package com.becareful.becarefulserver.domain.chat.service;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.CONTRACT_NOT_EXISTS;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.MATCHING_NOT_EXISTS;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.chat.dto.response.CaregiverChatroomResponse;
-import com.becareful.becarefulserver.domain.chat.dto.response.ChatroomContentResponse;
-import com.becareful.becarefulserver.domain.matching.domain.CompletedMatching;
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
-import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
-import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
-import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
-import com.becareful.becarefulserver.global.exception.exception.ContractException;
-import com.becareful.becarefulserver.global.exception.exception.MatchingException;
-import com.becareful.becarefulserver.global.util.AuthUtil;
-import java.util.ArrayList;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.becareful.becarefulserver.domain.caregiver.domain.*;
+import com.becareful.becarefulserver.domain.chat.domain.*;
+import com.becareful.becarefulserver.domain.chat.dto.response.*;
+import com.becareful.becarefulserver.domain.chat.repository.*;
+import com.becareful.becarefulserver.domain.matching.domain.*;
+import com.becareful.becarefulserver.domain.matching.repository.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
+import com.becareful.becarefulserver.global.util.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.*;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +24,7 @@ public class CaregiverChatService {
     private final MatchingRepository matchingRepository;
     private final ContractRepository contractRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
+    private final CaregiverChatReadStatusRepository chatReadStatusRepository;
 
     public List<CaregiverChatroomResponse> getChatList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -49,14 +43,18 @@ public class CaregiverChatService {
         return responses;
     }
 
+    @Transactional
     public ChatroomContentResponse getChatRoomDetailData(Long matchingId) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
-        List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matchingId);
         Matching matching =
                 matchingRepository.findById(matchingId).orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
 
         matching.validateCaregiver(caregiver.getId());
+
+        List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matchingId);
+
+        updateReadStatus(caregiver, matching);
 
         return ChatroomContentResponse.of(matching, contracts);
     }
@@ -69,5 +67,19 @@ public class CaregiverChatService {
 
         CompletedMatching completedMatching = new CompletedMatching(loggedInCaregiver, contract);
         completedMatchingRepository.save(completedMatching);
+    }
+
+    // TODO(계약서 조율하기 채팅 엔티티 추가시 코드 수정)
+    public boolean checkNewChat(Caregiver caregiver) {
+        return chatReadStatusRepository.existsUnreadContract(caregiver);
+    }
+
+    @Transactional
+    public void updateReadStatus(Caregiver caregiver, Matching matching) {
+        CaregiverChatReadStatus readStatus = chatReadStatusRepository
+                .findByCaregiverAndMatching(caregiver, matching)
+                .orElseThrow(() -> new ChatException(CAREGIVER_CHAT_READ_STATUS_NOT_EXISTS));
+
+        readStatus.updateLastReadAt();
     }
 }

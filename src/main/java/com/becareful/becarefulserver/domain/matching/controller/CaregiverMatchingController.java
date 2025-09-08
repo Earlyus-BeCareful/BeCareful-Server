@@ -3,7 +3,7 @@ package com.becareful.becarefulserver.domain.matching.controller;
 import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingRecruitmentResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingRecruitmentsResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentListItemResponse;
 import com.becareful.becarefulserver.domain.matching.service.MatchingService;
@@ -70,9 +70,9 @@ public class CaregiverMatchingController {
             description =
                     "일자리 신청서가 없거나, 지원 내역이 없다면 빈 리스트를 응답합니다. '거절'은 요양보호사가 지원 거절한 경우이므로, 관리자가 거절한 경우에는 '불합격' 상태로 조회해야 합니다.")
     @GetMapping("/my/recruitment")
-    public ResponseEntity<List<CaregiverAppliedMatchingRecruitmentResponse>> getMyRecruitment(
+    public ResponseEntity<CaregiverAppliedMatchingRecruitmentsResponse> getMyRecruitment(
             @RequestParam("matchingApplicationStatus") MatchingApplicationStatus matchingApplicationStatus) {
-        List<CaregiverAppliedMatchingRecruitmentResponse> response =
+        CaregiverAppliedMatchingRecruitmentsResponse response =
                 matchingService.getMyRecruitment(matchingApplicationStatus);
         return ResponseEntity.ok(response);
     }

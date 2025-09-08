@@ -1,46 +1,31 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
 import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.*;
-import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.미지원;
-import static com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus.제외;
+import static com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.Career;
-import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
-import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplicationWorkLocation;
-import com.becareful.becarefulserver.domain.caregiver.repository.CareerDetailRepository;
-import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
-import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
-import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
-import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
-import com.becareful.becarefulserver.domain.common.domain.vo.Location;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingStatusFilter;
-import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
-import com.becareful.becarefulserver.domain.matching.dto.MatchedCaregiverDto;
-import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
-import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
+import com.becareful.becarefulserver.domain.caregiver.domain.*;
+import com.becareful.becarefulserver.domain.caregiver.repository.*;
+import com.becareful.becarefulserver.domain.chat.domain.*;
+import com.becareful.becarefulserver.domain.chat.repository.*;
+import com.becareful.becarefulserver.domain.chat.service.*;
+import com.becareful.becarefulserver.domain.common.domain.vo.*;
+import com.becareful.becarefulserver.domain.matching.domain.*;
+import com.becareful.becarefulserver.domain.matching.domain.vo.*;
+import com.becareful.becarefulserver.domain.matching.dto.*;
+import com.becareful.becarefulserver.domain.matching.dto.request.*;
 import com.becareful.becarefulserver.domain.matching.dto.response.*;
-import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
-import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
-import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
-import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
-import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
-import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
-import com.becareful.becarefulserver.global.exception.exception.MatchingException;
-import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
-import com.becareful.becarefulserver.global.util.AuthUtil;
-import java.util.ArrayList;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.becareful.becarefulserver.domain.matching.repository.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.*;
+import com.becareful.becarefulserver.domain.socialworker.repository.*;
+import com.becareful.becarefulserver.domain.work_location.dto.request.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
+import com.becareful.becarefulserver.global.util.*;
+import java.time.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.*;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +41,11 @@ public class MatchingService {
     private final CareerRepository careerRepository;
     private final CaregiverRepository caregiverRepository;
     private final CareerDetailRepository careerDetailRepository;
+    private final CaregiverChatService caregiverChatService;
+    private final ContractService contractService;
+    private final SocialWorkerRepository socialWorkerRepository;
+    private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
+    private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
 
     public MatchingCaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
         authUtil.getLoggedInSocialWorker(); // 사회복지사가 호출하는 API
@@ -102,23 +92,28 @@ public class MatchingService {
                 .findByCaregiverAndRecruitmentId(caregiver, recruitmentId)
                 .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
 
+        boolean hasNewChat = caregiverChatService.checkNewChat(caregiver);
+
         // TODO : recruit 매칭 적합도 및 태그 부여 판단
-        return RecruitmentDetailResponse.from(matching, false, false);
+        return RecruitmentDetailResponse.from(matching, false, false, hasNewChat);
     }
 
-    public List<CaregiverAppliedMatchingRecruitmentResponse> getMyRecruitment(
+    public CaregiverAppliedMatchingRecruitmentsResponse getMyRecruitment(
             MatchingApplicationStatus matchingApplicationStatus) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        return workApplicationRepository
+
+        List<CaregiverAppliedMatchingRecruitmentsResponse.Item> recruitments = workApplicationRepository
                 .findByCaregiver(caregiver)
                 .map(
                         workApplication -> matchingRepository
                                 .findByWorkApplicationAndMatchingApplicationStatus(
                                         workApplication, matchingApplicationStatus)
                                 .stream()
-                                .map(CaregiverAppliedMatchingRecruitmentResponse::from)
+                                .map(CaregiverAppliedMatchingRecruitmentsResponse.Item::from)
                                 .toList())
                 .orElse(List.of());
+        boolean hasNewChat = caregiverChatService.checkNewChat(caregiver);
+        return CaregiverAppliedMatchingRecruitmentsResponse.of(recruitments, hasNewChat);
     }
 
     public CaregiverAppliedMatchingDetailResponse getMyRecruitmentDetail(Long recruitmentId) {
@@ -134,7 +129,9 @@ public class MatchingService {
                 .findByWorkApplicationAndRecruitment(workApplication, recruitment)
                 .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
 
-        return CaregiverAppliedMatchingDetailResponse.of(matching, false, false);
+        boolean hasNewChat = caregiverChatService.checkNewChat(caregiver);
+
+        return CaregiverAppliedMatchingDetailResponse.of(matching, false, false, hasNewChat);
     }
 
     @Transactional
@@ -259,6 +256,32 @@ public class MatchingService {
         });
 
         return MatchingStatusDetailResponse.of(recruitment, unAppliedCaregivers, appliedCaregivers);
+    }
+
+    @Transactional
+    public void hire(Long matchingId, LocalDate workStartDate) {
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
+
+        Matching matching = matchingRepository
+                .findByIdWithRecruitment(matchingId)
+                .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
+
+        initChatReadStatuses(matching, socialworker);
+        contractService.createContract(matching, workStartDate);
+    }
+
+    private void initChatReadStatuses(Matching matching, SocialWorker loggedInSocialWorker) {
+        // Caregiver 상태 생성
+        Caregiver caregiver = matching.getWorkApplication().getCaregiver();
+        CaregiverChatReadStatus caregiverStatus = CaregiverChatReadStatus.create(caregiver, matching);
+        caregiverChatReadStatusRepository.save(caregiverStatus);
+        // SocialWorker 상태 생성
+        List<SocialWorker> socialWorkers =
+                socialWorkerRepository.findAllByNursingInstitution(loggedInSocialWorker.getNursingInstitution());
+        List<SocialWorkerChatReadStatus> socialWorkerChatReadStatuses = socialWorkers.stream()
+                .map(s -> SocialWorkerChatReadStatus.create(s, matching))
+                .toList();
+        socialWorkerChatReadStatusRepository.saveAll(socialWorkerChatReadStatuses);
     }
 
     private void matchingWith(Recruitment recruitment) {

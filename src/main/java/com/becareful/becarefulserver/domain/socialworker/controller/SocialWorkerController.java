@@ -1,17 +1,15 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
 
-import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerCreateRequest;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerHomeResponse;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.SocialWorkerMyResponse;
-import com.becareful.becarefulserver.domain.socialworker.service.SocialWorkerService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-import java.net.URI;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
+import com.becareful.becarefulserver.domain.socialworker.service.*;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.tags.*;
+import jakarta.servlet.http.*;
+import jakarta.validation.*;
+import java.net.*;
+import lombok.*;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,7 +28,7 @@ public class SocialWorkerController {
         return ResponseEntity.created(URI.create("/socialworker/" + id)).build();
     }
 
-    @Operation(summary = "닉네임 중복 확인", description = "회원가입시 닉네임 중복 확인 API. 동일한 닉네임이 있다면 true 반환")
+    @Operation(summary = "닉네임 중복 확인", description = "닉네임 중복 확인 API. 동일한 닉네임이 있다면 true 반환")
     @GetMapping("/check-nickname")
     public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
         boolean sameNickName = socialworkerService.checkSameNickNameAtRegist(nickname);
@@ -48,6 +46,13 @@ public class SocialWorkerController {
     @GetMapping("/me")
     public ResponseEntity<SocialWorkerMyResponse> getSocialWorkerMyInfo() {
         var response = socialworkerService.getMyInfo();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "회원정보 수정화면 정보 반환", description = "센터장, 대표, 사회복지사 모두 같은 API")
+    @GetMapping("/me/edit")
+    public ResponseEntity<SocialWorkerEditResponse> getSocialWorkerEditInfo() {
+        var response = socialworkerService.getEditMyInfo();
         return ResponseEntity.ok(response);
     }
 

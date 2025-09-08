@@ -18,14 +18,13 @@ public class ErrorMessage {
     public static final String INVALID_TOKEN_FORMAT = "엑세스 토큰 형식이 유효하지 않습니다.";
     public static final String INVALID_TOKEN = "엑세스 토큰이 유효하지 않습니다.";
     public static final String TOKEN_NOT_CONTAINED = "요청에 토큰이 포함되지 않았습니다.";
-    public static String INVALID_REFRESH_TOKEN = "리프레시 토큰이 유효하지 않습니다.";
+    public static final String INVALID_REFRESH_TOKEN = "리프레시 토큰이 유효하지 않습니다.";
 
     public static final String SOCIALWORKER_REQUIRED_AGREEMENT = "필수 약관에 동의해야 합니다.";
     public static final String SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER = "이미 가입된 전화번호 입니다.";
     public static final String SOCIAlWORKER_ALREADY_EXISTS_NICKNAME = "이미 존재하는 닉네임 입니다.";
     public static final String SOCIALWORKER_NOT_EXISTS = "해당하는 사회복지사가 없습니다.";
     public static final String NURSING_INSTITUTION_REQUIRE_CODE = "기관코드는 필수입니다.";
-
     public static final String SOCIAL_WORKER_NOT_EXISTS = "존재하지 않는 회원번호입니다.";
 
     public static final String NURSING_INSTITUTION_ALREADY_EXISTS = "이미 등록된 기관입니다.";
@@ -34,7 +33,13 @@ public class ErrorMessage {
 
     public static final String ASSOCIATION_NOT_EXISTS = "존재하지 않는 협회입니다.";
     public static final String ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS = "존재하지 않는 협회 가입 요청입니다.";
+    public static final String ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_ACCEPTED =
+            "가입 신청이 이미 승인되었습니다. 서비스를 이용하고 싶지 않으시다면 탈퇴해 주십시오.";
+    public static final String ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_REJECTED = "가입 신청이 이미 반려되었습니다";
+
     public static final String ASSOCIATION_CHAIRMAN_NOT_EXISTS = "협회장이 존재하지 않습니다.";
+    public static final String ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST = "커뮤니티 협회장 위임을 먼저 해야합니다.";
+    public static final String ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST = "커뮤니티 임원진 위임을 먼저 해야합니다.";
 
     public static final String ELDERLY_FAILED_TO_CREATE_PROFILE_IMAGE_NAME = "프로필 이미지 이름을 생성하는 중 문제가 발생했습니다.";
     public static final String ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
@@ -54,6 +59,7 @@ public class ErrorMessage {
     public static final String POST_BOARD_NOT_FOUND = "게시판이 존재하지 않습니다.";
     public static final String POST_BOARD_NOT_WRITABLE = "글 작성 권한이 없습니다.";
     public static final String POST_BOARD_NOT_READABLE = "글 조회 권한이 없습니다.";
+    public static final String POST_BOARD_NOT_MY_ASSOCIATION = "내가 가입한 협회의 게시판이 아닙니다.";
 
     public static final String POST_NOT_FOUND = "게시글이 존재하지 않습니다.";
     public static final String POST_NOT_UPDATABLE = "글 작성자만 수정할 수 있습니다.";
@@ -71,4 +77,7 @@ public class ErrorMessage {
     public static final String POST_MEDIA_FILE_SIZE_EXCEEDED = "파일은 1개당 최대 10MB까지 업로드할 수 있습니다.";
     public static final String POST_MEDIA_TOTAL_FILE_SIZE_EXCEEDED = "파일은 한 게시글당 최대 30MB까지 업로드할 수 있습니다.";
     public static final String POST_MEDIA_UNSUPPORTED_FILE_TYPE = "지원하지 않는 파일 타입입니다.";
+
+    public static final String CAREGIVER_CHAT_READ_STATUS_NOT_EXISTS = "요양보호사의 마지막 채팅방 입장 시간 기록이 없습니다.";
+    public static final String SOCIAL_WORKER_CHAT_READ_STATUS_NOT_EXISTS = "사회복지사의 마지막 채팅방 입장 시간 기록이 없습니다.";
 }

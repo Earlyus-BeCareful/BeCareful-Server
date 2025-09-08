@@ -45,7 +45,6 @@ public class AssociationService {
     private final JwtProperties jwtProperties;
     private final SocialWorkerRepository socialWorkerRepository;
     private final AssociationRepository associationRepository;
-    private final AssociationJoinApplicationRepository associationMembershipRequestRepository;
     private final PostBoardRepository postBoardRepository;
     private final AssociationJoinApplicationRepository associationJoinApplicationRepository;
     private final GlobalExceptionHandler globalExceptionHandler;
@@ -60,30 +59,30 @@ public class AssociationService {
 
         AssociationJoinApplication newMembershipRequest = AssociationJoinApplication.create(
                 association, currentSocialWorker, request.associationRank(), AssociationJoinApplicationStatus.PENDING);
-        associationMembershipRequestRepository.save(newMembershipRequest);
+        associationJoinApplicationRepository.save(newMembershipRequest);
     }
 
     // 협회 가입 신청 승인
     @Transactional
-    public void acceptJoinAssociation(Long associationMembershipRequestId) {
-        AssociationJoinApplication membershipRequest = associationMembershipRequestRepository
-                .findById(associationMembershipRequestId)
+    public void acceptJoinAssociation(Long associationJoinApplicationId) {
+        AssociationJoinApplication joinApplication = associationJoinApplicationRepository
+                .findById(associationJoinApplicationId)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
 
-        membershipRequest.setStatus(AssociationJoinApplicationStatus.APPROVED);
+        joinApplication.approve();
 
-        SocialWorker socialWorker = membershipRequest.getSocialWorker();
-        socialWorker.joinAssociation(membershipRequest.getAssociation(), membershipRequest.getAssociationRank());
+        SocialWorker socialWorker = joinApplication.getSocialWorker();
+        socialWorker.joinAssociation(joinApplication.getAssociation(), joinApplication.getAssociationRank());
     }
 
     // 협회 가입 신청 반려(신청자가 반려사실을 확인하면 요청 레코드 삭제)
     @Transactional
-    public void rejectJoinAssociation(Long associationMembershipRequestId) {
-        AssociationJoinApplication membershipRequest = associationMembershipRequestRepository
-                .findById(associationMembershipRequestId)
+    public void rejectJoinAssociation(Long associationJoinApplicationId) {
+        AssociationJoinApplication joinApplication = associationJoinApplicationRepository
+                .findById(associationJoinApplicationId)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
 
-        membershipRequest.setStatus(AssociationJoinApplicationStatus.REJECTED);
+        joinApplication.reject();
     }
 
     @Transactional
@@ -339,5 +338,22 @@ public class AssociationService {
 
         Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    @Transactional
+    public void cancelMyJoinRequest() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        AssociationJoinApplication application = associationJoinApplicationRepository
+                .findBySocialWorker(loggedInSocialWorker)
+                .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
+
+        if (application.getStatus().equals(AssociationJoinApplicationStatus.APPROVED)) {
+            throw new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_ACCEPTED);
+        }
+        if (application.getStatus().equals(AssociationJoinApplicationStatus.REJECTED)) {
+            throw new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_REJECTED);
+        }
+
+        associationJoinApplicationRepository.delete(application);
     }
 }
