@@ -16,6 +16,7 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
+import com.becareful.becarefulserver.global.exception.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.util.*;
@@ -46,6 +47,7 @@ public class AssociationService {
     private final AssociationRepository associationRepository;
     private final PostBoardRepository postBoardRepository;
     private final AssociationJoinApplicationRepository associationJoinApplicationRepository;
+    private final GlobalExceptionHandler globalExceptionHandler;
 
     @Transactional
     public void joinAssociation(AssociationJoinRequest request) {
@@ -303,8 +305,7 @@ public class AssociationService {
             throws ChangeSetPersister.NotFoundException {
         SocialWorker currentChairman = authUtil.getLoggedInSocialWorker();
         SocialWorker newChairman = socialWorkerRepository
-                .findByNameAndNicknameAndPhoneNumber(
-                        request.newChairmanName(), request.newChairmanNickName(), request.newChairmanPhoneNUmber())
+                .findByIdAndName(request.newChairmanId(), request.newChairmanName())
                 .orElseThrow(() -> new NotFoundException("회원 정보를 잘못 입력하였습니다."));
 
         currentChairman.updateAssociationRank(request.nextRankOfCurrentChairman());
