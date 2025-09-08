@@ -49,12 +49,12 @@ public class SecurityConfig {
                         .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
                         .successHandler(customSuccessHandler))
                 .authorizeHttpRequests(auth -> auth.requestMatchers(
-                                "/caregiver/signup",
-                                "/nursingInstitution/for-guest/**",
-                                "/socialworker/signup",
-                                "/socialworker/check-nickname")
+                                "/caregiver/signup", "/nursingInstitution/for-guest/**", "/socialworker/signup")
                         .hasRole("GUEST")
-                        .requestMatchers("/nursingInstitution/search", "/nursingInstitution/list")
+                        .requestMatchers(
+                                "/nursingInstitution/search",
+                                "/nursingInstitution/list",
+                                "/socialworker/check-nickname")
                         .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers(
                                 "/socialworker/me",
