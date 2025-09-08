@@ -2,27 +2,23 @@ package com.becareful.becarefulserver.domain.nursing_institution.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.nursing_institution.dto.request.NursingInstitutionCreateRequest;
-import com.becareful.becarefulserver.domain.nursing_institution.dto.response.NursingInstitutionProfileUploadResponse;
-import com.becareful.becarefulserver.domain.nursing_institution.dto.response.NursingInstitutionSearchResponse;
-import com.becareful.becarefulserver.domain.nursing_institution.repository.NursingInstitutionRepository;
-import com.becareful.becarefulserver.domain.nursing_institution.vo.FacilityType;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.global.exception.exception.NursingInstitutionException;
-import com.becareful.becarefulserver.global.util.AuthUtil;
-import com.becareful.becarefulserver.global.util.FileUtil;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.EnumSet;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionSimpleDto;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.request.*;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.response.*;
+import com.becareful.becarefulserver.domain.nursing_institution.repository.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
+import com.becareful.becarefulserver.global.util.*;
+import java.io.*;
+import java.nio.charset.*;
+import java.security.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.*;
+import org.springframework.web.multipart.*;
 
 @Service
 @RequiredArgsConstructor
@@ -73,34 +69,25 @@ public class NursingInstitutionService {
     }
 
     @Transactional
-    public NursingInstitutionSearchResponse searchNursingInstitutionByName(String institutionName) {
-        List<NursingInstitution> institutions = institutionName == null
-                ? nursingInstitutionRepository.findAll()
-                : nursingInstitutionRepository.findAllByNameContains(institutionName);
-        List<NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo> result = institutions.stream()
-                .map(institution -> new NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo(
-                        institution.getId(),
-                        institution.getName(),
-                        institution.getAddress().getStreetAddress(),
-                        institution.getAddress().getDetailAddress()))
-                .toList();
+    public void UpdateNursingInstitutionInfo(UpdateNursingInstitutionInfoRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        NursingInstitution institution = loggedInSocialWorker.getNursingInstitution();
 
-        return new NursingInstitutionSearchResponse(result);
+        institution.updateNursingInstitutionInfo(request);
     }
 
     @Transactional(readOnly = true)
-    public NursingInstitutionSearchResponse getNursingInstitutionList() {
+    public List<InstitutionSimpleDto> searchNursingInstitutionByName(String institutionName) {
+        List<NursingInstitution> institutions = institutionName == null
+                ? nursingInstitutionRepository.findAll()
+                : nursingInstitutionRepository.findAllByNameContains(institutionName);
+        return institutions.stream().map(InstitutionSimpleDto::from).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<InstitutionSimpleDto> getNursingInstitutionList() {
         List<NursingInstitution> institutions = nursingInstitutionRepository.findAll();
-
-        List<NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo> result = institutions.stream()
-                .map(institution -> new NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo(
-                        institution.getId(),
-                        institution.getName(),
-                        institution.getAddress().getStreetAddress(),
-                        institution.getAddress().getDetailAddress()))
-                .toList();
-
-        return new NursingInstitutionSearchResponse(result);
+        return institutions.stream().map(InstitutionSimpleDto::from).toList();
     }
 
     @Transactional

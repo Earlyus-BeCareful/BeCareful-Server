@@ -1,15 +1,22 @@
 package com.becareful.becarefulserver.domain.caregiver.service;
 
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.미지원;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_WORK_APPLICATION_NOT_EXISTS;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplicationWorkLocation;
+import com.becareful.becarefulserver.domain.caregiver.dto.WorkApplicationDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.WorkApplicationResponse;
+import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
-import com.becareful.becarefulserver.domain.common.vo.Location;
+import com.becareful.becarefulserver.domain.chat.service.*;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
+import com.becareful.becarefulserver.domain.matching.domain.Matching;
+import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
+import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
 import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import com.becareful.becarefulserver.domain.work_location.repository.WorkLocationRepository;
@@ -28,12 +35,16 @@ public class WorkApplicationService {
     private final WorkApplicationRepository workApplicationRepository;
     private final WorkLocationRepository workLocationRepository;
     private final WorkApplicationWorkLocationRepository workApplicationWorkLocationRepository;
+    private final MatchingRepository matchingRepository;
     private final AuthUtil authUtil;
+    private final RecruitmentRepository recruitmentRepository;
+    private final CaregiverChatService caregiverChatService;
 
-    public WorkApplicationResponse getWorkApplication() {
+    public CaregiverMyWorkApplicationPageResponse getMyWorkApplicationPageInfo() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
-        return workApplicationRepository
+        boolean hasNewChat = caregiverChatService.checkNewChat(caregiver);
+        WorkApplicationDto workApplicationDto = workApplicationRepository
                 .findByCaregiver(caregiver)
                 .map(workApplication -> {
                     List<WorkLocationDto> locations =
@@ -41,9 +52,11 @@ public class WorkApplicationService {
                                     .map(data -> WorkLocationDto.from(data.getWorkLocation()))
                                     .toList();
 
-                    return WorkApplicationResponse.of(locations, workApplication);
+                    return WorkApplicationDto.of(locations, workApplication);
                 })
-                .orElse(WorkApplicationResponse.empty());
+                .orElse(null);
+
+        return CaregiverMyWorkApplicationPageResponse.of(hasNewChat, workApplicationDto);
     }
 
     @Transactional
@@ -52,15 +65,17 @@ public class WorkApplicationService {
         workApplicationRepository
                 .findByCaregiver(caregiver)
                 .ifPresentOrElse(
-                        workApplication -> {
-                            workApplication.updateWorkApplication(request);
-                            workApplicationWorkLocationRepository.deleteAllByWorkApplication(workApplication);
-                            saveWorkLocations(request.workLocations(), workApplication);
+                        application -> {
+                            application.updateWorkApplication(request);
+                            workApplicationWorkLocationRepository.deleteAllByWorkApplication(application);
+                            saveWorkLocations(request.workLocations(), application);
+                            matchingWith(application);
                         },
                         () -> {
                             WorkApplication application = WorkApplication.create(request, caregiver);
                             workApplicationRepository.save(application);
                             saveWorkLocations(request.workLocations(), application);
+                            matchingWith(application);
                         });
     }
 
@@ -72,6 +87,7 @@ public class WorkApplicationService {
                 .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
 
         application.activate();
+        matchingWith(application);
     }
 
     @Transactional
@@ -80,6 +96,10 @@ public class WorkApplicationService {
         WorkApplication application = workApplicationRepository
                 .findByCaregiver(caregiver)
                 .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
+
+        List<Matching> matchingList =
+                matchingRepository.findAllByCaregiverAndApplicationStatus(application.getCaregiver(), 미지원);
+        matchingRepository.deleteAll(matchingList);
 
         application.inactivate();
     }
@@ -94,5 +114,22 @@ public class WorkApplicationService {
             var data = WorkApplicationWorkLocation.of(workApplication, location);
             workApplicationWorkLocationRepository.save(data);
         }
+    }
+
+    private void matchingWith(WorkApplication application) {
+        List<Matching> matchingList =
+                matchingRepository.findAllByCaregiverAndApplicationStatus(application.getCaregiver(), 미지원);
+        matchingRepository.deleteAll(matchingList);
+        List<Location> locations = workApplicationWorkLocationRepository.findAllByWorkApplication(application).stream()
+                .map(WorkApplicationWorkLocation::getLocation)
+                .toList();
+        recruitmentRepository.findAll().stream()
+                .filter(Recruitment::isRecruiting)
+                .map(recruitment -> {
+                    return Matching.create(recruitment, application, locations);
+                })
+                // TODO : 매칭 알고리즘 해제하기.
+                // .filter((matching -> isMatchedWithSocialWorker(matching.getSocialWorkerMatchingInfo())))
+                .forEach(matchingRepository::save);
     }
 }

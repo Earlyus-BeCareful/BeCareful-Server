@@ -1,5 +1,5 @@
 ---
-name: Refactor
+name: ♻️ Refactor
 about: 기능 리팩토링
 title: '♻️ '
 labels: 'refactor'

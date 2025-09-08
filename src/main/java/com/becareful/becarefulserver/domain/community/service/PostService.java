@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.community.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.community.domain.BoardType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
@@ -47,7 +48,7 @@ public class PostService {
                 .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
                 .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
-        validateSocialWorkerRankWritable(currentMember, postBoard);
+        postBoard.validateWritableFor(currentMember);
 
         Post post = Post.create(
                 request.title(),
@@ -103,10 +104,9 @@ public class PostService {
         PostBoard postBoard = postBoardRepository
                 .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
                 .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        postBoard.validateWritableFor(currentMember);
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
-
-        validateSocialWorkerRankWritable(currentMember, postBoard);
         post.validateAuthor(currentMember);
 
         // 기존 미디어 삭제
@@ -156,10 +156,9 @@ public class PostService {
         PostBoard postBoard = postBoardRepository
                 .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
                 .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
+        postBoard.validateWritableFor(currentMember);
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
-
-        validateSocialWorkerRankWritable(currentMember, postBoard);
         post.validateAuthor(currentMember);
 
         postRepository.delete(post);
@@ -169,15 +168,16 @@ public class PostService {
     public List<PostSimpleDto> getPosts(String boardType, Pageable pageable) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
         BoardType type = BoardType.fromUrlBoardType(boardType);
+        Association association = currentMember.getAssociation();
 
         PostBoard postBoard = postBoardRepository
-                .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
+                .findByBoardTypeAndAssociation(type, association)
                 .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
 
-        validateSocialWorkerRankReadable(currentMember, postBoard);
+        postBoard.validateReadableFor(currentMember);
 
         return postRepository
-                .findAllByBoard(postBoard, pageable)
+                .findAllByBoardAndAssociation(postBoard, association, pageable)
                 .map(PostSimpleDto::from)
                 .toList();
     }
@@ -185,9 +185,10 @@ public class PostService {
     @Transactional(readOnly = true)
     public List<PostSimpleDto> getImportantPosts(Pageable pageable) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        Association association = currentMember.getAssociation();
 
-        return postRepository
-                .findAllReadableImportantPosts(currentMember.getAssociationRank(), pageable)
+        return postRepository.findAllImportantPosts(association, pageable).stream()
+                .filter(post -> post.getBoard().isReadableFor(currentMember))
                 .map(PostSimpleDto::from)
                 .toList();
     }
@@ -200,32 +201,12 @@ public class PostService {
         PostBoard postBoard = postBoardRepository
                 .findByBoardTypeAndAssociation(type, currentMember.getAssociation())
                 .orElseThrow(() -> new PostBoardException(POST_BOARD_NOT_FOUND));
-
-        validateSocialWorkerRankReadable(currentMember, postBoard);
+        postBoard.validateReadableFor(currentMember);
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
-
         validatePostBoardHasPost(postBoard, post);
 
         return PostDetailResponse.of(post, currentMember.getId());
-    }
-
-    private void validateSocialWorkerRankWritable(SocialWorker socialworker, PostBoard board) {
-        if (!board.getWritableRank().equals(socialworker.getAssociationRank())
-                || !board.getAssociation()
-                        .getId()
-                        .equals(socialworker.getAssociation().getId())) {
-            throw new PostBoardException(POST_BOARD_NOT_WRITABLE);
-        }
-    }
-
-    private void validateSocialWorkerRankReadable(SocialWorker socialWorker, PostBoard board) {
-        if (!board.getReadableRank().equals(socialWorker.getAssociationRank())
-                || !board.getAssociation()
-                        .getId()
-                        .equals(socialWorker.getAssociation().getId())) {
-            throw new PostBoardException(POST_BOARD_NOT_READABLE);
-        }
     }
 
     private void validatePostBoardHasPost(PostBoard board, Post post) {

@@ -3,36 +3,36 @@ package com.becareful.becarefulserver.domain.association.service;
 import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.association.domain.Association;
-import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
-import com.becareful.becarefulserver.domain.association.dto.JoinApplicationSimpleDto;
-import com.becareful.becarefulserver.domain.association.dto.MemberSimpleDto;
-import com.becareful.becarefulserver.domain.association.dto.request.AssociationCreateRequest;
-import com.becareful.becarefulserver.domain.association.dto.request.AssociationJoinRequest;
+import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.association.domain.vo.*;
+import com.becareful.becarefulserver.domain.association.dto.*;
+import com.becareful.becarefulserver.domain.association.dto.request.*;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
-import com.becareful.becarefulserver.domain.association.repository.AssociationJoinApplicationRepository;
-import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
-import com.becareful.becarefulserver.domain.association.vo.AssociationJoinApplicationStatus;
-import com.becareful.becarefulserver.domain.community.domain.PostBoard;
-import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
-import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
-import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
-import com.becareful.becarefulserver.global.exception.exception.AssociationException;
-import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
-import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
-import com.becareful.becarefulserver.global.util.AuthUtil;
-import com.becareful.becarefulserver.global.util.FileUtil;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.List;
-import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+import com.becareful.becarefulserver.domain.association.repository.*;
+import com.becareful.becarefulserver.domain.community.domain.*;
+import com.becareful.becarefulserver.domain.community.repository.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
+import com.becareful.becarefulserver.domain.socialworker.repository.*;
+import com.becareful.becarefulserver.global.exception.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
+import com.becareful.becarefulserver.global.properties.*;
+import com.becareful.becarefulserver.global.util.*;
+import jakarta.servlet.http.*;
+import jakarta.validation.*;
+import java.io.*;
+import java.time.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.data.crossstore.*;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.*;
+import org.springframework.security.core.context.*;
+import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.*;
+import org.springframework.web.multipart.*;
 
 @Service
 @RequiredArgsConstructor
@@ -40,11 +40,14 @@ public class AssociationService {
 
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
+    private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
+    private final JwtProperties jwtProperties;
     private final SocialWorkerRepository socialWorkerRepository;
     private final AssociationRepository associationRepository;
-    private final AssociationJoinApplicationRepository associationMembershipRequestRepository;
     private final PostBoardRepository postBoardRepository;
     private final AssociationJoinApplicationRepository associationJoinApplicationRepository;
+    private final GlobalExceptionHandler globalExceptionHandler;
 
     @Transactional
     public void joinAssociation(AssociationJoinRequest request) {
@@ -56,30 +59,30 @@ public class AssociationService {
 
         AssociationJoinApplication newMembershipRequest = AssociationJoinApplication.create(
                 association, currentSocialWorker, request.associationRank(), AssociationJoinApplicationStatus.PENDING);
-        associationMembershipRequestRepository.save(newMembershipRequest);
+        associationJoinApplicationRepository.save(newMembershipRequest);
     }
 
     // 협회 가입 신청 승인
     @Transactional
-    public void acceptJoinAssociation(Long associationMembershipRequestId) {
-        AssociationJoinApplication membershipRequest = associationMembershipRequestRepository
-                .findById(associationMembershipRequestId)
+    public void acceptJoinAssociation(Long associationJoinApplicationId) {
+        AssociationJoinApplication joinApplication = associationJoinApplicationRepository
+                .findById(associationJoinApplicationId)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
 
-        membershipRequest.setStatus(AssociationJoinApplicationStatus.APPROVED);
+        joinApplication.approve();
 
-        SocialWorker socialWorker = membershipRequest.getSocialWorker();
-        socialWorker.joinAssociation(membershipRequest.getAssociation(), membershipRequest.getAssociationRank());
+        SocialWorker socialWorker = joinApplication.getSocialWorker();
+        socialWorker.joinAssociation(joinApplication.getAssociation(), joinApplication.getAssociationRank());
     }
 
     // 협회 가입 신청 반려(신청자가 반려사실을 확인하면 요청 레코드 삭제)
     @Transactional
-    public void rejectJoinAssociation(Long associationMembershipRequestId) {
-        AssociationJoinApplication membershipRequest = associationMembershipRequestRepository
-                .findById(associationMembershipRequestId)
+    public void rejectJoinAssociation(Long associationJoinApplicationId) {
+        AssociationJoinApplication joinApplication = associationJoinApplicationRepository
+                .findById(associationJoinApplicationId)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
 
-        membershipRequest.setStatus(AssociationJoinApplicationStatus.REJECTED);
+        joinApplication.reject();
     }
 
     @Transactional
@@ -127,10 +130,7 @@ public class AssociationService {
         int joinApplicationCount = associationJoinApplicationRepository.countByAssociationAndStatus(
                 association, AssociationJoinApplicationStatus.PENDING);
 
-        List<SocialWorker> members = socialWorkerRepository.findAllByAssociation(association);
-        List<MemberSimpleDto> memberSimpleDtos =
-                members.stream().map(MemberSimpleDto::of).toList();
-        return new AssociationMemberOverviewResponse(associationMemberCount, joinApplicationCount, memberSimpleDtos);
+        return new AssociationMemberOverviewResponse(associationMemberCount, joinApplicationCount);
     }
 
     // 협회 회원 목록 반환
@@ -179,6 +179,31 @@ public class AssociationService {
         return AssociationMemberDetailInfoResponse.of(member, age, institution, association);
     }
 
+    @Transactional
+    public void leaveAssociation(HttpServletResponse response) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Association association = loggedInSocialWorker.getAssociation();
+        AssociationRank currentRank = loggedInSocialWorker.getAssociationRank();
+
+        if (loggedInSocialWorker.getAssociationRank() == AssociationRank.CHAIRMAN) {
+            throw new DomainException("협회장은 탈퇴할 수 없습니다.");
+        }
+        if (currentRank.equals(AssociationRank.EXECUTIVE)) {
+            int executiveCount =
+                    socialWorkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
+            if (executiveCount <= 1) {
+                throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
+            }
+        }
+        loggedInSocialWorker.leaveAssociation();
+
+        updateJwtAndSecurityContext(
+                response,
+                loggedInSocialWorker.getPhoneNumber(),
+                loggedInSocialWorker.getInstitutionRank(),
+                loggedInSocialWorker.getAssociationRank());
+    }
+
     // 회원을 협회에서 탈퇴 시키는 메서드. 회원정보를 삭제하는게 아님
     @Transactional
     public void expelMember(Long memberId) {
@@ -203,27 +228,131 @@ public class AssociationService {
                         PARTICIPATION_APPLICATION, AssociationRank.MEMBER, AssociationRank.MEMBER, association));
     }
 
-    public AssociationSearchResponse searchAssociationByName(String associationName) {
+    @Transactional(readOnly = true)
+    public AssociationSearchListResponse searchAssociationByName(String associationName) {
         List<Association> associationList = associationName == null
                 ? associationRepository.findAll()
                 : associationRepository.findByNameContains(associationName);
-        List<AssociationSearchResponse.AssociationSimpleInfo> associationSimpleInfoList = associationList.stream()
+        List<AssociationSimpleDto> associationSimpleInfoList = associationList.stream()
                 .map(association -> {
                     int memberCount = socialWorkerRepository.countByAssociation(association);
-                    return AssociationSearchResponse.AssociationSimpleInfo.of(association, memberCount);
+                    return AssociationSimpleDto.of(association, memberCount);
                 })
                 .toList();
-        return new AssociationSearchResponse(associationList.size(), associationSimpleInfoList);
+        return new AssociationSearchListResponse(associationList.size(), associationSimpleInfoList);
     }
 
-    public AssociationSearchResponse getAssociationList() {
-        List<Association> associationList = associationRepository.findAll();
-        List<AssociationSearchResponse.AssociationSimpleInfo> associationSimpleInfoList = associationList.stream()
+    @Transactional(readOnly = true)
+    public AssociationSearchListResponse getAssociationList() {
+        List<AssociationSimpleDto> associationSimpleDtoList = associationRepository.findAll().stream()
                 .map(association -> {
                     int memberCount = socialWorkerRepository.countByAssociation(association);
-                    return AssociationSearchResponse.AssociationSimpleInfo.of(association, memberCount);
+                    return AssociationSimpleDto.of(association, memberCount);
                 })
                 .toList();
-        return new AssociationSearchResponse(associationList.size(), associationSimpleInfoList);
+        return AssociationSearchListResponse.from(associationSimpleDtoList);
+    }
+
+    @Transactional(readOnly = true)
+    public AssociationInfoResponse getAssociationInfo() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Association association = loggedInSocialWorker.getAssociation();
+        SocialWorker chairman = socialWorkerRepository
+                .findByAssociationAndAssociationRank(association, AssociationRank.CHAIRMAN)
+                .orElseThrow(() -> new AssociationException(ASSOCIATION_CHAIRMAN_NOT_EXISTS));
+        int memberCount = socialWorkerRepository.countByAssociation(association);
+
+        return AssociationInfoResponse.of(association, memberCount, chairman);
+    }
+
+    @Transactional
+    public void updateAssociationInfo(@Valid UpdateAssociationInfoRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Association association = loggedInSocialWorker.getAssociation();
+
+        association.updateAssociationInfo(request);
+    }
+
+    @Transactional
+    public void updateAssociationRank(@Valid UpdateAssociationRankRequest request) {
+
+        SocialWorker member = socialWorkerRepository
+                .findById(request.memberId())
+                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+
+        Association association = member.getAssociation();
+
+        AssociationRank currentRank = member.getAssociationRank();
+        AssociationRank targetRank = request.associationRank();
+
+        if (currentRank.equals(AssociationRank.CHAIRMAN)) {
+            throw new DomainException("협회장의 회원 유형은 협회장만 수정할 수 있습니다. 협회장인 경우 다른 페이지에서 수정해주시기 바랍니다.");
+        }
+
+        if (currentRank.equals(AssociationRank.EXECUTIVE) && targetRank.equals(AssociationRank.MEMBER)) {
+            int executiveCount =
+                    socialWorkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
+            if (executiveCount <= 1) {
+                throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
+            }
+        }
+
+        member.updateAssociationRank(request.associationRank());
+    }
+
+    @Transactional
+    public void updateAssociationChairman(@Valid UpdateAssociationChairmanRequest request, HttpServletResponse response)
+            throws ChangeSetPersister.NotFoundException {
+        SocialWorker currentChairman = authUtil.getLoggedInSocialWorker();
+        SocialWorker newChairman = socialWorkerRepository
+                .findByIdAndName(request.newChairmanId(), request.newChairmanName())
+                .orElseThrow(() -> new NotFoundException("회원 정보를 잘못 입력하였습니다."));
+
+        currentChairman.updateAssociationRank(request.nextRankOfCurrentChairman());
+        newChairman.updateAssociationRank(AssociationRank.CHAIRMAN);
+
+        updateJwtAndSecurityContext(
+                response,
+                currentChairman.getPhoneNumber(),
+                currentChairman.getInstitutionRank(),
+                request.nextRankOfCurrentChairman());
+    }
+
+    private void updateJwtAndSecurityContext(
+            HttpServletResponse response,
+            String phoneNumber,
+            InstitutionRank institutionRankParam,
+            AssociationRank associationRankParam) {
+        String institutionRank = institutionRankParam.toString();
+        String associationRank = associationRankParam.toString();
+        String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
+        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
+
+        response.addCookie(cookieUtil.createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
+        response.addCookie(
+                cookieUtil.createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
+
+        List<GrantedAuthority> authorities =
+                List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    @Transactional
+    public void cancelMyJoinRequest() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        AssociationJoinApplication application = associationJoinApplicationRepository
+                .findBySocialWorker(loggedInSocialWorker)
+                .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
+
+        if (application.getStatus().equals(AssociationJoinApplicationStatus.APPROVED)) {
+            throw new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_ACCEPTED);
+        }
+        if (application.getStatus().equals(AssociationJoinApplicationStatus.REJECTED)) {
+            throw new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_REJECTED);
+        }
+
+        associationJoinApplicationRepository.delete(application);
     }
 }

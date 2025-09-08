@@ -53,7 +53,7 @@ cloud:
 jwt:
   secret: "testtesttesttesttesttesttesttesttesttesttestestset"
   expiration_time:
-    access_token: 86400
+    access_token: 900
     refresh_token: 604800
 
 login:

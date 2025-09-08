@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.association.domain;
 
-import com.becareful.becarefulserver.domain.association.vo.AssociationJoinApplicationStatus;
+import com.becareful.becarefulserver.domain.association.domain.vo.AssociationJoinApplicationStatus;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import jakarta.persistence.*;
@@ -26,7 +26,6 @@ public class AssociationJoinApplication {
     private AssociationRank associationRank;
 
     @Enumerated(EnumType.STRING)
-    @Setter(AccessLevel.PUBLIC)
     private AssociationJoinApplicationStatus status;
 
     @Builder(access = AccessLevel.PRIVATE)
@@ -52,5 +51,13 @@ public class AssociationJoinApplication {
                 .associationRank(associationRank)
                 .status(status)
                 .build();
+    }
+
+    public void approve() {
+        this.status = AssociationJoinApplicationStatus.APPROVED;
+    }
+
+    public void reject() {
+        this.status = AssociationJoinApplicationStatus.REJECTED;
     }
 }

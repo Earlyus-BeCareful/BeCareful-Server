@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.caregiver.controller;
 
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.MyPageUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.service.CareerService;
 import com.becareful.becarefulserver.domain.caregiver.service.CaregiverService;
@@ -40,6 +41,13 @@ public class CaregiverController {
         return ResponseEntity.created(URI.create("/caregiver/" + id)).build();
     }
 
+    @Operation(summary = "요양보호사 로그아웃")
+    @PutMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse httpServletResponse) {
+        caregiverService.logout(httpServletResponse);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "요양보호사 프로필 사진 신규 업로드", description = "요양보호사 프로필 이미지 업로드 API 입니다.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CaregiverProfileUploadResponse> uploadProfileImg(@RequestPart MultipartFile file) {
@@ -75,6 +83,13 @@ public class CaregiverController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "요양보호사 마이페이지 수정")
+    @PutMapping("/my")
+    public ResponseEntity<Void> updateMyPageInfo(@Valid @RequestBody MyPageUpdateRequest request) {
+        caregiverService.updateCaregiverInfo(request);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "확정된 일자리의 리스트가 반환됩니다.")
     @GetMapping("/my/completed-matching-list")
     public ResponseEntity<List<CompletedMatchingInfoResponse>> getCompletedMatchingsByCaregiverId() {
@@ -88,12 +103,5 @@ public class CaregiverController {
             @PathVariable Long completedMatchingId, @RequestBody EditCompletedMatchingNoteRequest request) {
         completedMatchingService.editNote(completedMatchingId, request);
         return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "요양보호사 채팅 목록")
-    @GetMapping("/chat/list")
-    public ResponseEntity<ChatList> getChatInfoList() {
-        ChatList response = caregiverService.getChatList();
-        return ResponseEntity.ok(response);
     }
 }

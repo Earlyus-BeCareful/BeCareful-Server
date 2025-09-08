@@ -2,8 +2,10 @@ package com.becareful.becarefulserver.domain.community.service;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
+import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.repository.AssociationJoinApplicationRepository;
-import com.becareful.becarefulserver.domain.community.dto.response.CommunityAccessResponse;
+import com.becareful.becarefulserver.domain.chat.service.*;
+import com.becareful.becarefulserver.domain.community.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
@@ -20,11 +22,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.*;
 
 @Service
 @RequiredArgsConstructor
 public class CommunityService {
 
+    private final SocialWorkerChatService chatService;
     private final AuthUtil authUtil;
     private final SocialWorkerRepository socialWorkerRepository;
     private final AssociationJoinApplicationRepository associationMembershipRequestRepository;
@@ -57,26 +61,29 @@ public class CommunityService {
         Optional<AssociationJoinApplication> requestOpt =
                 associationMembershipRequestRepository.findBySocialWorker(socialWorker);
 
-        if (association != null) {
+        if (association != null) { // 가입된 회원인 경우
             int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+            String associationName = association.getName();
 
             if (requestOpt.isPresent()) {
                 associationMembershipRequestRepository.delete(requestOpt.get());
-                return CommunityAccessResponse.approved(socialWorker, associationMemberCount);
+                return CommunityAccessResponse.approved(socialWorker, associationName, associationMemberCount);
             }
 
             return CommunityAccessResponse.alreadyApproved(socialWorker, associationMemberCount);
         }
 
-        return requestOpt
+        return requestOpt // 가입된 회원이 아닌 경우
                 .map(request -> {
+                    String associationName = request.getAssociation().getName();
+
                     switch (request.getStatus()) {
                         case REJECTED -> {
                             associationMembershipRequestRepository.delete(request);
-                            return CommunityAccessResponse.rejected(socialWorker);
+                            return CommunityAccessResponse.rejected(socialWorker, associationName);
                         }
                         case PENDING -> {
-                            return CommunityAccessResponse.pending(socialWorker);
+                            return CommunityAccessResponse.pending(socialWorker, associationName);
                         }
                         default -> throw new IllegalStateException(
                                 "Unexpected community access status: " + request.getStatus());
@@ -85,10 +92,22 @@ public class CommunityService {
                 .orElseGet(() -> CommunityAccessResponse.notApplied(socialWorker));
     }
 
+    @Transactional(readOnly = true)
+    public CommunityHomeBasicInfoResponse getCommunityHomeInfo() {
+        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
+
+        boolean hasNewChat = chatService.checkNewChat();
+        Association association = currentSocialWorker.getAssociation();
+        int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+
+        AssociationMyResponse associationInfo = AssociationMyResponse.from(association, associationMemberCount);
+        return CommunityHomeBasicInfoResponse.of(hasNewChat, associationInfo);
+    }
+
     private void updateJwtAndSecurityContext(
             HttpServletResponse response, String phoneNumber, String institutionRank, String associationRank) {
         String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
-        String refreshToken = jwtUtil.createRefreshToken(phoneNumber, institutionRank, associationRank);
+        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
         response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
         response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
