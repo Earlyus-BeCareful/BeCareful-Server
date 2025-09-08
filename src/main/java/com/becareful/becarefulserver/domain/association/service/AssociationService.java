@@ -305,8 +305,7 @@ public class AssociationService {
             throws ChangeSetPersister.NotFoundException {
         SocialWorker currentChairman = authUtil.getLoggedInSocialWorker();
         SocialWorker newChairman = socialWorkerRepository
-                .findByNameAndNicknameAndPhoneNumber(
-                        request.newChairmanName(), request.newChairmanNickName(), request.newChairmanPhoneNUmber())
+                .findByIdAndName(request.newChairmanId(), request.newChairmanName())
                 .orElseThrow(() -> new NotFoundException("회원 정보를 잘못 입력하였습니다."));
 
         currentChairman.updateAssociationRank(request.nextRankOfCurrentChairman());
