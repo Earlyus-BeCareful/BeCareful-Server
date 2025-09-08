@@ -10,6 +10,7 @@ import lombok.Builder;
 @Builder(access = AccessLevel.PRIVATE)
 public record SocialWorkerHomeResponse(
         SocialWorkerSimpleDto socialWorkerInfo,
+        boolean hasNewChat,
         InstitutionInfo institutionInfo,
         MatchingStatistics matchingStatistics,
         ApplicationStatistics applicationStatistics,
@@ -17,6 +18,7 @@ public record SocialWorkerHomeResponse(
 
     public static SocialWorkerHomeResponse of(
             SocialWorker socialWorker,
+            boolean hasNewChat,
             Integer elderlyCount,
             Integer socialWorkerCount,
             List<SocialWorkerSimpleDto> socialWorkerList,
@@ -29,6 +31,7 @@ public record SocialWorkerHomeResponse(
             List<ElderlySimpleDto> matchingElderlyList) {
         return SocialWorkerHomeResponse.builder()
                 .socialWorkerInfo(SocialWorkerSimpleDto.from(socialWorker))
+                .hasNewChat(hasNewChat)
                 .institutionInfo(new InstitutionInfo(
                         socialWorker.getNursingInstitution().getName(),
                         elderlyCount,

@@ -31,6 +31,18 @@ public class GlobalExceptionHandler {
                         ex.getBindingResult().getAllErrors().get(0).getDefaultMessage()));
     }
 
+    @ExceptionHandler(SocialWorkerException.class)
+    public ResponseEntity<ErrorResponse> socialWorkerException(SocialWorkerException e) {
+        log.info("SocialWorkerException: {}", e.getMessage());
+        return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(AssociationException.class)
+    public ResponseEntity<ErrorResponse> associationException(AssociationException e) {
+        log.info("AssociationException: {}", e.getMessage());
+        return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnknownException(Exception e) {
         log.error("Unknown exception: {} {}", e.getMessage(), e);
@@ -41,5 +53,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException e) {
         log.info("NotFoundException: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(ChatException.class)
+    public ResponseEntity<ErrorResponse> handleChatException(ChatException e) {
+        log.info("ChatException: {}", e.getMessage());
+        return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage()));
     }
 }

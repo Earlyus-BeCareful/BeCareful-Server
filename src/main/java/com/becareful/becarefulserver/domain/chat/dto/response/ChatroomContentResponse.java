@@ -5,7 +5,7 @@ import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.dto.CaregiverSimpleDto;
 import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
-import com.becareful.becarefulserver.domain.matching.dto.InstitutionSimpleDto;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionSimpleDto;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import java.util.List;
 

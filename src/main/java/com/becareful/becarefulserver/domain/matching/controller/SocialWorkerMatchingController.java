@@ -58,9 +58,9 @@ public class SocialWorkerMatchingController {
 
     @Operation(summary = "요양보호사 채용하기", description = "근무 시작일 선택 후 계약서 생성")
     @PostMapping("/{matchingId}/hire")
-    public ResponseEntity<Void> createContract(
+    public ResponseEntity<Void> hireCaregiver(
             @PathVariable("matchingId") Long matchingId, @RequestParam LocalDate workStartDate) {
-        contractService.createContract(matchingId, workStartDate);
+        matchingService.hire(matchingId, workStartDate);
         return ResponseEntity.ok().build();
     }
 }

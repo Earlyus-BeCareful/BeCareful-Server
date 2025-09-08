@@ -2,8 +2,10 @@ package com.becareful.becarefulserver.domain.community.service;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
+import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.repository.AssociationJoinApplicationRepository;
-import com.becareful.becarefulserver.domain.community.dto.response.CommunityAccessResponse;
+import com.becareful.becarefulserver.domain.chat.service.*;
+import com.becareful.becarefulserver.domain.community.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
@@ -20,11 +22,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.*;
 
 @Service
 @RequiredArgsConstructor
 public class CommunityService {
 
+    private final SocialWorkerChatService chatService;
     private final AuthUtil authUtil;
     private final SocialWorkerRepository socialWorkerRepository;
     private final AssociationJoinApplicationRepository associationMembershipRequestRepository;
@@ -86,6 +90,18 @@ public class CommunityService {
                     }
                 })
                 .orElseGet(() -> CommunityAccessResponse.notApplied(socialWorker));
+    }
+
+    @Transactional(readOnly = true)
+    public CommunityHomeBasicInfoResponse getCommunityHomeInfo() {
+        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
+
+        boolean hasNewChat = chatService.checkNewChat();
+        Association association = currentSocialWorker.getAssociation();
+        int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+
+        AssociationMyResponse associationInfo = AssociationMyResponse.from(association, associationMemberCount);
+        return CommunityHomeBasicInfoResponse.of(hasNewChat, associationInfo);
     }
 
     private void updateJwtAndSecurityContext(
