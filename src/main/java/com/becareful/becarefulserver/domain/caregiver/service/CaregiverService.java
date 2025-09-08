@@ -1,49 +1,34 @@
 package com.becareful.becarefulserver.domain.caregiver.service;
 
-import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.미지원;
-import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.지원검토중;
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.Career;
-import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
-import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.MyPageUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.domain.*;
+import com.becareful.becarefulserver.domain.caregiver.domain.vo.*;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.*;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
-import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
-import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
-import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
-import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
-import com.becareful.becarefulserver.domain.common.domain.Gender;
-import com.becareful.becarefulserver.domain.matching.domain.CompletedMatching;
-import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
-import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
-import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
-import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
-import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
-import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
-import com.becareful.becarefulserver.global.properties.CookieProperties;
-import com.becareful.becarefulserver.global.properties.JwtProperties;
+import com.becareful.becarefulserver.domain.caregiver.repository.*;
+import com.becareful.becarefulserver.domain.chat.service.*;
+import com.becareful.becarefulserver.domain.common.domain.*;
+import com.becareful.becarefulserver.domain.matching.domain.*;
+import com.becareful.becarefulserver.domain.matching.repository.*;
+import com.becareful.becarefulserver.domain.work_location.dto.request.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
+import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.util.*;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.time.LocalDate;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+import jakarta.servlet.http.*;
+import java.io.*;
+import java.nio.charset.*;
+import java.security.*;
+import java.time.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.*;
+import org.springframework.security.core.context.*;
+import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.*;
+import org.springframework.web.multipart.*;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +42,7 @@ public class CaregiverService {
     private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
     private final ContractRepository contractRepository;
+    private final CaregiverChatService chatService;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
     private final JwtUtil jwtUtil;
@@ -66,12 +52,20 @@ public class CaregiverService {
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        WorkApplication workApplication = workApplicationRepository
-                .findByCaregiver(caregiver)
-                .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
-        Integer applicationCount = matchingRepository
-                .findByWorkApplicationAndMatchingApplicationStatus(workApplication, 지원검토중)
-                .size();
+
+        boolean hasNewChat = chatService.checkNewChat(caregiver);
+
+        Optional<WorkApplication> optionalWorkApplication = workApplicationRepository.findByCaregiver(caregiver);
+
+        Integer applicationCount = 0;
+        boolean isApplying = false;
+        if (optionalWorkApplication.isPresent()) {
+            WorkApplication workApplication = optionalWorkApplication.get();
+            applicationCount = matchingRepository
+                    .findByWorkApplicationAndMatchingApplicationStatus(workApplication, 지원검토중)
+                    .size();
+            isApplying = workApplication.isActive();
+        }
         Integer recruitmentCount = matchingRepository
                 .findAllByCaregiverAndApplicationStatus(caregiver, 미지원)
                 .size();
@@ -79,7 +73,7 @@ public class CaregiverService {
         List<CompletedMatching> myWork = completedMatchingRepository.findByCaregiver(caregiver);
 
         boolean isWorking = !myWork.isEmpty();
-        boolean isApplying = workApplication.isActive();
+
         List<WorkScheduleResponse> workSchedules = myWork.stream()
                 .filter(completedMatching -> completedMatching
                         .getContract()
@@ -89,7 +83,7 @@ public class CaregiverService {
                 .toList();
 
         return CaregiverHomeResponse.of(
-                caregiver, recruitmentCount, applicationCount, isWorking, isApplying, workSchedules);
+                caregiver, hasNewChat, recruitmentCount, applicationCount, isWorking, isApplying, workSchedules);
     }
 
     public CaregiverMyPageHomeResponse getMyPageHomeData() {

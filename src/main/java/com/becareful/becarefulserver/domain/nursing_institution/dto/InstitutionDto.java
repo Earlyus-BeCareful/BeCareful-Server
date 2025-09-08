@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain.socialworker.dto;
+package com.becareful.becarefulserver.domain.nursing_institution.dto;
 
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;

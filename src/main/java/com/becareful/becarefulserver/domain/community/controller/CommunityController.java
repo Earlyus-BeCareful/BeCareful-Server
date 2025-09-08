@@ -1,17 +1,14 @@
 package com.becareful.becarefulserver.domain.community.controller;
 
-import com.becareful.becarefulserver.domain.association.dto.response.AssociationMyResponse;
-import com.becareful.becarefulserver.domain.association.service.AssociationService;
-import com.becareful.becarefulserver.domain.community.dto.response.CommunityAccessResponse;
-import com.becareful.becarefulserver.domain.community.service.CommunityService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.becareful.becarefulserver.domain.association.service.*;
+import com.becareful.becarefulserver.domain.community.dto.response.*;
+import com.becareful.becarefulserver.domain.community.service.*;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.tags.*;
+import jakarta.servlet.http.*;
+import lombok.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,9 +27,9 @@ public class CommunityController {
     }
 
     @Operation(summary = "커뮤니티 탭 협회 정보 조회", description = "현재 로그인한 사용자가 속한 협회의 정보를 조회합니다.")
-    @GetMapping("/my/association")
-    public ResponseEntity<AssociationMyResponse> getAssociationInfo() {
-        var response = associationService.getMyAssociation();
+    @GetMapping("/home")
+    public ResponseEntity<CommunityHomeBasicInfoResponse> getAssociationInfo() {
+        var response = communityService.getCommunityHomeInfo();
         return ResponseEntity.ok(response);
     }
 }

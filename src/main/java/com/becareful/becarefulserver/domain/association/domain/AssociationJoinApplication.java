@@ -26,7 +26,6 @@ public class AssociationJoinApplication {
     private AssociationRank associationRank;
 
     @Enumerated(EnumType.STRING)
-    @Setter(AccessLevel.PUBLIC)
     private AssociationJoinApplicationStatus status;
 
     @Builder(access = AccessLevel.PRIVATE)
@@ -52,5 +51,13 @@ public class AssociationJoinApplication {
                 .associationRank(associationRank)
                 .status(status)
                 .build();
+    }
+
+    public void approve() {
+        this.status = AssociationJoinApplicationStatus.APPROVED;
+    }
+
+    public void reject() {
+        this.status = AssociationJoinApplicationStatus.REJECTED;
     }
 }

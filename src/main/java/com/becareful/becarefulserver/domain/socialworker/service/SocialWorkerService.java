@@ -2,6 +2,9 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.association.repository.*;
+import com.becareful.becarefulserver.domain.chat.service.*;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
@@ -44,6 +47,8 @@ public class SocialWorkerService {
     private final CookieProperties cookieProperties;
     private final JwtProperties jwtProperties;
     private final CookieUtil cookieUtil;
+    private final AssociationRepository associationRepository;
+    private final SocialWorkerChatService socialWorkerChatService;
 
     @Transactional
     public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
@@ -57,7 +62,7 @@ public class SocialWorkerService {
         validatePhoneNumberNotDuplicated(request.phoneNumber());
 
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
-        Gender gender = parseGender(request.genderCode());
+        Gender gender = genderStringtoCode(request.genderCode());
 
         SocialWorker socialWorker = SocialWorker.create(
                 request.realName(),
@@ -81,6 +86,8 @@ public class SocialWorkerService {
     public SocialWorkerHomeResponse getHomeData() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         NursingInstitution institution = loggedInSocialWorker.getNursingInstitution();
+
+        boolean hasNewChat = socialWorkerChatService.checkNewChat();
 
         List<Long> elderlyIds = elderlyRepository.findByNursingInstitution(institution).stream()
                 .map(Elderly::getId)
@@ -132,6 +139,7 @@ public class SocialWorkerService {
 
         return SocialWorkerHomeResponse.of(
                 loggedInSocialWorker,
+                hasNewChat,
                 elderlyCount,
                 socialWorkerCount, // TODO 요양보호사 숫자로 변경
                 socialWorkers,
@@ -157,6 +165,11 @@ public class SocialWorkerService {
         return SocialWorkerMyResponse.from(loggedInSocialWorker);
     }
 
+    public SocialWorkerEditResponse getEditMyInfo() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        return SocialWorkerEditResponse.from(loggedInSocialWorker);
+    }
+
     @Transactional
     public void updateMyBasicInfo(@Valid SocialWorkerUpdateBasicInfoRequest request, HttpServletResponse response) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
@@ -180,7 +193,7 @@ public class SocialWorkerService {
         }
 
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
-        Gender gender = parseGender(request.genderCode());
+        Gender gender = genderStringtoCode(request.genderCode());
 
         boolean rankChanged = !Objects.equals(loggedInSocialWorker.getInstitutionRank(), request.institutionRank());
         boolean phoneChanged = !Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber());
@@ -208,11 +221,19 @@ public class SocialWorkerService {
     @Transactional
     public void leave(HttpServletResponse response) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        AssociationRank associationrank = loggedInSocialWorker.getAssociationRank();
+        AssociationRank rank = loggedInSocialWorker.getAssociationRank();
+        Association association = loggedInSocialWorker.getAssociation();
 
-        if (associationrank == AssociationRank.CHAIRMAN || associationrank == AssociationRank.EXECUTIVE) {
-            throw new DomainException("협회 탈퇴를 먼저 완료하십시오.");
+        if (rank == AssociationRank.CHAIRMAN) {
+            throw new AssociationException(ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST);
         }
+
+        if (rank == AssociationRank.EXECUTIVE
+                & socialworkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE)
+                        == 1) {
+            throw new AssociationException(ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST);
+        }
+
         socialworkerRepository.delete(loggedInSocialWorker);
 
         response.addCookie(cookieUtil.deleteCookie("AccessToken"));
@@ -263,7 +284,7 @@ public class SocialWorkerService {
         return LocalDate.of(year, month, day);
     }
 
-    private Gender parseGender(int genderCode) {
+    private Gender genderStringtoCode(int genderCode) {
         switch (genderCode) {
             case 1:
             case 3:
@@ -274,6 +295,14 @@ public class SocialWorkerService {
             default:
                 throw new SocialWorkerException(USER_CREATE_INVALID_GENDER_CODE);
         }
+    }
+
+    private int genderCodeToString(Gender gender, int birthYear) {
+        int genderCode = gender == Gender.MALE ? 1 : 2;
+        if (birthYear >= 2000) {
+            genderCode += 2;
+        }
+        return genderCode;
     }
 
     private void updateJwtAndSecurityContext(

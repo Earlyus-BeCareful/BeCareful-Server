@@ -4,9 +4,9 @@ import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.ElderlyDto;
-import com.becareful.becarefulserver.domain.matching.dto.InstitutionSimpleDto;
 import com.becareful.becarefulserver.domain.matching.dto.RecruitmentDto;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionSimpleDto;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 
 public record RecruitmentDetailResponse(
@@ -15,10 +15,11 @@ public record RecruitmentDetailResponse(
         InstitutionSimpleDto institutionInfo,
         MatchingResultStatus matchingResultStatus,
         boolean isHotRecruitment,
-        boolean isHourlySalaryTop) {
+        boolean isHourlySalaryTop,
+        boolean hasNewChat) {
 
     public static RecruitmentDetailResponse from(
-            Matching matching, boolean isHotRecruitment, boolean isHourlySalaryTop) {
+            Matching matching, boolean isHotRecruitment, boolean isHourlySalaryTop, boolean hasNewChat) {
         Recruitment recruitment = matching.getRecruitment();
         Elderly elderly = recruitment.getElderly();
         NursingInstitution institution = elderly.getNursingInstitution();
@@ -29,6 +30,7 @@ public record RecruitmentDetailResponse(
                 InstitutionSimpleDto.from(institution),
                 matching.getMatchingResultStatus(),
                 isHotRecruitment,
-                isHourlySalaryTop);
+                isHourlySalaryTop,
+                hasNewChat);
     }
 }

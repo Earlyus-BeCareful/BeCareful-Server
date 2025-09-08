@@ -4,6 +4,7 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionSimpleDto;
 import com.becareful.becarefulserver.domain.nursing_institution.dto.request.*;
 import com.becareful.becarefulserver.domain.nursing_institution.dto.response.*;
 import com.becareful.becarefulserver.domain.nursing_institution.repository.*;
@@ -75,35 +76,18 @@ public class NursingInstitutionService {
         institution.updateNursingInstitutionInfo(request);
     }
 
-    @Transactional
-    public NursingInstitutionSearchResponse searchNursingInstitutionByName(String institutionName) {
+    @Transactional(readOnly = true)
+    public List<InstitutionSimpleDto> searchNursingInstitutionByName(String institutionName) {
         List<NursingInstitution> institutions = institutionName == null
                 ? nursingInstitutionRepository.findAll()
                 : nursingInstitutionRepository.findAllByNameContains(institutionName);
-        List<NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo> result = institutions.stream()
-                .map(institution -> new NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo(
-                        institution.getId(),
-                        institution.getName(),
-                        institution.getAddress().getStreetAddress(),
-                        institution.getAddress().getDetailAddress()))
-                .toList();
-
-        return new NursingInstitutionSearchResponse(result);
+        return institutions.stream().map(InstitutionSimpleDto::from).toList();
     }
 
     @Transactional(readOnly = true)
-    public NursingInstitutionSearchResponse getNursingInstitutionList() {
+    public List<InstitutionSimpleDto> getNursingInstitutionList() {
         List<NursingInstitution> institutions = nursingInstitutionRepository.findAll();
-
-        List<NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo> result = institutions.stream()
-                .map(institution -> new NursingInstitutionSearchResponse.NursingInstitutionSimpleInfo(
-                        institution.getId(),
-                        institution.getName(),
-                        institution.getAddress().getStreetAddress(),
-                        institution.getAddress().getDetailAddress()))
-                .toList();
-
-        return new NursingInstitutionSearchResponse(result);
+        return institutions.stream().map(InstitutionSimpleDto::from).toList();
     }
 
     @Transactional

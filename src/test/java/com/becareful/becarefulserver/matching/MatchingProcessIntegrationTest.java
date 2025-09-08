@@ -139,10 +139,11 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 .orElseThrow();
 
         matchingService.applyRecruitment(recruitmentId);
-        Matching applied = matchingRepository.findById(matching.getId()).orElseThrow();
+        Matching applied =
+                matchingRepository.findByIdWithRecruitment(matching.getId()).orElseThrow();
         assertThat(applied.isApplicationReviewing()).isTrue();
 
-        contractService.createContract(matching.getId(), LocalDate.now());
+        contractService.createContract(applied, LocalDate.now());
         Contract firstContract = contractRepository
                 .findTop1ByMatchingOrderByCreateDateDesc(matching)
                 .orElseThrow();
