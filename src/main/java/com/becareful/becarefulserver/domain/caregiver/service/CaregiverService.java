@@ -157,12 +157,13 @@ public class CaregiverService {
                 request.nursingCareCertificate());
         caregiver.updateInfo(request.phoneNumber(), caregiverInfo);
     }
+
     public void logout(HttpServletResponse response) {
         response.addCookie(cookieUtil.deleteCookie("AccessToken"));
         response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
         SecurityContextHolder.clearContext();
     }
-  
+
     @Transactional
     public void leave(HttpServletResponse response) {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
