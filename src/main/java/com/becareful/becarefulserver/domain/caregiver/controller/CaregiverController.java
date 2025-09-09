@@ -48,6 +48,13 @@ public class CaregiverController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "요양보호사 탈퇴")
+    @DeleteMapping("/leave")
+    public ResponseEntity<Void> deleteCaregiver(HttpServletResponse httpServletResponse) {
+        caregiverService.leave(httpServletResponse);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "요양보호사 프로필 사진 신규 업로드", description = "요양보호사 프로필 이미지 업로드 API 입니다.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CaregiverProfileUploadResponse> uploadProfileImg(@RequestPart MultipartFile file) {
@@ -79,7 +86,7 @@ public class CaregiverController {
     @Operation(summary = "요양보호사 마이페이지 홈 화면 데이터 조회")
     @GetMapping("/my")
     public ResponseEntity<CaregiverMyPageHomeResponse> getMyPageHomeData() {
-        CaregiverMyPageHomeResponse response = caregiverService.getMyPageHomeData();
+        var response = caregiverService.getCaregiverMyPageHomeData();
         return ResponseEntity.ok(response);
     }
 

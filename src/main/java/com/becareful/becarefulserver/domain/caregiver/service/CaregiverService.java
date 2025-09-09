@@ -86,7 +86,7 @@ public class CaregiverService {
                 caregiver, hasNewChat, recruitmentCount, applicationCount, isWorking, isApplying, workSchedules);
     }
 
-    public CaregiverMyPageHomeResponse getMyPageHomeData() {
+    public CaregiverMyPageHomeResponse getCaregiverMyPageHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         Career career = careerRepository.findByCaregiver(caregiver).orElse(null);
         WorkApplication workApplication =
@@ -156,6 +156,22 @@ public class CaregiverService {
                 request.socialWorkerCertificate(),
                 request.nursingCareCertificate());
         caregiver.updateInfo(request.phoneNumber(), caregiverInfo);
+    }
+
+    public void logout(HttpServletResponse response) {
+        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
+        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
+        SecurityContextHolder.clearContext();
+    }
+
+    @Transactional
+    public void leave(HttpServletResponse response) {
+        Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
+        matchingRepository.deleteAllByCaregiverAndStatusNot(loggedInCaregiver, 합격);
+        caregiverRepository.delete(loggedInCaregiver);
+        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
+        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
+        SecurityContextHolder.clearContext();
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
@@ -236,11 +252,5 @@ public class CaregiverService {
         cookie.setHttpOnly(true);
         cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
         return cookie;
-    }
-
-    public void logout(HttpServletResponse response) {
-        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
-        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
-        SecurityContextHolder.clearContext();
     }
 }

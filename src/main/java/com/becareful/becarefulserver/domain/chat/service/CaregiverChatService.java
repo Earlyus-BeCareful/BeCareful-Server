@@ -10,6 +10,7 @@ import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
+import java.time.*;
 import java.util.*;
 import lombok.*;
 import org.springframework.stereotype.*;
@@ -54,9 +55,15 @@ public class CaregiverChatService {
 
         List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matchingId);
 
+        String caregiverName = caregiver.getName();
+
+        Integer caregiverAge =
+                Period.between(caregiver.getBirthDate(), LocalDate.now()).getYears();
+
+        String caregiverPhoneNumber = caregiver.getPhoneNumber();
         updateReadStatus(caregiver, matching);
 
-        return ChatroomContentResponse.of(matching, contracts);
+        return ChatroomContentResponse.of(matching, caregiverName, caregiverAge, caregiverPhoneNumber, contracts);
     }
 
     @Transactional

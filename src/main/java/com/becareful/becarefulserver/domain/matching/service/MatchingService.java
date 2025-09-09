@@ -237,21 +237,30 @@ public class MatchingService {
         List<MatchingCaregiverSimpleResponse> appliedCaregivers = new ArrayList<>();
 
         matchings.forEach(matching -> {
-            Caregiver caregiver = matching.getWorkApplication().getCaregiver();
-            Career career = careerRepository
-                    .findByCaregiver(caregiver)
-                    .orElseThrow(() -> new CaregiverException(CAREGIVER_CAREER_NOT_EXISTS));
+            MatchingApplicationStatus status = matching.getMatchingApplicationStatus();
 
-            MatchedCaregiverDto caregiverInfo = MatchedCaregiverDto.of(caregiver, career);
-            MatchingResultStatus matchingResult =
-                    matching.getMatchingResultInfo().judgeMatchingResultStatus();
+            if (status == 지원검토중 || status == 미지원) {
+                WorkApplication workApplication = matching.getWorkApplication();
+                if (workApplication == null) {
+                    return; // 요양보호사가 탈퇴하며 지원검토중, 미지원인 매칭은 삭제되지만 방어적 설계를 위해 예외처리함
+                }
 
-            var matchedCaregiverInfo = MatchingCaregiverSimpleResponse.of(caregiverInfo, matchingResult);
+                Caregiver caregiver = matching.getWorkApplication().getCaregiver();
+                Career career = careerRepository
+                        .findByCaregiver(caregiver)
+                        .orElseThrow(() -> new CaregiverException(CAREGIVER_CAREER_NOT_EXISTS));
 
-            if (matching.getMatchingApplicationStatus().equals(지원검토중)) {
-                appliedCaregivers.add(matchedCaregiverInfo);
-            } else if (matching.getMatchingApplicationStatus().equals(미지원)) {
-                unAppliedCaregivers.add(matchedCaregiverInfo);
+                MatchedCaregiverDto caregiverInfo = MatchedCaregiverDto.of(caregiver, career);
+                MatchingResultStatus matchingResult =
+                        matching.getMatchingResultInfo().judgeMatchingResultStatus();
+
+                var matchedCaregiverInfo = MatchingCaregiverSimpleResponse.of(caregiverInfo, matchingResult);
+
+                if (status == 지원검토중) {
+                    appliedCaregivers.add(matchedCaregiverInfo);
+                } else {
+                    unAppliedCaregivers.add(matchedCaregiverInfo);
+                }
             }
         });
 

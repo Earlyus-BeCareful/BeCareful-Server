@@ -1,16 +1,12 @@
 package com.becareful.becarefulserver.domain.matching.repository;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
-import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
-import java.util.List;
-import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import com.becareful.becarefulserver.domain.caregiver.domain.*;
+import com.becareful.becarefulserver.domain.matching.domain.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
+import jakarta.transaction.*;
+import java.util.*;
+import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.*;
 
 public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
@@ -53,4 +49,21 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
     @Query("SELECT m FROM Matching m JOIN FETCH m.recruitment WHERE m.id = :id")
     Optional<Matching> findByIdWithRecruitment(@Param("id") Long id);
+
+    @Transactional
+    @Modifying
+    @Query(
+            "DELETE FROM Matching m WHERE m.workApplication.caregiver = :caregiver AND m.matchingApplicationStatus <> :status")
+    void deleteAllByCaregiverAndStatusNot(
+            @Param("caregiver") Caregiver caregiver, @Param("status") MatchingApplicationStatus status);
+
+    @Query(
+            """
+    SELECT m FROM Matching m
+    JOIN FETCH m.recruitment r
+    JOIN FETCH m.workApplication w
+    JOIN FETCH w.caregiver c
+    WHERE m.id = :id
+    """)
+    Optional<Matching> findByIdWithRecruitmentAndWorkApplicationAndCaregiver(@Param("id") Long id);
 }
