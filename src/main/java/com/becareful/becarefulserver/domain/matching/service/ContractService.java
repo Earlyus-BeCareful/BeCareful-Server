@@ -1,9 +1,9 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
 import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.*;
-
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.global.exception.*;
 import com.becareful.becarefulserver.global.exception.exception.*;

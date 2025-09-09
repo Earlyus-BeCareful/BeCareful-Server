@@ -86,7 +86,7 @@ public class CaregiverController {
     @Operation(summary = "요양보호사 마이페이지 홈 화면 데이터 조회")
     @GetMapping("/my")
     public ResponseEntity<CaregiverMyPageHomeResponse> getMyPageHomeData() {
-        CaregiverMyPageHomeResponse response = caregiverService.getMyPageHomeData();
+        var response = caregiverService.getCaregiverMyPageHomeData();
         return ResponseEntity.ok(response);
     }
 

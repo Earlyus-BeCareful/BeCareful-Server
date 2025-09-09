@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.domain.chat.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
-
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.dto.request.*;
@@ -12,6 +11,7 @@ import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
 import java.time.*;
@@ -60,8 +60,10 @@ public class SocialWorkerChatService {
 
         Contract contract = contracts.get(0);
         String caregiverName = contract.getCaregiverName();
+
         Integer caregiverAge = Period.between(contract.getCaregiverBirthDate(), LocalDate.now())
                 .getYears();
+      
         String caregiverPhoneNumber = contract.getCaregiverPhoneNumber();
 
         updateReadStatus(socialWorker, matching);
