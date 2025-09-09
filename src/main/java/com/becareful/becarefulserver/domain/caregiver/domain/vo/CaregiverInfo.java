@@ -60,7 +60,7 @@ public class CaregiverInfo {
         }
 
         if (nursingCareCertificate != null) {
-            String grade = socialWorkerCertificate.getGrade().getValue();
+            String grade = nursingCareCertificate.getGrade().getValue();
             result.add("간호지원사 " + grade);
         }
 

@@ -86,7 +86,7 @@ public class CaregiverService {
                 caregiver, hasNewChat, recruitmentCount, applicationCount, isWorking, isApplying, workSchedules);
     }
 
-    public CaregiverMyPageHomeResponse getMyPageHomeData() {
+    public CaregiverMyPageHomeResponse getCaregiverMyPageHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         Career career = careerRepository.findByCaregiver(caregiver).orElse(null);
         WorkApplication workApplication =
