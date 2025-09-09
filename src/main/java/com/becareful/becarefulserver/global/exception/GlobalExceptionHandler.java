@@ -60,4 +60,10 @@ public class GlobalExceptionHandler {
         log.info("ChatException: {}", e.getMessage());
         return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage()));
     }
+
+    @ExceptionHandler(ContractException.class)
+    public ResponseEntity<ErrorResponse> contractException(ContractException e) {
+        log.info("ContractException: {}", e.getMessage());
+        return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage()));
+    }
 }

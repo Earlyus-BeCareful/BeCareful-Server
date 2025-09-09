@@ -1,9 +1,11 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
-import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.*;
-
+import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
+import com.becareful.becarefulserver.global.exception.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
 import java.time.*;
 import lombok.*;
 import org.springframework.stereotype.*;
@@ -31,7 +33,12 @@ public class ContractService {
             }
         });
 
-        Contract contract = Contract.create(matching, matching.getRecruitment(), workStartDate);
+        WorkApplication workApplication = matching.getWorkApplication();
+        if (workApplication == null) {
+            throw new ContractException(ErrorMessage.CONTRACT_CAREGIVER_NOT_EXISTS);
+        }
+        Caregiver caregiver = workApplication.getCaregiver();
+        Contract contract = Contract.create(matching, matching.getRecruitment(), caregiver, workStartDate);
         contractRepository.save(contract);
     }
 }
