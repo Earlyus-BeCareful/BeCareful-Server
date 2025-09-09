@@ -237,7 +237,6 @@ public class MatchingService {
         List<MatchingCaregiverSimpleResponse> appliedCaregivers = new ArrayList<>();
 
         matchings.forEach(matching -> {
-
             MatchingApplicationStatus status = matching.getMatchingApplicationStatus();
 
             if (status == 지원검토중 || status == 미지원) {

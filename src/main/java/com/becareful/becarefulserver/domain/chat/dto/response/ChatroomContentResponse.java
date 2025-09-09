@@ -16,7 +16,12 @@ public record ChatroomContentResponse(
         CaregiverContractInfoDto caregiverContractInfo,
         List<ContractDto> contractList) {
 
-    public static ChatroomContentResponse of(Matching matching, String caregiverName, Integer caregiverAge, String caregiverPhoneNumber, List<Contract> contractList) {
+    public static ChatroomContentResponse of(
+            Matching matching,
+            String caregiverName,
+            Integer caregiverAge,
+            String caregiverPhoneNumber,
+            List<Contract> contractList) {
         Elderly elderly = matching.getRecruitment().getElderly();
 
         CaregiverSimpleDto caregiverDto = null;
@@ -30,7 +35,7 @@ public record ChatroomContentResponse(
                 ElderlySimpleDto.from(elderly),
                 InstitutionSimpleDto.from(elderly.getNursingInstitution()),
                 caregiverDto,
-                CaregiverContractInfoDto.of(caregiverName,caregiverAge,caregiverPhoneNumber),
+                CaregiverContractInfoDto.of(caregiverName, caregiverAge, caregiverPhoneNumber),
                 contractList.stream().map(ContractDto::from).toList());
     }
 }

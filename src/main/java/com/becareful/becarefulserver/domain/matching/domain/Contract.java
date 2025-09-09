@@ -33,7 +33,6 @@ public class Contract extends BaseEntity {
     private LocalDate caregiverBirthDate;
     private String caregiverPhoneNumber;
 
-
     @Convert(converter = DayOfWeekSetConverter.class)
     private EnumSet<DayOfWeek> workDays;
 
@@ -70,7 +69,8 @@ public class Contract extends BaseEntity {
         this.careTypes = careTypes;
     }
 
-    public static Contract create(Matching matching, Recruitment recruitment, Caregiver caregiver, LocalDate workStartDate) {
+    public static Contract create(
+            Matching matching, Recruitment recruitment, Caregiver caregiver, LocalDate workStartDate) {
         return Contract.builder()
                 .matching(matching)
                 .caregiverName(caregiver.getName())
