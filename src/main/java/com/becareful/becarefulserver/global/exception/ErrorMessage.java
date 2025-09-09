@@ -53,6 +53,7 @@ public class ErrorMessage {
     public static final String MATCHING_SOCIAL_WORKER_DIFFERENT = "해당 사회복지사의 매칭 데이터가 아닙니다.";
 
     public static final String CONTRACT_NOT_EXISTS = "계약서가 존재하지 않습니다.";
+    public static final String CONTRACT_CAREGIVER_NOT_EXISTS = "요양보호사가 존재하지 않아 계약서를 수정할 수 없습니다.";
 
     public static final String USER_CREATE_INVALID_GENDER_CODE = "유효하지 않은 성별 번호입니다.";
 
