@@ -56,7 +56,8 @@ public class CaregiverChatService {
         List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matchingId);
 
         String caregiverName = caregiver.getName();
-        Integer caregiverAge = Period.between(caregiver.getBirthDate(), LocalDate.now()).getYears();
+        Integer caregiverAge =
+                Period.between(caregiver.getBirthDate(), LocalDate.now()).getYears();
         String caregiverPhoneNumber = caregiver.getPhoneNumber();
         updateReadStatus(caregiver, matching);
 

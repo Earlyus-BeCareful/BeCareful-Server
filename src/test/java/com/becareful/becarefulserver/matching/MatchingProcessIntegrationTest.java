@@ -34,9 +34,7 @@ import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.EnumSet;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -139,8 +137,9 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 .orElseThrow();
 
         matchingService.applyRecruitment(recruitmentId);
-        Matching applied =
-                matchingRepository.findByIdWithRecruitment(matching.getId()).orElseThrow();
+        Matching applied = matchingRepository
+                .findByIdWithRecruitmentAndWorkApplicationAndCaregiver(matching.getId())
+                .orElseThrow();
         assertThat(applied.isApplicationReviewing()).isTrue();
 
         contractService.createContract(applied, LocalDate.now());

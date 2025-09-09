@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.chat.service;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.dto.request.*;
@@ -10,7 +12,6 @@ import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
 import java.time.*;
@@ -59,7 +60,8 @@ public class SocialWorkerChatService {
 
         Contract contract = contracts.get(0);
         String caregiverName = contract.getCaregiverName();
-        Integer caregiverAge = Period.between(contract.getCaregiverBirthDate(), LocalDate.now()).getYears();
+        Integer caregiverAge = Period.between(contract.getCaregiverBirthDate(), LocalDate.now())
+                .getYears();
         String caregiverPhoneNumber = contract.getCaregiverPhoneNumber();
 
         updateReadStatus(socialWorker, matching);
@@ -81,7 +83,7 @@ public class SocialWorkerChatService {
                 .findById(request.matchingId())
                 .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
         WorkApplication workApplication = matching.getWorkApplication();
-        if(workApplication == null) {
+        if (workApplication == null) {
             throw new ContractException(CONTRACT_CAREGIVER_NOT_EXISTS);
         }
         Caregiver caregiver = workApplication.getCaregiver();

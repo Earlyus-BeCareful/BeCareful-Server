@@ -157,6 +157,7 @@ public class CaregiverService {
                 request.nursingCareCertificate());
         caregiver.updateInfo(request.phoneNumber(), caregiverInfo);
     }
+
     public void logout(HttpServletResponse response) {
         response.addCookie(cookieUtil.deleteCookie("AccessToken"));
         response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
@@ -166,13 +167,14 @@ public class CaregiverService {
     @Transactional
     public void leave(HttpServletResponse response) {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
-        matchingRepository.deleteAllByCaregiverAndStatusNot(loggedInCaregiver,합격);
+        matchingRepository.deleteAllByCaregiverAndStatusNot(loggedInCaregiver, 합격);
         caregiverRepository.delete(loggedInCaregiver);
 
         response.addCookie(cookieUtil.deleteCookie("AccessToken"));
         response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
         SecurityContextHolder.clearContext();
     }
+
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
         if (isAgreedToTerms && isAgreedToCollectPersonalInfo) {
             return;
