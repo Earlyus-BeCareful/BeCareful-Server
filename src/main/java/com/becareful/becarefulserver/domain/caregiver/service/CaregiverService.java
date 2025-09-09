@@ -163,7 +163,7 @@ public class CaregiverService {
         response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
         SecurityContextHolder.clearContext();
     }
-  
+
     @Transactional
     public void leave(HttpServletResponse response) {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
