@@ -41,14 +41,13 @@ public class CaregiverService {
     private final WorkApplicationWorkLocationRepository workApplicationWorkLocationRepository;
     private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
-    private final ContractRepository contractRepository;
     private final CaregiverChatService chatService;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
     private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
     private final CookieProperties cookieProperties;
     private final JwtProperties jwtProperties;
-    private final CookieUtil cookieUtil;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -57,7 +56,7 @@ public class CaregiverService {
 
         Optional<WorkApplication> optionalWorkApplication = workApplicationRepository.findByCaregiver(caregiver);
 
-        Integer applicationCount = 0;
+        int applicationCount = 0;
         boolean isApplying = false;
         if (optionalWorkApplication.isPresent()) {
             WorkApplication workApplication = optionalWorkApplication.get();
@@ -107,7 +106,7 @@ public class CaregiverService {
         }
 
         LocalDate birthDate = parseBirthDate(String.valueOf(request.birthYymmdd()), request.genderCode());
-        Gender gender = parseGender(request.genderCode());
+        Gender gender = Gender.fromGenderCode(request.genderCode());
 
         CaregiverInfo caregiverInfo = CaregiverInfo.builder()
                 .isHavingCar(request.isHavingCar())
@@ -217,19 +216,6 @@ public class CaregiverService {
         int day = Integer.parseInt(yymmdd.substring(4, 6));
 
         return LocalDate.of(year, month, day);
-    }
-
-    private Gender parseGender(int genderCode) {
-        switch (genderCode) {
-            case 1:
-            case 3:
-                return Gender.MALE;
-            case 2:
-            case 4:
-                return Gender.FEMALE;
-            default:
-                throw new SocialWorkerException(USER_CREATE_INVALID_GENDER_CODE);
-        }
     }
 
     private void updateJwtAndSecurityContext(HttpServletResponse response, String phoneNumber) {
