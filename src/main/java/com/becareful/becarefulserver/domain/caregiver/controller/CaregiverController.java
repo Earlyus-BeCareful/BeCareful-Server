@@ -48,6 +48,7 @@ public class CaregiverController {
         return ResponseEntity.ok().build();
     }
 
+    // TODO : 특별한 상황이 아니면 url 에 동사는 사용하지 않음. delete caregiver 의미로 회원 탈퇴는 충분하므로 DELETE /caregiver 만 사용
     @Operation(summary = "요양보호사 탈퇴")
     @DeleteMapping("/leave")
     public ResponseEntity<Void> deleteCaregiver(HttpServletResponse httpServletResponse) {
@@ -97,6 +98,7 @@ public class CaregiverController {
         return ResponseEntity.ok().build();
     }
 
+    // TODO : url 에 list 는 적지 않도록 삭제
     @Operation(summary = "확정된 일자리의 리스트가 반환됩니다.")
     @GetMapping("/my/completed-matching-list")
     public ResponseEntity<List<CompletedMatchingInfoResponse>> getCompletedMatchingsByCaregiverId() {
@@ -104,6 +106,7 @@ public class CaregiverController {
         return ResponseEntity.ok(responseList);
     }
 
+    // TODO : url 에 list 는 적지 않도록 삭제
     @Operation(summary = "나의 일자리 화면에서 메모 수정")
     @PutMapping("/my/complete-matching-list/{completedMatchingId}")
     public ResponseEntity<Void> editCompletedMatchingMemo(
