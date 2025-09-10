@@ -51,8 +51,8 @@ public class CaregiverController {
     @Operation(summary = "요양보호사 탈퇴")
     @DeleteMapping("/leave")
     public ResponseEntity<Void> deleteCaregiver(HttpServletResponse httpServletResponse) {
-        caregiverService.leave(httpServletResponse);
-        return ResponseEntity.ok().build();
+        caregiverService.deleteCaregiver(httpServletResponse);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "요양보호사 프로필 사진 신규 업로드", description = "요양보호사 프로필 이미지 업로드 API 입니다.")

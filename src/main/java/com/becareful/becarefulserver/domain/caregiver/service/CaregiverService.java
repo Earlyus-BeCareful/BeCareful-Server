@@ -165,13 +165,11 @@ public class CaregiverService {
     }
 
     @Transactional
-    public void leave(HttpServletResponse response) {
+    public void deleteCaregiver(HttpServletResponse response) {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         matchingRepository.deleteAllByCaregiverAndStatusNot(loggedInCaregiver, 합격);
         caregiverRepository.delete(loggedInCaregiver);
-        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
-        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
-        SecurityContextHolder.clearContext();
+        logout(response);
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
