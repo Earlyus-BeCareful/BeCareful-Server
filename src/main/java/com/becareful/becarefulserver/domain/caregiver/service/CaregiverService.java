@@ -18,8 +18,6 @@ import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.util.*;
 import jakarta.servlet.http.*;
 import java.io.*;
-import java.nio.charset.*;
-import java.security.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
@@ -136,11 +134,11 @@ public class CaregiverService {
     @Transactional
     public CaregiverProfileUploadResponse uploadProfileImage(MultipartFile file) {
         try {
-            String fileName = generateProfileImageFileName();
+            String fileName = fileUtil.generateProfileImageFileName();
             String profileImageUrl = fileUtil.upload(file, "profile-image", fileName);
             return new CaregiverProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
-            throw new CaregiverException(CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE);
+            throw new CaregiverException(FAILED_TO_UPLOAD_PROFILE_IMAGE);
         }
     }
 
@@ -183,16 +181,6 @@ public class CaregiverService {
         }
 
         throw new CaregiverException(CAREGIVER_REQUIRED_AGREEMENT);
-    }
-
-    private String generateProfileImageFileName() {
-        try {
-            var md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
-            return Base64.getUrlEncoder().encodeToString(hash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new CaregiverException(CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE);
-        }
     }
 
     private LocalDate parseBirthDate(String yymmdd, int genderCode) {
