@@ -1,8 +1,8 @@
 package com.becareful.becarefulserver.domain.common.domain;
 
-import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
-
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.USER_CREATE_INVALID_GENDER_CODE;
+
+import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
 
 public enum Gender {
     MALE,

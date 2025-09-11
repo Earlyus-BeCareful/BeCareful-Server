@@ -1,20 +1,19 @@
 package com.becareful.becarefulserver.global.util;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.FAILED_TO_UPLOAD_PROFILE_IMAGE;
+
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.UUID;
-
-import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.FAILED_TO_UPLOAD_PROFILE_IMAGE;
 
 @Component
 @RequiredArgsConstructor

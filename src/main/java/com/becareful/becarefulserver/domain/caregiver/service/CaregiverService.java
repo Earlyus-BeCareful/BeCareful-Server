@@ -213,7 +213,8 @@ public class CaregiverService {
         String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
         response.addCookie(cookieUtil.createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
-        response.addCookie(cookieUtil.createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
+        response.addCookie(
+                cookieUtil.createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
 
         List<GrantedAuthority> authorities =
                 List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
