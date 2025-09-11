@@ -118,7 +118,7 @@ public class ElderlyService {
     public ElderlyProfileUploadResponse uploadProfileImage(MultipartFile file) {
         authUtil.getLoggedInSocialWorker();
         try {
-            String fileName = fileUtil.generateProfileImageFileNameWithSource(
+            String fileName = fileUtil.generateImageFileNameWithSource(
                     DateTimeFormatter.ofPattern("yyyyMMddHHmmssnn").format(LocalDateTime.now()));
             String profileImageUrl = fileUtil.upload(file, "profile-image", fileName);
             return new ElderlyProfileUploadResponse(profileImageUrl);

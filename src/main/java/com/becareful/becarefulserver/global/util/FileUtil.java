@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.global.util;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.FAILED_TO_UPLOAD_PROFILE_IMAGE;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.FAILED_TO_CREATE_IMAGE_FILE_NAME;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -35,23 +35,23 @@ public class FileUtil {
         return baseUrl + key;
     }
 
-    public String generateRandomProfileImageFileName() {
+    public String generateRandomImageFileName() {
         try {
             var md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
             return Base64.getUrlEncoder().encodeToString(hash);
         } catch (NoSuchAlgorithmException e) {
-            throw new CaregiverException(FAILED_TO_UPLOAD_PROFILE_IMAGE);
+            throw new CaregiverException(FAILED_TO_CREATE_IMAGE_FILE_NAME);
         }
     }
 
-    public String generateProfileImageFileNameWithSource(String source) {
+    public String generateImageFileNameWithSource(String source) {
         try {
             var md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(source.getBytes(StandardCharsets.UTF_8));
             return Base64.getUrlEncoder().encodeToString(hash);
         } catch (NoSuchAlgorithmException e) {
-            throw new CaregiverException(FAILED_TO_UPLOAD_PROFILE_IMAGE);
+            throw new CaregiverException(FAILED_TO_CREATE_IMAGE_FILE_NAME);
         }
     }
 }
