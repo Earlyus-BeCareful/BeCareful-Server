@@ -39,12 +39,12 @@ public class ElderlyController {
             @Parameter(name = "searchString", description = "검색어 (어르신 이름 일부 또는 전체)", example = "홍길동")
                     @RequestParam(required = false)
                     String searchString) {
-        List<ElderlyInfoResponse> response = elderlyService.getElderlyListBySearch(searchString);
+        var response = elderlyService.getElderlyListBySearch(searchString);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "어르신 등록")
-    @PostMapping("/register")
+    @PostMapping("/register") // TODO : URL 변경 (register 제거)
     public ResponseEntity<Void> createElderly(@Valid @RequestBody ElderlyCreateRequest request) {
         Long id = elderlyService.saveElderly(request);
         return ResponseEntity.created(URI.create("/elderly/" + id)).build();
@@ -52,7 +52,7 @@ public class ElderlyController {
 
     // 어르신 수정
     @Operation(summary = "어르신 정보 수정", description = "어르신 정보를 수정하는 API 입니다. 프로필이미지를 기본 이미지로 업데이트 시 반드시 공백 uri을 넣어주세요.")
-    @PatchMapping("/update/{elderlyId}") // TODO : URL 변경
+    @PatchMapping("/update/{elderlyId}") // TODO : URL 변경 (update 제거, PATCH -> PUT)
     public ResponseEntity<Void> updateElderly(
             @PathVariable Long elderlyId, @Valid @RequestBody ElderlyUpdateRequest request) {
         elderlyService.updateElderly(elderlyId, request);

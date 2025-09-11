@@ -18,8 +18,6 @@ import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.util.*;
 import jakarta.servlet.http.*;
 import java.io.*;
-import java.nio.charset.*;
-import java.security.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
@@ -41,14 +39,12 @@ public class CaregiverService {
     private final WorkApplicationWorkLocationRepository workApplicationWorkLocationRepository;
     private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
-    private final ContractRepository contractRepository;
     private final CaregiverChatService chatService;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
     private final JwtUtil jwtUtil;
-    private final CookieProperties cookieProperties;
-    private final JwtProperties jwtProperties;
     private final CookieUtil cookieUtil;
+    private final JwtProperties jwtProperties;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -57,7 +53,7 @@ public class CaregiverService {
 
         Optional<WorkApplication> optionalWorkApplication = workApplicationRepository.findByCaregiver(caregiver);
 
-        Integer applicationCount = 0;
+        int applicationCount = 0;
         boolean isApplying = false;
         if (optionalWorkApplication.isPresent()) {
             WorkApplication workApplication = optionalWorkApplication.get();
@@ -107,7 +103,7 @@ public class CaregiverService {
         }
 
         LocalDate birthDate = parseBirthDate(String.valueOf(request.birthYymmdd()), request.genderCode());
-        Gender gender = parseGender(request.genderCode());
+        Gender gender = Gender.fromGenderCode(request.genderCode());
 
         CaregiverInfo caregiverInfo = CaregiverInfo.builder()
                 .isHavingCar(request.isHavingCar())
@@ -138,11 +134,11 @@ public class CaregiverService {
     @Transactional
     public CaregiverProfileUploadResponse uploadProfileImage(MultipartFile file) {
         try {
-            String fileName = generateProfileImageFileName();
+            String fileName = fileUtil.generateRandomImageFileName();
             String profileImageUrl = fileUtil.upload(file, "profile-image", fileName);
             return new CaregiverProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
-            throw new CaregiverException(CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE);
+            throw new CaregiverException(FAILED_TO_CREATE_IMAGE_FILE_NAME);
         }
     }
 
@@ -187,16 +183,6 @@ public class CaregiverService {
         throw new CaregiverException(CAREGIVER_REQUIRED_AGREEMENT);
     }
 
-    private String generateProfileImageFileName() {
-        try {
-            var md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
-            return Base64.getUrlEncoder().encodeToString(hash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new CaregiverException(CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE);
-        }
-    }
-
     private LocalDate parseBirthDate(String yymmdd, int genderCode) {
         int yearPrefix;
         switch (genderCode) {
@@ -219,19 +205,6 @@ public class CaregiverService {
         return LocalDate.of(year, month, day);
     }
 
-    private Gender parseGender(int genderCode) {
-        switch (genderCode) {
-            case 1:
-            case 3:
-                return Gender.MALE;
-            case 2:
-            case 4:
-                return Gender.FEMALE;
-            default:
-                throw new SocialWorkerException(USER_CREATE_INVALID_GENDER_CODE);
-        }
-    }
-
     private void updateJwtAndSecurityContext(HttpServletResponse response, String phoneNumber) {
         String institutionRank = "NONE";
         String associationRank = "NONE";
@@ -239,23 +212,14 @@ public class CaregiverService {
         String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
         String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
-        response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
-        response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
+        response.addCookie(cookieUtil.createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
+        response.addCookie(
+                cookieUtil.createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
 
         List<GrantedAuthority> authorities =
                 List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
-    private Cookie createCookie(String key, String value, int maxAge) {
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(maxAge);
-        cookie.setSecure(cookieProperties.getCookieSecure());
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setAttribute("SameSite", cookieProperties.getCookieSameSite());
-        return cookie;
     }
 }

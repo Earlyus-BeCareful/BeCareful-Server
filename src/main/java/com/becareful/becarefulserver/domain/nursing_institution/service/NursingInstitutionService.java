@@ -12,8 +12,6 @@ import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
 import java.io.*;
-import java.nio.charset.*;
-import java.security.*;
 import java.util.*;
 import lombok.*;
 import org.springframework.stereotype.*;
@@ -93,20 +91,10 @@ public class NursingInstitutionService {
     @Transactional
     public NursingInstitutionProfileUploadResponse uploadProfileImage(MultipartFile file, String institutionName) {
         try {
-            String fileName = generateProfileImageFileName(institutionName);
+            String fileName = fileUtil.generateImageFileNameWithSource(institutionName);
             String profileImageUrl = fileUtil.upload(file, "nursing-institution-image", fileName);
             return new NursingInstitutionProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
-            throw new NursingInstitutionException(NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE);
-        }
-    }
-
-    private String generateProfileImageFileName(String institutionName) {
-        try {
-            var md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(institutionName.getBytes(StandardCharsets.UTF_8));
-            return Base64.getUrlEncoder().encodeToString(hash);
-        } catch (NoSuchAlgorithmException e) {
             throw new NursingInstitutionException(NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE);
         }
     }

@@ -6,17 +6,14 @@ public class ErrorMessage {
     public static final String SMS_PHONE_NUMBER_AUTH_NOT_EXISTS = "해당 전화번호로 요청된 인증이 없습니다.";
     public static final String SMS_AUTHENTICATION_FAILED = "인증번호가 일치하지 않습니다.";
 
+    public static final String FAILED_TO_CREATE_IMAGE_FILE_NAME = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
+
     public static final String CAREGIVER_ALREADY_EXISTS = "이미 가입된 전화번호 입니다.";
     public static final String CAREGIVER_NOT_EXISTS = "해당하는 요양보호사가 없습니다.";
     public static final String CAREGIVER_REQUIRED_AGREEMENT = "필수 동의 항목에 동의하지 않았습니다.";
-    public static final String CAREGIVER_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
     public static final String CAREGIVER_WORK_APPLICATION_NOT_EXISTS = "일자리 신청서가 존재하지 않습니다.";
     public static final String CAREGIVER_CAREER_NOT_EXISTS = "요양보호사 경력사항이 존재하지 않습니다.";
 
-    public static final String PHONE_NUMBER_NOT_EXISTS = "존재하지 않는 전화번호입니다.";
-    public static final String PASSWORD_NOT_MATCH = "비밀번호가 일치하지 않습니다.";
-    public static final String INVALID_TOKEN_FORMAT = "엑세스 토큰 형식이 유효하지 않습니다.";
-    public static final String INVALID_TOKEN = "엑세스 토큰이 유효하지 않습니다.";
     public static final String TOKEN_NOT_CONTAINED = "요청에 토큰이 포함되지 않았습니다.";
     public static final String INVALID_REFRESH_TOKEN = "리프레시 토큰이 유효하지 않습니다.";
 
@@ -41,13 +38,11 @@ public class ErrorMessage {
     public static final String ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST = "커뮤니티 협회장 위임을 먼저 해야합니다.";
     public static final String ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST = "커뮤니티 임원진 위임을 먼저 해야합니다.";
 
-    public static final String ELDERLY_FAILED_TO_CREATE_PROFILE_IMAGE_NAME = "프로필 이미지 이름을 생성하는 중 문제가 발생했습니다.";
     public static final String ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
     public static final String ELDERLY_NOT_EXISTS = "존재하지 않는 어르신입니다.";
 
     public static final String RECRUITMENT_NOT_EXISTS = "매칭 공고가 존재하지 않습니다.";
     public static final String MATCHING_NOT_EXISTS = "매칭 또는 지원 정보가 존재하지 않습니다.";
-    public static final String MATCHING_CANNOT_APPLY = "미지원 공고에만 지원할 수 있습니다.";
     public static final String MATCHING_CANNOT_REJECT = "미지원 공고만 거절할 수 있습니다.";
     public static final String MATCHING_CAREGIVER_DIFFERENT = "해당 요양보호사의 매칭 데이터가 아닙니다.";
     public static final String MATCHING_SOCIAL_WORKER_DIFFERENT = "해당 사회복지사의 매칭 데이터가 아닙니다.";

@@ -19,7 +19,7 @@ import org.springframework.web.multipart.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/nursingInstitution")
+@RequestMapping("/nursingInstitution") // TODO : url 변경 -> nursing-institution
 @Tag(name = "Nursing Institution", description = "요양기관 관련 API 입니다.")
 public class NursingInstitutionController {
     private final NursingInstitutionService nursingInstitutionService;
@@ -40,7 +40,7 @@ public class NursingInstitutionController {
     }
 
     @Operation(summary = "요양 기관 등록 전: 기관 검색 (대표,센터장 전용)", description = "기관 등록 과정에서 기관이 서비스에 이미 등록되어있는지 확인하는 API")
-    @GetMapping("/for-guest/check/already-register")
+    @GetMapping("/for-guest/check/already-register") // TODO : url 수정 : /exist
     public ResponseEntity<Boolean> checkAlreadyRegister(@RequestParam(required = true) String nursingInstitutionCode) {
         if (nursingInstitutionCode == null || nursingInstitutionCode.isBlank()) {
             throw new NursingInstitutionException(NURSING_INSTITUTION_REQUIRE_CODE);
