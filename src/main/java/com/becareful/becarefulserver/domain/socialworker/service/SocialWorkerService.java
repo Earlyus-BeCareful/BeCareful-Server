@@ -3,8 +3,7 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
-import com.becareful.becarefulserver.domain.association.repository.*;
-import com.becareful.becarefulserver.domain.chat.service.*;
+import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
@@ -36,19 +35,16 @@ import org.springframework.transaction.annotation.*;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class SocialWorkerService {
+
     private final SocialWorkerRepository socialworkerRepository;
     private final NursingInstitutionRepository nursingInstitutionRepository;
-
     private final MatchingRepository matchingRepository;
     private final ElderlyRepository elderlyRepository;
-
+    private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final AuthUtil authUtil;
     private final JwtUtil jwtUtil;
-    private final CookieProperties cookieProperties;
-    private final JwtProperties jwtProperties;
     private final CookieUtil cookieUtil;
-    private final AssociationRepository associationRepository;
-    private final SocialWorkerChatService socialWorkerChatService;
+    private final JwtProperties jwtProperties;
 
     @Transactional
     public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
@@ -87,7 +83,7 @@ public class SocialWorkerService {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         NursingInstitution institution = loggedInSocialWorker.getNursingInstitution();
 
-        boolean hasNewChat = socialWorkerChatService.checkNewChat();
+        boolean hasNewChat = socialWorkerChatReadStatusRepository.existsUnreadContract(loggedInSocialWorker);
 
         List<Long> elderlyIds = elderlyRepository.findByNursingInstitution(institution).stream()
                 .map(Elderly::getId)
@@ -219,7 +215,7 @@ public class SocialWorkerService {
     }
 
     @Transactional
-    public void leave(HttpServletResponse response) {
+    public void deleteSocialWorker(HttpServletResponse response) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         AssociationRank rank = loggedInSocialWorker.getAssociationRank();
         Association association = loggedInSocialWorker.getAssociation();

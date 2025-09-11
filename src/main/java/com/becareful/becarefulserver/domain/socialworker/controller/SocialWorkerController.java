@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/socialworker")
+@RequestMapping("/socialworker") // TODO : social-worker 로 수정
 @Tag(name = "Social Worker", description = "사회복지사 관련 API 입니다.")
 public class SocialWorkerController {
 
@@ -42,6 +42,7 @@ public class SocialWorkerController {
         return ResponseEntity.ok(response);
     }
 
+    // TODO : 요양보호사는 /my 쓰고 있음. 통일 필요
     @Operation(summary = "회원정보 반환", description = "센터장, 대표, 사회복지사 모두 같은 API")
     @GetMapping("/me")
     public ResponseEntity<SocialWorkerMyResponse> getSocialWorkerMyInfo() {
@@ -71,10 +72,11 @@ public class SocialWorkerController {
         return ResponseEntity.ok().build();
     }
 
+    // TODO : 탈퇴 url DELETE /social-worker 로 수정
     @Operation(summary = "탈퇴")
     @DeleteMapping("/leave")
-    public ResponseEntity<Void> leave(HttpServletResponse httpServletResponse) {
-        socialworkerService.leave(httpServletResponse);
+    public ResponseEntity<Void> deleteSocialWorker(HttpServletResponse httpServletResponse) {
+        socialworkerService.deleteSocialWorker(httpServletResponse);
         return ResponseEntity.ok().build();
     }
 }

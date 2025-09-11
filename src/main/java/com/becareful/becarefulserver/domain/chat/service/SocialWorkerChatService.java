@@ -29,9 +29,7 @@ public class SocialWorkerChatService {
     private final ContractRepository contractRepository;
     private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
-    private final SocialWorkerRepository socialWorkerRepository;
     private final SocialWorkerChatReadStatusRepository chatReadStatusRepository;
-    private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
 
     public List<SocialWorkerChatroomResponse> getChatList() {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
@@ -106,7 +104,7 @@ public class SocialWorkerChatService {
     // TODO(계약서 조율하기 채팅 엔티티 추가시 코드 수정)
     public boolean checkNewChat() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        return socialWorkerChatReadStatusRepository.existsUnreadContract(loggedInSocialWorker);
+        return chatReadStatusRepository.existsUnreadContract(loggedInSocialWorker);
     }
 
     @Transactional
