@@ -15,12 +15,8 @@ import com.becareful.becarefulserver.global.exception.exception.ElderlyException
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import com.becareful.becarefulserver.global.util.FileUtil;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.EnumSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -122,22 +118,12 @@ public class ElderlyService {
     public ElderlyProfileUploadResponse uploadProfileImage(MultipartFile file) {
         authUtil.getLoggedInSocialWorker();
         try {
-            String fileName = generateProfileImageFileName(
+            String fileName = fileUtil.generateProfileImageFileNameWithSource(
                     DateTimeFormatter.ofPattern("yyyyMMddHHmmssnn").format(LocalDateTime.now()));
             String profileImageUrl = fileUtil.upload(file, "profile-image", fileName);
             return new ElderlyProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
             throw new ElderlyException(ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE);
-        }
-    }
-
-    private String generateProfileImageFileName(String source) {
-        try {
-            var md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(source.getBytes(StandardCharsets.UTF_8));
-            return Base64.getUrlEncoder().encodeToString(hash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new ElderlyException(ELDERLY_FAILED_TO_CREATE_PROFILE_IMAGE_NAME);
         }
     }
 }

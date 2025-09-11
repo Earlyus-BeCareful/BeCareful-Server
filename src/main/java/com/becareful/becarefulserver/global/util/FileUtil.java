@@ -35,10 +35,20 @@ public class FileUtil {
         return baseUrl + key;
     }
 
-    public String generateProfileImageFileName() {
+    public String generateRandomProfileImageFileName() {
         try {
             var md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
+            return Base64.getUrlEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new CaregiverException(FAILED_TO_UPLOAD_PROFILE_IMAGE);
+        }
+    }
+
+    public String generateProfileImageFileNameWithSource(String source) {
+        try {
+            var md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(source.getBytes(StandardCharsets.UTF_8));
             return Base64.getUrlEncoder().encodeToString(hash);
         } catch (NoSuchAlgorithmException e) {
             throw new CaregiverException(FAILED_TO_UPLOAD_PROFILE_IMAGE);

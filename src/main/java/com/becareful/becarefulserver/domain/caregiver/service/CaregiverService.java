@@ -134,7 +134,7 @@ public class CaregiverService {
     @Transactional
     public CaregiverProfileUploadResponse uploadProfileImage(MultipartFile file) {
         try {
-            String fileName = fileUtil.generateProfileImageFileName();
+            String fileName = fileUtil.generateRandomProfileImageFileName();
             String profileImageUrl = fileUtil.upload(file, "profile-image", fileName);
             return new CaregiverProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
