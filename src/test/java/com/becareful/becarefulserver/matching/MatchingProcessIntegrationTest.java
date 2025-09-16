@@ -28,7 +28,6 @@ import com.becareful.becarefulserver.domain.matching.repository.ContractReposito
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.matching.service.CaregiverMatchingService;
-import com.becareful.becarefulserver.domain.matching.service.ContractService;
 import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
@@ -63,9 +62,6 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
 
     @Autowired
     private RecruitmentRepository recruitmentRepository;
-
-    @Autowired
-    private ContractService contractService;
 
     @Autowired
     private ContractRepository contractRepository;
@@ -146,7 +142,7 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 .orElseThrow();
         assertThat(applied.isApplicationReviewing()).isTrue();
 
-        contractService.createContract(applied, LocalDate.now());
+        socialWorkerMatchingService.propose(applied.getId(), LocalDate.now());
         Contract firstContract = contractRepository
                 .findTop1ByMatchingOrderByCreateDateDesc(matching)
                 .orElseThrow();
