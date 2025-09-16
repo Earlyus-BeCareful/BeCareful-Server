@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.chat.dto.response;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.chat.dto.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
@@ -7,7 +8,7 @@ import com.becareful.becarefulserver.domain.nursing_institution.dto.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import java.util.*;
 
-public record ChatroomContentResponse(
+public record ChatRoomDetailResponse(
         Long matchingId,
         Long recruitmentId,
         ElderlySimpleDto elderlyInfo,
@@ -16,26 +17,18 @@ public record ChatroomContentResponse(
         CaregiverContractInfoDto caregiverContractInfo,
         List<ContractDto> contractList) {
 
-    public static ChatroomContentResponse of(
-            Matching matching,
-            String caregiverName,
-            Integer caregiverAge,
-            String caregiverPhoneNumber,
-            List<Contract> contractList) {
+    public static ChatRoomDetailResponse of(Matching matching, List<Contract> contractList) {
         Elderly elderly = matching.getRecruitment().getElderly();
+        Caregiver caregiver = matching.getWorkApplication().getCaregiver();
 
-        CaregiverSimpleDto caregiverDto = null;
-        if (matching.getWorkApplication() != null) {
-            caregiverDto = CaregiverSimpleDto.from(matching.getWorkApplication().getCaregiver());
-        }
-
-        return new ChatroomContentResponse(
+        return new ChatRoomDetailResponse(
                 matching.getId(),
-                matching.getRecruitment().getId(),
+                matching.getRecruitment()
+                        .getId(), // TODO : recruitment id, elderly info, institution info 를 recruitment info 로 통합
                 ElderlySimpleDto.from(elderly),
                 InstitutionSimpleDto.from(elderly.getNursingInstitution()),
-                caregiverDto,
-                CaregiverContractInfoDto.of(caregiverName, caregiverAge, caregiverPhoneNumber),
+                matching.getWorkApplication() != null ? CaregiverSimpleDto.from(caregiver) : null,
+                CaregiverContractInfoDto.from(caregiver), // TODO : caregvier simple dto 와 통합
                 contractList.stream().map(ContractDto::from).toList());
     }
 }

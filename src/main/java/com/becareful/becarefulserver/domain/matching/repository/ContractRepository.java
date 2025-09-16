@@ -7,7 +7,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ContractRepository extends JpaRepository<Contract, Long> {
-    List<Contract> findByMatchingIdOrderByCreateDateAsc(Long matchingId);
+
+    List<Contract> findByMatchingOrderByCreateDateAsc(Matching matching);
 
     Optional<Contract> findTop1ByMatchingOrderByCreateDateDesc(Matching matching);
 }

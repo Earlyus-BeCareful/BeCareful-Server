@@ -162,7 +162,7 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 LocalDate.now(),
                 List.of(CareType.식사보조));
         socialWorkerChatService.editContract(editRequest);
-        List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matching.getId());
+        List<Contract> contracts = contractRepository.findByMatchingOrderByCreateDateAsc(matching);
         Contract edited = contracts.get(contracts.size() - 1);
         assertThat(edited.getWorkSalaryAmount()).isEqualTo(12000);
 

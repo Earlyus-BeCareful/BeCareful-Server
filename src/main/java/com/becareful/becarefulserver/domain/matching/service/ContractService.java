@@ -38,8 +38,8 @@ public class ContractService {
         if (workApplication == null) {
             throw new ContractException(ErrorMessage.CONTRACT_CAREGIVER_NOT_EXISTS);
         }
-        Caregiver caregiver = workApplication.getCaregiver();
-        Contract contract = Contract.create(matching, matching.getRecruitment(), caregiver, workStartDate);
+
+        Contract contract = Contract.create(matching, matching.getRecruitment(), workStartDate);
         contractRepository.save(contract);
     }
 }

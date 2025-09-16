@@ -45,25 +45,17 @@ public class CaregiverChatService {
     }
 
     @Transactional
-    public ChatroomContentResponse getChatRoomDetailData(Long matchingId) {
+    public ChatRoomDetailResponse getChatRoomDetail(Long matchingId) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
         Matching matching =
                 matchingRepository.findById(matchingId).orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
-
         matching.validateCaregiver(caregiver.getId());
 
-        List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matchingId);
-
-        String caregiverName = caregiver.getName();
-
-        Integer caregiverAge =
-                Period.between(caregiver.getBirthDate(), LocalDate.now()).getYears();
-
-        String caregiverPhoneNumber = caregiver.getPhoneNumber();
         updateReadStatus(caregiver, matching);
 
-        return ChatroomContentResponse.of(matching, caregiverName, caregiverAge, caregiverPhoneNumber, contracts);
+        List<Contract> contracts = contractRepository.findByMatchingOrderByCreateDateAsc(matching);
+        return ChatRoomDetailResponse.of(matching, contracts);
     }
 
     @Transactional
