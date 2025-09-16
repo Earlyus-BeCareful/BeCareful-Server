@@ -29,10 +29,6 @@ public class Contract extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Matching matching;
 
-    private String caregiverName;
-    private LocalDate caregiverBirthDate;
-    private String caregiverPhoneNumber;
-
     @Convert(converter = DayOfWeekSetConverter.class)
     private EnumSet<DayOfWeek> workDays;
 
@@ -49,9 +45,6 @@ public class Contract extends BaseEntity {
     @Builder(access = AccessLevel.PRIVATE)
     private Contract(
             Matching matching,
-            String caregiverName,
-            LocalDate caregiverBirthDate,
-            String caregiverPhoneNumber,
             EnumSet<DayOfWeek> workDays,
             LocalTime workStartTime,
             LocalTime workEndTime,
@@ -69,13 +62,10 @@ public class Contract extends BaseEntity {
         this.careTypes = careTypes;
     }
 
-    public static Contract create(
-            Matching matching, Recruitment recruitment, Caregiver caregiver, LocalDate workStartDate) {
+    public static Contract create(Matching matching, LocalDate workStartDate) {
+        Recruitment recruitment = matching.getRecruitment();
         return Contract.builder()
                 .matching(matching)
-                .caregiverName(caregiver.getName())
-                .caregiverBirthDate(workStartDate)
-                .caregiverPhoneNumber(caregiver.getPhoneNumber())
                 .workDays(recruitment.getWorkDays())
                 .workStartTime(recruitment.getWorkStartTime())
                 .workEndTime(recruitment.getWorkEndTime())
@@ -88,7 +78,6 @@ public class Contract extends BaseEntity {
 
     public static Contract edit(
             Matching matching,
-            Caregiver caregiver,
             EnumSet<DayOfWeek> workDays,
             LocalTime workStartTime,
             LocalTime workEndTime,
@@ -98,9 +87,6 @@ public class Contract extends BaseEntity {
             EnumSet<CareType> careTypes) {
         return Contract.builder()
                 .matching(matching)
-                .caregiverName(caregiver.getName())
-                .caregiverBirthDate(workStartDate)
-                .caregiverPhoneNumber(caregiver.getPhoneNumber())
                 .workDays(workDays)
                 .workStartTime(workStartTime)
                 .workEndTime(workEndTime)

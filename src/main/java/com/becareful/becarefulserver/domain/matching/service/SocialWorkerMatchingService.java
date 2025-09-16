@@ -8,7 +8,6 @@ import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.repository.*;
-import com.becareful.becarefulserver.domain.chat.service.*;
 import com.becareful.becarefulserver.domain.common.domain.vo.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.vo.*;
@@ -30,7 +29,7 @@ import org.springframework.transaction.annotation.*;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class MatchingService {
+public class SocialWorkerMatchingService {
 
     private final AuthUtil authUtil;
     private final MatchingRepository matchingRepository;
@@ -41,8 +40,7 @@ public class MatchingService {
     private final CareerRepository careerRepository;
     private final CaregiverRepository caregiverRepository;
     private final CareerDetailRepository careerDetailRepository;
-    private final CaregiverChatService caregiverChatService;
-    private final ContractService contractService;
+    private final ContractRepository contractRepository;
     private final SocialWorkerRepository socialWorkerRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
@@ -73,116 +71,6 @@ public class MatchingService {
         List<CareerDetail> careerDetails = careerDetailRepository.findAllByCareer(career);
 
         return MatchingCaregiverDetailResponse.of(matching, career, careerDetails, locations);
-    }
-
-    public List<RecruitmentListItemResponse> getCaregiverMatchingRecruitmentList() {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        return workApplicationRepository
-                .findByCaregiver(caregiver)
-                .map(workApplication ->
-                        matchingRepository.findAllByCaregiverAndApplicationStatus(caregiver, 미지원).stream()
-                                .map(RecruitmentListItemResponse::from)
-                                .toList())
-                .orElse(null);
-    }
-
-    public RecruitmentDetailResponse getRecruitmentDetail(Long recruitmentId) {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Matching matching = matchingRepository
-                .findByCaregiverAndRecruitmentId(caregiver, recruitmentId)
-                .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
-
-        boolean hasNewChat = caregiverChatService.checkNewChat(caregiver);
-
-        // TODO : recruit 매칭 적합도 및 태그 부여 판단
-        return RecruitmentDetailResponse.from(matching, false, false, hasNewChat);
-    }
-
-    public CaregiverAppliedMatchingRecruitmentsResponse getMyRecruitment(
-            MatchingApplicationStatus matchingApplicationStatus) {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
-
-        List<CaregiverAppliedMatchingRecruitmentsResponse.Item> recruitments = workApplicationRepository
-                .findByCaregiver(caregiver)
-                .map(
-                        workApplication -> matchingRepository
-                                .findByWorkApplicationAndMatchingApplicationStatus(
-                                        workApplication, matchingApplicationStatus)
-                                .stream()
-                                .map(CaregiverAppliedMatchingRecruitmentsResponse.Item::from)
-                                .toList())
-                .orElse(List.of());
-        boolean hasNewChat = caregiverChatService.checkNewChat(caregiver);
-        return CaregiverAppliedMatchingRecruitmentsResponse.of(recruitments, hasNewChat);
-    }
-
-    public CaregiverAppliedMatchingDetailResponse getMyRecruitmentDetail(Long recruitmentId) {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Recruitment recruitment = recruitmentRepository
-                .findById(recruitmentId)
-                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        WorkApplication workApplication = workApplicationRepository
-                .findByCaregiver(caregiver)
-                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
-
-        Matching matching = matchingRepository
-                .findByWorkApplicationAndRecruitment(workApplication, recruitment)
-                .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
-
-        boolean hasNewChat = caregiverChatService.checkNewChat(caregiver);
-
-        return CaregiverAppliedMatchingDetailResponse.of(matching, false, false, hasNewChat);
-    }
-
-    @Transactional
-    public void mediateMatching(Long recruitmentId, RecruitmentMediateRequest request) {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Recruitment recruitment = recruitmentRepository
-                .findById(recruitmentId)
-                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        WorkApplication workApplication = workApplicationRepository
-                .findByCaregiver(caregiver)
-                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
-
-        Matching matching = matchingRepository
-                .findByWorkApplicationAndRecruitment(workApplication, recruitment)
-                .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
-
-        matching.mediate(request);
-    }
-
-    @Transactional
-    public void rejectMatching(Long recruitmentId) {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Recruitment recruitment = recruitmentRepository
-                .findById(recruitmentId)
-                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        WorkApplication workApplication = workApplicationRepository
-                .findByCaregiver(caregiver)
-                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
-
-        Matching matching = matchingRepository
-                .findByWorkApplicationAndRecruitment(workApplication, recruitment)
-                .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
-
-        matching.reject();
-    }
-
-    @Transactional
-    public void applyRecruitment(Long recruitmentId) {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Recruitment recruitment = recruitmentRepository
-                .findById(recruitmentId)
-                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        WorkApplication workApplication = workApplicationRepository
-                .findByCaregiver(caregiver)
-                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
-
-        Matching matching = matchingRepository
-                .findByWorkApplicationAndRecruitment(workApplication, recruitment)
-                .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
-
-        matching.apply();
     }
 
     @Transactional
@@ -268,15 +156,19 @@ public class MatchingService {
     }
 
     @Transactional
-    public void hire(Long matchingId, LocalDate workStartDate) {
+    public void propose(Long matchingId, LocalDate workStartDate) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
         Matching matching = matchingRepository
                 .findByIdWithRecruitment(matchingId)
                 .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
 
+        matching.propose();
+
         initChatReadStatuses(matching, socialworker);
-        contractService.createContract(matching, workStartDate);
+
+        Contract contract = Contract.create(matching, workStartDate);
+        contractRepository.save(contract);
     }
 
     private void initChatReadStatuses(Matching matching, SocialWorker loggedInSocialWorker) {

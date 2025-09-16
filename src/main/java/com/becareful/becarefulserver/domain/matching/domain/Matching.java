@@ -86,6 +86,7 @@ public class Matching extends BaseEntity {
                 .matchingResultInfo(calculateMatchingRate(recruitment, application, locations))
                 .build();
     }
+
     /**
      * Get Method
      */
@@ -94,7 +95,7 @@ public class Matching extends BaseEntity {
     }
 
     public boolean isApplicationPassed() {
-        return matchingApplicationStatus.equals(MatchingApplicationStatus.합격);
+        return matchingApplicationStatus.equals(MatchingApplicationStatus.근무제안);
     }
 
     public boolean isApplicationRefused() {
@@ -112,7 +113,7 @@ public class Matching extends BaseEntity {
 
     public void reject() {
         validateMatchingUpdatable();
-        this.matchingApplicationStatus = MatchingApplicationStatus.매칭거절;
+        this.matchingApplicationStatus = MatchingApplicationStatus.매칭거부;
     }
 
     public void mediate(RecruitmentMediateRequest request) {
@@ -123,13 +124,22 @@ public class Matching extends BaseEntity {
         this.mediationDescription = request.mediationDescription();
     }
 
-    public void hire() {
-        this.matchingApplicationStatus = MatchingApplicationStatus.합격;
+    public void propose() {
+        this.matchingApplicationStatus = MatchingApplicationStatus.근무제안;
     }
 
     public void failed() {
         validateMatchingFailable();
         this.matchingApplicationStatus = MatchingApplicationStatus.지원거절;
+    }
+
+    public void confirm() {
+        this.matchingApplicationStatus = MatchingApplicationStatus.계약완료;
+        this.recruitment.complete();
+    }
+
+    public void rejectContract() {
+        this.matchingApplicationStatus = MatchingApplicationStatus.계약거절;
     }
 
     public MatchingResultStatus getMatchingResultStatus() {
@@ -155,13 +165,6 @@ public class Matching extends BaseEntity {
             return;
         }
         throw new MatchingException(MATCHING_CAREGIVER_DIFFERENT);
-    }
-
-    public void validateSocialWorker(Long socialWorkerId) {
-        if (workApplication.getCaregiver().getId().equals(socialWorkerId)) {
-            return;
-        }
-        throw new MatchingException(MATCHING_SOCIAL_WORKER_DIFFERENT);
     }
 
     /**

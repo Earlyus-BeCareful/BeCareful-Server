@@ -3,10 +3,10 @@ package com.becareful.becarefulserver.domain.matching.controller;
 import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingRecruitmentsResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedRecruitmentsResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentListItemResponse;
-import com.becareful.becarefulserver.domain.matching.service.MatchingService;
+import com.becareful.becarefulserver.domain.matching.service.CaregiverMatchingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Caregiver Matching", description = "요양보호사가 사용하는 매칭 공고 관련 API 입니다.")
 public class CaregiverMatchingController {
 
-    private final MatchingService matchingService;
+    private final CaregiverMatchingService caregiverMatchingService;
 
     @Operation(summary = "매칭 공고 리스트 조회 (요양보호사 일자리 리스트 조회)")
     @GetMapping("/list")
     public ResponseEntity<List<RecruitmentListItemResponse>> getCaregiverMatchingRecruitmentList() {
-        var responses = matchingService.getCaregiverMatchingRecruitmentList();
+        var responses = caregiverMatchingService.getCaregiverMatchingRecruitmentList();
         return ResponseEntity.ok(responses);
     }
 
@@ -39,21 +39,21 @@ public class CaregiverMatchingController {
     @GetMapping("/recruitment/{recruitmentId}")
     public ResponseEntity<RecruitmentDetailResponse> getRecruitmentDetail(
             @PathVariable("recruitmentId") Long recruitmentId) {
-        var response = matchingService.getRecruitmentDetail(recruitmentId);
+        var response = caregiverMatchingService.getRecruitmentDetail(recruitmentId);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "매칭 공고 지원 (요양보호사 일자리 지원)")
     @PostMapping("/recruitment/{recruitmentId}/apply")
     public ResponseEntity<Void> applyRecruitment(@PathVariable("recruitmentId") Long recruitmentId) {
-        matchingService.applyRecruitment(recruitmentId);
+        caregiverMatchingService.applyRecruitment(recruitmentId);
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "매칭 공고 거절 (요양보호사 일자리 거절)")
+    @Operation(summary = "매칭 공고 거부 (요양보호사 일자리 거부)")
     @PostMapping("/recruitment/{recruitmentId}/reject")
     public ResponseEntity<Void> rejectMatching(@PathVariable("recruitmentId") Long recruitmentId) {
-        matchingService.rejectMatching(recruitmentId);
+        caregiverMatchingService.rejectMatching(recruitmentId);
         return ResponseEntity.ok().build();
     }
 
@@ -61,7 +61,7 @@ public class CaregiverMatchingController {
     @PostMapping("/recruitment/{recruitmentId}/mediate")
     public ResponseEntity<Void> mediateMatching(
             @PathVariable("recruitmentId") Long recruitmentId, @RequestBody RecruitmentMediateRequest request) {
-        matchingService.mediateMatching(recruitmentId, request);
+        caregiverMatchingService.mediateMatching(recruitmentId, request);
         return ResponseEntity.ok().build();
     }
 
@@ -70,10 +70,10 @@ public class CaregiverMatchingController {
             description =
                     "일자리 신청서가 없거나, 지원 내역이 없다면 빈 리스트를 응답합니다. '거절'은 요양보호사가 지원 거절한 경우이므로, 관리자가 거절한 경우에는 '불합격' 상태로 조회해야 합니다.")
     @GetMapping("/my/recruitment")
-    public ResponseEntity<CaregiverAppliedMatchingRecruitmentsResponse> getMyRecruitment(
+    public ResponseEntity<CaregiverAppliedRecruitmentsResponse> getMyRecruitment(
             @RequestParam("matchingApplicationStatus") MatchingApplicationStatus matchingApplicationStatus) {
-        CaregiverAppliedMatchingRecruitmentsResponse response =
-                matchingService.getMyRecruitment(matchingApplicationStatus);
+        CaregiverAppliedRecruitmentsResponse response =
+                caregiverMatchingService.getMyAppliedRecruitment(matchingApplicationStatus);
         return ResponseEntity.ok(response);
     }
 
@@ -84,7 +84,7 @@ public class CaregiverMatchingController {
     @GetMapping("/my/recruitment/{recruitmentId}")
     public ResponseEntity<CaregiverAppliedMatchingDetailResponse> getMyRecruitmentDetail(
             @PathVariable("recruitmentId") Long recruitmentId) {
-        CaregiverAppliedMatchingDetailResponse response = matchingService.getMyRecruitmentDetail(recruitmentId);
+        var response = caregiverMatchingService.getMyAppliedRecruitmentDetail(recruitmentId);
         return ResponseEntity.ok(response);
     }
 }

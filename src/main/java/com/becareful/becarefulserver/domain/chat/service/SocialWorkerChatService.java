@@ -11,7 +11,6 @@ import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
-import com.becareful.becarefulserver.domain.socialworker.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
 import java.time.*;
@@ -49,24 +48,15 @@ public class SocialWorkerChatService {
     }
 
     @Transactional
-    public ChatroomContentResponse getChatRoomDetailData(Long matchingId) {
+    public ChatRoomDetailResponse getChatRoomDetailData(Long matchingId) {
         SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
         Matching matching =
                 matchingRepository.findById(matchingId).orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
 
-        List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matchingId);
-
-        Contract contract = contracts.get(0);
-        String caregiverName = contract.getCaregiverName();
-
-        Integer caregiverAge = Period.between(contract.getCaregiverBirthDate(), LocalDate.now())
-                .getYears();
-
-        String caregiverPhoneNumber = contract.getCaregiverPhoneNumber();
-
         updateReadStatus(socialWorker, matching);
 
-        return ChatroomContentResponse.of(matching, caregiverName, caregiverAge, caregiverPhoneNumber, contracts);
+        List<Contract> contracts = contractRepository.findByMatchingOrderByCreateDateAsc(matching);
+        return ChatRoomDetailResponse.of(matching, contracts);
     }
 
     // 직전 계약서 내용 불러오기
@@ -86,10 +76,9 @@ public class SocialWorkerChatService {
         if (workApplication == null) {
             throw new ContractException(CONTRACT_CAREGIVER_NOT_EXISTS);
         }
-        Caregiver caregiver = workApplication.getCaregiver();
+
         Contract contract = Contract.edit(
                 matching,
-                caregiver,
                 EnumSet.copyOf(request.workDays()),
                 request.workStartTime(),
                 request.workEndTime(),

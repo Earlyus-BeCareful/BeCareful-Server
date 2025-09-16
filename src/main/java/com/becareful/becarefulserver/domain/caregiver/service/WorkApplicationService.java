@@ -11,6 +11,7 @@ import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicatio
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
+import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.chat.service.*;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
@@ -38,12 +39,12 @@ public class WorkApplicationService {
     private final MatchingRepository matchingRepository;
     private final AuthUtil authUtil;
     private final RecruitmentRepository recruitmentRepository;
-    private final CaregiverChatService caregiverChatService;
+    private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
 
     public CaregiverMyWorkApplicationPageResponse getMyWorkApplicationPageInfo() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
-        boolean hasNewChat = caregiverChatService.checkNewChat(caregiver);
+        boolean hasNewChat = caregiverChatReadStatusRepository.existsUnreadContract(caregiver);
         WorkApplicationDto workApplicationDto = workApplicationRepository
                 .findByCaregiver(caregiver)
                 .map(workApplication -> {

@@ -27,8 +27,8 @@ import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchin
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
-import com.becareful.becarefulserver.domain.matching.service.ContractService;
-import com.becareful.becarefulserver.domain.matching.service.MatchingService;
+import com.becareful.becarefulserver.domain.matching.service.CaregiverMatchingService;
+import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
@@ -55,16 +55,13 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
     private ElderlyRepository elderlyRepository;
 
     @Autowired
-    private MatchingService matchingService;
+    private SocialWorkerMatchingService socialWorkerMatchingService;
 
     @Autowired
     private MatchingRepository matchingRepository;
 
     @Autowired
     private RecruitmentRepository recruitmentRepository;
-
-    @Autowired
-    private ContractService contractService;
 
     @Autowired
     private ContractRepository contractRepository;
@@ -77,6 +74,9 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
 
     @Autowired
     private CompletedMatchingRepository completedMatchingRepository;
+
+    @Autowired
+    private CaregiverMatchingService caregiverMatchingService;
 
     @Test
     @WithCaregiver(phoneNumber = "01099990000")
@@ -127,7 +127,7 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 WorkSalaryUnitType.DAY,
                 10000,
                 "desc");
-        Long recruitmentId = matchingService.createRecruitment(recruitmentRequest);
+        Long recruitmentId = socialWorkerMatchingService.createRecruitment(recruitmentRequest);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow();
         WorkApplication workApp =
@@ -136,13 +136,13 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 .findByWorkApplicationAndRecruitment(workApp, recruitment)
                 .orElseThrow();
 
-        matchingService.applyRecruitment(recruitmentId);
+        caregiverMatchingService.applyRecruitment(recruitmentId);
         Matching applied = matchingRepository
                 .findByIdWithRecruitmentAndWorkApplicationAndCaregiver(matching.getId())
                 .orElseThrow();
         assertThat(applied.isApplicationReviewing()).isTrue();
 
-        contractService.createContract(applied, LocalDate.now());
+        socialWorkerMatchingService.propose(applied.getId(), LocalDate.now());
         Contract firstContract = contractRepository
                 .findTop1ByMatchingOrderByCreateDateDesc(matching)
                 .orElseThrow();
@@ -158,7 +158,7 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 LocalDate.now(),
                 List.of(CareType.식사보조));
         socialWorkerChatService.editContract(editRequest);
-        List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matching.getId());
+        List<Contract> contracts = contractRepository.findByMatchingOrderByCreateDateAsc(matching);
         Contract edited = contracts.get(contracts.size() - 1);
         assertThat(edited.getWorkSalaryAmount()).isEqualTo(12000);
 

@@ -59,7 +59,7 @@ public class DatabaseCleaner {
                 "nickname",
                 LocalDate.of(2000, 5, 9),
                 Gender.FEMALE,
-                "010-1234-5678",
+                "01099990000",
                 InstitutionRank.SOCIAL_WORKER,
                 AssociationRank.MEMBER,
                 true,

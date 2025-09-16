@@ -4,7 +4,7 @@ import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
 import java.util.*;
 
-public record CaregiverAppliedMatchingRecruitmentsResponse(List<Item> recruitments, boolean hasNewChat) {
+public record CaregiverAppliedRecruitmentsResponse(List<Item> recruitments, boolean hasNewChat) {
     public record Item(
             RecruitmentListItemResponse recruitmentInfo, MatchingApplicationStatus matchingApplicationStatus) {
         public static Item from(Matching matching) {
@@ -12,7 +12,7 @@ public record CaregiverAppliedMatchingRecruitmentsResponse(List<Item> recruitmen
         }
     }
 
-    public static CaregiverAppliedMatchingRecruitmentsResponse of(List<Item> recruitments, boolean hasNewChat) {
-        return new CaregiverAppliedMatchingRecruitmentsResponse(recruitments, hasNewChat);
+    public static CaregiverAppliedRecruitmentsResponse of(List<Item> recruitments, boolean hasNewChat) {
+        return new CaregiverAppliedRecruitmentsResponse(recruitments, hasNewChat);
     }
 }

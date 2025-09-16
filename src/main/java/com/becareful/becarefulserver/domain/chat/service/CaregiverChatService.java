@@ -30,7 +30,7 @@ public class CaregiverChatService {
     public List<CaregiverChatroomResponse> getChatList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         List<Matching> matchingList =
-                matchingRepository.findAllByCaregiverAndApplicationStatus(caregiver, MatchingApplicationStatus.합격);
+                matchingRepository.findAllByCaregiverAndApplicationStatus(caregiver, MatchingApplicationStatus.근무제안);
 
         List<CaregiverChatroomResponse> responses = new ArrayList<>();
         matchingList.forEach(matching -> {
@@ -45,25 +45,17 @@ public class CaregiverChatService {
     }
 
     @Transactional
-    public ChatroomContentResponse getChatRoomDetailData(Long matchingId) {
+    public ChatRoomDetailResponse getChatRoomDetail(Long matchingId) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
         Matching matching =
                 matchingRepository.findById(matchingId).orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
-
         matching.validateCaregiver(caregiver.getId());
 
-        List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matchingId);
-
-        String caregiverName = caregiver.getName();
-
-        Integer caregiverAge =
-                Period.between(caregiver.getBirthDate(), LocalDate.now()).getYears();
-
-        String caregiverPhoneNumber = caregiver.getPhoneNumber();
         updateReadStatus(caregiver, matching);
 
-        return ChatroomContentResponse.of(matching, caregiverName, caregiverAge, caregiverPhoneNumber, contracts);
+        List<Contract> contracts = contractRepository.findByMatchingOrderByCreateDateAsc(matching);
+        return ChatRoomDetailResponse.of(matching, contracts);
     }
 
     @Transactional
@@ -72,17 +64,23 @@ public class CaregiverChatService {
         Contract contract =
                 contractRepository.findById(contractId).orElseThrow(() -> new ContractException(CONTRACT_NOT_EXISTS));
 
+        Matching matching = contract.getMatching();
+        matching.confirm();
+
+        Recruitment recruitment = matching.getRecruitment();
+        matchingRepository.findAllByRecruitment(recruitment).forEach(otherMatching -> {
+            switch (otherMatching.getMatchingApplicationStatus()) {
+                case 지원검토중 -> otherMatching.failed();
+                case 미지원 -> matchingRepository.delete(otherMatching);
+                case 근무제안 -> otherMatching.rejectContract();
+            }
+        });
+
         CompletedMatching completedMatching = new CompletedMatching(loggedInCaregiver, contract);
         completedMatchingRepository.save(completedMatching);
     }
 
-    // TODO(계약서 조율하기 채팅 엔티티 추가시 코드 수정)
-    public boolean checkNewChat(Caregiver caregiver) {
-        return chatReadStatusRepository.existsUnreadContract(caregiver);
-    }
-
-    @Transactional
-    public void updateReadStatus(Caregiver caregiver, Matching matching) {
+    private void updateReadStatus(Caregiver caregiver, Matching matching) {
         CaregiverChatReadStatus readStatus = chatReadStatusRepository
                 .findByCaregiverAndMatching(caregiver, matching)
                 .orElseThrow(() -> new ChatException(CAREGIVER_CHAT_READ_STATUS_NOT_EXISTS));
