@@ -1,6 +1,5 @@
 package com.becareful.becarefulserver.domain.matching.domain;
 
-
 /**
  * - '미지원'    - 매칭 생성시 초기 상태
  * - '매칭거부'  - 요양보호사가 보고싶지 않은 공고를 삭제한 경우
