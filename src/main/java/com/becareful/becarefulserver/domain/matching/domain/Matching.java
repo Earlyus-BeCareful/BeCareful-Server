@@ -86,6 +86,7 @@ public class Matching extends BaseEntity {
                 .matchingResultInfo(calculateMatchingRate(recruitment, application, locations))
                 .build();
     }
+
     /**
      * Get Method
      */

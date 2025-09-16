@@ -5,7 +5,6 @@ import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCrea
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusSimpleResponse;
-import com.becareful.becarefulserver.domain.matching.service.ContractService;
 import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 public class SocialWorkerMatchingController {
 
     private final SocialWorkerMatchingService socialWorkerMatchingService;
-    private final ContractService contractService;
 
     @Operation(summary = "매칭 공고 등록")
     @PostMapping("/recruitment")
@@ -58,7 +56,7 @@ public class SocialWorkerMatchingController {
 
     @Operation(summary = "요양보호사에게 근무 제안하기", description = "근무 시작일 선택 후 채팅방 생성")
     @PostMapping("/{matchingId}/propose")
-    public ResponseEntity<Void> hireCaregiver(
+    public ResponseEntity<Void> proposeCaregiver(
             @PathVariable("matchingId") Long matchingId, @RequestParam LocalDate workStartDate) {
         socialWorkerMatchingService.propose(matchingId, workStartDate);
         return ResponseEntity.ok().build();
