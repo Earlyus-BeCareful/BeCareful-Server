@@ -30,7 +30,7 @@ public class CaregiverChatService {
     public List<CaregiverChatroomResponse> getChatList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         List<Matching> matchingList =
-                matchingRepository.findAllByCaregiverAndApplicationStatus(caregiver, MatchingApplicationStatus.합격);
+                matchingRepository.findAllByCaregiverAndApplicationStatus(caregiver, MatchingApplicationStatus.근무제안);
 
         List<CaregiverChatroomResponse> responses = new ArrayList<>();
         matchingList.forEach(matching -> {

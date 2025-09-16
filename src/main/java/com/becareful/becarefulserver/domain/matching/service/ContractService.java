@@ -21,7 +21,7 @@ public class ContractService {
 
     @Transactional
     public void createContract(Matching matching, LocalDate workStartDate) {
-        matching.hire();
+        matching.propose();
 
         Recruitment recruitment = matching.getRecruitment();
         recruitment.complete();

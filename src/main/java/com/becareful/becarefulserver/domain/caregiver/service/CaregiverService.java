@@ -170,7 +170,7 @@ public class CaregiverService {
          * 4. 어떤 상황에서 탈퇴가 가능하고, 탈퇴가 불가능한지
          */
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
-        matchingRepository.deleteAllByCaregiverAndStatusNot(loggedInCaregiver, 합격);
+        matchingRepository.deleteAllByCaregiverAndStatusNot(loggedInCaregiver, 근무제안);
         caregiverRepository.delete(loggedInCaregiver);
         logout(response);
     }
