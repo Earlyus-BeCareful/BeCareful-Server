@@ -8,6 +8,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.vo.*;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.*;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
+import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.chat.service.*;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
@@ -39,17 +40,17 @@ public class CaregiverService {
     private final WorkApplicationWorkLocationRepository workApplicationWorkLocationRepository;
     private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
-    private final CaregiverChatService chatService;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
     private final JwtProperties jwtProperties;
+    private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
-        boolean hasNewChat = chatService.checkNewChat(caregiver);
+        boolean hasNewChat = caregiverChatReadStatusRepository.existsUnreadContract(caregiver);
 
         Optional<WorkApplication> optionalWorkApplication = workApplicationRepository.findByCaregiver(caregiver);
 

@@ -68,11 +68,6 @@ public class CaregiverChatService {
         completedMatchingRepository.save(completedMatching);
     }
 
-    // TODO(계약서 조율하기 채팅 엔티티 추가시 코드 수정)
-    public boolean checkNewChat(Caregiver caregiver) {
-        return chatReadStatusRepository.existsUnreadContract(caregiver);
-    }
-
     @Transactional
     public void updateReadStatus(Caregiver caregiver, Matching matching) {
         CaregiverChatReadStatus readStatus = chatReadStatusRepository
