@@ -40,7 +40,7 @@ public class SocialWorkerMatchingService {
     private final CareerRepository careerRepository;
     private final CaregiverRepository caregiverRepository;
     private final CareerDetailRepository careerDetailRepository;
-    private final ContractService contractService;
+    private final ContractRepository contractRepository;
     private final SocialWorkerRepository socialWorkerRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
@@ -163,8 +163,12 @@ public class SocialWorkerMatchingService {
                 .findByIdWithRecruitment(matchingId)
                 .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
 
+        matching.propose();
+
         initChatReadStatuses(matching, socialworker);
-        contractService.createContract(matching, workStartDate);
+
+        Contract contract = Contract.create(matching, workStartDate);
+        contractRepository.save(contract);
     }
 
     private void initChatReadStatuses(Matching matching, SocialWorker loggedInSocialWorker) {

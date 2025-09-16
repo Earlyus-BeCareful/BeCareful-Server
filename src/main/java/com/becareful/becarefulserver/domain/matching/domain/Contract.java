@@ -62,8 +62,8 @@ public class Contract extends BaseEntity {
         this.careTypes = careTypes;
     }
 
-    public static Contract create(
-            Matching matching, Recruitment recruitment, LocalDate workStartDate) {
+    public static Contract create(Matching matching, LocalDate workStartDate) {
+        Recruitment recruitment = matching.getRecruitment();
         return Contract.builder()
                 .matching(matching)
                 .workDays(recruitment.getWorkDays())

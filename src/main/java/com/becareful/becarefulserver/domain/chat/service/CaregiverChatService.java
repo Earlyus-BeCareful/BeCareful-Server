@@ -64,12 +64,23 @@ public class CaregiverChatService {
         Contract contract =
                 contractRepository.findById(contractId).orElseThrow(() -> new ContractException(CONTRACT_NOT_EXISTS));
 
+        Matching matching = contract.getMatching();
+        matching.confirm();
+
+        Recruitment recruitment = matching.getRecruitment();
+        matchingRepository.findAllByRecruitment(recruitment).forEach(otherMatching -> {
+            switch (otherMatching.getMatchingApplicationStatus()) {
+                case 지원검토중 -> otherMatching.failed();
+                case 미지원 -> matchingRepository.delete(otherMatching);
+                case 근무제안 -> otherMatching.rejectContract();
+            }
+        });
+
         CompletedMatching completedMatching = new CompletedMatching(loggedInCaregiver, contract);
         completedMatchingRepository.save(completedMatching);
     }
 
-    @Transactional
-    public void updateReadStatus(Caregiver caregiver, Matching matching) {
+    private void updateReadStatus(Caregiver caregiver, Matching matching) {
         CaregiverChatReadStatus readStatus = chatReadStatusRepository
                 .findByCaregiverAndMatching(caregiver, matching)
                 .orElseThrow(() -> new ChatException(CAREGIVER_CHAT_READ_STATUS_NOT_EXISTS));

@@ -133,6 +133,15 @@ public class Matching extends BaseEntity {
         this.matchingApplicationStatus = MatchingApplicationStatus.지원거절;
     }
 
+    public void confirm() {
+        this.matchingApplicationStatus = MatchingApplicationStatus.계약완료;
+        this.recruitment.complete();
+    }
+
+    public void rejectContract() {
+        this.matchingApplicationStatus = MatchingApplicationStatus.계약거절;
+    }
+
     public MatchingResultStatus getMatchingResultStatus() {
         return matchingResultInfo.judgeMatchingResultStatus();
     }
@@ -156,13 +165,6 @@ public class Matching extends BaseEntity {
             return;
         }
         throw new MatchingException(MATCHING_CAREGIVER_DIFFERENT);
-    }
-
-    public void validateSocialWorker(Long socialWorkerId) {
-        if (workApplication.getCaregiver().getId().equals(socialWorkerId)) {
-            return;
-        }
-        throw new MatchingException(MATCHING_SOCIAL_WORKER_DIFFERENT);
     }
 
     /**
