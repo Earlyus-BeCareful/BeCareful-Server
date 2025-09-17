@@ -50,7 +50,6 @@ public class ElderlyController {
         return ResponseEntity.created(URI.create("/elderly/" + id)).build();
     }
 
-    // 어르신 수정
     @Operation(summary = "어르신 정보 수정", description = "어르신 정보를 수정하는 API 입니다. 프로필이미지를 기본 이미지로 업데이트 시 반드시 공백 uri을 넣어주세요.")
     @PatchMapping("/update/{elderlyId}") // TODO : URL 변경 (update 제거, PATCH -> PUT)
     public ResponseEntity<Void> updateElderly(

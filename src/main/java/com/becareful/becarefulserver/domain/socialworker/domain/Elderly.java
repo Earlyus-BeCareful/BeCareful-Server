@@ -125,7 +125,7 @@ public class Elderly extends BaseEntity {
 
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = (profileImageUrl == null || profileImageUrl.isBlank())
-                ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
+                ? ELDERLY_DEFAULT_PROFILE_IMAGE_URL
                 : profileImageUrl;
     }
 
