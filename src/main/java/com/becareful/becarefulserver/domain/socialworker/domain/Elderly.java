@@ -13,6 +13,7 @@ import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.EnumSet;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -132,48 +133,66 @@ public class Elderly extends BaseEntity {
         return LocalDate.now().getYear() - birthday.getYear() + 1;
     }
 
-    public void updateName(String name) {
-        if (name != null) this.name = name;
-    }
+    /**
+     * Entity Method
+     */
 
-    public void updateBirthday(LocalDate birthday) {
-        if (birthday != null) this.birthday = birthday;
-    }
+    // TODO : 업데이트 로직을 PUT 방식으로 수정하지 않을 데이터는 기존값을 보내도록 API 명세 수정
+    public void update(
+            String name,
+            LocalDate birthday,
+            Gender gender,
+            Boolean hasInmate,
+            Boolean hasPet,
+            CareLevel careLevel,
+            String siDo,
+            String siGuGun,
+            String eupMyeonDong,
+            String detailAddress,
+            String healthCondition,
+            String profileImageUrl,
+            List<DetailCareType> detailCareTypes) {
 
-    public void updateInmate(Boolean inmate) {
-        if (inmate != null) this.hasInmate = inmate;
-    }
-
-    public void updatePet(Boolean pet) {
-        if (pet != null) this.hasPet = pet;
-    }
-
-    public void updateGender(Gender gender) {
-        if (gender != null) this.gender = gender;
-    }
-
-    public void updateCareLevel(CareLevel careLevel) {
-        if (careLevel != null) this.careLevel = careLevel;
-    }
-
-    public void updateResidentialLocation(String siDo, String siGuGun, String eupMyeonDong) {
-        if (siDo != null || siGuGun != null || eupMyeonDong != null) {
-            this.residentialLocation = Location.of(
-                    siDo != null ? siDo : this.residentialLocation.getSiDo(),
-                    siGuGun != null ? siGuGun : this.residentialLocation.getSiGuGun(),
-                    eupMyeonDong != null ? eupMyeonDong : this.residentialLocation.getEupMyeonDong());
+        if (name != null) {
+            this.name = name;
         }
-    }
 
-    public void updateDetailAddress(String detailAddress) {
-        if (detailAddress != null) this.detailAddress = detailAddress;
-    }
+        if (gender != null) {
+            this.gender = gender;
+        }
 
-    public void updateHealthCondition(String healthCondition) {
-        if (healthCondition != null) this.healthCondition = healthCondition;
-    }
+        if (birthday != null) {
+            this.birthday = birthday;
+        }
 
-    public void updateDetailCareTypes(EnumSet<DetailCareType> detailCareTypes) {
-        if (detailCareTypes != null) this.detailCareTypes = detailCareTypes;
+        if (hasInmate != null) {
+            this.hasInmate = hasInmate;
+        }
+
+        if (hasPet != null) {
+            this.hasPet = hasPet;
+        }
+
+        if (careLevel != null) {
+            this.careLevel = careLevel;
+        }
+
+        if (siDo != null && siGuGun != null && eupMyeonDong != null) {
+            this.residentialLocation = Location.of(siDo, siGuGun, eupMyeonDong);
+        }
+
+        if (detailAddress != null) {
+            this.detailAddress = detailAddress;
+        }
+
+        if (healthCondition != null) {
+            this.healthCondition = healthCondition;
+        }
+
+        updateProfileImageUrl(profileImageUrl);
+
+        if (detailCareTypes != null) {
+            this.detailCareTypes = EnumSet.copyOf(detailCareTypes);
+        }
     }
 }

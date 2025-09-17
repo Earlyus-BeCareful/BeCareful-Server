@@ -60,30 +60,25 @@ public class ElderlyService {
     }
 
     @Transactional
-    public void updateElderly(Long id, ElderlyUpdateRequest request) {
-        Elderly elderly = elderlyRepository.findById(id).orElseThrow(() -> new ElderlyException(ELDERLY_NOT_EXISTS));
+    public void updateElderly(Long elderlyId, ElderlyUpdateRequest request) {
+        authUtil.getLoggedInSocialWorker();
+        Elderly elderly =
+                elderlyRepository.findById(elderlyId).orElseThrow(() -> new ElderlyException(ELDERLY_NOT_EXISTS));
 
-        request.name().ifPresent(elderly::updateName);
-        request.birthday().ifPresent(elderly::updateBirthday);
-        request.inmate().ifPresent(elderly::updateInmate);
-        request.pet().ifPresent(elderly::updatePet);
-        request.gender().ifPresent(elderly::updateGender);
-        request.careLevel().ifPresent(elderly::updateCareLevel);
-        if (request.siDo().isPresent()
-                || request.siGuGun().isPresent()
-                || request.eupMyeonDong().isPresent()) {
-            elderly.updateResidentialLocation(
-                    request.siDo().orElse(null),
-                    request.siGuGun().orElse(null),
-                    request.eupMyeonDong().orElse(null));
-        }
-        request.detailAddress().ifPresent(elderly::updateDetailAddress);
-        request.healthCondition().ifPresent(elderly::updateHealthCondition);
-        request.profileImageUrl().ifPresent(elderly::updateProfileImageUrl);
-        request.detailCareTypeList()
-                .ifPresent(detailCareTypes -> elderly.updateDetailCareTypes(EnumSet.copyOf(detailCareTypes)));
-
-        elderlyRepository.save(elderly);
+        elderly.update(
+                request.name(),
+                request.birthday(),
+                request.gender(),
+                request.inmate(), // TODO : boolean field 에 맞게 네이밍 변경
+                request.pet(),
+                request.careLevel(),
+                request.siDo(), // TODO : Location VO 로 묶기
+                request.siGuGun(),
+                request.eupMyeonDong(),
+                request.detailAddress(),
+                request.healthCondition(),
+                request.profileImageUrl(),
+                request.detailCareTypeList());
     }
 
     public List<ElderlyInfoResponse> getElderlyListBySearch(String searchString) {
