@@ -1,6 +1,5 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
 import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.ELDERLY_DEFAULT_PROFILE_IMAGE_URL;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
