@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.matching.repository;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.matching.domain.CompletedMatching;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
+import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,4 +19,12 @@ public interface CompletedMatchingRepository extends JpaRepository<CompletedMatc
     boolean existsCompletedMatchingByContract(Contract contract);
 
     List<CompletedMatching> findByCaregiver(Caregiver caregiver);
+
+    @Query(
+            """
+        SELECT cm.contract.matching.workApplication.caregiver
+          FROM CompletedMatching cm
+         WHERE cm.contract.matching.recruitment IN :recruitments
+    """)
+    List<Caregiver> findAllByRecruitments(List<Recruitment> recruitments);
 }

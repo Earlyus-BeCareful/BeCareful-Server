@@ -20,6 +20,7 @@ public record SocialWorkerHomeResponse(
             SocialWorker socialWorker,
             boolean hasNewChat,
             Integer elderlyCount,
+            Integer caregiverCount,
             Integer socialWorkerCount,
             List<SocialWorkerSimpleDto> socialWorkerList,
             Integer matchingProcessingCount,
@@ -35,6 +36,7 @@ public record SocialWorkerHomeResponse(
                 .institutionInfo(new InstitutionInfo(
                         socialWorker.getNursingInstitution().getName(),
                         elderlyCount,
+                        caregiverCount,
                         socialWorkerCount,
                         socialWorkerList))
                 .matchingStatistics(
@@ -48,6 +50,7 @@ public record SocialWorkerHomeResponse(
     private record InstitutionInfo(
             String institutionName,
             Integer elderlyCount,
+            Integer caregiverCount,
             Integer socialWorkerCount,
             List<SocialWorkerSimpleDto> socialWorkerList) {}
 

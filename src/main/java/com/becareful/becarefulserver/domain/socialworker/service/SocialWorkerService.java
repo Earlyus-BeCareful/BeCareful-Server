@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
@@ -45,6 +46,7 @@ public class SocialWorkerService {
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
     private final JwtProperties jwtProperties;
+    private final CompletedMatchingRepository completedMatchingRepository;
 
     @Transactional
     public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
@@ -96,7 +98,11 @@ public class SocialWorkerService {
 
         List<Matching> matchingList = matchingRepository.findAllByElderlyIds(elderlyIds);
 
+        List<Caregiver> matchedCaregivers = completedMatchingRepository.findAllByRecruitments(
+                matchingList.stream().map(Matching::getRecruitment).toList());
+
         int elderlyCount = elderlyIds.size();
+        int caregiverCount = matchedCaregivers.size();
         int socialWorkerCount = socialWorkers.size();
         int totalMatchedCount = matchingList.size();
 
@@ -137,7 +143,8 @@ public class SocialWorkerService {
                 loggedInSocialWorker,
                 hasNewChat,
                 elderlyCount,
-                socialWorkerCount, // TODO 요양보호사 숫자로 변경
+                caregiverCount,
+                socialWorkerCount,
                 socialWorkers,
                 reviewingMatchingCount,
                 recentlyMatchedCount,
