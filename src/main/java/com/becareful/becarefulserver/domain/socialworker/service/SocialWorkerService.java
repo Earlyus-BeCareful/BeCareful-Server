@@ -106,7 +106,6 @@ public class SocialWorkerService {
         int elderlyCount = elderlyIds.size();
         int caregiverCount = matchedCaregivers.size();
         int socialWorkerCount = socialWorkers.size();
-        int totalMatchedCount = matchingList.size();
 
         int processingRecruitmentCount = 0;
         int recentlyCompletedCount = 0;
@@ -149,7 +148,7 @@ public class SocialWorkerService {
                 socialWorkers,
                 processingRecruitmentCount,
                 recentlyCompletedCount,
-                totalMatchedCount,
+                wholeCompletedRecruitmentCount,
                 appliedCaregiverCount,
                 wholeCompletedRecruitmentCount == 0
                         ? 0
