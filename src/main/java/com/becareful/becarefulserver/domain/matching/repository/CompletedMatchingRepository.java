@@ -22,7 +22,7 @@ public interface CompletedMatchingRepository extends JpaRepository<CompletedMatc
 
     @Query(
             """
-        SELECT cm.contract.matching.workApplication.caregiver
+        SELECT DISTINCT cm.contract.matching.workApplication.caregiver
           FROM CompletedMatching cm
          WHERE cm.contract.matching.recruitment IN :recruitments
     """)
