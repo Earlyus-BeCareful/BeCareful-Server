@@ -12,7 +12,7 @@ public record SocialWorkerHomeResponse(
         SocialWorkerSimpleDto socialWorkerInfo,
         boolean hasNewChat,
         InstitutionInfo institutionInfo,
-        MatchingStatistics matchingStatistics,
+        RecruitmentStatistics recruitmentStatistics,
         ApplicationStatistics applicationStatistics,
         List<ElderlySimpleDto> matchingElderlyList) {
 
@@ -23,9 +23,9 @@ public record SocialWorkerHomeResponse(
             Integer caregiverCount,
             Integer socialWorkerCount,
             List<SocialWorkerSimpleDto> socialWorkerList,
-            Integer matchingProcessingCount,
-            Integer recentlyMatchedCount,
-            Integer totalMatchedCount,
+            Integer recruitmentProcessingCount,
+            Integer recentlyCompletedCount,
+            Integer totalRecruitmentCompletedCount,
             Integer appliedCaregiverCount,
             Double averageAppliedCaregiver,
             Double averageApplyingRate,
@@ -39,8 +39,8 @@ public record SocialWorkerHomeResponse(
                         caregiverCount,
                         socialWorkerCount,
                         socialWorkerList))
-                .matchingStatistics(
-                        new MatchingStatistics(matchingProcessingCount, recentlyMatchedCount, totalMatchedCount))
+                .recruitmentStatistics(new RecruitmentStatistics(
+                        recruitmentProcessingCount, recentlyCompletedCount, totalRecruitmentCompletedCount))
                 .applicationStatistics(new ApplicationStatistics(
                         appliedCaregiverCount, averageAppliedCaregiver.intValue(), averageApplyingRate.intValue()))
                 .matchingElderlyList(matchingElderlyList)
@@ -54,8 +54,10 @@ public record SocialWorkerHomeResponse(
             Integer socialWorkerCount,
             List<SocialWorkerSimpleDto> socialWorkerList) {}
 
-    private record MatchingStatistics(
-            Integer matchingProcessingCount, Integer recentlyMatchedCount, Integer totalMatchingCompletedCount) {}
+    private record RecruitmentStatistics(
+            Integer recruitmentProcessingCount,
+            Integer recentlyCompletedCount,
+            Integer totalRecruitmentCompletedCount) {}
 
     private record ApplicationStatistics(
             Integer appliedCaregiverCount, Integer averageAppliedCaregiver, Integer averageApplyingRate) {}

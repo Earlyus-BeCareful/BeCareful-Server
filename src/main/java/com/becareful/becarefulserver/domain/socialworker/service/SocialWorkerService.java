@@ -97,36 +97,37 @@ public class SocialWorkerService {
                         .toList();
 
         List<Matching> matchingList = matchingRepository.findAllByElderlyIds(elderlyIds);
+        List<Recruitment> recruitments = matchingRepository.findAllByElderlyIds(elderlyIds).stream()
+                .map(Matching::getRecruitment)
+                .toList();
 
-        List<Caregiver> matchedCaregivers = completedMatchingRepository.findAllByRecruitments(
-                matchingList.stream().map(Matching::getRecruitment).toList());
+        List<Caregiver> matchedCaregivers = completedMatchingRepository.findAllByRecruitments(recruitments);
 
         int elderlyCount = elderlyIds.size();
         int caregiverCount = matchedCaregivers.size();
         int socialWorkerCount = socialWorkers.size();
         int totalMatchedCount = matchingList.size();
 
-        int reviewingMatchingCount = 0;
-        int recentlyMatchedCount = 0;
-        int wholeCompletedMatchingCount = 0;
+        int processingRecruitmentCount = 0;
+        int recentlyCompletedCount = 0;
+        int wholeCompletedRecruitmentCount = 0;
+
+        for (Recruitment recruitment : recruitments) {
+            if (recruitment.isRecruiting()) {
+                processingRecruitmentCount++;
+            } else {
+                if (recruitment.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7))) {
+                    recentlyCompletedCount++;
+                }
+                wholeCompletedRecruitmentCount++;
+            }
+        }
+
         int wholeApplierCountForCompletedRecruitment = 0;
         Set<Long> workApplicationIds = new HashSet<>();
-
         for (Matching matching : matchingList) {
             if (matching.isApplicationReviewing()) {
-                reviewingMatchingCount++;
                 workApplicationIds.add(matching.getWorkApplication().getId());
-            } else if (matching.isApplicationPassed()) {
-                if (matching.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7))) {
-                    recentlyMatchedCount++;
-                }
-            }
-
-            if (!matching.getRecruitment().isRecruiting()) {
-                wholeCompletedMatchingCount++;
-                if (matching.isApplicationPassed() || matching.isApplicationRefused()) {
-                    wholeApplierCountForCompletedRecruitment++;
-                }
             }
         }
 
@@ -146,16 +147,16 @@ public class SocialWorkerService {
                 caregiverCount,
                 socialWorkerCount,
                 socialWorkers,
-                reviewingMatchingCount,
-                recentlyMatchedCount,
+                processingRecruitmentCount,
+                recentlyCompletedCount,
                 totalMatchedCount,
                 appliedCaregiverCount,
-                wholeCompletedMatchingCount == 0
+                wholeCompletedRecruitmentCount == 0
                         ? 0
-                        : (double) wholeApplierCountForCompletedRecruitment / wholeCompletedMatchingCount,
-                wholeCompletedMatchingCount == 0
+                        : (double) wholeApplierCountForCompletedRecruitment / wholeCompletedRecruitmentCount,
+                wholeCompletedRecruitmentCount == 0
                         ? 0
-                        : ((double) wholeApplierCountForCompletedRecruitment / wholeCompletedMatchingCount) * 100,
+                        : ((double) wholeApplierCountForCompletedRecruitment / wholeCompletedRecruitmentCount) * 100,
                 elderlyList);
     }
 
