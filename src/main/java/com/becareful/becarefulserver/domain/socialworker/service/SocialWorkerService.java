@@ -97,9 +97,8 @@ public class SocialWorkerService {
                         .toList();
 
         List<Matching> matchingList = matchingRepository.findAllByElderlyIds(elderlyIds);
-        List<Recruitment> recruitments = matchingRepository.findAllByElderlyIds(elderlyIds).stream()
-                .map(Matching::getRecruitment)
-                .toList();
+        List<Recruitment> recruitments =
+                matchingList.stream().map(Matching::getRecruitment).toList();
 
         List<Caregiver> matchedCaregivers = completedMatchingRepository.findAllByRecruitments(recruitments);
 
