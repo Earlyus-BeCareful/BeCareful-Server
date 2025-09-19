@@ -150,20 +150,19 @@ public class SocialWorkerService {
                 elderlyCount,
                 caregiverCount,
                 socialWorkers,
-                processingRecruitmentCount,         // 진행중인 공고
-                recentlyCompletedCount,             // 최근 일주일 동안 완료된 공고
-                wholeCompletedRecruitmentCount,     // 누적 완료된 공고
-                appliedCaregiverCount,              // 현재 지원한 전체 요양보호사 수
+                processingRecruitmentCount, // 진행중인 공고
+                recentlyCompletedCount, // 최근 일주일 동안 완료된 공고
+                wholeCompletedRecruitmentCount, // 누적 완료된 공고
+                appliedCaregiverCount, // 현재 지원한 전체 요양보호사 수
                 wholeCompletedRecruitmentCount == 0 // 공고당 평균 지원자 수
                         ? 0
                         : (double) wholeApplierCountForCompletedRecruitment / wholeCompletedRecruitmentCount,
                 wholeCompletedRecruitmentCount == 0 // 공고당 매칭 수 대비 평균 지원률
                         ? 0
                         : ((double) wholeApplierCountForCompletedRecruitment / wholeCompletedMatchingCount) * 100,
-                        // TODO : 현재는 전체 매칭 수 대비 지원수를 카운트했지만, 공고당 매칭 수가 다르므로 계산 로직 바꿔야 함.
+                // TODO : 현재는 전체 매칭 수 대비 지원수를 카운트했지만, 공고당 매칭 수가 다르므로 계산 로직 바꿔야 함.
                 elderlyList,
-                hasNewChat
-        );
+                hasNewChat);
     }
 
     public boolean checkSameNickNameAtRegist(String nickName) {

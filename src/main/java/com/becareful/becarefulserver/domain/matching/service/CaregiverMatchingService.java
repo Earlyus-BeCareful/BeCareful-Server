@@ -113,16 +113,14 @@ public class CaregiverMatchingService {
     }
 
     @Transactional(readOnly = true)
-    public CaregiverAppliedRecruitmentsResponse getMyAppliedRecruitment(
-            MatchingStatus matchingStatus) {
+    public CaregiverAppliedRecruitmentsResponse getMyAppliedRecruitment(MatchingStatus matchingStatus) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
         List<CaregiverAppliedRecruitmentsResponse.Item> recruitments = workApplicationRepository
                 .findByCaregiver(caregiver)
-                .map(
-                        workApplication -> matchingRepository
-                                .findByWorkApplicationAndMatchingApplicationStatus(
-                                        workApplication, matchingStatus)
+                .map(workApplication ->
+                        matchingRepository
+                                .findByWorkApplicationAndMatchingApplicationStatus(workApplication, matchingStatus)
                                 .stream()
                                 .map(CaregiverAppliedRecruitmentsResponse.Item::from)
                                 .toList())
