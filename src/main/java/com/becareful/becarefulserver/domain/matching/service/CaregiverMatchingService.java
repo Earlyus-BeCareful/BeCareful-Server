@@ -120,7 +120,7 @@ public class CaregiverMatchingService {
                 .findByCaregiver(caregiver)
                 .map(workApplication ->
                         matchingRepository
-                                .findByWorkApplicationAndMatchingApplicationStatus(workApplication, matchingStatus)
+                                .findByWorkApplicationAndMatchingStatus(workApplication, matchingStatus)
                                 .stream()
                                 .map(CaregiverAppliedRecruitmentsResponse.Item::from)
                                 .toList())

@@ -58,7 +58,7 @@ public class CaregiverService {
         if (optionalWorkApplication.isPresent()) {
             WorkApplication workApplication = optionalWorkApplication.get();
             applicationCount = matchingRepository
-                    .findByWorkApplicationAndMatchingApplicationStatus(workApplication, 지원검토중)
+                    .findByWorkApplicationAndMatchingStatus(workApplication, 지원검토중)
                     .size();
             isApplying = workApplication.isActive();
         }

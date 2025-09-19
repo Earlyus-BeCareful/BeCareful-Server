@@ -31,7 +31,7 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
     List<Matching> findAllByRecruitment(Recruitment recruitment);
 
-    int countByRecruitmentAndMatchingApplicationStatus(Recruitment recruitment, MatchingStatus matchingStatus);
+    int countByRecruitmentAndMatchingStatus(Recruitment recruitment, MatchingStatus matchingStatus);
 
     Optional<Matching> findByWorkApplicationAndRecruitment(WorkApplication workApplication, Recruitment recruitment);
 
@@ -39,7 +39,7 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
             "SELECT m FROM Matching m WHERE m.workApplication.caregiver = :caregiver AND m.recruitment.id = :recruitmentId")
     Optional<Matching> findByCaregiverAndRecruitmentId(Caregiver caregiver, Long recruitmentId);
 
-    List<Matching> findByWorkApplicationAndMatchingApplicationStatus(
+    List<Matching> findByWorkApplicationAndMatchingStatus(
             WorkApplication workApplication, MatchingStatus matchingStatus);
 
     @Query("SELECT m FROM Matching m WHERE m.recruitment.elderly.id IN :elderlyIds ")
