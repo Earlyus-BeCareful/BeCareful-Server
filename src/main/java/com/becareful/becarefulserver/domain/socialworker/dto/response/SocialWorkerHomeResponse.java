@@ -18,10 +18,8 @@ public record SocialWorkerHomeResponse(
 
     public static SocialWorkerHomeResponse of(
             SocialWorker socialWorker,
-            boolean hasNewChat,
             Integer elderlyCount,
             Integer caregiverCount,
-            Integer socialWorkerCount,
             List<SocialWorkerSimpleDto> socialWorkerList,
             Integer recruitmentProcessingCount,
             Integer recentlyCompletedCount,
@@ -29,21 +27,22 @@ public record SocialWorkerHomeResponse(
             Integer appliedCaregiverCount,
             Double averageAppliedCaregiver,
             Double averageApplyingRate,
-            List<ElderlySimpleDto> matchingElderlyList) {
+            List<ElderlySimpleDto> matchingElderlyList,
+            boolean hasNewChat) {
         return SocialWorkerHomeResponse.builder()
                 .socialWorkerInfo(SocialWorkerSimpleDto.from(socialWorker))
-                .hasNewChat(hasNewChat)
                 .institutionInfo(new InstitutionInfo(
                         socialWorker.getNursingInstitution().getName(),
                         elderlyCount,
                         caregiverCount,
-                        socialWorkerCount,
+                        socialWorkerList.size(),
                         socialWorkerList))
                 .recruitmentStatistics(new RecruitmentStatistics(
                         recruitmentProcessingCount, recentlyCompletedCount, totalRecruitmentCompletedCount))
                 .applicationStatistics(new ApplicationStatistics(
                         appliedCaregiverCount, averageAppliedCaregiver.intValue(), averageApplyingRate.intValue()))
                 .matchingElderlyList(matchingElderlyList)
+                .hasNewChat(hasNewChat)
                 .build();
     }
 

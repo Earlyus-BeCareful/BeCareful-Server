@@ -8,7 +8,7 @@ package com.becareful.becarefulserver.domain.matching.domain;
  * - '계약거절'  - 채팅방에서 계약이 이루어지지 않은 경우
  * - '계약완료'  - 채팅방에서 계약이 이루어진 경우
  */
-public enum MatchingApplicationStatus {
+public enum MatchingStatus {
     미지원,
     매칭거부,
     지원검토중,

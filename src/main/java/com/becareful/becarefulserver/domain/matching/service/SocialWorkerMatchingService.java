@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
-import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.*;
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.*;
 import static com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
@@ -125,7 +125,7 @@ public class SocialWorkerMatchingService {
         List<MatchingCaregiverSimpleResponse> appliedCaregivers = new ArrayList<>();
 
         matchings.forEach(matching -> {
-            MatchingApplicationStatus status = matching.getMatchingApplicationStatus();
+            MatchingStatus status = matching.getMatchingStatus();
 
             if (status == 지원검토중 || status == 미지원) {
                 WorkApplication workApplication = matching.getWorkApplication();

@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.controller;
 
-import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
+import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedRecruitmentsResponse;
@@ -71,9 +71,9 @@ public class CaregiverMatchingController {
                     "일자리 신청서가 없거나, 지원 내역이 없다면 빈 리스트를 응답합니다. '거절'은 요양보호사가 지원 거절한 경우이므로, 관리자가 거절한 경우에는 '불합격' 상태로 조회해야 합니다.")
     @GetMapping("/my/recruitment")
     public ResponseEntity<CaregiverAppliedRecruitmentsResponse> getMyRecruitment(
-            @RequestParam("matchingApplicationStatus") MatchingApplicationStatus matchingApplicationStatus) {
+            @RequestParam("matchingStatus") MatchingStatus matchingStatus) {
         CaregiverAppliedRecruitmentsResponse response =
-                caregiverMatchingService.getMyAppliedRecruitment(matchingApplicationStatus);
+                caregiverMatchingService.getMyAppliedRecruitment(matchingStatus);
         return ResponseEntity.ok(response);
     }
 

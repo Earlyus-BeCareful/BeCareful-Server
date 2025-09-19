@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.service;
 
-import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.*;
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
@@ -9,7 +9,6 @@ import com.becareful.becarefulserver.domain.caregiver.dto.request.*;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
-import com.becareful.becarefulserver.domain.chat.service.*;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;

@@ -10,7 +10,7 @@ import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
-import java.time.*;
+
 import java.util.*;
 import lombok.*;
 import org.springframework.stereotype.*;
@@ -30,7 +30,7 @@ public class CaregiverChatService {
     public List<CaregiverChatroomResponse> getChatList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         List<Matching> matchingList =
-                matchingRepository.findAllByCaregiverAndApplicationStatus(caregiver, MatchingApplicationStatus.근무제안);
+                matchingRepository.findAllByCaregiverAndApplicationStatus(caregiver, MatchingStatus.근무제안);
 
         List<CaregiverChatroomResponse> responses = new ArrayList<>();
         matchingList.forEach(matching -> {
@@ -69,9 +69,8 @@ public class CaregiverChatService {
 
         Recruitment recruitment = matching.getRecruitment();
         matchingRepository.findAllByRecruitment(recruitment).forEach(otherMatching -> {
-            switch (otherMatching.getMatchingApplicationStatus()) {
+            switch (otherMatching.getMatchingStatus()) {
                 case 지원검토중 -> otherMatching.failed();
-                case 미지원 -> matchingRepository.delete(otherMatching);
                 case 근무제안 -> otherMatching.rejectContract();
             }
         });
