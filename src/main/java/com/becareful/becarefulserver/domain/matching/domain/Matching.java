@@ -46,7 +46,7 @@ public class Matching extends BaseEntity {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private MatchingApplicationStatus matchingApplicationStatus;
+    private MatchingStatus matchingStatus;
 
     private LocalDate applicationDate;
 
@@ -68,11 +68,11 @@ public class Matching extends BaseEntity {
 
     @Builder(access = AccessLevel.PRIVATE)
     private Matching(
-            MatchingApplicationStatus matchingApplicationStatus,
+            MatchingStatus matchingStatus,
             Recruitment recruitment,
             WorkApplication workApplication,
             MatchingResultInfo matchingResultInfo) {
-        this.matchingApplicationStatus = matchingApplicationStatus;
+        this.matchingStatus = matchingStatus;
         this.recruitment = recruitment;
         this.workApplication = workApplication;
         this.matchingResultInfo = matchingResultInfo;
@@ -80,7 +80,7 @@ public class Matching extends BaseEntity {
 
     public static Matching create(Recruitment recruitment, WorkApplication application, List<Location> locations) {
         return Matching.builder()
-                .matchingApplicationStatus(MatchingApplicationStatus.미지원)
+                .matchingStatus(MatchingStatus.미지원)
                 .recruitment(recruitment)
                 .workApplication(application)
                 .matchingResultInfo(calculateMatchingRate(recruitment, application, locations))
@@ -91,15 +91,11 @@ public class Matching extends BaseEntity {
      * Get Method
      */
     public boolean isApplicationReviewing() {
-        return matchingApplicationStatus.equals(MatchingApplicationStatus.지원검토중);
+        return matchingStatus.equals(MatchingStatus.지원검토중);
     }
 
-    public boolean isApplicationPassed() {
-        return matchingApplicationStatus.equals(MatchingApplicationStatus.근무제안);
-    }
-
-    public boolean isApplicationRefused() {
-        return matchingApplicationStatus.equals(MatchingApplicationStatus.지원거절);
+    public boolean isApplied() {
+        return !matchingStatus.equals(MatchingStatus.미지원);
     }
 
     /**
@@ -107,39 +103,39 @@ public class Matching extends BaseEntity {
      */
     public void apply() {
         validateMatchingUpdatable();
-        this.matchingApplicationStatus = MatchingApplicationStatus.지원검토중;
+        this.matchingStatus = MatchingStatus.지원검토중;
         this.applicationDate = LocalDate.now();
     }
 
     public void reject() {
         validateMatchingUpdatable();
-        this.matchingApplicationStatus = MatchingApplicationStatus.매칭거부;
+        this.matchingStatus = MatchingStatus.매칭거부;
     }
 
     public void mediate(RecruitmentMediateRequest request) {
         validateMatchingUpdatable();
-        this.matchingApplicationStatus = MatchingApplicationStatus.지원검토중;
+        this.matchingStatus = MatchingStatus.지원검토중;
         this.applicationDate = LocalDate.now();
         this.mediationTypes = EnumSet.copyOf(request.mediationTypes());
         this.mediationDescription = request.mediationDescription();
     }
 
     public void propose() {
-        this.matchingApplicationStatus = MatchingApplicationStatus.근무제안;
+        this.matchingStatus = MatchingStatus.근무제안;
     }
 
     public void failed() {
         validateMatchingFailable();
-        this.matchingApplicationStatus = MatchingApplicationStatus.지원거절;
+        this.matchingStatus = MatchingStatus.지원거절;
     }
 
     public void confirm() {
-        this.matchingApplicationStatus = MatchingApplicationStatus.계약완료;
+        this.matchingStatus = MatchingStatus.계약완료;
         this.recruitment.complete();
     }
 
     public void rejectContract() {
-        this.matchingApplicationStatus = MatchingApplicationStatus.계약거절;
+        this.matchingStatus = MatchingStatus.계약거절;
     }
 
     public MatchingResultStatus getMatchingResultStatus() {
@@ -147,14 +143,14 @@ public class Matching extends BaseEntity {
     }
 
     private void validateMatchingFailable() {
-        if (matchingApplicationStatus.equals(MatchingApplicationStatus.지원검토중)) {
+        if (matchingStatus.equals(MatchingStatus.지원검토중)) {
             return;
         }
         throw new RecruitmentException("지원한 경우에만 불합격 처리할 수 있습니다.");
     }
 
     private void validateMatchingUpdatable() {
-        if (matchingApplicationStatus.equals(MatchingApplicationStatus.미지원)) {
+        if (matchingStatus.equals(MatchingStatus.미지원)) {
             return;
         }
         throw new RecruitmentException(MATCHING_CANNOT_REJECT);

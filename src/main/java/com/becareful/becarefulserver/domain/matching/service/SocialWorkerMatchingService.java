@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
-import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.*;
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.*;
 import static com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
@@ -104,10 +104,10 @@ public class SocialWorkerMatchingService {
                     return true;
                 })
                 .map(recruitment -> {
-                    int notAppliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingApplicationStatus(
-                            recruitment, 미지원); // 거절 제거 할래말래
+                    int notAppliedMatchingCount =
+                            matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, 미지원); // 거절 제거 할래말래
                     int appliedMatchingCount =
-                            matchingRepository.countByRecruitmentAndMatchingApplicationStatus(recruitment, 지원검토중);
+                            matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, 지원검토중);
 
                     return MatchingStatusSimpleResponse.of(recruitment, notAppliedMatchingCount, appliedMatchingCount);
                 })
@@ -125,7 +125,7 @@ public class SocialWorkerMatchingService {
         List<MatchingCaregiverSimpleResponse> appliedCaregivers = new ArrayList<>();
 
         matchings.forEach(matching -> {
-            MatchingApplicationStatus status = matching.getMatchingApplicationStatus();
+            MatchingStatus status = matching.getMatchingStatus();
 
             if (status == 지원검토중 || status == 미지원) {
                 WorkApplication workApplication = matching.getWorkApplication();

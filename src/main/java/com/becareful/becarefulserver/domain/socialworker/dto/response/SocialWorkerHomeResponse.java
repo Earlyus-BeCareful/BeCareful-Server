@@ -12,47 +12,51 @@ public record SocialWorkerHomeResponse(
         SocialWorkerSimpleDto socialWorkerInfo,
         boolean hasNewChat,
         InstitutionInfo institutionInfo,
-        MatchingStatistics matchingStatistics,
+        RecruitmentStatistics recruitmentStatistics,
         ApplicationStatistics applicationStatistics,
         List<ElderlySimpleDto> matchingElderlyList) {
 
     public static SocialWorkerHomeResponse of(
             SocialWorker socialWorker,
-            boolean hasNewChat,
             Integer elderlyCount,
-            Integer socialWorkerCount,
+            Integer caregiverCount,
             List<SocialWorkerSimpleDto> socialWorkerList,
-            Integer matchingProcessingCount,
-            Integer recentlyMatchedCount,
-            Integer totalMatchedCount,
+            Integer recruitmentProcessingCount,
+            Integer recentlyCompletedCount,
+            Integer totalRecruitmentCompletedCount,
             Integer appliedCaregiverCount,
             Double averageAppliedCaregiver,
             Double averageApplyingRate,
-            List<ElderlySimpleDto> matchingElderlyList) {
+            List<ElderlySimpleDto> matchingElderlyList,
+            boolean hasNewChat) {
         return SocialWorkerHomeResponse.builder()
                 .socialWorkerInfo(SocialWorkerSimpleDto.from(socialWorker))
-                .hasNewChat(hasNewChat)
                 .institutionInfo(new InstitutionInfo(
                         socialWorker.getNursingInstitution().getName(),
                         elderlyCount,
-                        socialWorkerCount,
+                        caregiverCount,
+                        socialWorkerList.size(),
                         socialWorkerList))
-                .matchingStatistics(
-                        new MatchingStatistics(matchingProcessingCount, recentlyMatchedCount, totalMatchedCount))
+                .recruitmentStatistics(new RecruitmentStatistics(
+                        recruitmentProcessingCount, recentlyCompletedCount, totalRecruitmentCompletedCount))
                 .applicationStatistics(new ApplicationStatistics(
                         appliedCaregiverCount, averageAppliedCaregiver.intValue(), averageApplyingRate.intValue()))
                 .matchingElderlyList(matchingElderlyList)
+                .hasNewChat(hasNewChat)
                 .build();
     }
 
     private record InstitutionInfo(
             String institutionName,
             Integer elderlyCount,
+            Integer caregiverCount,
             Integer socialWorkerCount,
             List<SocialWorkerSimpleDto> socialWorkerList) {}
 
-    private record MatchingStatistics(
-            Integer matchingProcessingCount, Integer recentlyMatchedCount, Integer totalMatchingCompletedCount) {}
+    private record RecruitmentStatistics(
+            Integer recruitmentProcessingCount,
+            Integer recentlyCompletedCount,
+            Integer totalRecruitmentCompletedCount) {}
 
     private record ApplicationStatistics(
             Integer appliedCaregiverCount, Integer averageAppliedCaregiver, Integer averageApplyingRate) {}

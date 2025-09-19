@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
@@ -45,6 +46,7 @@ public class SocialWorkerService {
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
     private final JwtProperties jwtProperties;
+    private final CompletedMatchingRepository completedMatchingRepository;
 
     @Transactional
     public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
@@ -95,32 +97,42 @@ public class SocialWorkerService {
                         .toList();
 
         List<Matching> matchingList = matchingRepository.findAllByElderlyIds(elderlyIds);
+        List<Recruitment> recruitments =
+                matchingList.stream().map(Matching::getRecruitment).distinct().toList();
+
+        List<Caregiver> matchedCaregivers = completedMatchingRepository.findAllByRecruitments(recruitments);
 
         int elderlyCount = elderlyIds.size();
-        int socialWorkerCount = socialWorkers.size();
-        int totalMatchedCount = matchingList.size();
+        int caregiverCount = matchedCaregivers.size();
 
-        int reviewingMatchingCount = 0;
-        int recentlyMatchedCount = 0;
+        int processingRecruitmentCount = 0;
+        int recentlyCompletedCount = 0;
+        int wholeCompletedRecruitmentCount = 0;
         int wholeCompletedMatchingCount = 0;
+
+        for (Recruitment recruitment : recruitments) {
+            if (recruitment.isRecruiting()) {
+                processingRecruitmentCount++;
+            } else {
+                if (recruitment.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7))) {
+                    recentlyCompletedCount++;
+                }
+                wholeCompletedRecruitmentCount++;
+            }
+        }
+
         int wholeApplierCountForCompletedRecruitment = 0;
         Set<Long> workApplicationIds = new HashSet<>();
-
         for (Matching matching : matchingList) {
             if (matching.isApplicationReviewing()) {
-                reviewingMatchingCount++;
                 workApplicationIds.add(matching.getWorkApplication().getId());
-            } else if (matching.isApplicationPassed()) {
-                if (matching.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7))) {
-                    recentlyMatchedCount++;
-                }
             }
 
-            if (!matching.getRecruitment().isRecruiting()) {
-                wholeCompletedMatchingCount++;
-                if (matching.isApplicationPassed() || matching.isApplicationRefused()) {
+            if (!matching.getRecruitment().isRecruiting()) { // 모집 완료
+                if (matching.isApplied()) {
                     wholeApplierCountForCompletedRecruitment++;
                 }
+                wholeCompletedMatchingCount++;
             }
         }
 
@@ -135,21 +147,22 @@ public class SocialWorkerService {
 
         return SocialWorkerHomeResponse.of(
                 loggedInSocialWorker,
-                hasNewChat,
                 elderlyCount,
-                socialWorkerCount, // TODO 요양보호사 숫자로 변경
+                caregiverCount,
                 socialWorkers,
-                reviewingMatchingCount,
-                recentlyMatchedCount,
-                totalMatchedCount,
-                appliedCaregiverCount,
-                wholeCompletedMatchingCount == 0
+                processingRecruitmentCount, // 진행중인 공고
+                recentlyCompletedCount, // 최근 일주일 동안 완료된 공고
+                wholeCompletedRecruitmentCount, // 누적 완료된 공고
+                appliedCaregiverCount, // 현재 지원한 전체 요양보호사 수
+                wholeCompletedRecruitmentCount == 0 // 공고당 평균 지원자 수
                         ? 0
-                        : (double) wholeApplierCountForCompletedRecruitment / wholeCompletedMatchingCount,
-                wholeCompletedMatchingCount == 0
+                        : (double) wholeApplierCountForCompletedRecruitment / wholeCompletedRecruitmentCount,
+                wholeCompletedRecruitmentCount == 0 // 공고당 매칭 수 대비 평균 지원률
                         ? 0
                         : ((double) wholeApplierCountForCompletedRecruitment / wholeCompletedMatchingCount) * 100,
-                elderlyList);
+                // TODO : 현재는 전체 매칭 수 대비 지원수를 카운트했지만, 공고당 매칭 수가 다르므로 계산 로직 바꿔야 함.
+                elderlyList,
+                hasNewChat);
     }
 
     public boolean checkSameNickNameAtRegist(String nickName) {

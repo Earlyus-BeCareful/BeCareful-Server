@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
-import static com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.미지원;
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.미지원;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
@@ -8,7 +8,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus;
+import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingDetailResponse;
@@ -113,16 +113,14 @@ public class CaregiverMatchingService {
     }
 
     @Transactional(readOnly = true)
-    public CaregiverAppliedRecruitmentsResponse getMyAppliedRecruitment(
-            MatchingApplicationStatus matchingApplicationStatus) {
+    public CaregiverAppliedRecruitmentsResponse getMyAppliedRecruitment(MatchingStatus matchingStatus) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
         List<CaregiverAppliedRecruitmentsResponse.Item> recruitments = workApplicationRepository
                 .findByCaregiver(caregiver)
-                .map(
-                        workApplication -> matchingRepository
-                                .findByWorkApplicationAndMatchingApplicationStatus(
-                                        workApplication, matchingApplicationStatus)
+                .map(workApplication ->
+                        matchingRepository
+                                .findByWorkApplicationAndMatchingStatus(workApplication, matchingStatus)
                                 .stream()
                                 .map(CaregiverAppliedRecruitmentsResponse.Item::from)
                                 .toList())

@@ -16,7 +16,7 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     JOIN m.recruitment r
     JOIN r.elderly e
     WHERE e.nursingInstitution = :nursingInstitution
-    AND m.matchingApplicationStatus = '합격'
+    AND m.matchingStatus = '합격'
     """)
     List<Matching> findAllByNursingInstitution(@Param("nursingInstitution") NursingInstitution nursingInstitution);
 
@@ -25,15 +25,13 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     SELECT m FROM Matching m
     JOIN m.workApplication w
     WHERE w.caregiver = :caregiver
-    AND m.matchingApplicationStatus = :applicationStatus
+    AND m.matchingStatus = :applicationStatus
     """)
-    List<Matching> findAllByCaregiverAndApplicationStatus(
-            Caregiver caregiver, MatchingApplicationStatus applicationStatus);
+    List<Matching> findAllByCaregiverAndApplicationStatus(Caregiver caregiver, MatchingStatus applicationStatus);
 
     List<Matching> findAllByRecruitment(Recruitment recruitment);
 
-    int countByRecruitmentAndMatchingApplicationStatus(
-            Recruitment recruitment, MatchingApplicationStatus matchingApplicationStatus);
+    int countByRecruitmentAndMatchingStatus(Recruitment recruitment, MatchingStatus matchingStatus);
 
     Optional<Matching> findByWorkApplicationAndRecruitment(WorkApplication workApplication, Recruitment recruitment);
 
@@ -41,8 +39,8 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
             "SELECT m FROM Matching m WHERE m.workApplication.caregiver = :caregiver AND m.recruitment.id = :recruitmentId")
     Optional<Matching> findByCaregiverAndRecruitmentId(Caregiver caregiver, Long recruitmentId);
 
-    List<Matching> findByWorkApplicationAndMatchingApplicationStatus(
-            WorkApplication workApplication, MatchingApplicationStatus matchingApplicationStatus);
+    List<Matching> findByWorkApplicationAndMatchingStatus(
+            WorkApplication workApplication, MatchingStatus matchingStatus);
 
     @Query("SELECT m FROM Matching m WHERE m.recruitment.elderly.id IN :elderlyIds ")
     List<Matching> findAllByElderlyIds(@Param("elderlyIds") List<Long> elderlyIds);
@@ -52,10 +50,9 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
     @Transactional
     @Modifying
-    @Query(
-            "DELETE FROM Matching m WHERE m.workApplication.caregiver = :caregiver AND m.matchingApplicationStatus <> :status")
+    @Query("DELETE FROM Matching m WHERE m.workApplication.caregiver = :caregiver AND m.matchingStatus <> :status")
     void deleteAllByCaregiverAndStatusNot(
-            @Param("caregiver") Caregiver caregiver, @Param("status") MatchingApplicationStatus status);
+            @Param("caregiver") Caregiver caregiver, @Param("status") MatchingStatus status);
 
     @Query(
             """
