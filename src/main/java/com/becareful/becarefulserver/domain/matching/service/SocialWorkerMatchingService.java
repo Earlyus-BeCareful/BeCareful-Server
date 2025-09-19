@@ -104,8 +104,8 @@ public class SocialWorkerMatchingService {
                     return true;
                 })
                 .map(recruitment -> {
-                    int notAppliedMatchingCount = matchingRepository.countByRecruitmentAndMatchingStatus(
-                            recruitment, 미지원); // 거절 제거 할래말래
+                    int notAppliedMatchingCount =
+                            matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, 미지원); // 거절 제거 할래말래
                     int appliedMatchingCount =
                             matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, 지원검토중);
 
