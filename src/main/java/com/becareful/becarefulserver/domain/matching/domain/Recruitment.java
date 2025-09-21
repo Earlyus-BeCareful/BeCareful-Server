@@ -19,6 +19,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.RECRUITMENT_NOT_COMPLETABLE_NOT_RECRUITING;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -119,11 +121,8 @@ public class Recruitment extends BaseEntity {
     }
 
     public void complete() {
-        if (this.recruitmentStatus.isCompleted()) {
-            throw new RecruitmentException("Recruitment already completed");
-        }
-        if (this.recruitmentStatus.isClosed()) {
-            throw new RecruitmentException("Recruitment already closed");
+        if (!this.recruitmentStatus.isRecruiting()) {
+            throw new RecruitmentException(RECRUITMENT_NOT_COMPLETABLE_NOT_RECRUITING);
         }
         this.recruitmentStatus = RecruitmentStatus.모집완료;
     }

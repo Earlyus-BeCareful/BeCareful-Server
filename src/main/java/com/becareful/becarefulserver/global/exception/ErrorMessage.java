@@ -42,6 +42,7 @@ public class ErrorMessage {
     public static final String ELDERLY_NOT_EXISTS = "존재하지 않는 어르신입니다.";
 
     public static final String RECRUITMENT_NOT_EXISTS = "매칭 공고가 존재하지 않습니다.";
+    public static final String RECRUITMENT_NOT_COMPLETABLE_NOT_RECRUITING = "모집중이 아닌 공고는 완료처리할 수 없습니다.";
     public static final String MATCHING_NOT_EXISTS = "매칭 또는 지원 정보가 존재하지 않습니다.";
     public static final String MATCHING_CANNOT_REJECT = "미지원 공고만 거절할 수 있습니다.";
     public static final String MATCHING_CAREGIVER_DIFFERENT = "해당 요양보호사의 매칭 데이터가 아닙니다.";
