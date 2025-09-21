@@ -9,6 +9,7 @@ import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
+import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import jakarta.persistence.*;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -30,6 +31,9 @@ public class Recruitment extends BaseEntity {
 
     private String title;
 
+    @Enumerated(EnumType.STRING)
+    private RecruitmentStatus recruitmentStatus = RecruitmentStatus.모집중;
+
     @Convert(converter = DayOfWeekSetConverter.class)
     private EnumSet<DayOfWeek> workDays;
 
@@ -47,8 +51,6 @@ public class Recruitment extends BaseEntity {
 
     private String description;
 
-    private boolean isRecruiting = true;
-
     @JoinColumn(name = "elderly_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Elderly elderly;
@@ -63,7 +65,6 @@ public class Recruitment extends BaseEntity {
             WorkSalaryUnitType workSalaryUnitType,
             int workSalaryAmount,
             String description,
-            boolean isRecruiting,
             Elderly elderly) {
         this.title = title;
         this.workDays = workDays;
@@ -73,7 +74,6 @@ public class Recruitment extends BaseEntity {
         this.workSalaryUnitType = workSalaryUnitType;
         this.workSalaryAmount = workSalaryAmount;
         this.description = description;
-        this.isRecruiting = isRecruiting;
         this.elderly = elderly;
     }
 
@@ -87,7 +87,6 @@ public class Recruitment extends BaseEntity {
                 .workSalaryUnitType(request.workSalaryUnitType())
                 .workSalaryAmount(request.workSalaryAmount())
                 .description(request.description())
-                .isRecruiting(true)
                 .elderly(elderly)
                 .build();
     }
@@ -120,6 +119,12 @@ public class Recruitment extends BaseEntity {
     }
 
     public void complete() {
-        this.isRecruiting = false;
+        if (this.recruitmentStatus.isCompleted()) {
+            throw new RecruitmentException("Recruitment already completed");
+        }
+        if (this.recruitmentStatus.isClosed()) {
+            throw new RecruitmentException("Recruitment already closed");
+        }
+        this.recruitmentStatus = RecruitmentStatus.모집완료;
     }
 }
