@@ -30,7 +30,7 @@ public record RecruitmentSimpleDto(
                 recruitment.getWorkEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 recruitment.getWorkSalaryUnitType(),
                 recruitment.getWorkSalaryAmount(),
-                recruitment.isRecruiting(),
+                recruitment.getRecruitmentStatus().isRecruiting(),
                 InstitutionSimpleDto.from(recruitment.getElderly().getNursingInstitution()));
     }
 }

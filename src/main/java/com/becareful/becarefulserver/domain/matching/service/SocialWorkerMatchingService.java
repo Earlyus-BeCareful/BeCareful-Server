@@ -96,10 +96,10 @@ public class SocialWorkerMatchingService {
         return recruitments.stream()
                 .filter(recruitment -> {
                     if (matchingStatusFilter.equals(MatchingStatusFilter.진행중)) {
-                        return recruitment.isRecruiting();
+                        return recruitment.getRecruitmentStatus().isRecruiting();
                     }
                     if (matchingStatusFilter.equals(MatchingStatusFilter.완료)) {
-                        return !recruitment.isRecruiting();
+                        return !recruitment.getRecruitmentStatus().isRecruiting();
                     }
                     return true;
                 })

@@ -44,7 +44,7 @@ public record RecruitmentDto(
                 recruitment.getWorkSalaryUnitType(),
                 recruitment.getWorkSalaryAmount(),
                 recruitment.getDescription(),
-                recruitment.isRecruiting(),
+                recruitment.getRecruitmentStatus().isRecruiting(),
                 InstitutionSimpleDto.from(recruitment.getElderly().getNursingInstitution()));
     }
 }

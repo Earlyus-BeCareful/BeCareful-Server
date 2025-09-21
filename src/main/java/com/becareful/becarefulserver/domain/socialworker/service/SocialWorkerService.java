@@ -111,7 +111,7 @@ public class SocialWorkerService {
         int wholeCompletedMatchingCount = 0;
 
         for (Recruitment recruitment : recruitments) {
-            if (recruitment.isRecruiting()) {
+            if (recruitment.getRecruitmentStatus().isRecruiting()) {
                 processingRecruitmentCount++;
             } else {
                 if (recruitment.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7))) {
@@ -128,7 +128,7 @@ public class SocialWorkerService {
                 workApplicationIds.add(matching.getWorkApplication().getId());
             }
 
-            if (!matching.getRecruitment().isRecruiting()) { // 모집 완료
+            if (!matching.getRecruitment().getRecruitmentStatus().isRecruiting()) { // 모집 완료
                 if (matching.isApplied()) {
                     wholeApplierCountForCompletedRecruitment++;
                 }
@@ -140,7 +140,7 @@ public class SocialWorkerService {
 
         List<ElderlySimpleDto> elderlyList = matchingList.stream()
                 .map(Matching::getRecruitment)
-                .filter(Recruitment::isRecruiting)
+                .filter(r -> r.getRecruitmentStatus().isRecruiting())
                 .map(Recruitment::getElderly)
                 .map(ElderlySimpleDto::from)
                 .toList();

@@ -14,7 +14,6 @@ import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplication
 import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
@@ -124,7 +123,7 @@ public class WorkApplicationService {
                 .map(WorkApplicationWorkLocation::getLocation)
                 .toList();
         recruitmentRepository.findAll().stream()
-                .filter(Recruitment::isRecruiting)
+                .filter(r -> r.getRecruitmentStatus().isRecruiting())
                 .map(recruitment -> {
                     return Matching.create(recruitment, application, locations);
                 })
