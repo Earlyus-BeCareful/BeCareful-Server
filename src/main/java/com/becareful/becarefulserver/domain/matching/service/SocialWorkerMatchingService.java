@@ -57,9 +57,9 @@ public class SocialWorkerMatchingService {
         Recruitment recruitment = recruitmentRepository
                 .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        List<WorkLocationDto> locations =
+        List<Location> locations =
                 workApplicationWorkLocationRepository.findAllByWorkApplication(workApplication).stream()
-                        .map(workLocation -> WorkLocationDto.from(workLocation.getWorkLocation()))
+                        .map(WorkApplicationWorkLocation::getLocation)
                         .toList();
 
         Matching matching = matchingRepository

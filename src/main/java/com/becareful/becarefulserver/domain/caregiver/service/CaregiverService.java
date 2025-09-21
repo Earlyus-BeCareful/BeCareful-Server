@@ -10,6 +10,7 @@ import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.common.domain.*;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.work_location.dto.request.*;
@@ -87,9 +88,9 @@ public class CaregiverService {
         Career career = careerRepository.findByCaregiver(caregiver).orElse(null);
         WorkApplication workApplication =
                 workApplicationRepository.findByCaregiver(caregiver).orElse(null);
-        List<WorkLocationDto> locations =
+        List<Location> locations =
                 workApplicationWorkLocationRepository.findAllByWorkApplication(workApplication).stream()
-                        .map(data -> WorkLocationDto.from(data.getWorkLocation()))
+                        .map(data -> data.getWorkLocation().getLocation())
                         .toList();
         return CaregiverMyPageHomeResponse.of(caregiver, career, workApplication, locations);
     }

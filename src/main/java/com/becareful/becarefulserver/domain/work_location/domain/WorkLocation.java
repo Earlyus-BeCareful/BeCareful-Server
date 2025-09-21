@@ -2,7 +2,6 @@ package com.becareful.becarefulserver.domain.work_location.domain;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
-import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -27,10 +26,7 @@ public class WorkLocation extends BaseEntity {
         this.location = location;
     }
 
-    public static WorkLocation from(WorkLocationDto workLocationDto) {
-        return WorkLocation.builder()
-                .location(
-                        Location.of(workLocationDto.siDo(), workLocationDto.siGuGun(), workLocationDto.dongEupMyeon()))
-                .build();
+    public static WorkLocation from(Location location) {
+        return WorkLocation.builder().location(location).build();
     }
 }

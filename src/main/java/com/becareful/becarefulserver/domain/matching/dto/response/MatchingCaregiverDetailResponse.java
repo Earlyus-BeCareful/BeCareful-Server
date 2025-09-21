@@ -7,11 +7,11 @@ import com.becareful.becarefulserver.domain.caregiver.dto.CaregiverDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.WorkApplicationDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerDetailResponse;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerResponse;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MediationType;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
-import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import java.util.List;
 
 public record MatchingCaregiverDetailResponse(
@@ -27,7 +27,7 @@ public record MatchingCaregiverDetailResponse(
         String mediationDescription) {
 
     public static MatchingCaregiverDetailResponse of(
-            Matching matching, Career career, List<CareerDetail> careerDetails, List<WorkLocationDto> locations) {
+            Matching matching, Career career, List<CareerDetail> careerDetails, List<Location> locations) {
 
         WorkApplication workApplication = matching.getWorkApplication();
         MatchingResultInfo socialWorkerMatchingResult = matching.getMatchingResultInfo();

@@ -17,7 +17,6 @@ import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
-import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import com.becareful.becarefulserver.domain.work_location.repository.WorkLocationRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
@@ -46,9 +45,9 @@ public class WorkApplicationService {
         WorkApplicationDto workApplicationDto = workApplicationRepository
                 .findByCaregiver(caregiver)
                 .map(workApplication -> {
-                    List<WorkLocationDto> locations =
+                    List<Location> locations =
                             workApplicationWorkLocationRepository.findAllByWorkApplication(workApplication).stream()
-                                    .map(data -> WorkLocationDto.from(data.getWorkLocation()))
+                                    .map(WorkApplicationWorkLocation::getLocation)
                                     .toList();
 
                     return WorkApplicationDto.of(locations, workApplication);
@@ -103,11 +102,10 @@ public class WorkApplicationService {
         application.inactivate();
     }
 
-    private void saveWorkLocations(List<WorkLocationDto> workLocations, WorkApplication workApplication) {
-        for (WorkLocationDto workLocation : workLocations) {
+    private void saveWorkLocations(List<Location> workLocations, WorkApplication workApplication) {
+        for (Location workLocation : workLocations) {
             WorkLocation location = workLocationRepository
-                    .findByLocation(
-                            Location.of(workLocation.siDo(), workLocation.siGuGun(), workLocation.dongEupMyeon()))
+                    .findByLocation(workLocation)
                     .orElseGet(() -> workLocationRepository.save(WorkLocation.from(workLocation)));
 
             var data = WorkApplicationWorkLocation.of(workApplication, location);

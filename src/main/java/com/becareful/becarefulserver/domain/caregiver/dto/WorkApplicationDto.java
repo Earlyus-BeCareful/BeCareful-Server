@@ -4,7 +4,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
-import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -18,8 +18,8 @@ public record WorkApplicationDto(
         Integer workSalaryAmount,
         WorkSalaryUnitType workSalaryUnitType,
         String lastModifiedDate,
-        List<WorkLocationDto> workLocations) {
-    public static WorkApplicationDto of(List<WorkLocationDto> locations, WorkApplication application) {
+        List<Location> workLocations) {
+    public static WorkApplicationDto of(List<Location> locations, WorkApplication application) {
         return new WorkApplicationDto(
                 application.getId(),
                 application.isActive(),
