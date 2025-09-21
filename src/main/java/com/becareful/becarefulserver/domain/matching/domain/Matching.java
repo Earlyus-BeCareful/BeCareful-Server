@@ -78,12 +78,12 @@ public class Matching extends BaseEntity {
         this.matchingResultInfo = matchingResultInfo;
     }
 
-    public static Matching create(Recruitment recruitment, WorkApplication application, List<Location> locations) {
+    public static Matching create(Recruitment recruitment, WorkApplication application) {
         return Matching.builder()
                 .matchingStatus(MatchingStatus.미지원)
                 .recruitment(recruitment)
                 .workApplication(application)
-                .matchingResultInfo(calculateMatchingRate(recruitment, application, locations))
+                .matchingResultInfo(calculateMatchingRate(recruitment, application))
                 .build();
     }
 
@@ -166,12 +166,11 @@ public class Matching extends BaseEntity {
     /**
      * @param recruitment       - 사회복지사가 등록한 공고
      * @param workApplication   - 요양보호사가 등록한 지원서
-     * @param locations         - 지원서에 등록된 희망 근무 장소
      * @return                  - MatchingInfo
      */
-    private static MatchingResultInfo calculateMatchingRate(
-            Recruitment recruitment, WorkApplication workApplication, List<Location> locations) {
-        boolean workLocationMatchingRate = isWorkLocationMatched(recruitment.getResidentialLocation(), locations);
+    private static MatchingResultInfo calculateMatchingRate(Recruitment recruitment, WorkApplication workApplication) {
+        boolean workLocationMatchingRate =
+                isWorkLocationMatched(recruitment.getResidentialLocation(), workApplication.getWorkLocations());
         Double workDayMatchingRate = calculateDayMatchingRate(recruitment.getWorkDays(), workApplication.getWorkDays());
         boolean workTimeMatchingRate = isWorkTimeMatched(recruitment.getWorkTimes(), workApplication.getWorkTimes());
 

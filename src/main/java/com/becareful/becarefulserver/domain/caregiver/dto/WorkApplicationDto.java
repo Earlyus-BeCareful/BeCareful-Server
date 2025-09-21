@@ -19,7 +19,7 @@ public record WorkApplicationDto(
         WorkSalaryUnitType workSalaryUnitType,
         String lastModifiedDate,
         List<Location> workLocations) {
-    public static WorkApplicationDto of(List<Location> locations, WorkApplication application) {
+    public static WorkApplicationDto from(WorkApplication application) {
         return new WorkApplicationDto(
                 application.getId(),
                 application.isActive(),
@@ -29,6 +29,6 @@ public record WorkApplicationDto(
                 application.getWorkSalaryAmount(),
                 application.getWorkSalaryUnitType(),
                 application.getUpdateDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")),
-                locations);
+                application.getWorkLocations());
     }
 }

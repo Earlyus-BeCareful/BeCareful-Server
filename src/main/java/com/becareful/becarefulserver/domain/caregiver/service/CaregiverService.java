@@ -10,10 +10,8 @@ import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.common.domain.*;
-import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
-import com.becareful.becarefulserver.domain.work_location.dto.request.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.util.*;
@@ -37,7 +35,6 @@ public class CaregiverService {
     private final CaregiverRepository caregiverRepository;
     private final CareerRepository careerRepository;
     private final WorkApplicationRepository workApplicationRepository;
-    private final WorkApplicationWorkLocationRepository workApplicationWorkLocationRepository;
     private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
     private final FileUtil fileUtil;
@@ -88,11 +85,7 @@ public class CaregiverService {
         Career career = careerRepository.findByCaregiver(caregiver).orElse(null);
         WorkApplication workApplication =
                 workApplicationRepository.findByCaregiver(caregiver).orElse(null);
-        List<Location> locations =
-                workApplicationWorkLocationRepository.findAllByWorkApplication(workApplication).stream()
-                        .map(data -> data.getWorkLocation().getLocation())
-                        .toList();
-        return CaregiverMyPageHomeResponse.of(caregiver, career, workApplication, locations);
+        return CaregiverMyPageHomeResponse.of(caregiver, career, workApplication);
     }
 
     @Transactional

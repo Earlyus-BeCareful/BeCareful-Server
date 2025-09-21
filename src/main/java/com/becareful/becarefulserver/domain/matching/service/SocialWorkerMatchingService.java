@@ -17,7 +17,6 @@ import com.becareful.becarefulserver.domain.matching.dto.response.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
-import com.becareful.becarefulserver.domain.work_location.dto.request.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
 import java.time.*;
@@ -34,7 +33,6 @@ public class SocialWorkerMatchingService {
     private final AuthUtil authUtil;
     private final MatchingRepository matchingRepository;
     private final RecruitmentRepository recruitmentRepository;
-    private final WorkApplicationWorkLocationRepository workApplicationWorkLocationRepository;
     private final ElderlyRepository elderlyRepository;
     private final WorkApplicationRepository workApplicationRepository;
     private final CareerRepository careerRepository;
@@ -57,10 +55,6 @@ public class SocialWorkerMatchingService {
         Recruitment recruitment = recruitmentRepository
                 .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        List<Location> locations =
-                workApplicationWorkLocationRepository.findAllByWorkApplication(workApplication).stream()
-                        .map(WorkApplicationWorkLocation::getLocation)
-                        .toList();
 
         Matching matching = matchingRepository
                 .findByWorkApplicationAndRecruitment(workApplication, recruitment)
@@ -70,7 +64,7 @@ public class SocialWorkerMatchingService {
 
         List<CareerDetail> careerDetails = careerDetailRepository.findAllByCareer(career);
 
-        return MatchingCaregiverDetailResponse.of(matching, career, careerDetails, locations);
+        return MatchingCaregiverDetailResponse.of(matching, career, careerDetails);
     }
 
     @Transactional
@@ -187,14 +181,7 @@ public class SocialWorkerMatchingService {
 
     private void matchingWith(Recruitment recruitment) {
         workApplicationRepository.findAllActiveWorkApplication().stream()
-                .map(application -> {
-                    List<Location> locations =
-                            workApplicationWorkLocationRepository.findAllByWorkApplication(application).stream()
-                                    .map(WorkApplicationWorkLocation::getLocation)
-                                    .toList();
-
-                    return Matching.create(recruitment, application, locations);
-                })
+                .map(application -> Matching.create(recruitment, application))
                 .filter((matching -> !matching.getMatchingResultStatus().equals(제외)))
                 .forEach(matchingRepository::save);
     }
