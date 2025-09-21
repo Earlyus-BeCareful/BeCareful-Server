@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.matching.domain;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.RECRUITMENT_NOT_COMPLETABLE_NOT_RECRUITING;
+
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
@@ -18,8 +20,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.RECRUITMENT_NOT_COMPLETABLE_NOT_RECRUITING;
 
 @Entity
 @Getter
