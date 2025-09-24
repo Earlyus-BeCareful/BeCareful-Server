@@ -82,8 +82,7 @@ public class SocialWorkerService {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         NursingInstitution institution = loggedInSocialWorker.getNursingInstitution();
 
-        List<Elderly> institutionElderlys =
-                elderlyRepository.findByNursingInstitution(institution).stream().toList();
+        List<Elderly> institutionElderlys = elderlyRepository.findAllByNursingInstitution(institution);
 
         List<SocialWorkerSimpleDto> institutionSocialWorkers =
                 socialworkerRepository.findAllByNursingInstitution(institution).stream()
