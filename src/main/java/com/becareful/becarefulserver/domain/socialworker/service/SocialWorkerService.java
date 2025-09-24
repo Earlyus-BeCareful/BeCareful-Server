@@ -3,11 +3,9 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
-import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
-import com.becareful.becarefulserver.domain.matching.dto.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
@@ -38,10 +36,9 @@ public class SocialWorkerService {
 
     private final SocialWorkerRepository socialworkerRepository;
     private final NursingInstitutionRepository nursingInstitutionRepository;
-    private final MatchingRepository matchingRepository;
+    private final RecruitmentRepository recruitmentRepository;
     private final ElderlyRepository elderlyRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
-    private final CompletedMatchingRepository completedMatchingRepository;
     private final AuthUtil authUtil;
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
@@ -85,84 +82,22 @@ public class SocialWorkerService {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         NursingInstitution institution = loggedInSocialWorker.getNursingInstitution();
 
-        boolean hasNewChat = socialWorkerChatReadStatusRepository.existsUnreadContract(loggedInSocialWorker);
+        List<Elderly> institutionElderlys =
+                elderlyRepository.findByNursingInstitution(institution).stream().toList();
 
-        List<Long> elderlyIds = elderlyRepository.findByNursingInstitution(institution).stream()
-                .map(Elderly::getId)
-                .toList();
-
-        List<SocialWorkerSimpleDto> socialWorkers =
+        List<SocialWorkerSimpleDto> institutionSocialWorkers =
                 socialworkerRepository.findAllByNursingInstitution(institution).stream()
                         .map(SocialWorkerSimpleDto::from)
                         .toList();
 
-        List<Matching> matchingList = matchingRepository.findAllByElderlyIds(elderlyIds);
-        List<Recruitment> recruitments =
-                matchingList.stream().map(Matching::getRecruitment).distinct().toList();
+        List<Recruitment> recruitments = recruitmentRepository.findAllByElderlys(institutionElderlys);
 
-        List<Caregiver> matchedCaregivers = completedMatchingRepository.findAllByRecruitments(recruitments);
+        boolean hasNewChat = socialWorkerChatReadStatusRepository.existsUnreadContract(loggedInSocialWorker);
 
-        int elderlyCount = elderlyIds.size();
-        int caregiverCount = matchedCaregivers.size();
-
-        int processingRecruitmentCount = 0;
-        int recentlyCompletedCount = 0;
-        int wholeCompletedRecruitmentCount = 0;
-        int wholeCompletedMatchingCount = 0;
-
-        for (Recruitment recruitment : recruitments) {
-            if (recruitment.getRecruitmentStatus().isRecruiting()) {
-                processingRecruitmentCount++;
-            } else {
-                if (recruitment.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7))) {
-                    recentlyCompletedCount++;
-                }
-                wholeCompletedRecruitmentCount++;
-            }
-        }
-
-        int wholeApplierCountForCompletedRecruitment = 0;
-        Set<Long> workApplicationIds = new HashSet<>();
-        for (Matching matching : matchingList) {
-            if (matching.isApplicationReviewing()) {
-                workApplicationIds.add(matching.getWorkApplication().getId());
-            }
-
-            if (!matching.getRecruitment().getRecruitmentStatus().isRecruiting()) { // 모집 완료
-                if (matching.isApplied()) {
-                    wholeApplierCountForCompletedRecruitment++;
-                }
-                wholeCompletedMatchingCount++;
-            }
-        }
-
-        int appliedCaregiverCount = workApplicationIds.size();
-
-        List<ElderlySimpleDto> elderlyList = matchingList.stream()
-                .map(Matching::getRecruitment)
-                .filter(r -> r.getRecruitmentStatus().isRecruiting())
-                .map(Recruitment::getElderly)
-                .map(ElderlySimpleDto::from)
-                .toList();
+        int institutionElderlyCount = institutionElderlys.size();
 
         return SocialWorkerHomeResponse.of(
-                loggedInSocialWorker,
-                elderlyCount,
-                caregiverCount,
-                socialWorkers,
-                processingRecruitmentCount, // 진행중인 공고
-                recentlyCompletedCount, // 최근 일주일 동안 완료된 공고
-                wholeCompletedRecruitmentCount, // 누적 완료된 공고
-                appliedCaregiverCount, // 현재 지원한 전체 요양보호사 수
-                wholeCompletedRecruitmentCount == 0 // 공고당 평균 지원자 수
-                        ? 0
-                        : (double) wholeApplierCountForCompletedRecruitment / wholeCompletedRecruitmentCount,
-                wholeCompletedRecruitmentCount == 0 // 공고당 매칭 수 대비 평균 지원률
-                        ? 0
-                        : ((double) wholeApplierCountForCompletedRecruitment / wholeCompletedMatchingCount) * 100,
-                // TODO : 현재는 전체 매칭 수 대비 지원수를 카운트했지만, 공고당 매칭 수가 다르므로 계산 로직 바꿔야 함.
-                elderlyList,
-                hasNewChat);
+                loggedInSocialWorker, institutionSocialWorkers, recruitments, institutionElderlyCount, hasNewChat);
     }
 
     @Transactional(readOnly = true)

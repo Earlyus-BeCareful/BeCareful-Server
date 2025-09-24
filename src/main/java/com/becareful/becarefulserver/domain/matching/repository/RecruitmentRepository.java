@@ -26,4 +26,11 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
     List<Recruitment> findAllByIsRecruiting();
 
     boolean existsByElderly(Elderly elderly);
+
+    @Query("""
+        SELECT r
+          FROM Recruitment r
+         WHERE r.elderly IN :elderlys
+    """)
+    List<Recruitment> findAllByElderlys(List<Elderly> elderlys);
 }
