@@ -22,15 +22,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class WorkApplicationService {
 
     private final WorkApplicationRepository workApplicationRepository;
     private final MatchingRepository matchingRepository;
-    private final AuthUtil authUtil;
     private final RecruitmentRepository recruitmentRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
+    private final AuthUtil authUtil;
 
+    @Transactional(readOnly = true)
     public CaregiverMyWorkApplicationPageResponse getMyWorkApplicationPageInfo() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
@@ -86,14 +86,12 @@ public class WorkApplicationService {
     }
 
     private void matchingWith(WorkApplication application) {
+        // TODO : 매칭 적합도 검사해서 '제외' 가 아닌 것만 저장하도록 수정 (matching domain service 에서 처리)
         List<Matching> matchingList =
                 matchingRepository.findAllByCaregiverAndApplicationStatus(application.getCaregiver(), 미지원);
         matchingRepository.deleteAll(matchingList);
-        recruitmentRepository.findAll().stream()
-                .filter(r -> r.getRecruitmentStatus().isRecruiting())
+        recruitmentRepository.findAllByIsRecruiting().stream()
                 .map(recruitment -> Matching.create(recruitment, application))
-                // TODO : 매칭 알고리즘 해제하기.
-                // .filter((matching -> isMatchedWithSocialWorker(matching.getSocialWorkerMatchingInfo())))
                 .forEach(matchingRepository::save);
     }
 }
