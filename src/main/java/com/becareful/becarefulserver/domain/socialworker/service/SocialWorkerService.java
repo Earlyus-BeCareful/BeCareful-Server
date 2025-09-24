@@ -89,7 +89,7 @@ public class SocialWorkerService {
                         .map(SocialWorkerSimpleDto::from)
                         .toList();
 
-        List<Recruitment> recruitments = recruitmentRepository.findAllByElderlys(institutionElderlys);
+        List<Recruitment> recruitments = recruitmentRepository.findAllByElderlyIn(institutionElderlys);
 
         boolean hasNewChat = socialWorkerChatReadStatusRepository.existsUnreadContract(loggedInSocialWorker);
 
