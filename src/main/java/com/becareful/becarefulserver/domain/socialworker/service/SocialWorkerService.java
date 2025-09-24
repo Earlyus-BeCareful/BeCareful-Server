@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class SocialWorkerService {
 
     private final SocialWorkerRepository socialworkerRepository;
@@ -42,11 +41,11 @@ public class SocialWorkerService {
     private final MatchingRepository matchingRepository;
     private final ElderlyRepository elderlyRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
+    private final CompletedMatchingRepository completedMatchingRepository;
     private final AuthUtil authUtil;
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
     private final JwtProperties jwtProperties;
-    private final CompletedMatchingRepository completedMatchingRepository;
 
     @Transactional
     public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
@@ -81,6 +80,7 @@ public class SocialWorkerService {
         return socialWorker.getId();
     }
 
+    @Transactional(readOnly = true)
     public SocialWorkerHomeResponse getHomeData() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         NursingInstitution institution = loggedInSocialWorker.getNursingInstitution();
@@ -165,15 +165,18 @@ public class SocialWorkerService {
                 hasNewChat);
     }
 
+    @Transactional(readOnly = true)
     public boolean checkSameNickNameAtRegist(String nickName) {
         return socialworkerRepository.existsByNickname(nickName);
     }
 
+    @Transactional(readOnly = true)
     public SocialWorkerMyResponse getMyInfo() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         return SocialWorkerMyResponse.from(loggedInSocialWorker);
     }
 
+    @Transactional(readOnly = true)
     public SocialWorkerEditResponse getEditMyInfo() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         return SocialWorkerEditResponse.from(loggedInSocialWorker);

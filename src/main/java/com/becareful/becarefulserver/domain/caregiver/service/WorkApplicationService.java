@@ -5,20 +5,14 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGI
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplicationWorkLocation;
 import com.becareful.becarefulserver.domain.caregiver.dto.WorkApplicationDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
-import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationWorkLocationRepository;
 import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
-import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
-import com.becareful.becarefulserver.domain.work_location.domain.WorkLocation;
-import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
-import com.becareful.becarefulserver.domain.work_location.repository.WorkLocationRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import java.util.List;
@@ -28,31 +22,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class WorkApplicationService {
 
     private final WorkApplicationRepository workApplicationRepository;
-    private final WorkLocationRepository workLocationRepository;
-    private final WorkApplicationWorkLocationRepository workApplicationWorkLocationRepository;
     private final MatchingRepository matchingRepository;
-    private final AuthUtil authUtil;
     private final RecruitmentRepository recruitmentRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
+    private final AuthUtil authUtil;
 
+    @Transactional(readOnly = true)
     public CaregiverMyWorkApplicationPageResponse getMyWorkApplicationPageInfo() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
         boolean hasNewChat = caregiverChatReadStatusRepository.existsUnreadContract(caregiver);
         WorkApplicationDto workApplicationDto = workApplicationRepository
                 .findByCaregiver(caregiver)
-                .map(workApplication -> {
-                    List<WorkLocationDto> locations =
-                            workApplicationWorkLocationRepository.findAllByWorkApplication(workApplication).stream()
-                                    .map(data -> WorkLocationDto.from(data.getWorkLocation()))
-                                    .toList();
-
-                    return WorkApplicationDto.of(locations, workApplication);
-                })
+                .map(WorkApplicationDto::from)
                 .orElse(null);
 
         return CaregiverMyWorkApplicationPageResponse.of(hasNewChat, workApplicationDto);
@@ -66,14 +51,11 @@ public class WorkApplicationService {
                 .ifPresentOrElse(
                         application -> {
                             application.updateWorkApplication(request);
-                            workApplicationWorkLocationRepository.deleteAllByWorkApplication(application);
-                            saveWorkLocations(request.workLocations(), application);
                             matchingWith(application);
                         },
                         () -> {
                             WorkApplication application = WorkApplication.create(request, caregiver);
                             workApplicationRepository.save(application);
-                            saveWorkLocations(request.workLocations(), application);
                             matchingWith(application);
                         });
     }
@@ -103,32 +85,13 @@ public class WorkApplicationService {
         application.inactivate();
     }
 
-    private void saveWorkLocations(List<WorkLocationDto> workLocations, WorkApplication workApplication) {
-        for (WorkLocationDto workLocation : workLocations) {
-            WorkLocation location = workLocationRepository
-                    .findByLocation(
-                            Location.of(workLocation.siDo(), workLocation.siGuGun(), workLocation.dongEupMyeon()))
-                    .orElseGet(() -> workLocationRepository.save(WorkLocation.from(workLocation)));
-
-            var data = WorkApplicationWorkLocation.of(workApplication, location);
-            workApplicationWorkLocationRepository.save(data);
-        }
-    }
-
     private void matchingWith(WorkApplication application) {
+        // TODO : 매칭 적합도 검사해서 '제외' 가 아닌 것만 저장하도록 수정 (matching domain service 에서 처리)
         List<Matching> matchingList =
                 matchingRepository.findAllByCaregiverAndApplicationStatus(application.getCaregiver(), 미지원);
         matchingRepository.deleteAll(matchingList);
-        List<Location> locations = workApplicationWorkLocationRepository.findAllByWorkApplication(application).stream()
-                .map(WorkApplicationWorkLocation::getLocation)
-                .toList();
-        recruitmentRepository.findAll().stream()
-                .filter(r -> r.getRecruitmentStatus().isRecruiting())
-                .map(recruitment -> {
-                    return Matching.create(recruitment, application, locations);
-                })
-                // TODO : 매칭 알고리즘 해제하기.
-                // .filter((matching -> isMatchedWithSocialWorker(matching.getSocialWorkerMatchingInfo())))
+        recruitmentRepository.findAllByIsRecruiting().stream()
+                .map(recruitment -> Matching.create(recruitment, application))
                 .forEach(matchingRepository::save);
     }
 }

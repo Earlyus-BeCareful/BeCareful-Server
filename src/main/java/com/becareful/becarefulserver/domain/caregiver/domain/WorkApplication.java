@@ -6,8 +6,11 @@ import com.becareful.becarefulserver.domain.caregiver.domain.converter.WorkTimeS
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,6 +22,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import java.time.DayOfWeek;
 import java.util.EnumSet;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,6 +50,10 @@ public class WorkApplication extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private WorkSalaryUnitType workSalaryUnitType;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "work_location", joinColumns = @JoinColumn(name = "work_application_id"))
+    private List<Location> workLocations;
+
     private int workSalaryAmount;
 
     private boolean isActive;
@@ -60,6 +68,7 @@ public class WorkApplication extends BaseEntity {
             EnumSet<WorkTime> workTimes,
             EnumSet<CareType> workCareTypes,
             WorkSalaryUnitType workSalaryUnitType,
+            List<Location> workLocations,
             int workSalaryAmount,
             boolean isActive,
             Caregiver caregiver) {
@@ -68,6 +77,7 @@ public class WorkApplication extends BaseEntity {
         this.workCareTypes = workCareTypes;
         this.workSalaryUnitType = workSalaryUnitType;
         this.workSalaryAmount = workSalaryAmount;
+        this.workLocations = workLocations;
         this.isActive = isActive;
         this.caregiver = caregiver;
     }
@@ -79,6 +89,7 @@ public class WorkApplication extends BaseEntity {
                 .workTimes(EnumSet.copyOf(request.workTimes()))
                 .workSalaryUnitType(request.workSalaryUnitType())
                 .workSalaryAmount(request.workSalaryAmount())
+                .workLocations(request.workLocations())
                 .isActive(true)
                 .caregiver(caregiver)
                 .build();
@@ -90,6 +101,7 @@ public class WorkApplication extends BaseEntity {
         this.workCareTypes = EnumSet.copyOf(request.careTypes());
         this.workSalaryUnitType = request.workSalaryUnitType();
         this.workSalaryAmount = request.workSalaryAmount();
+        this.workLocations = request.workLocations();
     }
 
     /***

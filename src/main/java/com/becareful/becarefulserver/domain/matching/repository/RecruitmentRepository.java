@@ -16,5 +16,14 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
     """)
     List<Recruitment> findAllByInstitutionId(Long institutionId);
 
+    // TODO : QueryDSL 로 이전
+    @Query(
+            """
+        select r
+          from Recruitment r
+         where r.recruitmentStatus = com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중
+    """)
+    List<Recruitment> findAllByIsRecruiting();
+
     boolean existsByElderly(Elderly elderly);
 }

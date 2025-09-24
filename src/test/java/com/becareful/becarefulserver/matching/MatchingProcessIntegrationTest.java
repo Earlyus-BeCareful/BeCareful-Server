@@ -19,6 +19,7 @@ import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
@@ -32,7 +33,6 @@ import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchin
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
-import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
 import java.time.*;
 import java.util.EnumSet;
@@ -93,7 +93,7 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 true));
 
         WorkApplicationUpdateRequest workRequest = new WorkApplicationUpdateRequest(
-                List.of(new WorkLocationDto("서울시", "종로구", "청운동")),
+                List.of(Location.of("서울시", "종로구", "청운동")),
                 List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
                 List.of(WorkTime.MORNING),
                 List.of(CareType.식사보조),
