@@ -42,9 +42,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     List<Matching> findByWorkApplicationAndMatchingStatus(
             WorkApplication workApplication, MatchingStatus matchingStatus);
 
-    @Query("SELECT m FROM Matching m WHERE m.recruitment.elderly.id IN :elderlyIds ")
-    List<Matching> findAllByElderlyIds(@Param("elderlyIds") List<Long> elderlyIds);
-
     @Query("SELECT m FROM Matching m JOIN FETCH m.recruitment WHERE m.id = :id")
     Optional<Matching> findByIdWithRecruitment(@Param("id") Long id);
 

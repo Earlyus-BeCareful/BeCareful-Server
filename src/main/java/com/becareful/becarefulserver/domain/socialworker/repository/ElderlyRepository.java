@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ElderlyRepository extends JpaRepository<Elderly, Long> {
 
-    List<Elderly> findByNursingInstitution(NursingInstitution nursingInstitution);
+    List<Elderly> findAllByNursingInstitution(NursingInstitution nursingInstitution);
 
     List<Elderly> findByNursingInstitutionAndNameContaining(NursingInstitution nursingInstitution, String name);
 }

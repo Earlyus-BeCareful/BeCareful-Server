@@ -98,7 +98,7 @@ public class ElderlyService {
 
     public List<ElderlyInfoResponse> getElderlyList() {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
-        List<Elderly> elderlyList = elderlyRepository.findByNursingInstitution(socialworker.getNursingInstitution());
+        List<Elderly> elderlyList = elderlyRepository.findAllByNursingInstitution(socialworker.getNursingInstitution());
 
         return elderlyList.stream()
                 .map(elderly -> {
