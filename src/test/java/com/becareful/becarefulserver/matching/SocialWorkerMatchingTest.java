@@ -14,6 +14,9 @@ import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 public class SocialWorkerMatchingTest extends IntegrationTest {
 
@@ -36,13 +39,16 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
 
         createRecruitment("모집 공고", elderly3);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ElderlySimpleDto> waitingElderlys = socialWorkerMatchingService.getWaitingElderlys();
+        Page<ElderlySimpleDto> waitingElderlys = socialWorkerMatchingService.getWaitingElderlys(pageable);
 
         // then
-        Assertions.assertThat(waitingElderlys.size()).isEqualTo(2);
-        Assertions.assertThat(waitingElderlys.get(0).elderlyName()).isIn("박요양", "김요양");
-        Assertions.assertThat(waitingElderlys.get(1).elderlyName()).isIn("박요양", "김요양");
+        List<ElderlySimpleDto> elderlys = waitingElderlys.getContent();
+        Assertions.assertThat(elderlys.size()).isEqualTo(2);
+        Assertions.assertThat(elderlys.get(0).elderlyName()).isIn("박요양", "김요양");
+        Assertions.assertThat(elderlys.get(1).elderlyName()).isIn("박요양", "김요양");
     }
 
     private Elderly createElderly(String name) {

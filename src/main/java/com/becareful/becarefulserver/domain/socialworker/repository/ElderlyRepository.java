@@ -3,6 +3,8 @@ package com.becareful.becarefulserver.domain.socialworker.repository;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -25,5 +27,5 @@ public interface ElderlyRepository extends JpaRepository<Elderly, Long> {
                 WHERE r.elderly = e
            )
     """)
-    List<Elderly> findAllWaitingMatching(NursingInstitution institution);
+    Page<Elderly> findAllWaitingMatching(NursingInstitution institution, Pageable pageable);
 }

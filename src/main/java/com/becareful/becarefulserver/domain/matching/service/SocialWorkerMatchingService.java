@@ -21,6 +21,8 @@ import com.becareful.becarefulserver.global.util.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 
@@ -48,11 +50,12 @@ public class SocialWorkerMatchingService {
      * @return
      */
     @Transactional(readOnly = true)
-    public List<ElderlySimpleDto> getWaitingElderlys() {
+    public Page<ElderlySimpleDto> getWaitingElderlys(Pageable pageable) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        return elderlyRepository.findAllWaitingMatching(loggedInSocialWorker.getNursingInstitution()).stream()
-                .map(ElderlySimpleDto::from)
-                .toList();
+
+        return elderlyRepository
+                .findAllWaitingMatching(loggedInSocialWorker.getNursingInstitution(), pageable)
+                .map(ElderlySimpleDto::from);
     }
 
     /***

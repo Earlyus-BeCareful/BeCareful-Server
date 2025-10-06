@@ -13,6 +13,8 @@ import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +35,8 @@ public class SocialWorkerMatchingController {
 
     @Operation(summary = "3.1 공고 등록 대기 어르신 리스트 조회 (매칭 대기)")
     @GetMapping("/elderly/waiting")
-    public ResponseEntity<List<ElderlySimpleDto>> getWaitingElderlys() {
-        var response = socialWorkerMatchingService.getWaitingElderlys();
+    public ResponseEntity<Page<ElderlySimpleDto>> getWaitingElderlys(Pageable pageable) {
+        var response = socialWorkerMatchingService.getWaitingElderlys(pageable);
         return ResponseEntity.ok(response);
     }
 
