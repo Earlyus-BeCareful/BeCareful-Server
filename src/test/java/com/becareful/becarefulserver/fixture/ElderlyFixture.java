@@ -4,7 +4,6 @@ import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
-
 import java.time.LocalDate;
 import java.util.EnumSet;
 
@@ -25,7 +24,6 @@ public class ElderlyFixture {
                 NursingInstitutionFixture.NURSING_INSTITUTION,
                 CareLevel.일등급,
                 "condition",
-                EnumSet.of(DetailCareType.스스로식사가능)
-        );
+                EnumSet.of(DetailCareType.스스로식사가능));
     }
 }

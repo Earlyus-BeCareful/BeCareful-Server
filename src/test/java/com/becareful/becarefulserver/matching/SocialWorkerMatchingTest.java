@@ -8,14 +8,12 @@ import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepos
 import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
-import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.fixture.ElderlyFixture;
 import com.becareful.becarefulserver.fixture.RecruitmentFixture;
+import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 public class SocialWorkerMatchingTest extends IntegrationTest {
 
