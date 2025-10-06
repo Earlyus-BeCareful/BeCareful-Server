@@ -1,10 +1,11 @@
 package com.becareful.becarefulserver.domain.matching.controller;
 
-import com.becareful.becarefulserver.domain.matching.domain.MatchingStatusFilter;
+import com.becareful.becarefulserver.domain.matching.dto.request.ElderlyMatchingStatusFilter;
+import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusSimpleResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentListResponse;
 import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,11 +31,18 @@ public class SocialWorkerMatchingController {
         return ResponseEntity.ok(recruitmentId); // TODO : Created 응답으로 변경
     }
 
-    @Operation(summary = "매칭 현황 조회")
-    @GetMapping("/list")
-    public ResponseEntity<List<MatchingStatusSimpleResponse>> getMatchingList(
-            @RequestParam MatchingStatusFilter matchingStatusFilter) {
-        var response = socialWorkerMatchingService.getMatchingList(matchingStatusFilter);
+    @Operation(summary = "3.1 공고 등록 대기 어르신 리스트 조회 (매칭 대기)")
+    @GetMapping("/elderly/waiting")
+    public ResponseEntity<List<ElderlySimpleDto>> getWaitingElderlys() {
+        var response = socialWorkerMatchingService.getWaitingElderlys();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "3.1 공고 목록 조회 (매칭중 / 매칭완료)")
+    @GetMapping("/recruitment")
+    public ResponseEntity<List<RecruitmentListResponse>> getMatchingList(
+            @RequestParam ElderlyMatchingStatusFilter elderlyMatchingStatusFilter) {
+        var response = socialWorkerMatchingService.getRecruitmentList(elderlyMatchingStatusFilter);
         return ResponseEntity.ok(response);
     }
 

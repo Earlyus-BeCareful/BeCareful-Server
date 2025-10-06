@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.matching.repository;
 
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,9 +13,9 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
             """
         select r
           from Recruitment r
-         where r.elderly.nursingInstitution.id = :institutionId
+         where r.elderly.nursingInstitution = :institution
     """)
-    List<Recruitment> findAllByInstitutionId(Long institutionId);
+    List<Recruitment> findAllByInstitution(NursingInstitution institution);
 
     // TODO : QueryDSL 로 이전
     @Query(
