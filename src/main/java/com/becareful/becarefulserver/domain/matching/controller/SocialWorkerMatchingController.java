@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +41,7 @@ public class SocialWorkerMatchingController {
 
     @Operation(summary = "3.1 공고 목록 조회 (매칭중 / 매칭완료)")
     @GetMapping("/recruitment")
-    public ResponseEntity<List<SocialWorkerRecruitmentResponse>> getMatchingList(
+    public ResponseEntity<Page<SocialWorkerRecruitmentResponse>> getMatchingList(
             @RequestParam ElderlyMatchingStatusFilter elderlyMatchingStatusFilter, Pageable pageable) {
         var response = socialWorkerMatchingService.getRecruitmentList(elderlyMatchingStatusFilter, pageable);
         return ResponseEntity.ok(response);

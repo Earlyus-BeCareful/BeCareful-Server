@@ -70,24 +70,25 @@ public class SocialWorkerMatchingService {
             ElderlyMatchingStatusFilter elderlyMatchingStatusFilter, Pageable pageable) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
-        List<SocialWorkerRecruitmentResponse> recruitments = recruitmentRepository.findAllByInstitution(socialworker.getNursingInstitution()).stream()
-                .filter(recruitment -> {
-                    if (elderlyMatchingStatusFilter.isMatchingProcessing()) {
-                        return recruitment.getRecruitmentStatus().isRecruiting();
-                    }
-                    if (elderlyMatchingStatusFilter.isMatchingCompleted()) {
-                        return recruitment.getRecruitmentStatus().isCompleted();
-                    }
-                    return false;
-                })
-                .map(recruitment -> {
-                    int matchingCount = matchingRepository.countByRecruitment(recruitment); // 거절 제거 할래말래
-                    int appliedMatchingCount =
-                            matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, 지원검토중);
+        List<SocialWorkerRecruitmentResponse> recruitments =
+                recruitmentRepository.findAllByInstitution(socialworker.getNursingInstitution()).stream()
+                        .filter(recruitment -> {
+                            if (elderlyMatchingStatusFilter.isMatchingProcessing()) {
+                                return recruitment.getRecruitmentStatus().isRecruiting();
+                            }
+                            if (elderlyMatchingStatusFilter.isMatchingCompleted()) {
+                                return recruitment.getRecruitmentStatus().isCompleted();
+                            }
+                            return false;
+                        })
+                        .map(recruitment -> {
+                            int matchingCount = matchingRepository.countByRecruitment(recruitment); // 거절 제거 할래말래
+                            int appliedMatchingCount =
+                                    matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, 지원검토중);
 
-                    return SocialWorkerRecruitmentResponse.of(recruitment, matchingCount, appliedMatchingCount);
-                })
-                .toList();
+                            return SocialWorkerRecruitmentResponse.of(recruitment, matchingCount, appliedMatchingCount);
+                        })
+                        .toList();
 
         return new PageImpl<>(recruitments, pageable, recruitments.size());
     }
