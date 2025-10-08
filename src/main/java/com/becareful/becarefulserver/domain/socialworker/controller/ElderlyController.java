@@ -1,8 +1,8 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
 
+import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyDetailResponse;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyInfoResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.service.ElderlyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,8 +10,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +26,18 @@ public class ElderlyController {
 
     private final ElderlyService elderlyService;
 
-    @Operation(summary = "어르신 목록 조회", description = "요양기관의 어르신 목록을 반환합니다.")
+    @Operation(summary = "어르신 목록 조회", description = "3.3.2 어르신 목록을 조회합니다.")
     @GetMapping("/list")
-    public ResponseEntity<List<ElderlyInfoResponse>> getElderlyList() {
-        var response = elderlyService.getElderlyList();
+    public ResponseEntity<Page<ElderlySimpleDto>> getElderlyList(Pageable pageable) {
+        var response = elderlyService.getElderlyList(pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "어르신 검색", description = "3.3.2 검색어를 입력하면 해당 이름을 포함한 어르신 목록을 반환합니다.")
+    @GetMapping("/search")
+    public ResponseEntity<Page<ElderlySimpleDto>> searchElderly(
+            @Parameter(name = "keyword", description = "어르신 이름", example = "홍길동") String keyword, Pageable pageable) {
+        var response = elderlyService.searchElderly(keyword, pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -36,17 +45,6 @@ public class ElderlyController {
     @GetMapping("/{elderlyId}")
     public ResponseEntity<ElderlyDetailResponse> getElderlyDetail(@PathVariable Long elderlyId) {
         var response = elderlyService.getElderlyDetail(elderlyId);
-        return ResponseEntity.ok(response);
-    }
-
-    // 어르신 목록 - 성함, 나이, 성별, 프로필, 요양등급, 요양보호자 수, 매칭 중인지(공고 진행중인거), 검색어 입력
-    @Operation(summary = "어르신 검색", description = "검색어를 입력하면 해당 이름을 포함한 어르신 목록을 반환합니다.")
-    @GetMapping("/search")
-    public ResponseEntity<List<ElderlyInfoResponse>> getElderlyListBySearch(
-            @Parameter(name = "searchString", description = "검색어 (어르신 이름 일부 또는 전체)", example = "홍길동")
-                    @RequestParam(required = false)
-                    String searchString) {
-        var response = elderlyService.getElderlyListBySearch(searchString);
         return ResponseEntity.ok(response);
     }
 
