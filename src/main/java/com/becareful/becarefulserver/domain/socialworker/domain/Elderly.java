@@ -143,8 +143,6 @@ public class Elderly extends BaseEntity {
     /**
      * Entity Method
      */
-
-    // TODO : 업데이트 로직을 PUT 방식으로 수정하지 않을 데이터는 기존값을 보내도록 API 명세 수정
     public void update(
             String name,
             LocalDate birthday,
@@ -152,54 +150,21 @@ public class Elderly extends BaseEntity {
             Boolean hasInmate,
             Boolean hasPet,
             CareLevel careLevel,
-            String siDo,
-            String siGuGun,
-            String eupMyeonDong,
+            Location residentialLocation,
             String detailAddress,
             String healthCondition,
             String profileImageUrl,
             List<DetailCareType> detailCareTypes) {
-
-        if (name != null) {
-            this.name = name;
-        }
-
-        if (gender != null) {
-            this.gender = gender;
-        }
-
-        if (birthday != null) {
-            this.birthday = birthday;
-        }
-
-        if (hasInmate != null) {
-            this.hasInmate = hasInmate;
-        }
-
-        if (hasPet != null) {
-            this.hasPet = hasPet;
-        }
-
-        if (careLevel != null) {
-            this.careLevel = careLevel;
-        }
-
-        if (siDo != null && siGuGun != null && eupMyeonDong != null) {
-            this.residentialLocation = Location.of(siDo, siGuGun, eupMyeonDong);
-        }
-
-        if (detailAddress != null) {
-            this.detailAddress = detailAddress;
-        }
-
-        if (healthCondition != null) {
-            this.healthCondition = healthCondition;
-        }
-
+        this.name = name;
+        this.gender = gender;
+        this.birthday = birthday;
+        this.hasInmate = hasInmate;
+        this.hasPet = hasPet;
+        this.careLevel = careLevel;
+        this.residentialLocation = residentialLocation;
+        this.detailAddress = detailAddress;
+        this.healthCondition = healthCondition;
         updateProfileImageUrl(profileImageUrl);
-
-        if (detailCareTypes != null) {
-            this.detailCareTypes = EnumSet.copyOf(detailCareTypes);
-        }
+        this.detailCareTypes = EnumSet.copyOf(detailCareTypes);
     }
 }
