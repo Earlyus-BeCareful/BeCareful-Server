@@ -76,7 +76,7 @@ public class SocialWorkerMatchingService {
                         return recruitment.getRecruitmentStatus().isRecruiting();
                     }
                     if (elderlyMatchingStatusFilter.isMatchingCompleted()) {
-                        return !recruitment.getRecruitmentStatus().isRecruiting();
+                        return recruitment.getRecruitmentStatus().isCompleted();
                     }
                     return false;
                 })
