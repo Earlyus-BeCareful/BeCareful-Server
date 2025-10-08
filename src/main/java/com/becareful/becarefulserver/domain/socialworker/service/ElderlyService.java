@@ -2,12 +2,15 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.domain.socialworker.domain.service.ElderlyDomainService;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpdateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyDetailResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyInfoResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
@@ -32,6 +35,7 @@ public class ElderlyService {
     private final ElderlyRepository elderlyRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
+    private final ElderlyDomainService elderlyDomainService;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
 
@@ -96,6 +100,7 @@ public class ElderlyService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ElderlyInfoResponse> getElderlyList() {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
         List<Elderly> elderlyList = elderlyRepository.findAllByNursingInstitution(socialworker.getNursingInstitution());
@@ -107,6 +112,26 @@ public class ElderlyService {
                     return ElderlyInfoResponse.of(elderly, caregiverNum, hasRecruitment);
                 })
                 .toList();
+    }
+
+    /**
+     * 3.2.1.2 공고 등록 - 어르신 상세 정보 조회
+     * @param elderlyId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public ElderlyDetailResponse getElderlyDetail(Long elderlyId) {
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
+
+        Elderly elderly =
+                elderlyRepository.findById(elderlyId).orElseThrow(() -> new ElderlyException(ELDERLY_NOT_EXISTS));
+
+        elderlyDomainService.validateElderlyAndSocialWorkerInstitution(elderly, socialworker);
+
+        List<SocialWorkerRecruitmentResponse> responses =
+                recruitmentRepository.getRecruitmentResponsesByElderly(elderly);
+
+        return ElderlyDetailResponse.of(elderly, responses);
     }
 
     @Transactional

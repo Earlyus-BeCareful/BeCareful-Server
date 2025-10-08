@@ -38,8 +38,9 @@ public class ErrorMessage {
     public static final String ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST = "커뮤니티 협회장 위임을 먼저 해야합니다.";
     public static final String ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST = "커뮤니티 임원진 위임을 먼저 해야합니다.";
 
-    public static final String ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
     public static final String ELDERLY_NOT_EXISTS = "존재하지 않는 어르신입니다.";
+    public static final String ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
+    public static final String ELDERLY_DIFFERENT_INSTITUTION = "다른 기관의 어르신에는 접근할 수 없습니다.";
 
     public static final String RECRUITMENT_NOT_EXISTS = "매칭 공고가 존재하지 않습니다.";
     public static final String RECRUITMENT_NOT_COMPLETABLE_NOT_RECRUITING = "모집중이 아닌 공고는 완료처리할 수 없습니다.";
