@@ -60,6 +60,7 @@ public class SocialWorkerMatchingService {
                 .map(ElderlySimpleDto::from);
     }
 
+    @Transactional(readOnly = true)
     public Page<ElderlySimpleDto> searchWaitingElderlys(
             Pageable pageable, @Valid WaitingMatchingElderlySearchRequest request) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
@@ -98,6 +99,38 @@ public class SocialWorkerMatchingService {
                             return SocialWorkerRecruitmentResponse.of(recruitment, matchingCount, appliedMatchingCount);
                         })
                         .toList();
+
+        return new PageImpl<>(recruitments, pageable, recruitments.size());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<SocialWorkerRecruitmentResponse> searchRecruitmentList(
+            ElderlyMatchingStatusFilter elderlyMatchingStatusFilter,
+            Pageable pageable,
+            MatchingRecruitmentSearchRequest request) {
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
+
+        List<SocialWorkerRecruitmentResponse> recruitments = recruitmentRepository
+                .searchByInstitutionAndElderlyNameOrRecruitmentTitle(
+                        socialworker.getNursingInstitution(), request.keyword())
+                .stream()
+                .filter(recruitment -> {
+                    if (elderlyMatchingStatusFilter.isMatchingProcessing()) {
+                        return recruitment.getRecruitmentStatus().isRecruiting();
+                    }
+                    if (elderlyMatchingStatusFilter.isMatchingCompleted()) {
+                        return recruitment.getRecruitmentStatus().isCompleted();
+                    }
+                    return false;
+                })
+                .map(recruitment -> {
+                    int matchingCount = matchingRepository.countByRecruitment(recruitment); // 거절 제거 할래말래
+                    int appliedMatchingCount =
+                            matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, 지원검토중);
+
+                    return SocialWorkerRecruitmentResponse.of(recruitment, matchingCount, appliedMatchingCount);
+                })
+                .toList();
 
         return new PageImpl<>(recruitments, pageable, recruitments.size());
     }

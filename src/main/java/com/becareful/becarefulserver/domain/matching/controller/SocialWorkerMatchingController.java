@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.matching.controller;
 
 import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
 import com.becareful.becarefulserver.domain.matching.dto.request.ElderlyMatchingStatusFilter;
+import com.becareful.becarefulserver.domain.matching.dto.request.MatchingRecruitmentSearchRequest;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.request.WaitingMatchingElderlySearchRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
@@ -53,6 +54,17 @@ public class SocialWorkerMatchingController {
     public ResponseEntity<Page<SocialWorkerRecruitmentResponse>> getMatchingList(
             @RequestParam ElderlyMatchingStatusFilter elderlyMatchingStatusFilter, Pageable pageable) {
         var response = socialWorkerMatchingService.getRecruitmentList(elderlyMatchingStatusFilter, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "3.1 공고 목록 검색 (매칭중 / 매칭완료)")
+    @PostMapping("/recruitment/search")
+    public ResponseEntity<Page<SocialWorkerRecruitmentResponse>> searchMatchingList(
+            @RequestParam ElderlyMatchingStatusFilter elderlyMatchingStatusFilter,
+            Pageable pageable,
+            @Valid @RequestBody MatchingRecruitmentSearchRequest request) {
+        var response =
+                socialWorkerMatchingService.searchRecruitmentList(elderlyMatchingStatusFilter, pageable, request);
         return ResponseEntity.ok(response);
     }
 

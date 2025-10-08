@@ -17,6 +17,16 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
     """)
     List<Recruitment> findAllByInstitution(NursingInstitution institution);
 
+    @Query(
+            """
+        select r
+          from Recruitment r
+         where r.elderly.nursingInstitution = :institution
+           and (r.title like %:keyword% or r.elderly.name like %:keyword%)
+    """)
+    List<Recruitment> searchByInstitutionAndElderlyNameOrRecruitmentTitle(
+            NursingInstitution institution, String keyword);
+
     // TODO : QueryDSL 로 이전
     @Query(
             """
