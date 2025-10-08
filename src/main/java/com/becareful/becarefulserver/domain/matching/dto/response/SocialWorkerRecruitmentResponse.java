@@ -6,19 +6,11 @@ import com.becareful.becarefulserver.domain.matching.dto.RecruitmentDto;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 
 public record SocialWorkerRecruitmentResponse(
-        RecruitmentDto recruitmentInfo, ElderlySimpleDto elderlyInfo, int matchingCount, int applyCount) {
+        RecruitmentDto recruitmentInfo, ElderlySimpleDto elderlyInfo, long matchingCount, long applyCount) {
 
     // RecruitmentRepository 에서 프로젝션에 사용
     public SocialWorkerRecruitmentResponse(
-            Recruitment recruitment, Elderly elderly, int matchingCount, int applyCount) {
+            Recruitment recruitment, Elderly elderly, long matchingCount, long applyCount) {
         this(RecruitmentDto.from(recruitment), ElderlySimpleDto.from(elderly), matchingCount, applyCount);
-    }
-
-    public static SocialWorkerRecruitmentResponse of(Recruitment recruitment, int matchingCount, int applyCount) {
-        return new SocialWorkerRecruitmentResponse(
-                RecruitmentDto.from(recruitment),
-                ElderlySimpleDto.from(recruitment.getElderly()),
-                matchingCount,
-                applyCount);
     }
 }
