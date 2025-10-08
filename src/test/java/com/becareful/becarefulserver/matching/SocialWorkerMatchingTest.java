@@ -46,10 +46,11 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
         Page<ElderlySimpleDto> waitingElderlys = socialWorkerMatchingService.getWaitingElderlys(pageable);
 
         // then
-        List<ElderlySimpleDto> elderlys = waitingElderlys.getContent();
-        Assertions.assertThat(elderlys.size()).isEqualTo(2);
-        Assertions.assertThat(elderlys.get(0).elderlyName()).isIn("박요양", "김요양");
-        Assertions.assertThat(elderlys.get(1).elderlyName()).isIn("박요양", "김요양");
+        List<String> elderlyNames = waitingElderlys.getContent().stream()
+                .map(ElderlySimpleDto::elderlyName)
+                .toList();
+
+        Assertions.assertThat(elderlyNames).containsExactlyInAnyOrder("박요양", "김요양");
     }
 
     @Test
@@ -70,9 +71,11 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
         Page<ElderlySimpleDto> waitingElderlys = socialWorkerMatchingService.searchWaitingElderlys(pageable, request);
 
         // then
-        List<ElderlySimpleDto> elderlys = waitingElderlys.getContent();
-        Assertions.assertThat(elderlys.size()).isEqualTo(1);
-        Assertions.assertThat(elderlys.get(0).elderlyName()).isEqualTo("박요양");
+        List<String> elderlyNames = waitingElderlys.getContent().stream()
+                .map(ElderlySimpleDto::elderlyName)
+                .toList();
+
+        Assertions.assertThat(elderlyNames).containsExactly("박요양");
     }
 
     private Elderly createElderly(String name) {
