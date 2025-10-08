@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.socialworker.domain;
 import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.ELDERLY_DEFAULT_PROFILE_IMAGE_URL;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
@@ -13,6 +14,8 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -130,6 +133,13 @@ public class Elderly extends BaseEntity {
 
     public Integer getAge() {
         return LocalDate.now().getYear() - birthday.getYear() + 1;
+    }
+
+    public Map<CareType, List<String>> getDetailCareTypeMap() {
+        return detailCareTypes.stream()
+                .collect(Collectors.groupingBy(
+                        DetailCareType::getCareType,
+                        Collectors.mapping(DetailCareType::getDisplayName, Collectors.toList())));
     }
 
     /**
