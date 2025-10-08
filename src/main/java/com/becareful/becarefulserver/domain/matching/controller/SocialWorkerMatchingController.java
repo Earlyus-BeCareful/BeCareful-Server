@@ -41,7 +41,7 @@ public class SocialWorkerMatchingController {
     }
 
     @Operation(summary = "3.1 공고 등록 대기 어르신 리스트 검색 (매칭 대기)")
-    @GetMapping("/elderly/waiting/search")
+    @PostMapping("/elderly/waiting/search")
     public ResponseEntity<Page<ElderlySimpleDto>> searchWaitingElderlys(
             Pageable pageable, @Valid @RequestBody WaitingMatchingElderlySearchRequest request) {
         var response = socialWorkerMatchingService.searchWaitingElderlys(pageable, request);
