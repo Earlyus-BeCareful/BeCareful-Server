@@ -7,6 +7,7 @@ import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchin
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.domain.socialworker.domain.service.ElderlyDomainService;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpdateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyDetailResponse;
@@ -34,6 +35,7 @@ public class ElderlyService {
     private final ElderlyRepository elderlyRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
+    private final ElderlyDomainService elderlyDomainService;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
 
@@ -123,6 +125,8 @@ public class ElderlyService {
 
         Elderly elderly =
                 elderlyRepository.findById(elderlyId).orElseThrow(() -> new ElderlyException(ELDERLY_NOT_EXISTS));
+
+        elderlyDomainService.validateElderlyAndSocialWorkerInstitution(elderly, socialworker);
 
         List<SocialWorkerRecruitmentResponse> responses =
                 recruitmentRepository.getRecruitmentResponsesByElderly(elderly);
