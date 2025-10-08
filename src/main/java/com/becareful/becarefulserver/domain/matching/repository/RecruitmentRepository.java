@@ -1,9 +1,13 @@
 package com.becareful.becarefulserver.domain.matching.repository;
 
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus;
+import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -11,21 +15,42 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
 
     @Query(
             """
-        select r
-          from Recruitment r
-         where r.elderly.nursingInstitution = :institution
+        SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
+                   r,
+                   e,
+                   (SELECT COUNT(m) FROM Matching m WHERE m.recruitment = r),
+                   (SELECT COUNT(m)
+                      FROM Matching m
+                     WHERE m.recruitment = r
+                       AND m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토중)
+               )
+          FROM Recruitment r
+          JOIN r.elderly e
+         WHERE r.elderly.nursingInstitution = :institution
+           AND r.recruitmentStatus = :recruitmentStatus
     """)
-    List<Recruitment> findAllByInstitution(NursingInstitution institution);
+    Page<SocialWorkerRecruitmentResponse> findAllByInstitution(
+            NursingInstitution institution, RecruitmentStatus recruitmentStatus, Pageable pageable);
 
     @Query(
             """
-        select r
-          from Recruitment r
-         where r.elderly.nursingInstitution = :institution
-           and (r.title like %:keyword% or r.elderly.name like %:keyword%)
+        SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
+                   r,
+                   e,
+                   (SELECT COUNT(m) FROM Matching m WHERE m.recruitment = r),
+                   (SELECT COUNT(m)
+                      FROM Matching m
+                     WHERE m.recruitment = r
+                       AND m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토중)
+               )
+          FROM Recruitment r
+          JOIN r.elderly e
+         WHERE r.elderly.nursingInstitution = :institution
+           AND r.recruitmentStatus = :recruitmentStatus
+           AND (r.title LIKE %:keyword% OR r.elderly.name LIKE %:keyword%)
     """)
-    List<Recruitment> searchByInstitutionAndElderlyNameOrRecruitmentTitle(
-            NursingInstitution institution, String keyword);
+    Page<SocialWorkerRecruitmentResponse> searchByInstitutionAndElderlyNameOrRecruitmentTitle(
+            NursingInstitution institution, RecruitmentStatus recruitmentStatus, String keyword, Pageable pageable);
 
     // TODO : QueryDSL 로 이전
     @Query(

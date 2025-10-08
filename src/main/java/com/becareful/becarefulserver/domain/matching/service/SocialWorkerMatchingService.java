@@ -23,7 +23,6 @@ import java.time.*;
 import java.util.*;
 import lombok.*;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
@@ -70,7 +69,7 @@ public class SocialWorkerMatchingService {
     }
 
     /***
-     * 2025-09-24
+     * 2025-10-08
      * 3.1 공고 목록 (매칭중 / 매칭완료)
      * @param elderlyMatchingStatusFilter
      * @return List<MatchingStatusSimpleResponse>
@@ -80,27 +79,15 @@ public class SocialWorkerMatchingService {
             ElderlyMatchingStatusFilter elderlyMatchingStatusFilter, Pageable pageable) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
-        List<SocialWorkerRecruitmentResponse> recruitments =
-                recruitmentRepository.findAllByInstitution(socialworker.getNursingInstitution()).stream()
-                        .filter(recruitment -> {
-                            if (elderlyMatchingStatusFilter.isMatchingProcessing()) {
-                                return recruitment.getRecruitmentStatus().isRecruiting();
-                            }
-                            if (elderlyMatchingStatusFilter.isMatchingCompleted()) {
-                                return recruitment.getRecruitmentStatus().isCompleted();
-                            }
-                            return false;
-                        })
-                        .map(recruitment -> {
-                            int matchingCount = matchingRepository.countByRecruitment(recruitment); // 거절 제거 할래말래
-                            int appliedMatchingCount =
-                                    matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, 지원검토중);
+        RecruitmentStatus recruitmentStatus =
+                switch (elderlyMatchingStatusFilter) {
+                    case 매칭중 -> RecruitmentStatus.모집중;
+                    case 매칭완료 -> RecruitmentStatus.모집완료;
+                    default -> throw new RecruitmentException("매칭 상태 필터가 잘못되었습니다 : " + elderlyMatchingStatusFilter);
+                };
 
-                            return SocialWorkerRecruitmentResponse.of(recruitment, matchingCount, appliedMatchingCount);
-                        })
-                        .toList();
-
-        return new PageImpl<>(recruitments, pageable, recruitments.size());
+        return recruitmentRepository.findAllByInstitution(
+                socialworker.getNursingInstitution(), recruitmentStatus, pageable);
     }
 
     @Transactional(readOnly = true)
@@ -110,29 +97,15 @@ public class SocialWorkerMatchingService {
             MatchingRecruitmentSearchRequest request) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
-        List<SocialWorkerRecruitmentResponse> recruitments = recruitmentRepository
-                .searchByInstitutionAndElderlyNameOrRecruitmentTitle(
-                        socialworker.getNursingInstitution(), request.keyword())
-                .stream()
-                .filter(recruitment -> {
-                    if (elderlyMatchingStatusFilter.isMatchingProcessing()) {
-                        return recruitment.getRecruitmentStatus().isRecruiting();
-                    }
-                    if (elderlyMatchingStatusFilter.isMatchingCompleted()) {
-                        return recruitment.getRecruitmentStatus().isCompleted();
-                    }
-                    return false;
-                })
-                .map(recruitment -> {
-                    int matchingCount = matchingRepository.countByRecruitment(recruitment); // 거절 제거 할래말래
-                    int appliedMatchingCount =
-                            matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, 지원검토중);
+        RecruitmentStatus recruitmentStatus =
+                switch (elderlyMatchingStatusFilter) {
+                    case 매칭중 -> RecruitmentStatus.모집중;
+                    case 매칭완료 -> RecruitmentStatus.모집완료;
+                    default -> throw new RecruitmentException("매칭 상태 필터가 잘못되었습니다 : " + elderlyMatchingStatusFilter);
+                };
 
-                    return SocialWorkerRecruitmentResponse.of(recruitment, matchingCount, appliedMatchingCount);
-                })
-                .toList();
-
-        return new PageImpl<>(recruitments, pageable, recruitments.size());
+        return recruitmentRepository.searchByInstitutionAndElderlyNameOrRecruitmentTitle(
+                socialworker.getNursingInstitution(), recruitmentStatus, request.keyword(), pageable);
     }
 
     public MatchingCaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
