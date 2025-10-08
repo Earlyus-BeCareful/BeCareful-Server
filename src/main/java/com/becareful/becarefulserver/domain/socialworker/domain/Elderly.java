@@ -95,9 +95,7 @@ public class Elderly extends BaseEntity {
             String name,
             LocalDate birthday,
             Gender gender,
-            String siDo,
-            String siGuGun,
-            String eupMyeonDong,
+            Location residentialLocation,
             String detailAddress,
             boolean hasInmate,
             boolean hasPet,
@@ -110,10 +108,8 @@ public class Elderly extends BaseEntity {
                 .name(name)
                 .birthday(birthday)
                 .gender(gender)
-                .hasInmate(hasInmate)
-                .residentialLocation(Location.of(siDo, siGuGun, eupMyeonDong))
+                .residentialLocation(residentialLocation)
                 .detailAddress(detailAddress)
-                .hasPet(hasPet)
                 .profileImageUrl(
                         profileImageUrl == null || profileImageUrl.isBlank()
                                 ? ELDERLY_DEFAULT_PROFILE_IMAGE_URL
@@ -122,6 +118,8 @@ public class Elderly extends BaseEntity {
                 .careLevel(careLevel)
                 .healthCondition(healthCondition)
                 .detailCareTypes(detailCareTypes)
+                .hasInmate(hasInmate)
+                .hasPet(hasPet)
                 .build();
     }
 
