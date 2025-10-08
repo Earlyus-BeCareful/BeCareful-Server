@@ -20,6 +20,6 @@ public record ElderlyCreateOrUpdateRequest(
         @NotNull Location residentialLocation,
         String detailAddress,
         @NotBlank String healthCondition,
-        @Size(min = 1) List<DetailCareType> detailCareTypeList,
+        @NotNull @Size(min = 1) List<DetailCareType> detailCareTypeList,
         @NotNull Boolean hasInmate,
         @NotNull Boolean hasPet) {}
