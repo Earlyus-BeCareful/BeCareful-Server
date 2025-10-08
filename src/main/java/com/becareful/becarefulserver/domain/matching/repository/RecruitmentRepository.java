@@ -18,16 +18,20 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
         SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
                    r,
                    e,
-                   (SELECT COUNT(m) FROM Matching m WHERE m.recruitment = r),
-                   (SELECT COUNT(m)
-                      FROM Matching m
-                     WHERE m.recruitment = r
-                       AND m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토중)
+                   COUNT(m.id),
+                   COALESCE(
+                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토중
+                                THEN 1
+                                ELSE 0
+                           END),
+                       0L)
                )
           FROM Recruitment r
           JOIN r.elderly e
+          LEFT JOIN Matching m ON m.recruitment = r
          WHERE r.elderly.nursingInstitution = :institution
            AND r.recruitmentStatus = :recruitmentStatus
+         GROUP BY r, e
     """)
     Page<SocialWorkerRecruitmentResponse> findAllByInstitution(
             NursingInstitution institution, RecruitmentStatus recruitmentStatus, Pageable pageable);
@@ -37,17 +41,21 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
         SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
                    r,
                    e,
-                   (SELECT COUNT(m) FROM Matching m WHERE m.recruitment = r),
-                   (SELECT COUNT(m)
-                      FROM Matching m
-                     WHERE m.recruitment = r
-                       AND m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토중)
+                   COUNT(m.id),
+                   COALESCE(
+                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토중
+                                THEN 1
+                                ELSE 0
+                           END),
+                       0L)
                )
           FROM Recruitment r
           JOIN r.elderly e
+          LEFT JOIN Matching m ON m.recruitment = r
          WHERE r.elderly.nursingInstitution = :institution
            AND r.recruitmentStatus = :recruitmentStatus
            AND (r.title LIKE %:keyword% OR r.elderly.name LIKE %:keyword%)
+         GROUP BY r, e
     """)
     Page<SocialWorkerRecruitmentResponse> searchByInstitutionAndElderlyNameOrRecruitmentTitle(
             NursingInstitution institution, RecruitmentStatus recruitmentStatus, String keyword, Pageable pageable);
