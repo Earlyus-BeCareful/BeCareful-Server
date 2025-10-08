@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
 import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
@@ -10,7 +11,6 @@ import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.service.ElderlyDomainService;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyDetailResponse;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyInfoResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
@@ -22,6 +22,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -80,33 +82,32 @@ public class ElderlyService {
                 request.detailCareTypeList());
     }
 
-    public List<ElderlyInfoResponse> getElderlyListBySearch(String searchString) {
+    /**
+     * 3.3.2 어르신 목록 조회
+     * @param pageable
+     * @return Page<ElderlySimpleDto>
+     */
+    @Transactional(readOnly = true)
+    public Page<ElderlySimpleDto> getElderlyList(Pageable pageable) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
-
-        List<Elderly> elderlyList = elderlyRepository.findByNursingInstitutionAndNameContaining(
-                socialworker.getNursingInstitution(), searchString);
-
-        return elderlyList.stream()
-                .map(elderly -> {
-                    boolean hasRecruitment = recruitmentRepository.existsByElderly(elderly);
-                    int caregiverNum = completedMatchingRepository.countDistinctCaregiversByElderly(elderly);
-                    return ElderlyInfoResponse.of(elderly, caregiverNum, hasRecruitment);
-                })
-                .toList();
+        Page<Elderly> elderlyList =
+                elderlyRepository.findPageByNursingInstitution(socialworker.getNursingInstitution(), pageable);
+        return elderlyList.map(ElderlySimpleDto::from);
     }
 
+    /**
+     * 3.3.2 어르신 목록 - 어르신 검색
+     * @param keyword
+     * @return List<ElderlySimpleDto>
+     */
     @Transactional(readOnly = true)
-    public List<ElderlyInfoResponse> getElderlyList() {
+    public Page<ElderlySimpleDto> searchElderly(String keyword, Pageable pageable) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
-        List<Elderly> elderlyList = elderlyRepository.findAllByNursingInstitution(socialworker.getNursingInstitution());
 
-        return elderlyList.stream()
-                .map(elderly -> {
-                    boolean hasRecruitment = recruitmentRepository.existsByElderly(elderly);
-                    int caregiverNum = completedMatchingRepository.countDistinctCaregiversByElderly(elderly);
-                    return ElderlyInfoResponse.of(elderly, caregiverNum, hasRecruitment);
-                })
-                .toList();
+        Page<Elderly> elderlyList = elderlyRepository.findByNursingInstitutionAndNameContaining(
+                socialworker.getNursingInstitution(), keyword, pageable);
+
+        return elderlyList.map(ElderlySimpleDto::from);
     }
 
     /**
