@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.fixture;
 
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import java.time.LocalDate;
@@ -14,9 +15,7 @@ public class ElderlyFixture {
                 name,
                 LocalDate.of(1940, 1, 1),
                 Gender.FEMALE,
-                "서울특별시",
-                "마포구",
-                "상수동",
+                Location.of("서울특별시", "마포구", "상수동"),
                 "홍익대학교",
                 false,
                 false,
