@@ -51,8 +51,8 @@ public class ElderlyController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "어르신 등록")
-    @PostMapping("/register") // TODO : URL 변경 (register 제거)
+    @Operation(summary = "어르신 등록", description = "3.3.1 어르신 등록")
+    @PostMapping
     public ResponseEntity<Void> createElderly(@Valid @RequestBody ElderlyCreateRequest request) {
         Long id = elderlyService.saveElderly(request);
         return ResponseEntity.created(URI.create("/elderly/" + id)).build();
