@@ -22,6 +22,7 @@ import java.time.*;
 import java.util.*;
 import lombok.*;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
@@ -65,13 +66,11 @@ public class SocialWorkerMatchingService {
      * @return List<MatchingStatusSimpleResponse>
      */
     @Transactional(readOnly = true)
-    public List<SocialWorkerRecruitmentResponse> getRecruitmentList(
-            ElderlyMatchingStatusFilter elderlyMatchingStatusFilter) {
+    public Page<SocialWorkerRecruitmentResponse> getRecruitmentList(
+            ElderlyMatchingStatusFilter elderlyMatchingStatusFilter, Pageable pageable) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
-        List<Recruitment> recruitments =
-                recruitmentRepository.findAllByInstitution(socialworker.getNursingInstitution());
 
-        return recruitments.stream()
+        List<SocialWorkerRecruitmentResponse> recruitments = recruitmentRepository.findAllByInstitution(socialworker.getNursingInstitution()).stream()
                 .filter(recruitment -> {
                     if (elderlyMatchingStatusFilter.isMatchingProcessing()) {
                         return recruitment.getRecruitmentStatus().isRecruiting();
@@ -89,6 +88,8 @@ public class SocialWorkerMatchingService {
                     return SocialWorkerRecruitmentResponse.of(recruitment, matchingCount, appliedMatchingCount);
                 })
                 .toList();
+
+        return new PageImpl<>(recruitments, pageable, recruitments.size());
     }
 
     public MatchingCaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {

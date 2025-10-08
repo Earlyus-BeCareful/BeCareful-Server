@@ -43,8 +43,8 @@ public class SocialWorkerMatchingController {
     @Operation(summary = "3.1 공고 목록 조회 (매칭중 / 매칭완료)")
     @GetMapping("/recruitment")
     public ResponseEntity<List<SocialWorkerRecruitmentResponse>> getMatchingList(
-            @RequestParam ElderlyMatchingStatusFilter elderlyMatchingStatusFilter) {
-        var response = socialWorkerMatchingService.getRecruitmentList(elderlyMatchingStatusFilter);
+            @RequestParam ElderlyMatchingStatusFilter elderlyMatchingStatusFilter, Pageable pageable) {
+        var response = socialWorkerMatchingService.getRecruitmentList(elderlyMatchingStatusFilter, pageable);
         return ResponseEntity.ok(response);
     }
 
