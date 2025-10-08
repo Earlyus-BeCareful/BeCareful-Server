@@ -36,10 +36,7 @@ public class ElderlyController {
     @Operation(summary = "어르신 검색", description = "3.3.2 검색어를 입력하면 해당 이름을 포함한 어르신 목록을 반환합니다.")
     @GetMapping("/search")
     public ResponseEntity<Page<ElderlySimpleDto>> searchElderly(
-            @Parameter(name = "searchString", description = "검색어 (어르신 이름 일부 또는 전체)", example = "홍길동")
-                    @RequestParam(required = false)
-                    String keyword,
-            Pageable pageable) {
+            @Parameter(name = "keyword", description = "어르신 이름", example = "홍길동") String keyword, Pageable pageable) {
         var response = elderlyService.searchElderly(keyword, pageable);
         return ResponseEntity.ok(response);
     }
