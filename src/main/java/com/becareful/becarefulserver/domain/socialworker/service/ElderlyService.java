@@ -98,6 +98,7 @@ public class ElderlyService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ElderlyInfoResponse> getElderlyList() {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
         List<Elderly> elderlyList = elderlyRepository.findAllByNursingInstitution(socialworker.getNursingInstitution());
@@ -111,6 +112,24 @@ public class ElderlyService {
                 .toList();
     }
 
+    /**
+     * 3.2.1.2 공고 등록 - 어르신 상세 정보 조회
+     * @param elderlyId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public ElderlyDetailResponse getElderlyDetail(Long elderlyId) {
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
+
+        Elderly elderly =
+                elderlyRepository.findById(elderlyId).orElseThrow(() -> new ElderlyException(ELDERLY_NOT_EXISTS));
+
+        List<SocialWorkerRecruitmentResponse> responses =
+                recruitmentRepository.getRecruitmentResponsesByElderly(elderly);
+
+        return ElderlyDetailResponse.of(elderly, responses);
+    }
+
     @Transactional
     public ElderlyProfileUploadResponse uploadProfileImage(MultipartFile file) {
         authUtil.getLoggedInSocialWorker();
@@ -122,17 +141,5 @@ public class ElderlyService {
         } catch (IOException e) {
             throw new ElderlyException(ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE);
         }
-    }
-
-    public ElderlyDetailResponse getElderlyDetail(Long elderlyId) {
-        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
-
-        Elderly elderly =
-                elderlyRepository.findById(elderlyId).orElseThrow(() -> new ElderlyException(ELDERLY_NOT_EXISTS));
-
-        List<SocialWorkerRecruitmentResponse> responses =
-                recruitmentRepository.getRecruitmentResponsesByElderly(elderly);
-
-        return ElderlyDetailResponse.of(elderly, responses);
     }
 }

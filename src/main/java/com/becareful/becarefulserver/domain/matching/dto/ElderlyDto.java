@@ -5,7 +5,6 @@ import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
