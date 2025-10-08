@@ -18,8 +18,12 @@ public class Location {
 
     private String eupMyeonDong;
 
-    public String getFullAddress() {
+    public String getFullLocation() {
         return siDo + " " + siGuGun + " " + eupMyeonDong;
+    }
+
+    public String getShortLocation() {
+        return siDo + " " + siGuGun;
     }
 
     public static Location of(String siDo, String siGuGun, String eupMyeonDong) {

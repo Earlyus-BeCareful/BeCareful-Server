@@ -5,14 +5,17 @@ import static java.util.stream.Collectors.groupingBy;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus;
 import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionSimpleDto;
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public record RecruitmentDto(
         Long recruitmentId,
         String title,
+        RecruitmentStatus recruitmentStatus,
         List<CareTypeDto> careTypes,
         List<DayOfWeek> workDays,
         String workStartTime,
@@ -20,13 +23,14 @@ public record RecruitmentDto(
         WorkSalaryUnitType workSalaryUnitType,
         Integer workSalaryAmount,
         String description,
-        boolean isRecruiting,
+        LocalDateTime createdAt,
         InstitutionSimpleDto institutionInfo) {
 
     public static RecruitmentDto from(Recruitment recruitment) {
         return new RecruitmentDto(
                 recruitment.getId(),
                 recruitment.getTitle(),
+                recruitment.getRecruitmentStatus(),
                 recruitment.getElderly().getDetailCareTypes().stream()
                         .collect(groupingBy(DetailCareType::getCareType))
                         .entrySet()
@@ -44,7 +48,7 @@ public record RecruitmentDto(
                 recruitment.getWorkSalaryUnitType(),
                 recruitment.getWorkSalaryAmount(),
                 recruitment.getDescription(),
-                recruitment.getRecruitmentStatus().isRecruiting(),
+                recruitment.getCreateDate(),
                 InstitutionSimpleDto.from(recruitment.getElderly().getNursingInstitution()));
     }
 }

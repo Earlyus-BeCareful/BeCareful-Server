@@ -1,17 +1,21 @@
 package com.becareful.becarefulserver.domain.matching.controller;
 
-import com.becareful.becarefulserver.domain.matching.domain.MatchingStatusFilter;
+import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
+import com.becareful.becarefulserver.domain.matching.dto.request.ElderlyMatchingStatusFilter;
+import com.becareful.becarefulserver.domain.matching.dto.request.MatchingRecruitmentSearchRequest;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
+import com.becareful.becarefulserver.domain.matching.dto.request.WaitingMatchingElderlySearchRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusSimpleResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,11 +34,37 @@ public class SocialWorkerMatchingController {
         return ResponseEntity.ok(recruitmentId); // TODO : Created 응답으로 변경
     }
 
-    @Operation(summary = "매칭 현황 조회")
-    @GetMapping("/list")
-    public ResponseEntity<List<MatchingStatusSimpleResponse>> getMatchingList(
-            @RequestParam MatchingStatusFilter matchingStatusFilter) {
-        var response = socialWorkerMatchingService.getMatchingList(matchingStatusFilter);
+    @Operation(summary = "3.1 공고 등록 대기 어르신 리스트 조회 (매칭 대기)")
+    @GetMapping("/elderly/waiting")
+    public ResponseEntity<Page<ElderlySimpleDto>> getWaitingElderlys(Pageable pageable) {
+        var response = socialWorkerMatchingService.getWaitingElderlys(pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "3.1 공고 등록 대기 어르신 리스트 검색 (매칭 대기)")
+    @PostMapping("/elderly/waiting/search")
+    public ResponseEntity<Page<ElderlySimpleDto>> searchWaitingElderlys(
+            Pageable pageable, @Valid @RequestBody WaitingMatchingElderlySearchRequest request) {
+        var response = socialWorkerMatchingService.searchWaitingElderlys(pageable, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "3.1 공고 목록 조회 (매칭중 / 매칭완료)")
+    @GetMapping("/recruitment")
+    public ResponseEntity<Page<SocialWorkerRecruitmentResponse>> getMatchingList(
+            @RequestParam ElderlyMatchingStatusFilter elderlyMatchingStatusFilter, Pageable pageable) {
+        var response = socialWorkerMatchingService.getRecruitmentList(elderlyMatchingStatusFilter, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "3.1 공고 목록 검색 (매칭중 / 매칭완료)")
+    @PostMapping("/recruitment/search")
+    public ResponseEntity<Page<SocialWorkerRecruitmentResponse>> searchMatchingList(
+            @RequestParam ElderlyMatchingStatusFilter elderlyMatchingStatusFilter,
+            Pageable pageable,
+            @Valid @RequestBody MatchingRecruitmentSearchRequest request) {
+        var response =
+                socialWorkerMatchingService.searchRecruitmentList(elderlyMatchingStatusFilter, pageable, request);
         return ResponseEntity.ok(response);
     }
 

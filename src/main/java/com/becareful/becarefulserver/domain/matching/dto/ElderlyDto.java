@@ -21,7 +21,7 @@ public record ElderlyDto(
                 elderly.getName(),
                 elderly.getGender(),
                 elderly.getAge(),
-                elderly.getResidentialLocation().getFullAddress(),
+                elderly.getResidentialLocation().getFullLocation(),
                 elderly.getProfileImageUrl(),
                 elderly.getCareLevel(),
                 elderly.getHealthCondition(),

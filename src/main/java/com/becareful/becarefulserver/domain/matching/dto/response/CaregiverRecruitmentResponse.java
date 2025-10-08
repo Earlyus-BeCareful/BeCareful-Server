@@ -5,15 +5,15 @@ import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.RecruitmentSimpleDto;
 
-public record RecruitmentListItemResponse(
+public record CaregiverRecruitmentResponse(
         RecruitmentSimpleDto recruitmentInfo,
         MatchingResultStatus matchingResultStatus,
         boolean isHotRecruitment,
         boolean isHourlySalaryTop) {
 
-    public static RecruitmentListItemResponse from(Matching matching) {
+    public static CaregiverRecruitmentResponse from(Matching matching) {
         Recruitment recruitment = matching.getRecruitment();
-        return new RecruitmentListItemResponse(
+        return new CaregiverRecruitmentResponse(
                 RecruitmentSimpleDto.from(recruitment),
                 matching.getMatchingResultInfo().judgeMatchingResultStatus(),
                 // TODO : 매칭 필터 정보 추가
