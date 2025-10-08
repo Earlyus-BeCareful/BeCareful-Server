@@ -5,7 +5,7 @@ import com.becareful.becarefulserver.domain.matching.dto.request.ElderlyMatching
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentListResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,7 +42,7 @@ public class SocialWorkerMatchingController {
 
     @Operation(summary = "3.1 공고 목록 조회 (매칭중 / 매칭완료)")
     @GetMapping("/recruitment")
-    public ResponseEntity<List<RecruitmentListResponse>> getMatchingList(
+    public ResponseEntity<List<SocialWorkerRecruitmentResponse>> getMatchingList(
             @RequestParam ElderlyMatchingStatusFilter elderlyMatchingStatusFilter) {
         var response = socialWorkerMatchingService.getRecruitmentList(elderlyMatchingStatusFilter);
         return ResponseEntity.ok(response);

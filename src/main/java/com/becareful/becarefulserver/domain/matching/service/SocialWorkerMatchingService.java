@@ -65,7 +65,8 @@ public class SocialWorkerMatchingService {
      * @return List<MatchingStatusSimpleResponse>
      */
     @Transactional(readOnly = true)
-    public List<RecruitmentListResponse> getRecruitmentList(ElderlyMatchingStatusFilter elderlyMatchingStatusFilter) {
+    public List<SocialWorkerRecruitmentResponse> getRecruitmentList(
+            ElderlyMatchingStatusFilter elderlyMatchingStatusFilter) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
         List<Recruitment> recruitments =
                 recruitmentRepository.findAllByInstitution(socialworker.getNursingInstitution());
@@ -85,7 +86,7 @@ public class SocialWorkerMatchingService {
                     int appliedMatchingCount =
                             matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, 지원검토중);
 
-                    return RecruitmentListResponse.of(recruitment, matchingCount, appliedMatchingCount);
+                    return SocialWorkerRecruitmentResponse.of(recruitment, matchingCount, appliedMatchingCount);
                 })
                 .toList();
     }

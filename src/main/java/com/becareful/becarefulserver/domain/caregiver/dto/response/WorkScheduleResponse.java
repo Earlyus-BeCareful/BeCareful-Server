@@ -50,7 +50,7 @@ public record WorkScheduleResponse(
                         .getRecruitment()
                         .getElderly()
                         .getResidentialLocation()
-                        .getFullAddress())
+                        .getFullLocation())
                 .build();
     }
 }

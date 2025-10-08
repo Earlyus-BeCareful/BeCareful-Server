@@ -13,8 +13,8 @@ import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedRecruitmentsResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentListItemResponse;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.global.exception.exception.MatchingException;
@@ -37,13 +37,13 @@ public class CaregiverMatchingService {
     private final RecruitmentRepository recruitmentRepository;
 
     @Transactional(readOnly = true)
-    public List<RecruitmentListItemResponse> getCaregiverMatchingRecruitmentList() {
+    public List<CaregiverRecruitmentResponse> getCaregiverMatchingRecruitmentList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         return workApplicationRepository
                 .findByCaregiver(caregiver)
                 .map(workApplication ->
                         matchingRepository.findAllByCaregiverAndApplicationStatus(caregiver, 미지원).stream()
-                                .map(RecruitmentListItemResponse::from)
+                                .map(CaregiverRecruitmentResponse::from)
                                 .toList())
                 .orElse(null);
     }
