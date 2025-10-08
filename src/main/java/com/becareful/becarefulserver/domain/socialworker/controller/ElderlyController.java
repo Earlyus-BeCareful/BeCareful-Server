@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
 
-import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpdateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyDetailResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyInfoResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
@@ -53,15 +52,17 @@ public class ElderlyController {
 
     @Operation(summary = "어르신 등록", description = "3.3.1 어르신 등록")
     @PostMapping
-    public ResponseEntity<Void> createElderly(@Valid @RequestBody ElderlyCreateRequest request) {
+    public ResponseEntity<Void> createElderly(@Valid @RequestBody ElderlyCreateOrUpdateRequest request) {
         Long id = elderlyService.saveElderly(request);
         return ResponseEntity.created(URI.create("/elderly/" + id)).build();
     }
 
-    @Operation(summary = "어르신 정보 수정", description = "어르신 정보를 수정하는 API 입니다. 프로필이미지를 기본 이미지로 업데이트 시 반드시 공백 uri을 넣어주세요.")
-    @PatchMapping("/update/{elderlyId}") // TODO : URL 변경 (update 제거, PATCH -> PUT)
+    @Operation(
+            summary = "어르신 정보 수정",
+            description = "3.3.4 어르신 정보를 수정하는 API 입니다. 프로필이미지를 기본 이미지로 업데이트 시 반드시 공백 uri을 넣어주세요.")
+    @PutMapping("/{elderlyId}")
     public ResponseEntity<Void> updateElderly(
-            @PathVariable Long elderlyId, @Valid @RequestBody ElderlyUpdateRequest request) {
+            @PathVariable Long elderlyId, @Valid @RequestBody ElderlyCreateOrUpdateRequest request) {
         elderlyService.updateElderly(elderlyId, request);
         return ResponseEntity.ok().build();
     }

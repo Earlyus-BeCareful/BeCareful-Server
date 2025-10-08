@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
-public record ElderlyCreateRequest(
+public record ElderlyCreateOrUpdateRequest(
         // TODO : 에러 메세지 구체화
         String profileImageUrl,
         @NotBlank String name,
@@ -20,6 +20,6 @@ public record ElderlyCreateRequest(
         @NotNull Location residentialLocation,
         String detailAddress,
         @NotBlank String healthCondition,
-        @Size(min = 1) List<DetailCareType> detailCareTypeList,
+        @NotNull @Size(min = 1) List<DetailCareType> detailCareTypeList,
         @NotNull Boolean hasInmate,
         @NotNull Boolean hasPet) {}

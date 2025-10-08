@@ -8,8 +8,7 @@ import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepos
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.service.ElderlyDomainService;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpdateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyDetailResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyInfoResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
@@ -40,7 +39,7 @@ public class ElderlyService {
     private final AuthUtil authUtil;
 
     @Transactional
-    public Long saveElderly(ElderlyCreateRequest request) {
+    public Long saveElderly(ElderlyCreateOrUpdateRequest request) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
         Elderly elderly = Elderly.create(
@@ -62,7 +61,7 @@ public class ElderlyService {
     }
 
     @Transactional
-    public void updateElderly(Long elderlyId, ElderlyUpdateRequest request) {
+    public void updateElderly(Long elderlyId, ElderlyCreateOrUpdateRequest request) {
         authUtil.getLoggedInSocialWorker();
         Elderly elderly =
                 elderlyRepository.findById(elderlyId).orElseThrow(() -> new ElderlyException(ELDERLY_NOT_EXISTS));
@@ -71,12 +70,10 @@ public class ElderlyService {
                 request.name(),
                 request.birthday(),
                 request.gender(),
-                request.inmate(), // TODO : boolean field 에 맞게 네이밍 변경
-                request.pet(),
+                request.hasInmate(),
+                request.hasPet(),
                 request.careLevel(),
-                request.siDo(), // TODO : Location VO 로 묶기
-                request.siGuGun(),
-                request.eupMyeonDong(),
+                request.residentialLocation(),
                 request.detailAddress(),
                 request.healthCondition(),
                 request.profileImageUrl(),
