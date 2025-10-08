@@ -60,6 +60,27 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
     Page<SocialWorkerRecruitmentResponse> searchByInstitutionAndElderlyNameOrRecruitmentTitle(
             NursingInstitution institution, RecruitmentStatus recruitmentStatus, String keyword, Pageable pageable);
 
+    @Query(
+            """
+        SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
+                   r,
+                   e,
+                   COUNT(m.id),
+                   COALESCE(
+                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토중
+                                THEN 1
+                                ELSE 0
+                           END),
+                       0L)
+               )
+          FROM Recruitment r
+          JOIN r.elderly e
+          LEFT JOIN Matching m ON m.recruitment = r
+         WHERE r.elderly = :elderly
+         GROUP BY r, e
+    """)
+    List<SocialWorkerRecruitmentResponse> getRecruitmentResponsesByElderly(Elderly elderly);
+
     // TODO : QueryDSL 로 이전
     @Query(
             """

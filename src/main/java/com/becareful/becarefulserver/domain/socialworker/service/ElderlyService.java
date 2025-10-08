@@ -2,12 +2,14 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpdateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyDetailResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyInfoResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
@@ -120,5 +122,17 @@ public class ElderlyService {
         } catch (IOException e) {
             throw new ElderlyException(ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE);
         }
+    }
+
+    public ElderlyDetailResponse getElderlyDetail(Long elderlyId) {
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
+
+        Elderly elderly =
+                elderlyRepository.findById(elderlyId).orElseThrow(() -> new ElderlyException(ELDERLY_NOT_EXISTS));
+
+        List<SocialWorkerRecruitmentResponse> responses =
+                recruitmentRepository.getRecruitmentResponsesByElderly(elderly);
+
+        return ElderlyDetailResponse.of(elderly, responses);
     }
 }

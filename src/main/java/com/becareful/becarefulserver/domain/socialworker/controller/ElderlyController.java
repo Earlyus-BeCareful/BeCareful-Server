@@ -32,6 +32,13 @@ public class ElderlyController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "어르신 목록 조회", description = "요양기관의 어르신 목록을 반환합니다.")
+    @GetMapping("/{elderlyId}")
+    public ResponseEntity<List<ElderlyInfoResponse>> getElderlyDetail(@PathVariable Long elderlyId) {
+        var response = elderlyService.getElderlyDetail(elderlyId);
+        return ResponseEntity.ok(response);
+    }
+
     // 어르신 목록 - 성함, 나이, 성별, 프로필, 요양등급, 요양보호자 수, 매칭 중인지(공고 진행중인거), 검색어 입력
     @Operation(summary = "어르신 검색", description = "검색어를 입력하면 해당 이름을 포함한 어르신 목록을 반환합니다.")
     @GetMapping("/search")
