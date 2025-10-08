@@ -28,4 +28,18 @@ public interface ElderlyRepository extends JpaRepository<Elderly, Long> {
            )
     """)
     Page<Elderly> findAllWaitingMatching(NursingInstitution institution, Pageable pageable);
+
+    @Query(
+            """
+        SELECT e
+          FROM Elderly e
+         WHERE e.nursingInstitution = :institution
+           AND NOT EXISTS (
+               SELECT r.id
+                 FROM Recruitment r
+                WHERE r.elderly = e
+               )
+           AND e.name LIKE %:keyword%
+    """)
+    Page<Elderly> searchAllWaitingMatching(NursingInstitution institution, Pageable pageable, String keyword);
 }

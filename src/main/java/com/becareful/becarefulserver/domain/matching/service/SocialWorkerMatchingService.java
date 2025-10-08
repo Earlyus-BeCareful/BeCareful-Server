@@ -18,6 +18,7 @@ import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
+import jakarta.validation.Valid;
 import java.time.*;
 import java.util.*;
 import lombok.*;
@@ -56,6 +57,14 @@ public class SocialWorkerMatchingService {
 
         return elderlyRepository
                 .findAllWaitingMatching(loggedInSocialWorker.getNursingInstitution(), pageable)
+                .map(ElderlySimpleDto::from);
+    }
+
+    public Page<ElderlySimpleDto> searchWaitingElderlys(
+            Pageable pageable, @Valid WaitingMatchingElderlySearchRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        return elderlyRepository
+                .searchAllWaitingMatching(loggedInSocialWorker.getNursingInstitution(), pageable, request.keyword())
                 .map(ElderlySimpleDto::from);
     }
 
