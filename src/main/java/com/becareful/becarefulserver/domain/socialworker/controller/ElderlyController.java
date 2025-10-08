@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.socialworker.controller;
 
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyUpdateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyDetailResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyInfoResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
 import com.becareful.becarefulserver.domain.socialworker.service.ElderlyService;
@@ -32,9 +33,9 @@ public class ElderlyController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "어르신 목록 조회", description = "요양기관의 어르신 목록을 반환합니다.")
+    @Operation(summary = "어르신 상세 정보 조회", description = "어르신 상세 정보를 조회합니다. (3.2.1.2 공고 등록 어르신 상세 정보 조회)")
     @GetMapping("/{elderlyId}")
-    public ResponseEntity<List<ElderlyInfoResponse>> getElderlyDetail(@PathVariable Long elderlyId) {
+    public ResponseEntity<ElderlyDetailResponse> getElderlyDetail(@PathVariable Long elderlyId) {
         var response = elderlyService.getElderlyDetail(elderlyId);
         return ResponseEntity.ok(response);
     }
