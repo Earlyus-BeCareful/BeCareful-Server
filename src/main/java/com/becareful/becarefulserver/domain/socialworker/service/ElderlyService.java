@@ -98,7 +98,7 @@ public class ElderlyService {
     /**
      * 3.3.2 어르신 목록 - 어르신 검색
      * @param keyword
-     * @return List<ElderlySimpleDto>
+     * @return Page<ElderlySimpleDto>
      */
     @Transactional(readOnly = true)
     public Page<ElderlySimpleDto> searchElderly(String keyword, Pageable pageable) {
