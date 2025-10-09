@@ -30,6 +30,7 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     """)
     List<Matching> findAllByCaregiverAndApplicationStatus(Caregiver caregiver, MatchingStatus applicationStatus);
 
+    @Modifying(clearAutomatically = true)
     @Query(
             """
     DELETE
@@ -40,10 +41,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     void deleteAllByApplicationAndMatchingStatus(WorkApplication application, MatchingStatus matchingStatus);
 
     List<Matching> findAllByRecruitment(Recruitment recruitment);
-
-    int countByRecruitment(Recruitment recruitment);
-
-    int countByRecruitmentAndMatchingStatus(Recruitment recruitment, MatchingStatus matchingStatus);
 
     Optional<Matching> findByWorkApplicationAndRecruitment(WorkApplication workApplication, Recruitment recruitment);
 

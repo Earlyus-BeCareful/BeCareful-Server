@@ -80,9 +80,7 @@ public class WorkApplicationService {
                 .findByCaregiver(caregiver)
                 .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
 
-        List<Matching> matchingList =
-                matchingRepository.findAllByCaregiverAndApplicationStatus(application.getCaregiver(), 미지원);
-        matchingRepository.deleteAll(matchingList);
+        matchingRepository.deleteAllByApplicationAndMatchingStatus(application, 미지원);
 
         application.inactivate();
     }
