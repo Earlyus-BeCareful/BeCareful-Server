@@ -10,13 +10,11 @@ import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicatio
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
