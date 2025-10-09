@@ -15,8 +15,8 @@ public record RecruitmentCreateRequest(
         @NotNull Long elderlyId,
         @NotBlank String title,
         @NotNull @NotEmpty List<DayOfWeek> workDays,
-        @Schema(example = "19:00") LocalTime workStartTime, // TODO : Period 로 묶기
-        @Schema(example = "21:00") LocalTime workEndTime,
+        @Schema(example = "19:00") @NotNull LocalTime workStartTime, // TODO : Period 로 묶기
+        @Schema(example = "21:00") @NotNull LocalTime workEndTime,
         @NotNull @NotEmpty List<CareType> careTypes,
         @NotNull WorkSalaryUnitType workSalaryUnitType,
         @NotNull @Positive Integer workSalaryAmount,

@@ -1,10 +1,7 @@
 package com.becareful.becarefulserver.domain.matching.controller;
 
 import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
-import com.becareful.becarefulserver.domain.matching.dto.request.ElderlyMatchingStatusFilter;
-import com.becareful.becarefulserver.domain.matching.dto.request.MatchingRecruitmentSearchRequest;
-import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
-import com.becareful.becarefulserver.domain.matching.dto.request.WaitingMatchingElderlySearchRequest;
+import com.becareful.becarefulserver.domain.matching.dto.request.*;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
@@ -12,6 +9,7 @@ import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchin
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.net.URI;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,13 +24,6 @@ import org.springframework.web.bind.annotation.*;
 public class SocialWorkerMatchingController {
 
     private final SocialWorkerMatchingService socialWorkerMatchingService;
-
-    @Operation(summary = "매칭 공고 등록")
-    @PostMapping("/recruitment")
-    public ResponseEntity<Long> createRecruitment(@Valid @RequestBody RecruitmentCreateRequest request) {
-        Long recruitmentId = socialWorkerMatchingService.createRecruitment(request);
-        return ResponseEntity.ok(recruitmentId); // TODO : Created 응답으로 변경
-    }
 
     @Operation(summary = "3.1 공고 등록 대기 어르신 리스트 조회 (매칭 대기)")
     @GetMapping("/elderly/waiting")
@@ -66,6 +57,22 @@ public class SocialWorkerMatchingController {
         var response =
                 socialWorkerMatchingService.searchRecruitmentList(elderlyMatchingStatusFilter, pageable, request);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "3.2.1 매칭 공고 등록", description = "3.2.1.3 화면에서 사용하는 매칭 공고 등록 API")
+    @PostMapping("/recruitment")
+    public ResponseEntity<Void> createRecruitment(@Valid @RequestBody RecruitmentCreateRequest request) {
+        Long recruitmentId = socialWorkerMatchingService.createRecruitment(request);
+        return ResponseEntity.created(URI.create("/matching/social-worker/recruitment/" + recruitmentId))
+                .build();
+    }
+
+    @Operation(summary = "3.2.1 매칭 공고 등록", description = "3.2.1.3 화면에서 사용하는 매칭 공고 등록 API")
+    @PostMapping("/recruitment/validate-duplicated")
+    public ResponseEntity<Void> validateRecruitmentDuplicated(
+            @Valid @RequestBody RecruitmentValidateDuplicatedRequest request) {
+        socialWorkerMatchingService.validateDuplicated(request);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "매칭 현황 상세 조회", description = "매칭 현황 데이터의 상세화면을 조회합니다. 매칭된 요양보호사와 지원한 요양보호사 정보가 있습니다.")
