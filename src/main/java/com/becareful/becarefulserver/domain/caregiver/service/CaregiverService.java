@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.caregiver.service;
 
 import static com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.*;
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
@@ -8,12 +9,15 @@ import com.becareful.becarefulserver.domain.caregiver.domain.vo.*;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.*;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
-import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
+import com.becareful.becarefulserver.domain.chat.repository.*;
 import com.becareful.becarefulserver.domain.common.domain.*;
+import com.becareful.becarefulserver.domain.common.dto.request.*;
+import com.becareful.becarefulserver.domain.common.dto.response.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.properties.*;
+import com.becareful.becarefulserver.global.service.*;
 import com.becareful.becarefulserver.global.util.*;
 import jakarta.servlet.http.*;
 import java.io.*;
@@ -43,6 +47,8 @@ public class CaregiverService {
     private final CookieUtil cookieUtil;
     private final JwtProperties jwtProperties;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
+    private final S3Util s3Util;
+    private final S3Service s3Service;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -107,12 +113,19 @@ public class CaregiverService {
                 .nursingCareCertificate(request.nursingCareCertificate())
                 .build();
 
+        String profileImageUrl = null;
+        if (request.profileImageTempKey().equals("default")) {
+            profileImageUrl = CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
+        } else if (request.profileImageTempKey() != null) {
+            profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
+        }
+
         Caregiver caregiver = Caregiver.create(
                 request.realName(),
                 birthDate,
                 gender,
                 request.phoneNumber(),
-                request.profileImageUrl(),
+                profileImageUrl,
                 request.streetAddress(),
                 request.detailAddress(),
                 caregiverInfo,
@@ -120,32 +133,64 @@ public class CaregiverService {
 
         caregiverRepository.save(caregiver);
 
+        if (!request.profileImageTempKey().equals("default")) {
+            try {
+                s3Service.moveTempFileToPermanent(request.profileImageTempKey()); // 에러발생시 db롤백
+            } catch (Exception e) {
+                throw new CaregiverException(CAREGIVER_FAILED_TO_MOVE_FILE);
+            }
+        }
+
         updateJwtAndSecurityContext(httpServletResponse, request.phoneNumber());
 
         return caregiver.getId();
     }
 
+    // TODO: 메서드 삭제
     @Transactional
     public CaregiverProfileUploadResponse uploadProfileImage(MultipartFile file) {
         try {
             String fileName = fileUtil.generateRandomImageFileName();
-            String profileImageUrl = fileUtil.upload(file, "profile-image", fileName);
+            String profileImageUrl = fileUtil.upload(file, "caregiver-profile-image/permanent", fileName);
             return new CaregiverProfileUploadResponse(profileImageUrl);
         } catch (IOException e) {
             throw new CaregiverException(FAILED_TO_CREATE_IMAGE_FILE_NAME);
         }
     }
 
+    public PresignedUrlResponse getPresignedUrl(PresignedUrlRequest request) {
+        String newFileName = s3Util.generateImageFileNameWithSource(request.fileName());
+        return s3Service.createPresignedUrl("caregiver-profile-image", newFileName, request.contentType());
+    }
+
     @Transactional
     public void updateCaregiverInfo(MyPageUpdateRequest request) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
+
+        String profileImageUrl = caregiver.getProfileImageUrl();
+        if (request.profileImageTempKey().equals("default")) {
+            profileImageUrl = CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
+        } else if (request.profileImageTempKey() != null) {
+            profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
+        }
+
         CaregiverInfo caregiverInfo = new CaregiverInfo(
                 request.isHavingCar(),
                 request.isCompleteDementiaEducation(),
                 request.caregiverCertificate(),
                 request.socialWorkerCertificate(),
                 request.nursingCareCertificate());
-        caregiver.updateInfo(request.phoneNumber(), caregiverInfo);
+
+        caregiver.updateInfo(request.phoneNumber(), profileImageUrl, caregiverInfo);
+
+        if (request.profileImageTempKey() != null
+                && !request.profileImageTempKey().equals("default")) {
+            try {
+                s3Service.moveTempFileToPermanent(request.profileImageTempKey()); // 에러발생시 db롤백
+            } catch (Exception e) {
+                throw new CaregiverException(CAREGIVER_FAILED_TO_MOVE_FILE);
+            }
+        }
     }
 
     public void logout(HttpServletResponse response) {

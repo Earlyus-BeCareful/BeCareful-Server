@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+// TODO: 파일 삭제
 @Component
 @RequiredArgsConstructor
 public class FileUtil {

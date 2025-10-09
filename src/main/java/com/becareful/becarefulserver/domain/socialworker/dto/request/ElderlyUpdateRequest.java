@@ -17,6 +17,6 @@ public record ElderlyUpdateRequest(
         String siGuGun,
         String eupMyeonDong,
         String detailAddress,
-        String profileImageUrl,
+        String profileImageTempKey,
         String healthCondition,
         List<DetailCareType> detailCareTypeList) {}

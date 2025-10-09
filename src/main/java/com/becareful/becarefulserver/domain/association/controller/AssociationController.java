@@ -3,6 +3,8 @@ package com.becareful.becarefulserver.domain.association.controller;
 import com.becareful.becarefulserver.domain.association.dto.request.*;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.service.*;
+import com.becareful.becarefulserver.domain.common.dto.request.*;
+import com.becareful.becarefulserver.domain.common.dto.response.*;
 import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.tags.*;
 import jakarta.servlet.http.*;
@@ -138,11 +140,25 @@ public class AssociationController {
         return ResponseEntity.ok().build();
     }
 
-    // 사진 등록
-    @Operation(summary = "협회 프로필 사진 업로드", description = "협회 등록 전 프로필 이미지 저장 API")
+    // TODO: 삭제
+    @Operation(summary = "(구버전. 삭제예정)협회 프로필 사진 업로드", description = "협회 등록 전 프로필 이미지 저장 API")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AssociationProfileImageUploadResponse> uploadProfileImg(@RequestPart MultipartFile file) {
         var response = associationService.uploadProfileImage(file);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "이미지 업로드 (신버전): 협회 프로필 이미지 업로드용 Presigned URL 발급",
+            description =
+                    """
+    프론트엔드에서 사용자가 로컬 파일을 선택할 때마다 이 API를 호출해 Presigned URL을 발급받습니다.
+    발급받은 URL로 S3에 이미지를 직접 업로드합니다.
+    이후 협회 등록 또는 정보 수정 시, S3에 업로드한 파일의 tempKey를 백엔드로 전달해야 합니다.
+    """)
+    @PostMapping("/profile-img/presigned-url")
+    public ResponseEntity<PresignedUrlResponse> createPresignedUrl(PresignedUrlRequest request) {
+        PresignedUrlResponse response = associationService.getPresignedUrl(request);
         return ResponseEntity.ok(response);
     }
 

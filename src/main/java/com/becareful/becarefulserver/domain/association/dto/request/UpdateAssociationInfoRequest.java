@@ -4,6 +4,4 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record UpdateAssociationInfoRequest(
-        @NotBlank String associationImageUrl,
-        @NotBlank String associationName,
-        @NotNull Integer associationEstablishedYear) {}
+        String profileImageTempKey, @NotBlank String associationName, @NotNull Integer associationEstablishedYear) {}
