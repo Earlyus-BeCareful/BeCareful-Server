@@ -22,12 +22,22 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
     @Query(
             """
-    SELECT m FROM Matching m
-    JOIN m.workApplication w
-    WHERE w.caregiver = :caregiver
-    AND m.matchingStatus = :applicationStatus
+    SELECT m
+      FROM Matching m
+      JOIN m.workApplication w
+     WHERE w.caregiver = :caregiver
+       AND m.matchingStatus = :applicationStatus
     """)
     List<Matching> findAllByCaregiverAndApplicationStatus(Caregiver caregiver, MatchingStatus applicationStatus);
+
+    @Query(
+            """
+    DELETE
+      FROM Matching m
+     WHERE m.workApplication = :application
+       AND m.matchingStatus = :matchingStatus
+    """)
+    void deleteAllByApplicationAndMatchingStatus(WorkApplication application, MatchingStatus matchingStatus);
 
     List<Matching> findAllByRecruitment(Recruitment recruitment);
 

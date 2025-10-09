@@ -3,7 +3,7 @@ package com.becareful.becarefulserver.domain.caregiver.domain;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.WorkTimeSetConverter;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
@@ -82,7 +82,7 @@ public class WorkApplication extends BaseEntity {
         this.caregiver = caregiver;
     }
 
-    public static WorkApplication create(WorkApplicationUpdateRequest request, Caregiver caregiver) {
+    public static WorkApplication create(WorkApplicationCreateOrUpdateRequest request, Caregiver caregiver) {
         return WorkApplication.builder()
                 .workCareTypes(EnumSet.copyOf(request.careTypes()))
                 .workDays(EnumSet.copyOf(request.workDays()))
@@ -95,7 +95,7 @@ public class WorkApplication extends BaseEntity {
                 .build();
     }
 
-    public void updateWorkApplication(WorkApplicationUpdateRequest request) {
+    public void updateWorkApplication(WorkApplicationCreateOrUpdateRequest request) {
         this.workDays = EnumSet.copyOf(request.workDays());
         this.workTimes = EnumSet.copyOf(request.workTimes());
         this.workCareTypes = EnumSet.copyOf(request.careTypes());
