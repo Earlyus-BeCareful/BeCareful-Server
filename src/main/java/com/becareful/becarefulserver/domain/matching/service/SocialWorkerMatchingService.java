@@ -15,6 +15,7 @@ import com.becareful.becarefulserver.domain.matching.dto.request.*;
 import com.becareful.becarefulserver.domain.matching.dto.response.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.service.ElderlyDomainService;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
@@ -33,6 +34,7 @@ import org.springframework.transaction.annotation.*;
 public class SocialWorkerMatchingService {
 
     private final AuthUtil authUtil;
+    private final ElderlyDomainService elderlyDomainService;
     private final MatchingRepository matchingRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final ElderlyRepository elderlyRepository;
@@ -44,6 +46,7 @@ public class SocialWorkerMatchingService {
     private final SocialWorkerRepository socialWorkerRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
+    private final CompletedMatchingRepository completedMatchingRepository;
 
     /***
      * 2025-09-24
@@ -132,6 +135,37 @@ public class SocialWorkerMatchingService {
         return MatchingCaregiverDetailResponse.of(matching, career, careerDetails);
     }
 
+    /**
+     * 2025-10-09 Kwon Chan
+     * 3.2.1.3 공고 등록 - 일정 중복 검증
+     * @param request
+     */
+    @Transactional(readOnly = true)
+    public void validateDuplicated(RecruitmentValidateDuplicatedRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Elderly elderly = elderlyRepository
+                .findById(request.elderlyId())
+                .orElseThrow(() -> new ElderlyException(ELDERLY_NOT_EXISTS));
+
+        elderlyDomainService.validateElderlyAndSocialWorkerInstitution(elderly, loggedInSocialWorker);
+
+        List<CompletedMatching> completedMatchings = completedMatchingRepository.findAllByElderly(elderly);
+
+        completedMatchings.forEach(completedMatching -> {
+            Recruitment recruitment =
+                    completedMatching.getContract().getMatching().getRecruitment();
+            if (Collections.disjoint(recruitment.getWorkDays(), request.workDays())) {
+                return;
+            }
+            // TODO : Period 로 만들어서 오버랩 검증 로직 작성
+            if (recruitment.getWorkEndTime().isBefore(request.workStartTime())
+                    || request.workEndTime().isBefore(recruitment.getWorkStartTime())) {
+                return;
+            }
+            throw new RecruitmentException(RECRUITMENT_WORK_TIME_DUPLICATED);
+        });
+    }
+
     @Transactional
     public Long createRecruitment(RecruitmentCreateRequest request) {
         Elderly elderly = elderlyRepository
@@ -141,7 +175,6 @@ public class SocialWorkerMatchingService {
         Recruitment recruitment = Recruitment.create(request, elderly);
         recruitmentRepository.save(recruitment);
 
-        // TODO 이미 근무 중인 데이터와 일정이 겹치는지 체크
         matchingWith(recruitment);
 
         return recruitment.getId();
