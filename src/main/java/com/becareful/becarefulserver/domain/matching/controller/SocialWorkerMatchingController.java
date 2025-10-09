@@ -67,7 +67,7 @@ public class SocialWorkerMatchingController {
                 .build();
     }
 
-    @Operation(summary = "3.2.1 매칭 공고 등록", description = "3.2.1.3 화면에서 사용하는 매칭 공고 등록 API")
+    @Operation(summary = "3.2.1 매칭 공고 검증", description = "3.2.1.3 화면에서 매칭 공고 등록시 일정 중복을 검증하는 API, 검증에 실패하면 에러 발생")
     @PostMapping("/recruitment/validate-duplicated")
     public ResponseEntity<Void> validateRecruitmentDuplicated(
             @Valid @RequestBody RecruitmentValidateDuplicatedRequest request) {
