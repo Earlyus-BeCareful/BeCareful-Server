@@ -141,6 +141,7 @@ public class AssociationController {
     }
 
     // TODO: 삭제
+    @Deprecated
     @Operation(summary = "(구버전. 삭제예정)협회 프로필 사진 업로드", description = "협회 등록 전 프로필 이미지 저장 API")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AssociationProfileImageUploadResponse> uploadProfileImg(@RequestPart MultipartFile file) {

@@ -63,6 +63,7 @@ public class ElderlyController {
 
     // 어르신 상세 - 생년월일, 나이, 거주지 상세 주소, 동거인, 동물, 건강상태, 요양등급, 케어필요항목, 담당 보호사(프로필, 성함, 요일, 시간, 케어항목), 모집중인 공고(요일, 시간, 케어항목)
 
+    @Deprecated
     @Operation(summary = " (구버전, 삭제 예정)어르신 프로필 사진 업로드", description = "어르신 등록, 수정 시 사용하는 프로필 이미지 업로드 API 입니다.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ElderlyProfileUploadResponse> uploadProfileImg(@RequestPart MultipartFile file) {

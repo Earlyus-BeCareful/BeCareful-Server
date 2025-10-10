@@ -55,6 +55,7 @@ public class CaregiverController {
     }
 
     // Todo: 삭제
+    @Deprecated
     @Operation(summary = "이미지 업로드 구버전(삭제 예정): 요양보호사 프로필 사진 신규 업로드", description = "요양보호사 프로필 이미지 업로드 API 입니다.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CaregiverProfileUploadResponse> uploadProfileImg(@RequestPart MultipartFile file) {

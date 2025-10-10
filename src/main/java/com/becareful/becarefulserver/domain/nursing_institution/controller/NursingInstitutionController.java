@@ -51,6 +51,7 @@ public class NursingInstitutionController {
         return ResponseEntity.ok(isRegister);
     }
 
+    @Deprecated
     @Operation(summary = "(구버전.삭제예정)요양 기관 프로필 사진 업로드(대표,센터장 전용)", description = "요양기관 프로필 이미지 저장 API.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<NursingInstitutionProfileUploadResponse> uploadProfileImg(
