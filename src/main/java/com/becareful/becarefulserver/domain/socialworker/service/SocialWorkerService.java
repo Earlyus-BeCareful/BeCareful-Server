@@ -111,9 +111,9 @@ public class SocialWorkerService {
     }
 
     @Transactional(readOnly = true)
-    public SocialWorkerEditResponse getMyProfile() {
+    public SocialWorkerDto getMyProfile() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        return SocialWorkerEditResponse.from(loggedInSocialWorker);
+        return SocialWorkerDto.from(loggedInSocialWorker);
     }
 
     @Transactional

@@ -89,6 +89,14 @@ public class SocialWorker extends BaseEntity {
         return Period.between(this.birthday, LocalDate.now()).getYears();
     }
 
+    public Integer getGenderCode() {
+        int genderCode = this.gender == Gender.MALE ? 1 : 2;
+        if (this.birthday.getYear() >= 2000) {
+            genderCode += 2;
+        }
+        return genderCode;
+    }
+
     /**
      * update method
      * */

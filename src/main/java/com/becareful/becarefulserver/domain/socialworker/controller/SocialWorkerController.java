@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
 
+import com.becareful.becarefulserver.domain.socialworker.dto.SocialWorkerDto;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.service.*;
@@ -51,7 +52,7 @@ public class SocialWorkerController {
 
     @Operation(summary = "5.1.2 사회복지사 프로필 조회", description = "사회복지사 프로필 수정시 프로필 데이터를 조회합니다.")
     @GetMapping("/my/profile")
-    public ResponseEntity<SocialWorkerEditResponse> getSocialWorkerProfile() {
+    public ResponseEntity<SocialWorkerDto> getSocialWorkerProfile() {
         var response = socialworkerService.getMyProfile();
         return ResponseEntity.ok(response);
     }
