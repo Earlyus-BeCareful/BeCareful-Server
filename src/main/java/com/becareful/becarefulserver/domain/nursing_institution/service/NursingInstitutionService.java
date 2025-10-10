@@ -56,7 +56,7 @@ public class NursingInstitutionService {
         String profileImageUrl;
         if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = NURSING_INSTITUTION_DEFAULT_PROFILE_IMAGE_URL;
-        } else{
+        } else {
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 
@@ -98,7 +98,7 @@ public class NursingInstitutionService {
             profileImageUrl = institution.getProfileImageUrl();
         } else if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = NURSING_INSTITUTION_DEFAULT_PROFILE_IMAGE_URL;
-        } else{
+        } else {
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 

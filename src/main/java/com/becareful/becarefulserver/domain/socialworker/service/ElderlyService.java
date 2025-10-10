@@ -1,5 +1,8 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.*;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.common.dto.request.*;
 import com.becareful.becarefulserver.domain.common.dto.response.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
@@ -10,8 +13,6 @@ import com.becareful.becarefulserver.domain.socialworker.domain.service.*;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.*;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.service.*;
 import com.becareful.becarefulserver.global.util.*;
@@ -87,7 +88,7 @@ public class ElderlyService {
             profileImageUrl = elderly.getProfileImageUrl();
         } else if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = ELDERLY_DEFAULT_PROFILE_IMAGE_URL;
-        } else{
+        } else {
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 

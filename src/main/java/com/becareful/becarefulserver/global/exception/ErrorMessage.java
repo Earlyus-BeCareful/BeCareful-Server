@@ -28,12 +28,14 @@ public class ErrorMessage {
 
     public static final String NURSING_INSTITUTION_ALREADY_EXISTS = "이미 등록된 기관입니다.";
     public static final String NURSING_INSTITUTION_NOT_FOUND = "해당 ID의 요양 기관을 찾을 수 없습니다.";
-    public static final String NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE = "요양 기관 프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
+    public static final String NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE =
+            "요양 기관 프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
     public static final String NURSING_INSTITUTION_FAILED_TO_MOVE_FILE = "요양 기관 프로필 이미지를 S3에 업로드 하는 중 에러가 발생했습니다.";
 
     public static final String ASSOCIATION_NOT_EXISTS = "존재하지 않는 협회입니다.";
     public static final String ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS = "존재하지 않는 협회 가입 요청입니다.";
-    public static final String ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_ACCEPTED = "가입 신청이 이미 승인되었습니다. 서비스를 이용하고 싶지 않으시다면 탈퇴해 주십시오.";
+    public static final String ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_ACCEPTED =
+            "가입 신청이 이미 승인되었습니다. 서비스를 이용하고 싶지 않으시다면 탈퇴해 주십시오.";
     public static final String ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_REJECTED = "가입 신청이 이미 반려되었습니다";
 
     public static final String ASSOCIATION_CHAIRMAN_NOT_EXISTS = "협회장이 존재하지 않습니다.";

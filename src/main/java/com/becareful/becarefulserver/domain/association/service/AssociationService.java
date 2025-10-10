@@ -98,7 +98,7 @@ public class AssociationService {
         String profileImageUrl;
         if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = ASSOCIATION_DEFAULT_PROFILE_IMAGE_URL;
-        } else{
+        } else {
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 
@@ -296,7 +296,7 @@ public class AssociationService {
             profileImageUrl = association.getProfileImageUrl();
         } else if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = ASSOCIATION_DEFAULT_PROFILE_IMAGE_URL;
-        } else{
+        } else {
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 

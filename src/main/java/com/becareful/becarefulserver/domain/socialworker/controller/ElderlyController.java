@@ -53,9 +53,7 @@ public class ElderlyController {
         return ResponseEntity.created(URI.create("/elderly/" + id)).build();
     }
 
-    @Operation(
-            summary = "어르신 정보 수정",
-            description = "3.3.4 어르신 정보를 수정하는 API 입니다.")
+    @Operation(summary = "어르신 정보 수정", description = "3.3.4 어르신 정보를 수정하는 API 입니다.")
     @PutMapping("/{elderlyId}")
     public ResponseEntity<Void> updateElderly(
             @PathVariable Long elderlyId, @Valid @RequestBody ElderlyUpdateRequest request) {

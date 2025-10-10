@@ -172,7 +172,7 @@ public class CaregiverService {
             profileImageUrl = caregiver.getProfileImageUrl();
         } else if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
-        } else{
+        } else {
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 
