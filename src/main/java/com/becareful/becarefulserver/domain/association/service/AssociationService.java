@@ -233,10 +233,10 @@ public class AssociationService {
         List<Association> associationList = associationName == null
                 ? associationRepository.findAll()
                 : associationRepository.findByNameContains(associationName);
-        List<AssociationSimpleDto> associationSimpleInfoList = associationList.stream()
+        List<AssociationResponse> associationSimpleInfoList = associationList.stream()
                 .map(association -> {
                     int memberCount = socialWorkerRepository.countByAssociation(association);
-                    return AssociationSimpleDto.of(association, memberCount);
+                    return AssociationResponse.of(association, memberCount);
                 })
                 .toList();
         return new AssociationSearchListResponse(associationList.size(), associationSimpleInfoList);
@@ -244,13 +244,13 @@ public class AssociationService {
 
     @Transactional(readOnly = true)
     public AssociationSearchListResponse getAssociationList() {
-        List<AssociationSimpleDto> associationSimpleDtoList = associationRepository.findAll().stream()
+        List<AssociationResponse> associationResponseList = associationRepository.findAll().stream()
                 .map(association -> {
                     int memberCount = socialWorkerRepository.countByAssociation(association);
-                    return AssociationSimpleDto.of(association, memberCount);
+                    return AssociationResponse.of(association, memberCount);
                 })
                 .toList();
-        return AssociationSearchListResponse.from(associationSimpleDtoList);
+        return AssociationSearchListResponse.from(associationResponseList);
     }
 
     @Transactional(readOnly = true)
