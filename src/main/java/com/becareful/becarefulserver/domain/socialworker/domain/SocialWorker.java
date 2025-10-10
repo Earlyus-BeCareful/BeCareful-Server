@@ -135,7 +135,7 @@ public class SocialWorker extends BaseEntity {
         this.associationRank = AssociationRank.NONE;
     }
 
-    public void updateBasicInfo(
+    public void update(
             SocialWorkerProfileUpdateRequest request,
             LocalDate birthday,
             Gender gender,

@@ -123,28 +123,27 @@ public class SocialWorkerService {
         validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
 
         // 기관ID로 기관 찾기
-        NursingInstitution nursingInstitution = nursingInstitutionRepository
+        NursingInstitution institution = nursingInstitutionRepository
                 .findById(request.nursingInstitutionId())
                 .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
 
-        // 닉네임 중복 검사
-        if (!Objects.equals(request.nickName(), loggedInSocialWorker.getNickname())) {
+        boolean isInstitutionRankChanged =
+                !Objects.equals(loggedInSocialWorker.getInstitutionRank(), request.institutionRank());
+        boolean isPhoneNumberChanged = !Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber());
+        boolean isNicknameChanged = !Objects.equals(request.nickName(), loggedInSocialWorker.getNickname());
+
+        if (isNicknameChanged) {
             validateNicknameNotDuplicated(request.nickName());
         }
 
-        // 사용자 전화번호 중복 검사
-        if (!Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber())
-                && socialworkerRepository.existsByPhoneNumber(request.phoneNumber())) {
-            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
+        if (isPhoneNumberChanged) {
+            validatePhoneNumberNotDuplicated(request.phoneNumber());
         }
 
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
         Gender gender = Gender.fromGenderCode(request.genderCode());
 
-        boolean rankChanged = !Objects.equals(loggedInSocialWorker.getInstitutionRank(), request.institutionRank());
-        boolean phoneChanged = !Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber());
-
-        if (rankChanged || phoneChanged) {
+        if (isInstitutionRankChanged || isPhoneNumberChanged) {
             updateJwtAndSecurityContext(
                     response,
                     request.phoneNumber(),
@@ -152,7 +151,7 @@ public class SocialWorkerService {
                     loggedInSocialWorker.getAssociationRank());
         }
 
-        loggedInSocialWorker.updateBasicInfo(request, birthDate, gender, nursingInstitution);
+        loggedInSocialWorker.update(request, birthDate, gender, institution);
     }
 
     public void logout(HttpServletResponse response) {
