@@ -9,6 +9,7 @@ import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.repository.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
+import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
 import com.becareful.becarefulserver.domain.matching.domain.vo.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
 import com.becareful.becarefulserver.domain.matching.dto.request.*;
@@ -35,6 +36,7 @@ public class SocialWorkerMatchingService {
 
     private final AuthUtil authUtil;
     private final ElderlyDomainService elderlyDomainService;
+    private final MatchingDomainService matchingDomainService;
     private final MatchingRepository matchingRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final ElderlyRepository elderlyRepository;
@@ -166,6 +168,12 @@ public class SocialWorkerMatchingService {
         });
     }
 
+    /**
+     * 2025-10-09 Kwon Chan
+     * 3.2.1 매칭 공고 등록
+     * @param request
+     * @return Long recruitment id
+     */
     @Transactional
     public Long createRecruitment(RecruitmentCreateRequest request) {
         Elderly elderly = elderlyRepository
@@ -175,7 +183,9 @@ public class SocialWorkerMatchingService {
         Recruitment recruitment = Recruitment.create(request, elderly);
         recruitmentRepository.save(recruitment);
 
-        matchingWith(recruitment);
+        workApplicationRepository.findAllActiveWorkApplication().forEach(workApplication -> {
+            matchingDomainService.createMatching(recruitment, workApplication).ifPresent(matchingRepository::save);
+        });
 
         return recruitment.getId();
     }
@@ -249,12 +259,5 @@ public class SocialWorkerMatchingService {
                 .map(s -> SocialWorkerChatReadStatus.create(s, matching))
                 .toList();
         socialWorkerChatReadStatusRepository.saveAll(socialWorkerChatReadStatuses);
-    }
-
-    private void matchingWith(Recruitment recruitment) {
-        workApplicationRepository.findAllActiveWorkApplication().stream()
-                .map(application -> Matching.create(recruitment, application))
-                .filter((matching -> !matching.getMatchingResultStatus().equals(제외)))
-                .forEach(matchingRepository::save);
     }
 }

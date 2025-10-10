@@ -9,7 +9,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.service.WorkApplicationService;
@@ -92,14 +92,14 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 new CaregiverInfo(false, false, null, null, null),
                 true));
 
-        WorkApplicationUpdateRequest workRequest = new WorkApplicationUpdateRequest(
+        WorkApplicationCreateOrUpdateRequest workRequest = new WorkApplicationCreateOrUpdateRequest(
                 List.of(Location.of("서울시", "종로구", "청운동")),
                 List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
                 List.of(WorkTime.MORNING),
                 List.of(CareType.식사보조),
                 WorkSalaryUnitType.DAY,
                 10000);
-        workApplicationService.updateWorkApplication(workRequest);
+        workApplicationService.createOrUpdateWorkApplication(workRequest);
 
         Elderly elderly = elderlyRepository.save(Elderly.create(
                 "어르신",

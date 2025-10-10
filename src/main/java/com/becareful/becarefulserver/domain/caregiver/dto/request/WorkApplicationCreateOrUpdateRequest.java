@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
 import java.time.DayOfWeek;
 import java.util.List;
 
-public record WorkApplicationUpdateRequest(
+public record WorkApplicationCreateOrUpdateRequest(
         @Size(min = 1) List<Location> workLocations,
         @Size(min = 1) List<DayOfWeek> workDays,
         @Size(min = 1) List<WorkTime> workTimes,

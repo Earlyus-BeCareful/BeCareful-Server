@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.controller;
 
-import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.service.WorkApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,14 +14,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/caregiver/work-application")
 @Tag(name = "Work Application", description = "요양보호사 일자리 신청 관련 API 입니다.")
-public class WorkApplicationController {
+public class CaregiverWorkApplicationController {
 
     private final WorkApplicationService workApplicationService;
 
     @Operation(summary = "일자리 신청 정보 등록/수정")
     @PutMapping
-    public ResponseEntity<Void> updateWorkApplication(@Valid @RequestBody WorkApplicationUpdateRequest request) {
-        workApplicationService.updateWorkApplication(request);
+    public ResponseEntity<Void> createOrUpdateWorkApplication(
+            @Valid @RequestBody WorkApplicationCreateOrUpdateRequest request) {
+        workApplicationService.createOrUpdateWorkApplication(request);
         return ResponseEntity.ok().build();
     }
 
