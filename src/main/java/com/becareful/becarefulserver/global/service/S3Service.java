@@ -80,7 +80,7 @@ public class S3Service {
 
         try {
             s3Client.copyObject(copyReq); // 실패 시 예외 발생 → DB 롤백 유도
-        } catch (S3Exception e) {
+        } catch (software.amazon.awssdk.services.s3.model.S3Exception e) {
             throw new com.becareful.becarefulserver.global.exception.exception.S3Exception(S3_MOVE_FILE_FAILED);
         }
 
