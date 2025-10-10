@@ -1,8 +1,13 @@
 package com.becareful.becarefulserver.domain.matching.repository;
 
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus;
+import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -10,11 +15,71 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
 
     @Query(
             """
-        select r
-          from Recruitment r
-         where r.elderly.nursingInstitution.id = :institutionId
+        SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
+                   r,
+                   e,
+                   COUNT(m.id),
+                   COALESCE(
+                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토중
+                                THEN 1
+                                ELSE 0
+                           END),
+                       0L)
+               )
+          FROM Recruitment r
+          JOIN r.elderly e
+          LEFT JOIN Matching m ON m.recruitment = r
+         WHERE r.elderly.nursingInstitution = :institution
+           AND r.recruitmentStatus = :recruitmentStatus
+         GROUP BY r, e
     """)
-    List<Recruitment> findAllByInstitutionId(Long institutionId);
+    Page<SocialWorkerRecruitmentResponse> findAllByInstitution(
+            NursingInstitution institution, RecruitmentStatus recruitmentStatus, Pageable pageable);
+
+    @Query(
+            """
+        SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
+                   r,
+                   e,
+                   COUNT(m.id),
+                   COALESCE(
+                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토중
+                                THEN 1
+                                ELSE 0
+                           END),
+                       0L)
+               )
+          FROM Recruitment r
+          JOIN r.elderly e
+          LEFT JOIN Matching m ON m.recruitment = r
+         WHERE r.elderly.nursingInstitution = :institution
+           AND r.recruitmentStatus = :recruitmentStatus
+           AND (r.title LIKE %:keyword% OR r.elderly.name LIKE %:keyword%)
+         GROUP BY r, e
+    """)
+    Page<SocialWorkerRecruitmentResponse> searchByInstitutionAndElderlyNameOrRecruitmentTitle(
+            NursingInstitution institution, RecruitmentStatus recruitmentStatus, String keyword, Pageable pageable);
+
+    @Query(
+            """
+        SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
+                   r,
+                   e,
+                   COUNT(m.id),
+                   COALESCE(
+                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토중
+                                THEN 1
+                                ELSE 0
+                           END),
+                       0L)
+               )
+          FROM Recruitment r
+          JOIN r.elderly e
+          LEFT JOIN Matching m ON m.recruitment = r
+         WHERE r.elderly = :elderly
+         GROUP BY r, e
+    """)
+    List<SocialWorkerRecruitmentResponse> getRecruitmentResponsesByElderly(Elderly elderly);
 
     // TODO : QueryDSL 로 이전
     @Query(

@@ -28,14 +28,12 @@ public class ErrorMessage {
 
     public static final String NURSING_INSTITUTION_ALREADY_EXISTS = "이미 등록된 기관입니다.";
     public static final String NURSING_INSTITUTION_NOT_FOUND = "해당 ID의 요양 기관을 찾을 수 없습니다.";
-    public static final String NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE =
-            "요양 기관 프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
+    public static final String NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE = "요양 기관 프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
     public static final String NURSING_INSTITUTION_FAILED_TO_MOVE_FILE = "요양 기관 프로필 이미지를 S3에 업로드 하는 중 에러가 발생했습니다.";
 
     public static final String ASSOCIATION_NOT_EXISTS = "존재하지 않는 협회입니다.";
     public static final String ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS = "존재하지 않는 협회 가입 요청입니다.";
-    public static final String ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_ACCEPTED =
-            "가입 신청이 이미 승인되었습니다. 서비스를 이용하고 싶지 않으시다면 탈퇴해 주십시오.";
+    public static final String ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_ACCEPTED = "가입 신청이 이미 승인되었습니다. 서비스를 이용하고 싶지 않으시다면 탈퇴해 주십시오.";
     public static final String ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_REJECTED = "가입 신청이 이미 반려되었습니다";
 
     public static final String ASSOCIATION_CHAIRMAN_NOT_EXISTS = "협회장이 존재하지 않습니다.";
@@ -43,12 +41,15 @@ public class ErrorMessage {
     public static final String ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST = "커뮤니티 임원진 위임을 먼저 해야합니다.";
     public static final String ASSOCIATION_FAILED_TO_MOVE_FILE = "협회 프로필 이미지를 S3에 업로드 하는 중 에러가 발생했습니다.";
 
-    public static final String ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
     public static final String ELDERLY_NOT_EXISTS = "존재하지 않는 어르신입니다.";
+    public static final String ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
+    public static final String ELDERLY_DIFFERENT_INSTITUTION = "다른 기관의 어르신에는 접근할 수 없습니다.";
     public static final String ELDERLY_FAILED_TO_MOVE_FILE = "어르신 프로필 이미지를 S3에 업로드 하는 중 에러가 발생했습니다.";
 
     public static final String RECRUITMENT_NOT_EXISTS = "매칭 공고가 존재하지 않습니다.";
     public static final String RECRUITMENT_NOT_COMPLETABLE_NOT_RECRUITING = "모집중이 아닌 공고는 완료처리할 수 없습니다.";
+    public static final String RECRUITMENT_WORK_TIME_DUPLICATED = "근무 시간이 겹치는 공고가 존재합니다.";
+
     public static final String MATCHING_NOT_EXISTS = "매칭 또는 지원 정보가 존재하지 않습니다.";
     public static final String MATCHING_CANNOT_REJECT = "미지원 공고만 거절할 수 있습니다.";
     public static final String MATCHING_CAREGIVER_DIFFERENT = "해당 요양보호사의 매칭 데이터가 아닙니다.";
@@ -70,6 +71,7 @@ public class ErrorMessage {
     public static final String POST_NOT_FOUND_IN_BOARD = "게시판에 해당 ID의 포스트가 존재하지 않습니다.";
     public static final String COMMENT_NOT_FOUND = "댓글이 존재하지 않습니다.";
     public static final String COMMENT_NOT_UPDATABLE = "댓글 작성자만 수정할 수 있습니다.";
+
     public static final String POST_MEDIA_FILE_HAS_NO_NAME = "미디어 파일의 이름이 없습니다.";
     public static final String POST_MEDIA_VALIDATION_FAILED = "미디어 파일 검증에 실패했습니다.";
     public static final String POST_MEDIA_UPLOAD_FAILED = "미디어 파일 업로드에 실패했습니다.";

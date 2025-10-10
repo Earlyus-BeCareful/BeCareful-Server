@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.socialworker.domain;
 import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.ELDERLY_DEFAULT_PROFILE_IMAGE_URL;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
@@ -13,6 +14,8 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -92,9 +95,7 @@ public class Elderly extends BaseEntity {
             String name,
             LocalDate birthday,
             Gender gender,
-            String siDo,
-            String siGuGun,
-            String eupMyeonDong,
+            Location residentialLocation,
             String detailAddress,
             boolean hasInmate,
             boolean hasPet,
@@ -107,15 +108,15 @@ public class Elderly extends BaseEntity {
                 .name(name)
                 .birthday(birthday)
                 .gender(gender)
-                .hasInmate(hasInmate)
-                .residentialLocation(Location.of(siDo, siGuGun, eupMyeonDong))
+                .residentialLocation(residentialLocation)
                 .detailAddress(detailAddress)
-                .hasPet(hasPet)
                 .profileImageUrl(profileImageUrl)
                 .institution(institution)
                 .careLevel(careLevel)
                 .healthCondition(healthCondition)
                 .detailCareTypes(detailCareTypes)
+                .hasInmate(hasInmate)
+                .hasPet(hasPet)
                 .build();
     }
 
@@ -130,11 +131,16 @@ public class Elderly extends BaseEntity {
         return LocalDate.now().getYear() - birthday.getYear() + 1;
     }
 
+    public Map<CareType, List<String>> getDetailCareTypeMap() {
+        return detailCareTypes.stream()
+                .collect(Collectors.groupingBy(
+                        DetailCareType::getCareType,
+                        Collectors.mapping(DetailCareType::getDisplayName, Collectors.toList())));
+    }
+
     /**
      * Entity Method
      */
-
-    // TODO : 업데이트 로직을 PUT 방식으로 수정하지 않을 데이터는 기존값을 보내도록 API 명세 수정
     public void update(
             String name,
             LocalDate birthday,
@@ -142,54 +148,21 @@ public class Elderly extends BaseEntity {
             Boolean hasInmate,
             Boolean hasPet,
             CareLevel careLevel,
-            String siDo,
-            String siGuGun,
-            String eupMyeonDong,
+            Location residentialLocation,
             String detailAddress,
             String healthCondition,
             String profileImageUrl,
             List<DetailCareType> detailCareTypes) {
-
-        if (name != null) {
-            this.name = name;
-        }
-
-        if (gender != null) {
-            this.gender = gender;
-        }
-
-        if (birthday != null) {
-            this.birthday = birthday;
-        }
-
-        if (hasInmate != null) {
-            this.hasInmate = hasInmate;
-        }
-
-        if (hasPet != null) {
-            this.hasPet = hasPet;
-        }
-
-        if (careLevel != null) {
-            this.careLevel = careLevel;
-        }
-
-        if (siDo != null && siGuGun != null && eupMyeonDong != null) {
-            this.residentialLocation = Location.of(siDo, siGuGun, eupMyeonDong);
-        }
-
-        if (detailAddress != null) {
-            this.detailAddress = detailAddress;
-        }
-
-        if (healthCondition != null) {
-            this.healthCondition = healthCondition;
-        }
-
+        this.name = name;
+        this.gender = gender;
+        this.birthday = birthday;
+        this.hasInmate = hasInmate;
+        this.hasPet = hasPet;
+        this.careLevel = careLevel;
+        this.residentialLocation = residentialLocation;
+        this.detailAddress = detailAddress;
+        this.healthCondition = healthCondition;
         this.profileImageUrl = profileImageUrl;
-
-        if (detailCareTypes != null) {
-            this.detailCareTypes = EnumSet.copyOf(detailCareTypes);
-        }
+        this.detailCareTypes = EnumSet.copyOf(detailCareTypes);
     }
 }

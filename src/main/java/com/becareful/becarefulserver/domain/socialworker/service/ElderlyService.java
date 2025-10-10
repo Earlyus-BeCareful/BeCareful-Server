@@ -4,24 +4,35 @@ import static com.becareful.becarefulserver.global.constant.StaticResourceConsta
 import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.ELDERLY_DEFAULT_PROFILE_IMAGE_URL;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
+import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
+import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
+import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
+import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.domain.socialworker.domain.service.ElderlyDomainService;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateOrUpdateRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyDetailResponse;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
+import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
+import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
+import com.becareful.becarefulserver.global.util.AuthUtil;
+import com.becareful.becarefulserver.global.util.FileUtil;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.EnumSet;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import com.becareful.becarefulserver.domain.common.dto.request.*;
 import com.becareful.becarefulserver.domain.common.dto.response.*;
-import com.becareful.becarefulserver.domain.matching.repository.*;
-import com.becareful.becarefulserver.domain.socialworker.domain.*;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
-import com.becareful.becarefulserver.domain.socialworker.repository.*;
-import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.service.*;
 import com.becareful.becarefulserver.global.util.*;
-import java.io.*;
-import java.time.*;
-import java.time.format.*;
-import java.util.*;
-import lombok.*;
-import org.springframework.stereotype.*;
-import org.springframework.transaction.annotation.*;
-import org.springframework.web.multipart.*;
 
 @Service
 @RequiredArgsConstructor
@@ -31,13 +42,14 @@ public class ElderlyService {
     private final ElderlyRepository elderlyRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
+    private final ElderlyDomainService elderlyDomainService;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
     private final S3Util s3Util;
     private final S3Service s3Service;
 
     @Transactional
-    public Long saveElderly(ElderlyCreateRequest request) {
+    public Long saveElderly(ElderlyCreateOrUpdateRequest request) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
         String profileImageUrl = null;
@@ -51,17 +63,17 @@ public class ElderlyService {
                 request.name(),
                 request.birthday(),
                 request.gender(),
-                request.siDo(),
-                request.siGuGun(),
-                request.eupMyeonDong(),
+                request.residentialLocation(),
                 request.detailAddress(),
-                request.inmate(),
-                request.pet(),
+                request.hasInmate(),
+                request.hasPet(),
                 profileImageUrl,
                 socialworker.getNursingInstitution(),
                 request.careLevel(),
                 request.healthCondition(),
                 EnumSet.copyOf(request.detailCareTypeList()));
+
+        elderlyRepository.save(elderly);
 
         if (!request.profileImageTempKey().equals("default")) {
             try {
@@ -70,13 +82,11 @@ public class ElderlyService {
                 throw new ElderlyException(ELDERLY_FAILED_TO_MOVE_FILE);
             }
         }
-
-        elderlyRepository.save(elderly);
         return elderly.getId();
     }
 
     @Transactional
-    public void updateElderly(Long elderlyId, ElderlyUpdateRequest request) {
+    public void updateElderly(Long elderlyId, ElderlyCreateOrUpdateRequest request) {
         authUtil.getLoggedInSocialWorker();
         Elderly elderly =
                 elderlyRepository.findById(elderlyId).orElseThrow(() -> new ElderlyException(ELDERLY_NOT_EXISTS));
@@ -92,12 +102,10 @@ public class ElderlyService {
                 request.name(),
                 request.birthday(),
                 request.gender(),
-                request.inmate(), // TODO : boolean field 에 맞게 네이밍 변경
-                request.pet(),
+                request.hasInmate(),
+                request.hasPet(),
                 request.careLevel(),
-                request.siDo(), // TODO : Location VO 로 묶기
-                request.siGuGun(),
-                request.eupMyeonDong(),
+                request.residentialLocation(),
                 request.detailAddress(),
                 request.healthCondition(),
                 profileImageUrl,
@@ -113,32 +121,52 @@ public class ElderlyService {
         }
     }
 
-    public List<ElderlyInfoResponse> getElderlyListBySearch(String searchString) {
+    /**
+     * 3.3.2 어르신 목록 조회
+     * @param pageable
+     * @return Page<ElderlySimpleDto>
+     */
+    @Transactional(readOnly = true)
+    public Page<ElderlySimpleDto> getElderlyList(Pageable pageable) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
-
-        List<Elderly> elderlyList = elderlyRepository.findByNursingInstitutionAndNameContaining(
-                socialworker.getNursingInstitution(), searchString);
-
-        return elderlyList.stream()
-                .map(elderly -> {
-                    boolean hasRecruitment = recruitmentRepository.existsByElderly(elderly);
-                    int caregiverNum = completedMatchingRepository.countDistinctCaregiversByElderly(elderly);
-                    return ElderlyInfoResponse.of(elderly, caregiverNum, hasRecruitment);
-                })
-                .toList();
+        Page<Elderly> elderlyList =
+                elderlyRepository.findPageByNursingInstitution(socialworker.getNursingInstitution(), pageable);
+        return elderlyList.map(ElderlySimpleDto::from);
     }
 
-    public List<ElderlyInfoResponse> getElderlyList() {
+    /**
+     * 3.3.2 어르신 목록 - 어르신 검색
+     * @param keyword
+     * @return Page<ElderlySimpleDto>
+     */
+    @Transactional(readOnly = true)
+    public Page<ElderlySimpleDto> searchElderly(String keyword, Pageable pageable) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
-        List<Elderly> elderlyList = elderlyRepository.findAllByNursingInstitution(socialworker.getNursingInstitution());
 
-        return elderlyList.stream()
-                .map(elderly -> {
-                    boolean hasRecruitment = recruitmentRepository.existsByElderly(elderly);
-                    int caregiverNum = completedMatchingRepository.countDistinctCaregiversByElderly(elderly);
-                    return ElderlyInfoResponse.of(elderly, caregiverNum, hasRecruitment);
-                })
-                .toList();
+        Page<Elderly> elderlyList = elderlyRepository.findByNursingInstitutionAndNameContaining(
+                socialworker.getNursingInstitution(), keyword, pageable);
+
+        return elderlyList.map(ElderlySimpleDto::from);
+    }
+
+    /**
+     * 3.2.1.2 공고 등록 - 어르신 상세 정보 조회
+     * @param elderlyId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public ElderlyDetailResponse getElderlyDetail(Long elderlyId) {
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
+
+        Elderly elderly =
+                elderlyRepository.findById(elderlyId).orElseThrow(() -> new ElderlyException(ELDERLY_NOT_EXISTS));
+
+        elderlyDomainService.validateElderlyAndSocialWorkerInstitution(elderly, socialworker);
+
+        List<SocialWorkerRecruitmentResponse> responses =
+                recruitmentRepository.getRecruitmentResponsesByElderly(elderly);
+
+        return ElderlyDetailResponse.of(elderly, responses);
     }
 
     // TODO: 삭제

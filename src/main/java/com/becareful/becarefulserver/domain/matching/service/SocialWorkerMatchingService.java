@@ -8,7 +8,6 @@ import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.repository.*;
-import com.becareful.becarefulserver.domain.common.domain.vo.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.vo.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
@@ -16,12 +15,16 @@ import com.becareful.becarefulserver.domain.matching.dto.request.*;
 import com.becareful.becarefulserver.domain.matching.dto.response.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.service.ElderlyDomainService;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
+import jakarta.validation.Valid;
 import java.time.*;
 import java.util.*;
 import lombok.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 
@@ -31,6 +34,7 @@ import org.springframework.transaction.annotation.*;
 public class SocialWorkerMatchingService {
 
     private final AuthUtil authUtil;
+    private final ElderlyDomainService elderlyDomainService;
     private final MatchingRepository matchingRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final ElderlyRepository elderlyRepository;
@@ -42,6 +46,70 @@ public class SocialWorkerMatchingService {
     private final SocialWorkerRepository socialWorkerRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
+    private final CompletedMatchingRepository completedMatchingRepository;
+
+    /***
+     * 2025-09-24
+     * 3.1 공고 목록 (매칭 대기)
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Page<ElderlySimpleDto> getWaitingElderlys(Pageable pageable) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+
+        return elderlyRepository
+                .findAllWaitingMatching(loggedInSocialWorker.getNursingInstitution(), pageable)
+                .map(ElderlySimpleDto::from);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ElderlySimpleDto> searchWaitingElderlys(
+            Pageable pageable, @Valid WaitingMatchingElderlySearchRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        return elderlyRepository
+                .searchAllWaitingMatching(loggedInSocialWorker.getNursingInstitution(), pageable, request.keyword())
+                .map(ElderlySimpleDto::from);
+    }
+
+    /***
+     * 2025-10-08
+     * 3.1 공고 목록 (매칭중 / 매칭완료)
+     * @param elderlyMatchingStatusFilter
+     * @return List<MatchingStatusSimpleResponse>
+     */
+    @Transactional(readOnly = true)
+    public Page<SocialWorkerRecruitmentResponse> getRecruitmentList(
+            ElderlyMatchingStatusFilter elderlyMatchingStatusFilter, Pageable pageable) {
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
+
+        RecruitmentStatus recruitmentStatus =
+                switch (elderlyMatchingStatusFilter) {
+                    case 매칭중 -> RecruitmentStatus.모집중;
+                    case 매칭완료 -> RecruitmentStatus.모집완료;
+                    default -> throw new RecruitmentException("매칭 상태 필터가 잘못되었습니다 : " + elderlyMatchingStatusFilter);
+                };
+
+        return recruitmentRepository.findAllByInstitution(
+                socialworker.getNursingInstitution(), recruitmentStatus, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<SocialWorkerRecruitmentResponse> searchRecruitmentList(
+            ElderlyMatchingStatusFilter elderlyMatchingStatusFilter,
+            Pageable pageable,
+            MatchingRecruitmentSearchRequest request) {
+        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
+
+        RecruitmentStatus recruitmentStatus =
+                switch (elderlyMatchingStatusFilter) {
+                    case 매칭중 -> RecruitmentStatus.모집중;
+                    case 매칭완료 -> RecruitmentStatus.모집완료;
+                    default -> throw new RecruitmentException("매칭 상태 필터가 잘못되었습니다 : " + elderlyMatchingStatusFilter);
+                };
+
+        return recruitmentRepository.searchByInstitutionAndElderlyNameOrRecruitmentTitle(
+                socialworker.getNursingInstitution(), recruitmentStatus, request.keyword(), pageable);
+    }
 
     public MatchingCaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
         authUtil.getLoggedInSocialWorker(); // 사회복지사가 호출하는 API
@@ -67,6 +135,37 @@ public class SocialWorkerMatchingService {
         return MatchingCaregiverDetailResponse.of(matching, career, careerDetails);
     }
 
+    /**
+     * 2025-10-09 Kwon Chan
+     * 3.2.1.3 공고 등록 - 일정 중복 검증
+     * @param request
+     */
+    @Transactional(readOnly = true)
+    public void validateDuplicated(RecruitmentValidateDuplicatedRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Elderly elderly = elderlyRepository
+                .findById(request.elderlyId())
+                .orElseThrow(() -> new ElderlyException(ELDERLY_NOT_EXISTS));
+
+        elderlyDomainService.validateElderlyAndSocialWorkerInstitution(elderly, loggedInSocialWorker);
+
+        List<CompletedMatching> completedMatchings = completedMatchingRepository.findAllByElderly(elderly);
+
+        completedMatchings.forEach(completedMatching -> {
+            Recruitment recruitment =
+                    completedMatching.getContract().getMatching().getRecruitment();
+            if (Collections.disjoint(recruitment.getWorkDays(), request.workDays())) {
+                return;
+            }
+            // TODO : Period 로 만들어서 오버랩 검증 로직 작성
+            if (recruitment.getWorkEndTime().isBefore(request.workStartTime())
+                    || request.workEndTime().isBefore(recruitment.getWorkStartTime())) {
+                return;
+            }
+            throw new RecruitmentException(RECRUITMENT_WORK_TIME_DUPLICATED);
+        });
+    }
+
     @Transactional
     public Long createRecruitment(RecruitmentCreateRequest request) {
         Elderly elderly = elderlyRepository
@@ -76,36 +175,9 @@ public class SocialWorkerMatchingService {
         Recruitment recruitment = Recruitment.create(request, elderly);
         recruitmentRepository.save(recruitment);
 
-        // TODO 이미 근무 중인 데이터와 일정이 겹치는지 체크
         matchingWith(recruitment);
 
         return recruitment.getId();
-    }
-
-    public List<MatchingStatusSimpleResponse> getMatchingList(MatchingStatusFilter matchingStatusFilter) {
-        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
-        List<Recruitment> recruitments = recruitmentRepository.findAllByInstitutionId(
-                socialworker.getNursingInstitution().getId());
-
-        return recruitments.stream()
-                .filter(recruitment -> {
-                    if (matchingStatusFilter.equals(MatchingStatusFilter.진행중)) {
-                        return recruitment.getRecruitmentStatus().isRecruiting();
-                    }
-                    if (matchingStatusFilter.equals(MatchingStatusFilter.완료)) {
-                        return !recruitment.getRecruitmentStatus().isRecruiting();
-                    }
-                    return true;
-                })
-                .map(recruitment -> {
-                    int notAppliedMatchingCount =
-                            matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, 미지원); // 거절 제거 할래말래
-                    int appliedMatchingCount =
-                            matchingRepository.countByRecruitmentAndMatchingStatus(recruitment, 지원검토중);
-
-                    return MatchingStatusSimpleResponse.of(recruitment, notAppliedMatchingCount, appliedMatchingCount);
-                })
-                .toList();
     }
 
     // 매칭 상세 - 공고 상세 페이지
