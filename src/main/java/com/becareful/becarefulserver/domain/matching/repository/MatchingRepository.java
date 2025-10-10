@@ -30,7 +30,7 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     """)
     List<Matching> findAllByCaregiverAndApplicationStatus(Caregiver caregiver, MatchingStatus applicationStatus);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying
     @Query(
             """
     DELETE
