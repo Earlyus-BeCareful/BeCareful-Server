@@ -6,7 +6,7 @@ import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerProfileUpdateRequest;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
@@ -128,7 +128,7 @@ public class SocialWorker extends BaseEntity {
     }
 
     public void updateBasicInfo(
-            SocialWorkerUpdateBasicInfoRequest request,
+            SocialWorkerProfileUpdateRequest request,
             LocalDate birthday,
             Gender gender,
             NursingInstitution nursingInstitution) {

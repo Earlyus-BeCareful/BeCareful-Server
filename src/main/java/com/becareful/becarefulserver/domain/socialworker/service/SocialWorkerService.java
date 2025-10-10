@@ -105,19 +105,19 @@ public class SocialWorkerService {
     }
 
     @Transactional(readOnly = true)
-    public SocialWorkerMyResponse getMyInfo() {
+    public SocialWorkerMyResponse getMyPageData() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         return SocialWorkerMyResponse.from(loggedInSocialWorker);
     }
 
     @Transactional(readOnly = true)
-    public SocialWorkerEditResponse getEditMyInfo() {
+    public SocialWorkerEditResponse getMyProfile() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         return SocialWorkerEditResponse.from(loggedInSocialWorker);
     }
 
     @Transactional
-    public void updateMyBasicInfo(@Valid SocialWorkerUpdateBasicInfoRequest request, HttpServletResponse response) {
+    public void updateMyProfile(@Valid SocialWorkerProfileUpdateRequest request, HttpServletResponse response) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
 
         validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
