@@ -44,7 +44,7 @@ public class SocialWorkerController {
 
     @Operation(summary = "5.1.1 사회복지사 마이페이지", description = "사회복지사 마이페이지 화면 데이터를 조회합니다.")
     @GetMapping("/my")
-    public ResponseEntity<SocialWorkerMyResponse> getSocialWorkerMyPageData() {
+    public ResponseEntity<SocialWorkerMyPageResponse> getSocialWorkerMyPageData() {
         var response = socialworkerService.getMyPageData();
         return ResponseEntity.ok(response);
     }
