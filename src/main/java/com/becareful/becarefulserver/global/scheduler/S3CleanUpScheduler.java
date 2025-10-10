@@ -12,7 +12,7 @@ import org.springframework.stereotype.*;
 public class S3CleanUpScheduler {
     private final S3Service s3Service;
 
-    @Scheduled(cron = "0 0 0  * * *") // 메 00:00
+    @Scheduled(cron = "0 0 0 * * *") // 메 00:00
     public void cleanupTempFiles() {
         log.info("[S3CleanupScheduler] temp 폴더 정리 시작");
         s3Service.cleanAllTempFolders();

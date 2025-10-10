@@ -99,14 +99,14 @@ public class S3Service {
     @Transactional
     public void cleanAllTempFolders() {
         for (String type : PROFILE_TYPES) {
-            cleanTempFolder(type, Collections.emptySet());
+            cleanTempFolder(type);
         }
     }
 
     /**
      * temp 폴더 정리 (12시간 이상된 파일)
      */
-    public void cleanTempFolder(String directory, Set<String> dbStoredTempKeys) {
+    public void cleanTempFolder(String directory) {
         String prefix = directory + "/temp/";
 
         ListObjectsV2Request listReq = ListObjectsV2Request.builder()
@@ -120,9 +120,8 @@ public class S3Service {
 
         for (S3Object obj : listRes.contents()) {
             boolean isOld = obj.lastModified().isBefore(now.minus(Duration.ofHours(12)));
-            boolean notInDb = !dbStoredTempKeys.contains(obj.key());
 
-            if (isOld || notInDb) {
+            if (isOld) {
                 try {
                     s3Client.deleteObject(DeleteObjectRequest.builder()
                             .bucket(s3Properties.getBucket())
