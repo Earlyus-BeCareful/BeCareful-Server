@@ -53,10 +53,10 @@ public class NursingInstitutionService {
             throw new NursingInstitutionException(NURSING_INSTITUTION_ALREADY_EXISTS);
         }
 
-        String profileImageUrl = null;
+        String profileImageUrl;
         if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = NURSING_INSTITUTION_DEFAULT_PROFILE_IMAGE_URL;
-        } else if (request.profileImageTempKey() != null) {
+        } else{
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 
@@ -93,10 +93,12 @@ public class NursingInstitutionService {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         NursingInstitution institution = loggedInSocialWorker.getNursingInstitution();
 
-        String profileImageUrl = institution.getProfileImageUrl();
-        if (request.profileImageTempKey().equals("default")) {
+        String profileImageUrl;
+        if (request.profileImageTempKey() == null) {
+            profileImageUrl = institution.getProfileImageUrl();
+        } else if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = NURSING_INSTITUTION_DEFAULT_PROFILE_IMAGE_URL;
-        } else if (request.profileImageTempKey() != null) {
+        } else{
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 

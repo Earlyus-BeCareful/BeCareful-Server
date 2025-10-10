@@ -1,38 +1,29 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.ELDERLY_DEFAULT_PROFILE_IMAGE_URL;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
-
-import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
-import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
-import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
-import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
-import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.service.ElderlyDomainService;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateOrUpdateRequest;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyDetailResponse;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
-import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
-import com.becareful.becarefulserver.global.exception.exception.ElderlyException;
-import com.becareful.becarefulserver.global.util.AuthUtil;
-import com.becareful.becarefulserver.global.util.FileUtil;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.EnumSet;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import com.becareful.becarefulserver.domain.common.dto.request.*;
 import com.becareful.becarefulserver.domain.common.dto.response.*;
+import com.becareful.becarefulserver.domain.matching.dto.*;
+import com.becareful.becarefulserver.domain.matching.dto.response.*;
+import com.becareful.becarefulserver.domain.matching.repository.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.service.*;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
+import com.becareful.becarefulserver.domain.socialworker.repository.*;
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.*;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.service.*;
 import com.becareful.becarefulserver.global.util.*;
+import java.io.*;
+import java.time.*;
+import java.time.format.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.data.domain.*;
+import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.*;
+import org.springframework.web.multipart.*;
 
 @Service
 @RequiredArgsConstructor
@@ -49,13 +40,13 @@ public class ElderlyService {
     private final S3Service s3Service;
 
     @Transactional
-    public Long saveElderly(ElderlyCreateOrUpdateRequest request) {
+    public Long saveElderly(ElderlyCreateRequest request) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
-        String profileImageUrl = null;
+        String profileImageUrl;
         if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
-        } else if (request.profileImageTempKey() != null) {
+        } else {
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 
@@ -86,15 +77,17 @@ public class ElderlyService {
     }
 
     @Transactional
-    public void updateElderly(Long elderlyId, ElderlyCreateOrUpdateRequest request) {
+    public void updateElderly(Long elderlyId, ElderlyUpdateRequest request) {
         authUtil.getLoggedInSocialWorker();
         Elderly elderly =
                 elderlyRepository.findById(elderlyId).orElseThrow(() -> new ElderlyException(ELDERLY_NOT_EXISTS));
 
-        String profileImageUrl = elderly.getProfileImageUrl();
-        if (request.profileImageTempKey().equals("default")) {
+        String profileImageUrl;
+        if (request.profileImageTempKey() == null) {
+            profileImageUrl = elderly.getProfileImageUrl();
+        } else if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = ELDERLY_DEFAULT_PROFILE_IMAGE_URL;
-        } else if (request.profileImageTempKey() != null) {
+        } else{
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 

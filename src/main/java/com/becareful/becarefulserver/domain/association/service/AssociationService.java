@@ -95,10 +95,10 @@ public class AssociationService {
     public long saveAssociation(AssociationCreateRequest request) {
         SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
 
-        String profileImageUrl = null;
+        String profileImageUrl;
         if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = ASSOCIATION_DEFAULT_PROFILE_IMAGE_URL;
-        } else if (request.profileImageTempKey() != null) {
+        } else{
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 
@@ -291,10 +291,12 @@ public class AssociationService {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         Association association = loggedInSocialWorker.getAssociation();
 
-        String profileImageUrl = association.getProfileImageUrl();
-        if (request.profileImageTempKey().equals("default")) {
+        String profileImageUrl;
+        if (request.profileImageTempKey() == null) {
+            profileImageUrl = association.getProfileImageUrl();
+        } else if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = ASSOCIATION_DEFAULT_PROFILE_IMAGE_URL;
-        } else if (request.profileImageTempKey() != null) {
+        } else{
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 

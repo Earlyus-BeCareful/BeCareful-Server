@@ -10,9 +10,9 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
-public record ElderlyCreateOrUpdateRequest(
+public record ElderlyCreateRequest(
         // TODO : 에러 메세지 구체화
-        String profileImageTempKey,
+        @NotBlank String profileImageTempKey,
         @NotBlank String name,
         @NotNull LocalDate birthday,
         @NotNull Gender gender,

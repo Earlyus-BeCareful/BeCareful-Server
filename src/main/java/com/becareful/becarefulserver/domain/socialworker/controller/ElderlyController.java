@@ -2,23 +2,19 @@ package com.becareful.becarefulserver.domain.socialworker.controller;
 
 import com.becareful.becarefulserver.domain.common.dto.request.*;
 import com.becareful.becarefulserver.domain.common.dto.response.*;
-import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.ElderlyCreateOrUpdateRequest;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyDetailResponse;
-import com.becareful.becarefulserver.domain.socialworker.dto.response.ElderlyProfileUploadResponse;
-import com.becareful.becarefulserver.domain.socialworker.service.ElderlyService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import java.net.URI;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import com.becareful.becarefulserver.domain.matching.dto.*;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
+import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
+import com.becareful.becarefulserver.domain.socialworker.service.*;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.tags.*;
+import jakarta.validation.*;
+import java.net.*;
+import lombok.*;
+import org.springframework.data.domain.*;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,7 +48,7 @@ public class ElderlyController {
 
     @Operation(summary = "어르신 등록", description = "3.3.1 어르신 등록")
     @PostMapping
-    public ResponseEntity<Void> createElderly(@Valid @RequestBody ElderlyCreateOrUpdateRequest request) {
+    public ResponseEntity<Void> createElderly(@Valid @RequestBody ElderlyCreateRequest request) {
         Long id = elderlyService.saveElderly(request);
         return ResponseEntity.created(URI.create("/elderly/" + id)).build();
     }
@@ -62,7 +58,7 @@ public class ElderlyController {
             description = "3.3.4 어르신 정보를 수정하는 API 입니다.")
     @PutMapping("/{elderlyId}")
     public ResponseEntity<Void> updateElderly(
-            @PathVariable Long elderlyId, @Valid @RequestBody ElderlyCreateOrUpdateRequest request) {
+            @PathVariable Long elderlyId, @Valid @RequestBody ElderlyUpdateRequest request) {
         elderlyService.updateElderly(elderlyId, request);
         return ResponseEntity.ok().build();
     }

@@ -113,10 +113,10 @@ public class CaregiverService {
                 .nursingCareCertificate(request.nursingCareCertificate())
                 .build();
 
-        String profileImageUrl = null;
+        String profileImageUrl;
         if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
-        } else if (request.profileImageTempKey() != null) {
+        } else {
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 
@@ -167,10 +167,12 @@ public class CaregiverService {
     public void updateCaregiverInfo(MyPageUpdateRequest request) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
-        String profileImageUrl = caregiver.getProfileImageUrl();
-        if (request.profileImageTempKey().equals("default")) {
+        String profileImageUrl;
+        if (request.profileImageTempKey() == null) {
+            profileImageUrl = caregiver.getProfileImageUrl();
+        } else if (request.profileImageTempKey().equals("default")) {
             profileImageUrl = CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
-        } else if (request.profileImageTempKey() != null) {
+        } else{
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
 
