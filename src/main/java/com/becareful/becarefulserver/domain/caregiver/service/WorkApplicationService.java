@@ -6,16 +6,15 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGI
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.dto.WorkApplicationDto;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
+import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,11 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class WorkApplicationService {
 
+    private final AuthUtil authUtil;
+    private final MatchingDomainService matchingDomainService;
     private final WorkApplicationRepository workApplicationRepository;
     private final MatchingRepository matchingRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
-    private final AuthUtil authUtil;
 
     @Transactional(readOnly = true)
     public CaregiverMyWorkApplicationPageResponse getMyWorkApplicationPageInfo() {
@@ -44,7 +44,7 @@ public class WorkApplicationService {
     }
 
     @Transactional
-    public void updateWorkApplication(WorkApplicationUpdateRequest request) {
+    public void createOrUpdateWorkApplication(WorkApplicationCreateOrUpdateRequest request) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         workApplicationRepository
                 .findByCaregiver(caregiver)
@@ -78,20 +78,15 @@ public class WorkApplicationService {
                 .findByCaregiver(caregiver)
                 .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
 
-        List<Matching> matchingList =
-                matchingRepository.findAllByCaregiverAndApplicationStatus(application.getCaregiver(), 미지원);
-        matchingRepository.deleteAll(matchingList);
+        matchingRepository.deleteAllByApplicationAndMatchingStatus(application, 미지원);
 
         application.inactivate();
     }
 
     private void matchingWith(WorkApplication application) {
-        // TODO : 매칭 적합도 검사해서 '제외' 가 아닌 것만 저장하도록 수정 (matching domain service 에서 처리)
-        List<Matching> matchingList =
-                matchingRepository.findAllByCaregiverAndApplicationStatus(application.getCaregiver(), 미지원);
-        matchingRepository.deleteAll(matchingList);
-        recruitmentRepository.findAllByIsRecruiting().stream()
-                .map(recruitment -> Matching.create(recruitment, application))
-                .forEach(matchingRepository::save);
+        matchingRepository.deleteAllByApplicationAndMatchingStatus(application, 미지원);
+        recruitmentRepository.findAllByIsRecruiting().forEach(recruitment -> {
+            matchingDomainService.createMatching(recruitment, application).ifPresent(matchingRepository::save);
+        });
     }
 }
