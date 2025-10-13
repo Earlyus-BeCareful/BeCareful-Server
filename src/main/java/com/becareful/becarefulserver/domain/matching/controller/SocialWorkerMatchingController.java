@@ -70,7 +70,7 @@ public class SocialWorkerMatchingController {
     @Operation(summary = "3.1.4 공고 매칭 현황 조회", description = "매칭 현황 데이터의 상세화면을 조회합니다. 매칭된 요양보호사와 지원한 요양보호사 정보가 있습니다.")
     @GetMapping("/recruitment/{recruitmentId}/matching-status")
     public ResponseEntity<MatchingStatusDetailResponse> getRecruitmentMatchingList(@PathVariable Long recruitmentId) {
-        var response = socialWorkerMatchingService.getMatchingDetail(recruitmentId);
+        var response = socialWorkerMatchingService.getMatchingStatus(recruitmentId);
         return ResponseEntity.ok(response);
     }
 

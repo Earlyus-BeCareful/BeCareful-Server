@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
 import static com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.*;
-import static com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
@@ -209,11 +208,19 @@ public class SocialWorkerMatchingService {
         return RecruitmentDto.from(recruitment);
     }
 
-    // 매칭 상세 - 공고 상세 페이지
-    public MatchingStatusDetailResponse getMatchingDetail(Long recruitmentId) {
-        Recruitment recruitment = recruitmentRepository
-                .findById(recruitmentId)
+    /**
+     * 3.1.4 공고 상세 - 매칭 현황 조회
+     * @param recruitmentId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public MatchingStatusDetailResponse getMatchingStatus(Long recruitmentId) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+
+        recruitmentDomainService.validateRecruitmentInstitution(recruitment, loggedInSocialWorker);
+
         List<Matching> matchings = matchingRepository.findAllByRecruitment(recruitment);
 
         List<MatchingCaregiverSimpleResponse> unAppliedCaregivers = new ArrayList<>();
@@ -233,7 +240,7 @@ public class SocialWorkerMatchingService {
                         .findByCaregiver(caregiver)
                         .orElseThrow(() -> new CaregiverException(CAREGIVER_CAREER_NOT_EXISTS));
 
-                MatchedCaregiverDto caregiverInfo = MatchedCaregiverDto.of(caregiver, career);
+                MatchedCaregiverResponse caregiverInfo = MatchedCaregiverResponse.of(caregiver, career);
                 MatchingResultStatus matchingResult =
                         matching.getMatchingResultInfo().judgeMatchingResultStatus();
 
