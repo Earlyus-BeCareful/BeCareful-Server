@@ -200,7 +200,8 @@ public class SocialWorkerMatchingService {
     public RecruitmentDto getRecruitment(Long recruitmentId) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
 
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
 
         recruitmentDomainService.validateRecruitmentInstitution(recruitment, loggedInSocialWorker);
@@ -216,7 +217,8 @@ public class SocialWorkerMatchingService {
     @Transactional(readOnly = true)
     public MatchingStatusDetailResponse getMatchingStatus(Long recruitmentId) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
 
         recruitmentDomainService.validateRecruitmentInstitution(recruitment, loggedInSocialWorker);
