@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.matching.controller;
 
 import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
+import com.becareful.becarefulserver.domain.matching.dto.RecruitmentDto;
 import com.becareful.becarefulserver.domain.matching.dto.request.*;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusDetailResponse;
@@ -59,6 +60,20 @@ public class SocialWorkerMatchingController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "3.1.4 공고 상세 조회", description = "공고 상세 화면을 조회합니다.")
+    @GetMapping("/recruitment/{recruitmentId}")
+    public ResponseEntity<RecruitmentDto> getRecruitmentDetail(@PathVariable Long recruitmentId) {
+        var response = socialWorkerMatchingService.getRecruitment(recruitmentId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "3.1.4 공고 매칭 현황 조회", description = "매칭 현황 데이터의 상세화면을 조회합니다. 매칭된 요양보호사와 지원한 요양보호사 정보가 있습니다.")
+    @GetMapping("/recruitment/{recruitmentId}/matching-status")
+    public ResponseEntity<MatchingStatusDetailResponse> getRecruitmentMatchingList(@PathVariable Long recruitmentId) {
+        var response = socialWorkerMatchingService.getMatchingStatus(recruitmentId);
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "3.2.1 매칭 공고 등록", description = "3.2.1.3 화면에서 사용하는 매칭 공고 등록 API")
     @PostMapping("/recruitment")
     public ResponseEntity<Void> createRecruitment(@Valid @RequestBody RecruitmentCreateRequest request) {
@@ -73,13 +88,6 @@ public class SocialWorkerMatchingController {
             @Valid @RequestBody RecruitmentValidateDuplicatedRequest request) {
         socialWorkerMatchingService.validateDuplicated(request);
         return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "매칭 현황 상세 조회", description = "매칭 현황 데이터의 상세화면을 조회합니다. 매칭된 요양보호사와 지원한 요양보호사 정보가 있습니다.")
-    @GetMapping("/recruitment/{recruitmentId}")
-    public ResponseEntity<MatchingStatusDetailResponse> getMatchingListDetail(@PathVariable Long recruitmentId) {
-        var response = socialWorkerMatchingService.getMatchingDetail(recruitmentId);
-        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "요양보호사 지원 정보 상세 조회", description = "요양보호사의 지원 정보를 자세히 조회합니다.")
