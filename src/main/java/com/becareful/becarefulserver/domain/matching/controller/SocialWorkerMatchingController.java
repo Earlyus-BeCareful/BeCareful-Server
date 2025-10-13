@@ -60,7 +60,7 @@ public class SocialWorkerMatchingController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "3.1.4 공고 상세 조회", description = "매칭 현황 데이터의 상세화면을 조회합니다. 매칭된 요양보호사와 지원한 요양보호사 정보가 있습니다.")
+    @Operation(summary = "3.1.4 공고 상세 조회", description = "공고 상세 화면을 조회합니다.")
     @GetMapping("/recruitment/{recruitmentId}")
     public ResponseEntity<RecruitmentDto> getRecruitmentDetail(@PathVariable Long recruitmentId) {
         var response = socialWorkerMatchingService.getRecruitment(recruitmentId);
