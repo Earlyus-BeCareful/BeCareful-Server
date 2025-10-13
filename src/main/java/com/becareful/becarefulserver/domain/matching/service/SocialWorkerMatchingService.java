@@ -190,6 +190,36 @@ public class SocialWorkerMatchingService {
         return recruitment.getId();
     }
 
+    @Transactional
+    public void updateRecruitment(Long recruitmentId, RecruitmentUpdateRequest request) {
+        SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
+
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+
+        elderlyDomainService.validateElderlyAndSocialWorkerInstitution(recruitment.getElderly(), socialWorker);
+
+        List<Matching> matchings = matchingRepository.findAllByRecruitment(recruitment);
+
+        if (!matchings.isEmpty()) {
+            List<Contract> contracts = contractRepository.findAllByMatchingIn(matchings);
+
+            if (!contracts.isEmpty()) {
+                completedMatchingRepository.deleteAllByContractIn(contracts);
+                contractRepository.deleteAll(contracts);
+            }
+
+            matchingRepository.deleteAll(matchings);
+        }
+
+        recruitment.update(request);
+
+        workApplicationRepository.findAllActiveWorkApplication().forEach(workApplication -> {
+            matchingDomainService.createMatching(recruitment, workApplication).ifPresent(matchingRepository::save);
+        });
+    }
+
     // 매칭 상세 - 공고 상세 페이지
     public MatchingStatusDetailResponse getMatchingDetail(Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository

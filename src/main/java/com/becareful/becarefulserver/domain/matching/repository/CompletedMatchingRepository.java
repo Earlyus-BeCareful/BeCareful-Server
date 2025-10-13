@@ -21,4 +21,6 @@ public interface CompletedMatchingRepository extends JpaRepository<CompletedMatc
          WHERE cm.contract.matching.recruitment.elderly = :elderly
     """)
     List<CompletedMatching> findAllByElderly(Elderly elderly);
+
+    void deleteAllByContractIn(List<Contract> contracts);
 }

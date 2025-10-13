@@ -11,4 +11,6 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
     List<Contract> findByMatchingOrderByCreateDateAsc(Matching matching);
 
     Optional<Contract> findTop1ByMatchingOrderByCreateDateDesc(Matching matching);
+
+    List<Contract> findAllByMatchingIn(List<Matching> matchings);
 }

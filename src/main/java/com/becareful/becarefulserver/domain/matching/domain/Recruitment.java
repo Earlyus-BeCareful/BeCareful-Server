@@ -10,6 +10,7 @@ import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
+import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentUpdateRequest;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import jakarta.persistence.*;
@@ -91,6 +92,17 @@ public class Recruitment extends BaseEntity {
                 .description(request.description())
                 .elderly(elderly)
                 .build();
+    }
+
+    public void update(RecruitmentUpdateRequest request) {
+        this.title = request.title();
+        this.workDays = EnumSet.copyOf(request.workDays());
+        this.workStartTime = request.workStartTime();
+        this.workEndTime = request.workEndTime();
+        this.careTypes = EnumSet.copyOf(request.careTypes());
+        this.workSalaryUnitType = request.workSalaryUnitType();
+        this.workSalaryAmount = request.workSalaryAmount();
+        this.description = request.description();
     }
 
     public EnumSet<WorkTime> getWorkTimes() {
