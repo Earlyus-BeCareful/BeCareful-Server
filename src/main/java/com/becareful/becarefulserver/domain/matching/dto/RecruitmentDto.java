@@ -16,7 +16,6 @@ public record RecruitmentDto(
         Long recruitmentId,
         String title,
         RecruitmentStatus recruitmentStatus,
-        List<CareTypeDto> careTypes,
         List<DayOfWeek> workDays,
         String workStartTime,
         String workEndTime,
@@ -24,6 +23,7 @@ public record RecruitmentDto(
         Integer workSalaryAmount,
         String description,
         LocalDateTime createdAt,
+        ElderlyDto elderlyInfo,
         InstitutionSimpleDto institutionInfo) {
 
     public static RecruitmentDto from(Recruitment recruitment) {
@@ -31,17 +31,6 @@ public record RecruitmentDto(
                 recruitment.getId(),
                 recruitment.getTitle(),
                 recruitment.getRecruitmentStatus(),
-                recruitment.getElderly().getDetailCareTypes().stream()
-                        .collect(groupingBy(DetailCareType::getCareType))
-                        .entrySet()
-                        .stream()
-                        .filter(entry -> recruitment.getCareTypes().contains(entry.getKey()))
-                        .map(entry -> new CareTypeDto(
-                                entry.getKey(),
-                                entry.getValue().stream()
-                                        .map(DetailCareType::getDisplayName)
-                                        .toList()))
-                        .toList(),
                 recruitment.getWorkDays().stream().toList(),
                 recruitment.getWorkStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 recruitment.getWorkEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
@@ -49,6 +38,7 @@ public record RecruitmentDto(
                 recruitment.getWorkSalaryAmount(),
                 recruitment.getDescription(),
                 recruitment.getCreateDate(),
+                ElderlyDto.from(recruitment.getElderly()),
                 InstitutionSimpleDto.from(recruitment.getElderly().getNursingInstitution()));
     }
 }

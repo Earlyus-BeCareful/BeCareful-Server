@@ -10,6 +10,7 @@ import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.repository.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
+import com.becareful.becarefulserver.domain.matching.domain.service.RecruitmentDomainService;
 import com.becareful.becarefulserver.domain.matching.domain.vo.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
 import com.becareful.becarefulserver.domain.matching.dto.request.*;
@@ -49,6 +50,7 @@ public class SocialWorkerMatchingService {
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
+    private final RecruitmentDomainService recruitmentDomainService;
 
     /***
      * 2025-09-24
@@ -188,6 +190,23 @@ public class SocialWorkerMatchingService {
         });
 
         return recruitment.getId();
+    }
+
+    /**
+     * 3.1.4 매칭 공고 상세 정보 조회
+     * @param recruitmentId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public RecruitmentDto getRecruitment(Long recruitmentId) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+
+        recruitmentDomainService.validateRecruitmentInstitution(recruitment, loggedInSocialWorker);
+
+        return RecruitmentDto.from(recruitment);
     }
 
     // 매칭 상세 - 공고 상세 페이지
