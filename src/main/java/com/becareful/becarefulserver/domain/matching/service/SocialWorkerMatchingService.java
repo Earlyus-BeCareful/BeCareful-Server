@@ -232,6 +232,46 @@ public class SocialWorkerMatchingService {
     }
 
     @Transactional
+    public void deleteRecruitment(Long recruitmentId) {
+        SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
+
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+
+        elderlyDomainService.validateElderlyAndSocialWorkerInstitution(
+                recruitment.getElderly(), socialWorker);
+
+        List<Matching> matchings = matchingRepository.findAllByRecruitment(recruitment);
+
+        if (matchings.isEmpty()) {
+            recruitmentRepository.delete(recruitment);
+            return;
+        }
+
+        deleteRelatedContracts(matchings);
+        deleteChatReadStatuses(matchings);
+        matchingRepository.deleteAll(matchings);
+        recruitmentRepository.delete(recruitment);
+    }
+
+    private void deleteRelatedContracts(List<Matching> matchings) {
+        List<Contract> contracts = contractRepository.findAllByMatchingIn(matchings);
+
+        if (contracts.isEmpty()) {
+            return;
+        }
+
+        completedMatchingRepository.deleteAllByContractIn(contracts);
+        contractRepository.deleteAll(contracts);
+    }
+
+    private void deleteChatReadStatuses(List<Matching> matchings) {
+        caregiverChatReadStatusRepository.deleteAllByMatchingIn(matchings);
+        socialWorkerChatReadStatusRepository.deleteAllByMatchingIn(matchings);
+    }
+
+    @Transactional
     public void propose(Long matchingId, LocalDate workStartDate) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 

@@ -3,7 +3,8 @@ package com.becareful.becarefulserver.domain.chat.repository;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.*;
 
@@ -22,4 +23,6 @@ public interface SocialWorkerChatReadStatusRepository extends JpaRepository<Soci
             AND c.createDate > s.lastReadAt
         """)
     boolean existsUnreadContract(@Param("socialWorker") SocialWorker socialWorker);
+
+    void deleteAllByMatchingIn(List<Matching> matchings);
 }

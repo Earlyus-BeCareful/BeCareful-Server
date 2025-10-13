@@ -82,6 +82,15 @@ public class SocialWorkerMatchingController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "3.1.4 매칭 공고 삭제",
+            description = "3.1.4 화면에서 공고와 연관된 모든 매칭 데이터를 삭제합니다.")
+    @DeleteMapping("/recruitment/{recruitmentId}")
+    public ResponseEntity<Void> deleteRecruitment(@PathVariable Long recruitmentId) {
+        socialWorkerMatchingService.deleteRecruitment(recruitmentId);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "요양보호사 지원 정보 상세 조회", description = "요양보호사의 지원 정보를 자세히 조회합니다.")
     @GetMapping("/recruitment/{recruitmentId}/caregiver/{caregiverId}")
     public ResponseEntity<MatchingCaregiverDetailResponse> getCaregiverDetailInfo(

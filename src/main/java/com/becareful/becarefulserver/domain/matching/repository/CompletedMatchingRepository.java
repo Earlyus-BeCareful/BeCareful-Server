@@ -14,6 +14,8 @@ public interface CompletedMatchingRepository extends JpaRepository<CompletedMatc
 
     List<CompletedMatching> findByCaregiver(Caregiver caregiver);
 
+    void deleteAllByContractIn(List<Contract> contracts);
+
     @Query(
             """
         SELECT cm
