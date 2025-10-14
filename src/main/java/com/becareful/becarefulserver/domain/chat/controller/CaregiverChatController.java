@@ -19,16 +19,16 @@ public class CaregiverChatController {
     private final CaregiverChatService caregiverChatService;
 
     @Operation(summary = "요양보호사 채팅 목록")
-    @GetMapping("/list")
+    @GetMapping("/room/list")
     public ResponseEntity<List<CaregiverChatRoomResponse>> getChatRoomList() {
         var response = caregiverChatService.getChatRoomList();
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "요양보호사 채팅 데이터 조회", description = "채팅방 데이터 (어르신 정보, 계약서 리스트) 반환")
-    @GetMapping
-    public ResponseEntity<ChatRoomDetailResponse> getChatRoomData(@RequestParam(name = "matchingId") Long matchingId) {
-        var response = caregiverChatService.getChatRoomDetail(matchingId);
+    @GetMapping("/room/{chatRoomId}")
+    public ResponseEntity<ChatRoomDetailResponse> getChatRoomData(@PathVariable Long chatRoomId) {
+        var response = caregiverChatService.getChatRoomData(chatRoomId);
         return ResponseEntity.ok(response);
     }
 

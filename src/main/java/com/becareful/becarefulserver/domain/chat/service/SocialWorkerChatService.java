@@ -26,7 +26,6 @@ public class SocialWorkerChatService {
     private final AuthUtil authUtil;
     private final ContractRepository contractRepository;
     private final MatchingRepository matchingRepository;
-    private final CompletedMatchingRepository completedMatchingRepository;
     private final SocialWorkerChatReadStatusRepository chatReadStatusRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -43,7 +42,7 @@ public class SocialWorkerChatService {
                     .findRecentMessageByChatRoom(room)
                     .orElseThrow(() -> new SocialWorkerException(CHAT_MESSAGE_NOT_EXISTS));
 
-            var response = SocialWorkerChatRoomResponse.of(matching, contract, isCompleted);
+            var response = SocialWorkerChatRoomResponse.of(room, recentMessage);
             responses.add(response);
         });
 
