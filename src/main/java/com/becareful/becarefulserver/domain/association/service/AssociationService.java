@@ -170,7 +170,7 @@ public class AssociationService {
     public AssociationMemberDetailInfoResponse getAssociationMemberDetailInfo(Long memberId) {
         SocialWorker member = socialWorkerRepository
                 .findById(memberId)
-                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+                .orElseThrow(() -> new SocialWorkerException(ASSOCIATION_MEMBER_NOT_EXISTS));
 
         Association association = member.getAssociation();
         NursingInstitution institution = member.getNursingInstitution();
@@ -209,7 +209,7 @@ public class AssociationService {
     public void expelMember(Long memberId) {
         SocialWorker member = socialWorkerRepository
                 .findById(memberId)
-                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+                .orElseThrow(() -> new SocialWorkerException(ASSOCIATION_MEMBER_NOT_EXISTS));
 
         member.leaveAssociation();
     }
@@ -278,7 +278,7 @@ public class AssociationService {
 
         SocialWorker member = socialWorkerRepository
                 .findById(request.memberId())
-                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+                .orElseThrow(() -> new SocialWorkerException(ASSOCIATION_MEMBER_NOT_EXISTS));
 
         Association association = member.getAssociation();
 

@@ -1,44 +1,37 @@
 package com.becareful.becarefulserver.domain.chat.dto.response;
 
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
+import com.becareful.becarefulserver.domain.chat.domain.ChatMessage;
+import com.becareful.becarefulserver.domain.chat.domain.ChatRoom;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionSimpleDto;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 public record CaregiverChatRoomResponse(
-        Long matchingId,
-        Long recruitmentId,
-        String nursingInstitutionProfileImageUrl,
-        String nursingInstitutionName,
+        Long chatRoomId,
+        InstitutionSimpleDto institutionInfo,
         String recentChat,
         String lastSendTime,
         Integer unreadCount) {
 
-    public static CaregiverChatRoomResponse of(Matching matching, Contract contract, boolean isCompleted) {
-        NursingInstitution institution = matching.getRecruitment().getElderly().getNursingInstitution();
-        String recentChat = isCompleted ? "최종 승인이 확정되었습니다!" : "합격 축하드립니다.";
-        String timeDifference = getTimeDifferenceString(contract);
+    public static CaregiverChatRoomResponse of(ChatRoom chatRoom, ChatMessage recentMessage) {
+        NursingInstitution institution =
+                chatRoom.getMatching().getRecruitment().getElderly().getNursingInstitution();
+        // String recentChat = isCompleted ? "최종 승인이 확정되었습니다!" : "합격 축하드립니다.";
+        String timeDifference = getTimeDifferenceString(recentMessage.getCreateDate());
         return new CaregiverChatRoomResponse(
-                matching.getId(),
-                matching.getRecruitment().getId(),
-                institution.getProfileImageUrl(),
-                institution.getName(),
-                recentChat,
+                chatRoom.getId(),
+                InstitutionSimpleDto.from(institution),
+                recentMessage.getContent(),
                 timeDifference,
                 0 // TODO : 안 읽은 메세지 카운팅 로직 구현
                 );
     }
 
-    private static String getTimeDifferenceString(Contract contract) {
-        // 현재 시간
+    private static String getTimeDifferenceString(LocalDateTime sendTime) {
         LocalDateTime currentTime = LocalDateTime.now();
 
-        // 가장 최신 Contract의 생성 시간
-        LocalDateTime contractCreatedTime = contract.getCreateDate();
-
-        // Duration을 사용하여 차이 계산
-        Duration duration = Duration.between(contractCreatedTime, currentTime);
+        Duration duration = Duration.between(sendTime, currentTime);
 
         // 차이에 따라 다른 시간 단위로 변환
         if (duration.toHours() < 1) {

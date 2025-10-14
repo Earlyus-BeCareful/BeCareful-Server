@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CaregiverChatService {
 
     private final AuthUtil authUtil;
@@ -25,19 +24,22 @@ public class CaregiverChatService {
     private final ContractRepository contractRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
     private final CaregiverChatReadStatusRepository chatReadStatusRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
+    @Transactional(readOnly = true)
     public List<CaregiverChatRoomResponse> getChatRoomList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        List<Matching> matchingList =
-                matchingRepository.findAllByCaregiverAndApplicationStatus(caregiver, MatchingStatus.근무제안);
+
+        List<ChatRoom> chatRoomList = chatRoomRepository.findAllByCaregiver(caregiver);
 
         List<CaregiverChatRoomResponse> responses = new ArrayList<>();
-        matchingList.forEach(matching -> {
-            contractRepository.findTop1ByMatchingOrderByCreateDateDesc(matching).ifPresent(contract -> {
-                boolean isCompleted = completedMatchingRepository.existsCompletedMatchingByContract(contract);
-                var response = CaregiverChatRoomResponse.of(matching, contract, isCompleted);
-                responses.add(response);
-            });
+        chatRoomList.forEach(room -> {
+            ChatMessage message = chatMessageRepository
+                    .findRecentMessageByChatRoom(room)
+                    .orElseThrow(() -> new DomainException(CHAT_MESSAGE_NOT_EXISTS));
+            var response = CaregiverChatRoomResponse.of(room, message);
+            responses.add(response);
         });
 
         return responses;

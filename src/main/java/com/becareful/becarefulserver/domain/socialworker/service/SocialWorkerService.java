@@ -192,18 +192,18 @@ public class SocialWorkerService {
             return;
         }
 
-        throw new SocialWorkerException(SOCIALWORKER_REQUIRED_AGREEMENT);
+        throw new SocialWorkerException(SOCIAL_WORKER_REQUIRED_AGREEMENT);
     }
 
     private void validateNicknameNotDuplicated(String nickName) {
         if (socialworkerRepository.existsByNickname(nickName)) {
-            throw new SocialWorkerException(SOCIAlWORKER_ALREADY_EXISTS_NICKNAME);
+            throw new SocialWorkerException(SOCIAL_WORKER_ALREADY_EXISTS_NICKNAME);
         }
     }
 
     private void validatePhoneNumberNotDuplicated(String phoneNumber) {
         if (socialworkerRepository.existsByPhoneNumber(phoneNumber)) {
-            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
+            throw new SocialWorkerException(SOCIAL_WORKER_ALREADY_EXISTS_PHONENUMBER);
         }
     }
 

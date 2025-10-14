@@ -31,7 +31,7 @@ public class TestService {
     public void deleteSocialWorker(String phoneNumber) {
         SocialWorker socialWorker = socialWorkerRepository
                 .findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+                .orElseThrow(() -> new SocialWorkerException(ASSOCIATION_MEMBER_NOT_EXISTS));
         socialWorkerRepository.delete(socialWorker);
     }
 

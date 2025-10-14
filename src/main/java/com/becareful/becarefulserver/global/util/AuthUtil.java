@@ -1,7 +1,7 @@
 package com.becareful.becarefulserver.global.util;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_NOT_EXISTS;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.SOCIALWORKER_NOT_EXISTS;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.SOCIAL_WORKER_NOT_EXISTS;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
@@ -33,6 +33,6 @@ public class AuthUtil {
                 SecurityContextHolder.getContext().getAuthentication().getName();
         return socialworkerRepository
                 .findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new SocialWorkerException(SOCIALWORKER_NOT_EXISTS));
+                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
     }
 }
