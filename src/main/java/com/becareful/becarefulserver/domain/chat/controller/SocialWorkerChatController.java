@@ -22,7 +22,7 @@ public class SocialWorkerChatController {
 
     private final SocialWorkerChatService socialWorkerChatService;
 
-    @Operation(summary = "사회복지사 채팅 목록")
+    @Operation(summary = "4. 사회복지사 채팅 목록")
     @GetMapping("/list")
     public ResponseEntity<List<SocialWorkerChatRoomResponse>> getChatRoomList() {
         var response = socialWorkerChatService.getChatRoomList();
