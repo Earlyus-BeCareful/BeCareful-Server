@@ -17,33 +17,33 @@ public class SocialWorkerChatReadStatus extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime lastReadAt;
+    private Long lastReadSeq;
 
     @JoinColumn(name = "social_worker_id")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY)
     private SocialWorker socialWorker;
 
-    @JoinColumn(name = "matching_id")
-    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "chat_room_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Matching matching;
+    private ChatRoom chatRoom;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private SocialWorkerChatReadStatus(SocialWorker socialWorker, Matching matching) {
+    private SocialWorkerChatReadStatus(ChatRoom chatRoom, Long lastReadSeq, SocialWorker socialWorker) {
+        this.chatRoom = chatRoom;
+        this.lastReadSeq = lastReadSeq;
         this.socialWorker = socialWorker;
-        this.matching = matching;
-        this.lastReadAt = LocalDateTime.now();
     }
 
-    public static SocialWorkerChatReadStatus create(SocialWorker socialWorker, Matching matching) {
+    public static SocialWorkerChatReadStatus create(ChatRoom chatRoom, Long lastReadSeq, SocialWorker socialWorker) {
         return SocialWorkerChatReadStatus.builder()
+                .chatRoom(chatRoom)
+                .lastReadSeq(lastReadSeq)
                 .socialWorker(socialWorker)
-                .matching(matching)
                 .build();
     }
 
-    public void updateLastReadAt() {
-        this.lastReadAt = LocalDateTime.now();
+    public void updateLastReadSeq(Long lastReadSeq) {
+        this.lastReadSeq = lastReadSeq;
     }
 }

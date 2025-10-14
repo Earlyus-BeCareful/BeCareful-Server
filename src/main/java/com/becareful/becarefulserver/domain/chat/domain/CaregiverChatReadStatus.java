@@ -1,8 +1,6 @@
 package com.becareful.becarefulserver.domain.chat.domain;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.common.domain.*;
-import com.becareful.becarefulserver.domain.matching.domain.*;
 import jakarta.persistence.*;
 import java.time.*;
 import lombok.*;
@@ -17,33 +15,27 @@ public class CaregiverChatReadStatus extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime lastReadAt;
+    private Long lastReadSeq;
 
-    @JoinColumn(name = "caregiver_id")
-    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "chat_room_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Caregiver caregiver;
-
-    @JoinColumn(name = "matching_id")
-    @ManyToOne(fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Matching matching;
+    private ChatRoom chatRoom;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private CaregiverChatReadStatus(Caregiver caregiver, Matching matching) {
-        this.caregiver = caregiver;
-        this.matching = matching;
-        this.lastReadAt = LocalDateTime.now();
+    private CaregiverChatReadStatus(ChatRoom chatRoom, Long lastReadSeq) {
+        this.chatRoom = chatRoom;
+        this.lastReadSeq = lastReadSeq;
     }
 
-    public static CaregiverChatReadStatus create(Caregiver caregiver, Matching matching) {
+    public static CaregiverChatReadStatus create(ChatRoom chatRoom, Long lastReadSeq) {
         return CaregiverChatReadStatus.builder()
-                .caregiver(caregiver)
-                .matching(matching)
+                .chatRoom(chatRoom)
+                .lastReadSeq(lastReadSeq)
                 .build();
     }
 
-    public void updateLastReadAt() {
-        this.lastReadAt = LocalDateTime.now();
+    public void updateLastReadSeq(Long lastReadSeq) {
+        this.lastReadSeq = lastReadSeq;
     }
 }

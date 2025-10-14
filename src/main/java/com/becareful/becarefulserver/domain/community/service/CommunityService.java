@@ -4,6 +4,7 @@ import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.repository.AssociationJoinApplicationRepository;
+import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.chat.service.*;
 import com.becareful.becarefulserver.domain.community.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
@@ -35,6 +36,7 @@ public class CommunityService {
     private final JwtUtil jwtUtil;
     private final JwtProperties jwtProperties;
     private final CookieProperties cookieProperties;
+    private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
 
     public CommunityAccessResponse getCommunityAccess(HttpServletResponse httpServletResponse) {
         SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
@@ -94,10 +96,11 @@ public class CommunityService {
 
     @Transactional(readOnly = true)
     public CommunityHomeBasicInfoResponse getCommunityHomeInfo() {
-        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
 
-        boolean hasNewChat = chatService.checkNewChat();
-        Association association = currentSocialWorker.getAssociation();
+        boolean hasNewChat = socialWorkerChatReadStatusRepository.existUnreadMessages(
+                loggedInSocialWorker.getNursingInstitution(), loggedInSocialWorker);
+        Association association = loggedInSocialWorker.getAssociation();
         int associationMemberCount = socialWorkerRepository.countByAssociation(association);
 
         AssociationMyResponse associationInfo = AssociationMyResponse.from(association, associationMemberCount);

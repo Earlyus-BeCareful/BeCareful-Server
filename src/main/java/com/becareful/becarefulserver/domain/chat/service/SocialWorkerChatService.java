@@ -56,9 +56,13 @@ public class SocialWorkerChatService {
                 .findById(chatRoomId)
                 .orElseThrow(() -> new SocialWorkerException(CHAT_ROOM_NOT_EXISTS));
 
-        updateReadStatus(socialWorker, chatRoom);
+        List<ChatMessage> messages = chatMessageRepository.findAllByChatRoomOrderBySeqDesc(chatRoom);
 
-        List<ChatMessage> messages = chatMessageRepository.findAllByChatRoomOrderByCreateDateDesc(chatRoom);
+        if (messages.isEmpty()) {
+            throw new ChatException(CHAT_MESSAGE_NOT_EXISTS);
+        }
+
+        updateReadStatus(messages.get(0));
         return ChatRoomDetailResponse.of(chatRoom, messages);
     }
 
@@ -93,18 +97,11 @@ public class SocialWorkerChatService {
         return contractRepository.save(contract).getId();
     }
 
-    // TODO(계약서 조율하기 채팅 엔티티 추가시 코드 수정)
-    public boolean checkNewChat() {
-        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        return chatReadStatusRepository.existsUnreadContract(loggedInSocialWorker);
-    }
-
-    @Transactional
-    public void updateReadStatus(SocialWorker socialWorker, Matching matching) {
+    private void updateReadStatus(ChatMessage recentMessage) {
         SocialWorkerChatReadStatus readStatus = chatReadStatusRepository
-                .findBySocialWorkerAndMatching(socialWorker, matching)
-                .orElseThrow(() -> new ChatException(SOCIAL_WORKER_CHAT_READ_STATUS_NOT_EXISTS));
+                .findByChatRoom(recentMessage.getChatRoom())
+                .orElseThrow(() -> new ChatException(CAREGIVER_CHAT_READ_STATUS_NOT_EXISTS));
 
-        readStatus.updateLastReadAt();
+        readStatus.updateLastReadSeq(recentMessage.getSeq());
     }
 }

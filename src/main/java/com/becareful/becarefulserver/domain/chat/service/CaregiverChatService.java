@@ -53,9 +53,13 @@ public class CaregiverChatService {
                 .findById(chatRoomId)
                 .orElseThrow(() -> new SocialWorkerException(CHAT_ROOM_NOT_EXISTS));
 
-        updateReadStatus(caregiver, chatRoom);
+        List<ChatMessage> messages = chatMessageRepository.findAllByChatRoomOrderBySeqDesc(chatRoom);
 
-        List<ChatMessage> messages = chatMessageRepository.findAllByChatRoomOrderByCreateDateDesc(chatRoom);
+        if (messages.isEmpty()) {
+            throw new ChatException(CHAT_MESSAGE_NOT_EXISTS);
+        }
+
+        updateReadStatus(messages.get(0));
         return ChatRoomDetailResponse.of(chatRoom, messages);
     }
 
@@ -80,11 +84,11 @@ public class CaregiverChatService {
         completedMatchingRepository.save(completedMatching);
     }
 
-    private void updateReadStatus(Caregiver caregiver, Matching matching) {
+    private void updateReadStatus(ChatMessage recentMessage) {
         CaregiverChatReadStatus readStatus = chatReadStatusRepository
-                .findByCaregiverAndMatching(caregiver, matching)
+                .findByChatRoom(recentMessage.getChatRoom())
                 .orElseThrow(() -> new ChatException(CAREGIVER_CHAT_READ_STATUS_NOT_EXISTS));
 
-        readStatus.updateLastReadAt();
+        readStatus.updateLastReadSeq(recentMessage.getSeq());
     }
 }

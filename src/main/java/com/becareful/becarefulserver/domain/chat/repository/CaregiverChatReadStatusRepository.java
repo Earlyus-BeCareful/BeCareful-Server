@@ -10,14 +10,19 @@ import org.springframework.data.repository.query.*;
 public interface CaregiverChatReadStatusRepository extends JpaRepository<CaregiverChatReadStatus, Long> {
     @Query(
             """
-        SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END
-        FROM CaregiverChatReadStatus cs
-        JOIN cs.matching m
-        JOIN Contract c ON c.matching = m
-        WHERE cs.caregiver = :caregiver
-            AND c.createDate > cs.lastReadAt
+        SELECT COUNT(r) > 0
+          FROM CaregiverChatReadStatus cs
+          JOIN cs.chatRoom r
+          JOIN ChatMessage m ON m.chatRoom = r
+         WHERE r.matching.workApplication.caregiver = :caregiver
+           AND m.seq >= (
+                   SELECT max(m2.seq)
+                     FROM ChatMessage m2
+                    WHERE m2.chatRoom = r
+               )
+           AND m.seq > cs.lastReadSeq
         """)
-    boolean existsUnreadContract(@Param("caregiver") Caregiver caregiver);
+    boolean existsUnreadContract(Caregiver caregiver);
 
-    Optional<CaregiverChatReadStatus> findByCaregiverAndMatching(Caregiver caregiver, Matching matching);
+    Optional<CaregiverChatReadStatus> findByChatRoom(ChatRoom chatRoom);
 }
