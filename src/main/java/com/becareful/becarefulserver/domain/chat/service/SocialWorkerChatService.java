@@ -13,7 +13,6 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
-import java.time.*;
 import java.util.*;
 import lombok.*;
 import org.springframework.stereotype.*;
@@ -29,19 +28,23 @@ public class SocialWorkerChatService {
     private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
     private final SocialWorkerChatReadStatusRepository chatReadStatusRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
-    public List<SocialWorkerChatroomResponse> getChatList() {
+    public List<SocialWorkerChatRoomResponse> getChatRoomList() {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
-        NursingInstitution nursingInstitution = socialworker.getNursingInstitution();
-        List<Matching> matchingList = matchingRepository.findAllByNursingInstitution(nursingInstitution);
+        NursingInstitution institution = socialworker.getNursingInstitution();
 
-        List<SocialWorkerChatroomResponse> responses = new ArrayList<>();
-        matchingList.forEach(matching -> {
-            contractRepository.findTop1ByMatchingOrderByCreateDateDesc(matching).ifPresent(contract -> {
-                boolean isCompleted = completedMatchingRepository.existsCompletedMatchingByContract(contract);
-                var response = SocialWorkerChatroomResponse.of(matching, contract, isCompleted);
-                responses.add(response);
-            });
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllByInstitution(institution);
+
+        List<SocialWorkerChatRoomResponse> responses = new ArrayList<>();
+        chatRooms.forEach(room -> {
+            ChatMessage recentMessage = chatMessageRepository
+                    .findRecentMessageByChatRoom(room)
+                    .orElseThrow(() -> new SocialWorkerException(CHAT_MESSAGE_NOT_EXISTS));
+
+            var response = SocialWorkerChatRoomResponse.of(matching, contract, isCompleted);
+            responses.add(response);
         });
 
         return responses;

@@ -3,7 +3,7 @@ package com.becareful.becarefulserver.domain.chat.controller;
 import com.becareful.becarefulserver.domain.chat.dto.request.ContractEditRequest;
 import com.becareful.becarefulserver.domain.chat.dto.response.ChatRoomDetailResponse;
 import com.becareful.becarefulserver.domain.chat.dto.response.ContractDetailResponse;
-import com.becareful.becarefulserver.domain.chat.dto.response.SocialWorkerChatroomResponse;
+import com.becareful.becarefulserver.domain.chat.dto.response.SocialWorkerChatRoomResponse;
 import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,8 +24,8 @@ public class SocialWorkerChatController {
 
     @Operation(summary = "사회복지사 채팅 목록")
     @GetMapping("/list")
-    public ResponseEntity<List<SocialWorkerChatroomResponse>> getChatInfoList() {
-        var response = socialWorkerChatService.getChatList();
+    public ResponseEntity<List<SocialWorkerChatRoomResponse>> getChatRoomList() {
+        var response = socialWorkerChatService.getChatRoomList();
         return ResponseEntity.ok(response);
     }
 
