@@ -51,15 +51,16 @@ public class SocialWorkerChatService {
     }
 
     @Transactional
-    public ChatRoomDetailResponse getChatRoomDetailData(Long matchingId) {
+    public ChatRoomDetailResponse getChatRoomData(Long chatRoomId) {
         SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
-        Matching matching =
-                matchingRepository.findById(matchingId).orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
+        ChatRoom chatRoom = chatRoomRepository
+                .findById(chatRoomId)
+                .orElseThrow(() -> new SocialWorkerException(CHAT_ROOM_NOT_EXISTS));
 
-        updateReadStatus(socialWorker, matching);
+        updateReadStatus(socialWorker, chatRoom);
 
-        List<Contract> contracts = contractRepository.findByMatchingOrderByCreateDateAsc(matching);
-        return ChatRoomDetailResponse.of(matching, contracts);
+        List<ChatMessage> messages = chatMessageRepository.findAllByChatRoomOrderByCreateDateDesc(chatRoom);
+        return ChatRoomDetailResponse.of(chatRoom, messages);
     }
 
     // 직전 계약서 내용 불러오기

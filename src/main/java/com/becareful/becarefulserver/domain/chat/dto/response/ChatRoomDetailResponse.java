@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.chat.dto.response;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
+import com.becareful.becarefulserver.domain.chat.domain.ChatMessage;
+import com.becareful.becarefulserver.domain.chat.domain.ChatRoom;
 import com.becareful.becarefulserver.domain.chat.dto.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
@@ -9,26 +10,16 @@ import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import java.util.*;
 
 public record ChatRoomDetailResponse(
-        Long matchingId,
-        Long recruitmentId,
-        ElderlySimpleDto elderlyInfo,
-        InstitutionSimpleDto institutionInfo,
-        CaregiverSimpleDto caregiverInfo,
-        CaregiverContractInfoDto caregiverContractInfo,
-        List<ContractDto> contractList) {
+        Long chatRoomId, Long recruitmentId, ElderlySimpleDto elderlyInfo, List<ChatMessageDto> messages) {
 
-    public static ChatRoomDetailResponse of(Matching matching, List<Contract> contractList) {
-        Elderly elderly = matching.getRecruitment().getElderly();
-        Caregiver caregiver = matching.getWorkApplication().getCaregiver();
+    public static ChatRoomDetailResponse of(ChatRoom chatRoom, List<ChatMessage> messages) {
+        Recruitment recruitment = chatRoom.getMatching().getRecruitment();
+        Elderly elderly = recruitment.getElderly();
 
         return new ChatRoomDetailResponse(
-                matching.getId(),
-                matching.getRecruitment()
-                        .getId(), // TODO : recruitment id, elderly info, institution info 를 recruitment info 로 통합
+                chatRoom.getId(),
+                recruitment.getId(),
                 ElderlySimpleDto.from(elderly),
-                InstitutionSimpleDto.from(elderly.getNursingInstitution()),
-                matching.getWorkApplication() != null ? CaregiverSimpleDto.from(caregiver) : null,
-                CaregiverContractInfoDto.from(caregiver), // TODO : caregvier simple dto 와 통합
-                contractList.stream().map(ContractDto::from).toList());
+                messages.stream().map(ChatMessageDto::from).toList());
     }
 }

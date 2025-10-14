@@ -24,7 +24,10 @@ public class ErrorMessage {
 
     public static final String ASSOCIATION_MEMBER_NOT_EXISTS = "존재하지 않는 협회 회원입니다.";
 
+    public static final String CHAT_ROOM_NOT_EXISTS = "채팅방이 존재하지 않습니다.";
+
     public static final String CHAT_MESSAGE_NOT_EXISTS = "채팅 메세지가 존재하지 않습니다.";
+    public static final String CHAT_MESSAGE_SENDER_NOT_EXISTS = "메세지 전송자 정보가 없습니다.";
 
     public static final String NURSING_INSTITUTION_ALREADY_EXISTS = "이미 등록된 기관입니다.";
     public static final String NURSING_INSTITUTION_NOT_FOUND = "해당 ID의 요양 기관을 찾을 수 없습니다.";
