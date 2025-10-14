@@ -26,16 +26,16 @@ public class CaregiverChatService {
     private final CompletedMatchingRepository completedMatchingRepository;
     private final CaregiverChatReadStatusRepository chatReadStatusRepository;
 
-    public List<CaregiverChatroomResponse> getChatList() {
+    public List<CaregiverChatRoomResponse> getChatRoomList() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         List<Matching> matchingList =
                 matchingRepository.findAllByCaregiverAndApplicationStatus(caregiver, MatchingStatus.근무제안);
 
-        List<CaregiverChatroomResponse> responses = new ArrayList<>();
+        List<CaregiverChatRoomResponse> responses = new ArrayList<>();
         matchingList.forEach(matching -> {
             contractRepository.findTop1ByMatchingOrderByCreateDateDesc(matching).ifPresent(contract -> {
                 boolean isCompleted = completedMatchingRepository.existsCompletedMatchingByContract(contract);
-                var response = CaregiverChatroomResponse.of(matching, contract, isCompleted);
+                var response = CaregiverChatRoomResponse.of(matching, contract, isCompleted);
                 responses.add(response);
             });
         });

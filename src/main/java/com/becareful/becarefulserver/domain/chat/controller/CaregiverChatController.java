@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.chat.controller;
 
-import com.becareful.becarefulserver.domain.chat.dto.response.CaregiverChatroomResponse;
+import com.becareful.becarefulserver.domain.chat.dto.response.CaregiverChatRoomResponse;
 import com.becareful.becarefulserver.domain.chat.dto.response.ChatRoomDetailResponse;
 import com.becareful.becarefulserver.domain.chat.service.CaregiverChatService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,8 +20,8 @@ public class CaregiverChatController {
 
     @Operation(summary = "요양보호사 채팅 목록")
     @GetMapping("/list")
-    public ResponseEntity<List<CaregiverChatroomResponse>> getChatInfoList() {
-        var response = caregiverChatService.getChatList();
+    public ResponseEntity<List<CaregiverChatRoomResponse>> getChatRoomList() {
+        var response = caregiverChatService.getChatRoomList();
         return ResponseEntity.ok(response);
     }
 
