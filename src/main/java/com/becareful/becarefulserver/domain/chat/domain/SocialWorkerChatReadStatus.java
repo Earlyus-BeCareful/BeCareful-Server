@@ -35,11 +35,11 @@ public class SocialWorkerChatReadStatus extends BaseEntity {
         this.socialWorker = socialWorker;
     }
 
-    public static SocialWorkerChatReadStatus create(ChatRoom chatRoom, Long lastReadSeq, SocialWorker socialWorker) {
+    public static SocialWorkerChatReadStatus create(ChatRoom chatRoom, SocialWorker socialWorker) {
         return SocialWorkerChatReadStatus.builder()
                 .chatRoom(chatRoom)
-                .lastReadSeq(lastReadSeq)
                 .socialWorker(socialWorker)
+                .lastReadSeq(1L)
                 .build();
     }
 

@@ -7,6 +7,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.repository.*;
+import com.becareful.becarefulserver.domain.chat.service.ChatService;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
 import com.becareful.becarefulserver.domain.matching.domain.service.RecruitmentDomainService;
@@ -50,6 +51,7 @@ public class SocialWorkerMatchingService {
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
     private final RecruitmentDomainService recruitmentDomainService;
+    private final ChatService chatService;
 
     /***
      * 2025-09-24
@@ -139,7 +141,7 @@ public class SocialWorkerMatchingService {
     }
 
     /**
-     * 2025-10-09 Kwon Chan
+     * 2025-10-09
      * 3.2.1.3 공고 등록 - 일정 중복 검증
      * @param request
      */
@@ -170,7 +172,7 @@ public class SocialWorkerMatchingService {
     }
 
     /**
-     * 2025-10-09 Kwon Chan
+     * 2025-10-09
      * 3.2.1 매칭 공고 등록
      * @param request
      * @return Long recruitment id
@@ -261,7 +263,7 @@ public class SocialWorkerMatchingService {
 
     @Transactional
     public void propose(Long matchingId, LocalDate workStartDate) {
-        SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
 
         Matching matching = matchingRepository
                 .findByIdWithRecruitment(matchingId)
@@ -269,23 +271,9 @@ public class SocialWorkerMatchingService {
 
         matching.propose();
 
-        initChatReadStatuses(matching, socialworker);
-
         Contract contract = Contract.create(matching, workStartDate);
         contractRepository.save(contract);
-    }
 
-    private void initChatReadStatuses(Matching matching, SocialWorker loggedInSocialWorker) {
-        // Caregiver 상태 생성
-        Caregiver caregiver = matching.getWorkApplication().getCaregiver();
-        CaregiverChatReadStatus caregiverStatus = CaregiverChatReadStatus.create(caregiver, matching);
-        caregiverChatReadStatusRepository.save(caregiverStatus);
-        // SocialWorker 상태 생성
-        List<SocialWorker> socialWorkers =
-                socialWorkerRepository.findAllByNursingInstitution(loggedInSocialWorker.getNursingInstitution());
-        List<SocialWorkerChatReadStatus> socialWorkerChatReadStatuses = socialWorkers.stream()
-                .map(s -> SocialWorkerChatReadStatus.create(s, matching))
-                .toList();
-        socialWorkerChatReadStatusRepository.saveAll(socialWorkerChatReadStatuses);
+        chatService.createChatRoom(matching, loggedInSocialWorker, contract);
     }
 }

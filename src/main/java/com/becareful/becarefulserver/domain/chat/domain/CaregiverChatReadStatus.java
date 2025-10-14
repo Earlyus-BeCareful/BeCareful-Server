@@ -28,10 +28,10 @@ public class CaregiverChatReadStatus extends BaseEntity {
         this.lastReadSeq = lastReadSeq;
     }
 
-    public static CaregiverChatReadStatus create(ChatRoom chatRoom, Long lastReadSeq) {
+    public static CaregiverChatReadStatus create(ChatRoom chatRoom) {
         return CaregiverChatReadStatus.builder()
                 .chatRoom(chatRoom)
-                .lastReadSeq(lastReadSeq)
+                .lastReadSeq(1L)
                 .build();
     }
 

@@ -6,6 +6,7 @@ import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -37,4 +38,31 @@ public class ChatMessage extends BaseEntity {
     @JoinColumn(name = "chat_room_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private ChatRoom chatRoom;
+
+    public static ChatMessage createSocialWorkerMessage(
+            Long seq, String content, SocialWorker socialWorker, Contract contract, ChatRoom chatRoom) {
+        return ChatMessage.builder()
+                .seq(seq)
+                .content(content)
+                .contract(contract)
+                .socialWorker(socialWorker)
+                .chatRoom(chatRoom)
+                .build();
+    }
+
+    @Builder(access = AccessLevel.PRIVATE)
+    private ChatMessage(
+            Long seq,
+            String content,
+            Contract contract,
+            SocialWorker socialWorker,
+            Caregiver caregiver,
+            ChatRoom chatRoom) {
+        this.seq = seq;
+        this.content = content;
+        this.contract = contract;
+        this.socialWorker = socialWorker;
+        this.caregiver = caregiver;
+        this.chatRoom = chatRoom;
+    }
 }
