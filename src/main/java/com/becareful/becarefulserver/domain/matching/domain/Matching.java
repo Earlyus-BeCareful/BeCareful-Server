@@ -103,8 +103,9 @@ public class Matching extends BaseEntity {
      * Entity Method
      */
     public void apply() {
-        validateMatchingUpdatable();
+        validateMatchingApplicable();
         this.matchingStatus = MatchingStatus.지원검토;
+        this.applicationStatus = MatchingApplicationStatus.지원;
         this.applicationDate = LocalDate.now();
     }
 
@@ -148,6 +149,13 @@ public class Matching extends BaseEntity {
             return;
         }
         throw new RecruitmentException("지원한 경우에만 불합격 처리할 수 있습니다.");
+    }
+
+    private void validateMatchingApplicable() {
+        if (matchingStatus.equals(MatchingStatus.미지원) && applicationStatus.equals(MatchingApplicationStatus.미지원)) {
+            return;
+        }
+        throw new RecruitmentException(MATCHING_CANNOT_REJECT);
     }
 
     private void validateMatchingUpdatable() {
