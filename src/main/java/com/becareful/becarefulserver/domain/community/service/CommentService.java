@@ -4,6 +4,7 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.COMMEN
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_BOARD_NOT_FOUND;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_NOT_FOUND;
 
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.community.domain.BoardType;
 import com.becareful.becarefulserver.domain.community.domain.Comment;
 import com.becareful.becarefulserver.domain.community.domain.Post;
@@ -35,7 +36,7 @@ public class CommentService {
 
     @Transactional
     public Long createComment(String boardType, Long postId, CommentCreateRequest request) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
         PostBoard postBoard = postBoardRepository
@@ -53,7 +54,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<CommentResponse> getComments(String boardType, Long postId) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
         PostBoard postBoard = postBoardRepository
@@ -71,7 +72,7 @@ public class CommentService {
 
     @Transactional
     public void updateComment(String boardType, Long postId, Long commentId, CommentUpdateRequest request) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
         PostBoard postBoard = postBoardRepository
@@ -90,7 +91,7 @@ public class CommentService {
 
     @Transactional
     public void deleteComment(String boardType, Long postId, Long commentId) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
         PostBoard postBoard = postBoardRepository

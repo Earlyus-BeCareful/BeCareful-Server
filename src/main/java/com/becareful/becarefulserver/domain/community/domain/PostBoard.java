@@ -3,9 +3,9 @@ package com.becareful.becarefulserver.domain.community.domain;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.PostBoardException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -54,11 +54,11 @@ public class PostBoard extends BaseEntity {
                 .build();
     }
 
-    public boolean isReadableFor(SocialWorker socialWorker) {
-        if (socialWorker.getAssociationRank().isLowerThan(readableRank)) {
+    public boolean isReadableFor(AssociationMember member) {
+        if (member.getAssociationRank().isLowerThan(readableRank)) {
             return false;
         }
-        if (!socialWorker.getAssociation().equals(association)) {
+        if (!member.getAssociation().equals(association)) {
             return false;
         }
         return true;
@@ -67,29 +67,29 @@ public class PostBoard extends BaseEntity {
     /**
      * 검증 로직
      */
-    public void validateReadableFor(SocialWorker socialWorker) {
+    public void validateReadableFor(AssociationMember socialWorker) {
         validateAssociationOf(socialWorker);
         validateReadableRankFor(socialWorker);
     }
 
-    public void validateWritableFor(SocialWorker socialWorker) {
+    public void validateWritableFor(AssociationMember socialWorker) {
         validateAssociationOf(socialWorker);
         validateWritableRankFor(socialWorker);
     }
 
-    private void validateReadableRankFor(SocialWorker socialWorker) {
+    private void validateReadableRankFor(AssociationMember socialWorker) {
         if (socialWorker.getAssociationRank().isLowerThan(readableRank)) {
             throw new PostBoardException(POST_BOARD_NOT_READABLE);
         }
     }
 
-    private void validateWritableRankFor(SocialWorker socialWorker) {
+    private void validateWritableRankFor(AssociationMember socialWorker) {
         if (socialWorker.getAssociationRank().isLowerThan(writableRank)) {
             throw new PostBoardException(POST_BOARD_NOT_WRITABLE);
         }
     }
 
-    private void validateAssociationOf(SocialWorker socialWorker) {
+    private void validateAssociationOf(AssociationMember socialWorker) {
         if (!socialWorker.getAssociation().equals(association)) {
             throw new PostBoardException(POST_BOARD_NOT_MY_ASSOCIATION);
         }
