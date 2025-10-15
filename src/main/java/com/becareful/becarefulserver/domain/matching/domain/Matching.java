@@ -116,8 +116,9 @@ public class Matching extends BaseEntity {
     }
 
     public void mediate(RecruitmentMediateRequest request) {
-        validateMatchingUpdatable();
+        validateMatchingApplicable();
         this.matchingStatus = MatchingStatus.지원검토;
+        this.applicationStatus = MatchingApplicationStatus.지원;
         this.applicationDate = LocalDate.now();
         this.mediationTypes = EnumSet.copyOf(request.mediationTypes());
         this.mediationDescription = request.mediationDescription();
