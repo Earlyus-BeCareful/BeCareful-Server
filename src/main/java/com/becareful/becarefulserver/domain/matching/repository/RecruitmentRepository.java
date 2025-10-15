@@ -90,7 +90,5 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
     """)
     List<Recruitment> findAllByIsRecruiting();
 
-    boolean existsByElderly(Elderly elderly);
-
     List<Recruitment> findAllByElderlyIn(List<Elderly> elderlys);
 }
