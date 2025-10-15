@@ -111,7 +111,7 @@ public class Matching extends BaseEntity {
     }
 
     public void reject() {
-        validateMatchingUpdatable();
+        validateMatchingRejectable();
         this.matchingStatus = MatchingStatus.매칭거부;
     }
 
@@ -160,7 +160,7 @@ public class Matching extends BaseEntity {
         throw new RecruitmentException(MATCHING_CANNOT_REJECT);
     }
 
-    private void validateMatchingUpdatable() {
+    private void validateMatchingRejectable() {
         if (matchingStatus.equals(MatchingStatus.미지원)) {
             return;
         }
