@@ -77,6 +77,7 @@ public class Matching extends BaseEntity {
             WorkApplication workApplication,
             MatchingResultInfo matchingResultInfo) {
         this.matchingStatus = matchingStatus;
+        this.applicationStatus = applicationStatus;
         this.recruitment = recruitment;
         this.workApplication = workApplication;
         this.matchingResultInfo = matchingResultInfo;
