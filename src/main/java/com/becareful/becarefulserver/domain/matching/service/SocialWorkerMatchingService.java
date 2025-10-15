@@ -210,12 +210,12 @@ public class SocialWorkerMatchingService {
     }
 
     /**
-     * 3.1.4 공고 상세 - 매칭 현황 조회
+     * 3.1.4 공고 상세 - 요양보호사 매칭 현황 조회
      * @param recruitmentId
      * @return
      */
     @Transactional(readOnly = true)
-    public MatchingStatusDetailResponse getMatchingStatus(Long recruitmentId) {
+    public RecruitmentMatchingStatusResponse getMatchingStatus(Long recruitmentId) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         Recruitment recruitment = recruitmentRepository
                 .findById(recruitmentId)
@@ -229,34 +229,25 @@ public class SocialWorkerMatchingService {
         List<MatchingCaregiverSimpleResponse> appliedCaregivers = new ArrayList<>();
 
         matchings.forEach(matching -> {
-            MatchingStatus status = matching.getMatchingStatus();
+            MatchingApplicationStatus applicationStatus = matching.getApplicationStatus();
+            Caregiver caregiver = matching.getWorkApplication().getCaregiver();
+            String careerTitle = careerRepository
+                    .findByCaregiver(caregiver)
+                    .map(Career::getTitle)
+                    .orElse("경력서를 작성하지 않았습니다.");
 
-            if (status == 지원검토 || status == 미지원) {
-                WorkApplication workApplication = matching.getWorkApplication();
-                if (workApplication == null) {
-                    return; // 요양보호사가 탈퇴하며 지원검토중, 미지원인 매칭은 삭제되지만 방어적 설계를 위해 예외처리함
-                }
+            MatchedCaregiverResponse caregiverInfo = MatchedCaregiverResponse.of(caregiver, careerTitle);
+            MatchingResultStatus matchingResult = matching.getMatchingResultStatus();
 
-                Caregiver caregiver = matching.getWorkApplication().getCaregiver();
-                Career career = careerRepository
-                        .findByCaregiver(caregiver)
-                        .orElseThrow(() -> new CaregiverException(CAREGIVER_CAREER_NOT_EXISTS));
+            var matchedCaregiverInfo = MatchingCaregiverSimpleResponse.of(caregiverInfo, matchingResult);
 
-                MatchedCaregiverResponse caregiverInfo = MatchedCaregiverResponse.of(caregiver, career);
-                MatchingResultStatus matchingResult =
-                        matching.getMatchingResultInfo().judgeMatchingResultStatus();
-
-                var matchedCaregiverInfo = MatchingCaregiverSimpleResponse.of(caregiverInfo, matchingResult);
-
-                if (status == 지원검토) {
-                    appliedCaregivers.add(matchedCaregiverInfo);
-                } else {
-                    unAppliedCaregivers.add(matchedCaregiverInfo);
-                }
+            switch (applicationStatus) {
+                case 미지원 -> unAppliedCaregivers.add(matchedCaregiverInfo);
+                case 지원 -> appliedCaregivers.add(matchedCaregiverInfo);
             }
         });
 
-        return MatchingStatusDetailResponse.of(recruitment, unAppliedCaregivers, appliedCaregivers);
+        return RecruitmentMatchingStatusResponse.of(recruitment, unAppliedCaregivers, appliedCaregivers);
     }
 
     @Transactional

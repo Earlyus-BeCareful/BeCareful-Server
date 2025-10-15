@@ -4,7 +4,7 @@ import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
 import com.becareful.becarefulserver.domain.matching.dto.RecruitmentDto;
 import com.becareful.becarefulserver.domain.matching.dto.request.*;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusDetailResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentMatchingStatusResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,9 +67,10 @@ public class SocialWorkerMatchingController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "3.1.4 공고 매칭 현황 조회", description = "매칭 현황 데이터의 상세화면을 조회합니다. 매칭된 요양보호사와 지원한 요양보호사 정보가 있습니다.")
+    @Operation(summary = "3.1.4 공고 매칭 현황 조회", description = "공고의 요양보호사 매칭 및 지원 현황을 조회합니다.")
     @GetMapping("/recruitment/{recruitmentId}/matching-status")
-    public ResponseEntity<MatchingStatusDetailResponse> getRecruitmentMatchingList(@PathVariable Long recruitmentId) {
+    public ResponseEntity<RecruitmentMatchingStatusResponse> getRecruitmentMatchingStatus(
+            @PathVariable Long recruitmentId) {
         var response = socialWorkerMatchingService.getMatchingStatus(recruitmentId);
         return ResponseEntity.ok(response);
     }

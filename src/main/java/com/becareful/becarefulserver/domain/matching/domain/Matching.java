@@ -61,11 +61,11 @@ public class Matching extends BaseEntity {
     @Embedded
     private MatchingResultInfo matchingResultInfo;
 
-    @JoinColumn(name = "recruitment_id")
+    @JoinColumn(name = "recruitment_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Recruitment recruitment;
 
-    @JoinColumn(name = "work_application_id")
+    @JoinColumn(name = "work_application_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private WorkApplication workApplication;
 

@@ -4,16 +4,16 @@ import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.dto.SocialWorkerRecruitmentSimpleDto;
 import java.util.List;
 
-public record MatchingStatusDetailResponse(
+public record RecruitmentMatchingStatusResponse(
         SocialWorkerRecruitmentSimpleDto recruitmentInfo,
         List<MatchingCaregiverSimpleResponse> matchedCaregivers,
         List<MatchingCaregiverSimpleResponse> appliedCaregivers) {
 
-    public static MatchingStatusDetailResponse of(
+    public static RecruitmentMatchingStatusResponse of(
             Recruitment recruitment,
             List<MatchingCaregiverSimpleResponse> matchedCaregivers,
             List<MatchingCaregiverSimpleResponse> appliedCaregivers) {
-        return new MatchingStatusDetailResponse(
+        return new RecruitmentMatchingStatusResponse(
                 SocialWorkerRecruitmentSimpleDto.from(recruitment), matchedCaregivers, appliedCaregivers);
     }
 }
