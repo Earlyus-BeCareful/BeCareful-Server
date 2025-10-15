@@ -20,7 +20,7 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
                    e,
                    COUNT(m.id),
                    COALESCE(
-                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토중
+                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토
                                 THEN 1
                                 ELSE 0
                            END),
@@ -43,7 +43,7 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
                    e,
                    COUNT(m.id),
                    COALESCE(
-                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토중
+                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토
                                 THEN 1
                                 ELSE 0
                            END),
@@ -67,7 +67,7 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
                    e,
                    COUNT(m.id),
                    COALESCE(
-                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토중
+                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토
                                 THEN 1
                                 ELSE 0
                            END),
@@ -89,8 +89,6 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
          where r.recruitmentStatus = com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중
     """)
     List<Recruitment> findAllByIsRecruiting();
-
-    boolean existsByElderly(Elderly elderly);
 
     List<Recruitment> findAllByElderlyIn(List<Elderly> elderlys);
 }
