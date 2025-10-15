@@ -57,6 +57,10 @@ public class ErrorMessage {
 
     public static final String USER_CREATE_INVALID_GENDER_CODE = "유효하지 않은 성별 번호입니다.";
 
+    public static final String ASSOCIATION_MEMBER_NOT_EXISTS = "존재하지 않는 협회 멤버입니다.";
+    public static final String ASSOCIATION_JOIN_APPLICATION_NOT_ACCEPTABLE_DIFFERENT_ASSOCIATION =
+            "다른 협회의 가입 신청서에는 접근할 수 없습니다.";
+
     public static final String POST_BOARD_NOT_FOUND = "게시판이 존재하지 않습니다.";
     public static final String POST_BOARD_NOT_WRITABLE = "글 작성 권한이 없습니다.";
     public static final String POST_BOARD_NOT_READABLE = "글 조회 권한이 없습니다.";

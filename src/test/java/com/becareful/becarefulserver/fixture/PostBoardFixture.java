@@ -1,8 +1,8 @@
 package com.becareful.becarefulserver.fixture;
 
+import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.community.domain.BoardType;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 
 public class PostBoardFixture {
 

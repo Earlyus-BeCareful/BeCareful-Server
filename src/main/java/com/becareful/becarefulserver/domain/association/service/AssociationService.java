@@ -14,9 +14,7 @@ import com.becareful.becarefulserver.domain.community.repository.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
-import com.becareful.becarefulserver.global.exception.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.util.*;
@@ -47,43 +45,6 @@ public class AssociationService {
     private final AssociationRepository associationRepository;
     private final PostBoardRepository postBoardRepository;
     private final AssociationJoinApplicationRepository associationJoinApplicationRepository;
-    private final GlobalExceptionHandler globalExceptionHandler;
-
-    @Transactional
-    public void joinAssociation(AssociationJoinRequest request) {
-        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
-
-        Association association = associationRepository
-                .findById(request.associationId())
-                .orElseThrow(() -> new AssociationException(ASSOCIATION_NOT_EXISTS));
-
-        AssociationJoinApplication newMembershipRequest = AssociationJoinApplication.create(
-                association, currentSocialWorker, request.associationRank(), AssociationJoinApplicationStatus.PENDING);
-        associationJoinApplicationRepository.save(newMembershipRequest);
-    }
-
-    // 협회 가입 신청 승인
-    @Transactional
-    public void acceptJoinAssociation(Long associationJoinApplicationId) {
-        AssociationJoinApplication joinApplication = associationJoinApplicationRepository
-                .findById(associationJoinApplicationId)
-                .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
-
-        joinApplication.approve();
-
-        SocialWorker socialWorker = joinApplication.getSocialWorker();
-        socialWorker.joinAssociation(joinApplication.getAssociation(), joinApplication.getAssociationRank());
-    }
-
-    // 협회 가입 신청 반려(신청자가 반려사실을 확인하면 요청 레코드 삭제)
-    @Transactional
-    public void rejectJoinAssociation(Long associationJoinApplicationId) {
-        AssociationJoinApplication joinApplication = associationJoinApplicationRepository
-                .findById(associationJoinApplicationId)
-                .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
-
-        joinApplication.reject();
-    }
 
     @Transactional
     public long saveAssociation(AssociationCreateRequest request) {
@@ -99,15 +60,6 @@ public class AssociationService {
         postBoardRepository.saveAll(postBoards);
 
         return newAssociation.getId();
-    }
-
-    @Transactional(readOnly = true)
-    public AssociationMyResponse getMyAssociation() {
-        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
-        Association association = currentSocialWorker.getAssociation();
-        int associationMemberCount = socialWorkerRepository.countByAssociation(association);
-
-        return AssociationMyResponse.from(association, associationMemberCount);
     }
 
     public AssociationProfileImageUploadResponse uploadProfileImage(MultipartFile file) {
@@ -146,23 +98,6 @@ public class AssociationService {
                 members.stream().map(MemberSimpleDto::of).toList();
 
         return new AssociationMemberListResponse(associationMemberCount, memberSimpleDtos);
-    }
-
-    // 협회 가입 요청 목록 반환
-    @Transactional(readOnly = true)
-    public AssociationJoinApplicationListResponse getAssociationJoinApplicationList() {
-        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
-
-        Association association = currentSocialWorker.getAssociation();
-        int joinApplicationCount = associationJoinApplicationRepository.countByAssociationAndStatus(
-                association, AssociationJoinApplicationStatus.PENDING);
-
-        List<AssociationJoinApplication> applications =
-                associationJoinApplicationRepository.findAllByAssociationAndStatus(
-                        association, AssociationJoinApplicationStatus.PENDING);
-        List<JoinApplicationSimpleDto> applicationDtos =
-                applications.stream().map(JoinApplicationSimpleDto::of).toList();
-        return new AssociationJoinApplicationListResponse(joinApplicationCount, applicationDtos);
     }
 
     // 협회 회원 상세정보 반환

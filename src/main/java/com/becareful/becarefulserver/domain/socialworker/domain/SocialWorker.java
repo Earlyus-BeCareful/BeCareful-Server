@@ -1,11 +1,11 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
+import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerProfileUpdateRequest;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -26,14 +26,12 @@ public class SocialWorker extends BaseEntity {
 
     private String nickname;
 
-    private LocalDate birthday; // YYYYMMDD
+    private LocalDate birthday;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
     private String phoneNumber;
-
-    private String password;
 
     @Enumerated(EnumType.STRING)
     private InstitutionRank institutionRank;
@@ -123,11 +121,6 @@ public class SocialWorker extends BaseEntity {
                 .isAgreedToCollectPersonalInfo(true)
                 .nursingInstitution(nursingInstitution)
                 .build();
-    }
-
-    public void joinAssociation(Association association, AssociationRank rank) {
-        this.association = association;
-        this.associationRank = rank;
     }
 
     public void leaveAssociation() {

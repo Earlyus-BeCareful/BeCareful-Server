@@ -1,8 +1,8 @@
 package com.becareful.becarefulserver.domain.association.domain;
 
 import com.becareful.becarefulserver.domain.association.domain.vo.AssociationJoinApplicationStatus;
+import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,28 +28,45 @@ public class AssociationJoinApplication {
     @Enumerated(EnumType.STRING)
     private AssociationJoinApplicationStatus status;
 
+    private boolean isAgreedToTerms;
+
+    private boolean isAgreedToCollectPersonalInfo;
+
+    private boolean isAgreedToReceiveMarketingInfo;
+
     @Builder(access = AccessLevel.PRIVATE)
-    private AssociationJoinApplication(
+    public AssociationJoinApplication(
             Association association,
             SocialWorker socialWorker,
             AssociationRank associationRank,
-            AssociationJoinApplicationStatus status) {
+            AssociationJoinApplicationStatus status,
+            boolean isAgreedToTerms,
+            boolean isAgreedToCollectPersonalInfo,
+            boolean isAgreedToReceiveMarketingInfo) {
         this.association = association;
         this.socialWorker = socialWorker;
         this.associationRank = associationRank;
         this.status = status;
+        this.isAgreedToTerms = isAgreedToTerms;
+        this.isAgreedToCollectPersonalInfo = isAgreedToCollectPersonalInfo;
+        this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
     }
 
     public static AssociationJoinApplication create(
-            Association association,
             SocialWorker socialWorker,
+            Association association,
             AssociationRank associationRank,
-            AssociationJoinApplicationStatus status) {
+            boolean isAgreedToTerms,
+            boolean isAgreedToCollectPersonalInfo,
+            boolean isAgreedToReceiveMarketingInfo) {
         return AssociationJoinApplication.builder()
                 .association(association)
                 .socialWorker(socialWorker)
                 .associationRank(associationRank)
-                .status(status)
+                .isAgreedToTerms(isAgreedToTerms)
+                .isAgreedToCollectPersonalInfo(isAgreedToCollectPersonalInfo)
+                .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
+                .status(AssociationJoinApplicationStatus.PENDING)
                 .build();
     }
 
