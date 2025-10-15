@@ -6,7 +6,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.becareful.becarefulserver.common.IntegrationTest;
 import com.becareful.becarefulserver.common.WithSocialWorker;
 import com.becareful.becarefulserver.domain.association.domain.Association;
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.community.domain.BoardType;
@@ -42,7 +44,10 @@ public class PostIntegrationTest extends IntegrationTest {
     @Autowired
     private AssociationRepository associationRepository;
 
-    private SocialWorker createMember(String phone, AssociationRank rank) {
+    @Autowired
+    private AssociationMemberRepository associationMemberRepository;
+
+    private AssociationMember createMember(String phone, AssociationRank associationRank) {
         SocialWorker member = SocialWorker.create(
                 "name",
                 "nick",
@@ -50,12 +55,14 @@ public class PostIntegrationTest extends IntegrationTest {
                 Gender.FEMALE,
                 phone,
                 InstitutionRank.SOCIAL_WORKER,
-                rank,
+                associationRank,
                 true,
                 NursingInstitutionFixture.NURSING_INSTITUTION);
+        socialWorkerRepository.save(member);
         Association association = associationRepository.findAll().get(0);
-        member.joinAssociation(association, rank);
-        return socialWorkerRepository.save(member);
+        AssociationMember associationMember =
+                AssociationMember.create(member, association, associationRank, true, true, true);
+        return associationMemberRepository.save(associationMember);
     }
 
     private PostBoard createBoard() {

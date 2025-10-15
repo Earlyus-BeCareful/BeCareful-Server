@@ -1,7 +1,9 @@
 package com.becareful.becarefulserver.common;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
@@ -32,6 +34,9 @@ public class DatabaseCleaner {
 
     @Autowired
     private NursingInstitutionRepository institutionRepository;
+
+    @Autowired
+    private AssociationMemberRepository associationMemberRepository;
 
     @Transactional
     public void clean() {
@@ -65,8 +70,10 @@ public class DatabaseCleaner {
                 true,
                 institution);
         socialworkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_1);
-        SocialWorkerFixture.SOCIAL_WORKER_MANAGER.joinAssociation(savedAssociation, AssociationRank.MEMBER);
+        AssociationMember associationMember = AssociationMember.create(
+                SocialWorkerFixture.SOCIAL_WORKER_MANAGER, savedAssociation, AssociationRank.MEMBER, true, true, true);
         socialworkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_MANAGER);
+        associationMemberRepository.save(associationMember);
     }
 
     private String camelToSnake(String value) {

@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.becareful.becarefulserver.common.IntegrationTest;
 import com.becareful.becarefulserver.common.WithSocialWorker;
 import com.becareful.becarefulserver.domain.association.domain.Association;
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.community.domain.BoardType;
@@ -45,7 +47,10 @@ public class CommentIntegrationTest extends IntegrationTest {
     @Autowired
     private AssociationRepository associationRepository;
 
-    private SocialWorker createMember(String phone) {
+    @Autowired
+    private AssociationMemberRepository associationMemberRepository;
+
+    private AssociationMember createMember(String phone) {
         SocialWorker member = SocialWorker.create(
                 "name",
                 "nick",
@@ -56,9 +61,11 @@ public class CommentIntegrationTest extends IntegrationTest {
                 AssociationRank.MEMBER,
                 true,
                 NursingInstitutionFixture.NURSING_INSTITUTION);
+        socialWorkerRepository.save(member);
         Association association = associationRepository.findAll().get(0);
-        member.joinAssociation(association, AssociationRank.MEMBER);
-        return socialWorkerRepository.save(member);
+        AssociationMember associationMember =
+                AssociationMember.create(member, association, AssociationRank.MEMBER, true, true, true);
+        return associationMemberRepository.save(associationMember);
     }
 
     private PostBoard createBoard() {
@@ -68,14 +75,14 @@ public class CommentIntegrationTest extends IntegrationTest {
         return postBoardRepository.save(board);
     }
 
-    private Post createPost(PostBoard board, SocialWorker author) {
+    private Post createPost(PostBoard board, AssociationMember author) {
         return postRepository.save(Post.create("t", "c", false, null, board, author));
     }
 
     @Test
     @WithSocialWorker(phoneNumber = "01099999999")
     void 댓글_수정과_삭제가_성공한다() {
-        SocialWorker member = createMember("01099999999");
+        AssociationMember member = createMember("01099999999");
         PostBoard board = createBoard();
         Post post = createPost(board, member);
 

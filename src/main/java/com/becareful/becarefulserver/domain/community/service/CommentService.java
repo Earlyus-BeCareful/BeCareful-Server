@@ -15,7 +15,6 @@ import com.becareful.becarefulserver.domain.community.dto.response.CommentRespon
 import com.becareful.becarefulserver.domain.community.repository.CommentRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.CommentException;
 import com.becareful.becarefulserver.global.exception.exception.PostBoardException;
 import com.becareful.becarefulserver.global.exception.exception.PostException;

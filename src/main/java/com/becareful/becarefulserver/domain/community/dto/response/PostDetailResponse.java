@@ -5,7 +5,6 @@ import com.becareful.becarefulserver.domain.community.domain.FileType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.dto.AuthorSimpleDto;
 import com.becareful.becarefulserver.domain.community.dto.PostMediaDto;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
