@@ -48,6 +48,23 @@ public class AssociationJoinService {
         associationJoinApplicationRepository.save(newMembershipRequest);
     }
 
+    @Transactional
+    public void cancelMyJoinApplication() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        AssociationJoinApplication application = associationJoinApplicationRepository
+                .findBySocialWorker(loggedInSocialWorker)
+                .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
+
+        if (application.getStatus().equals(AssociationJoinApplicationStatus.APPROVED)) {
+            throw new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_ACCEPTED);
+        }
+        if (application.getStatus().equals(AssociationJoinApplicationStatus.REJECTED)) {
+            throw new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_REJECTED);
+        }
+
+        associationJoinApplicationRepository.delete(application);
+    }
+
     // 협회 가입 요청 목록 반환
     @Transactional(readOnly = true)
     public AssociationJoinApplicationListResponse getAssociationJoinApplicationList() {
