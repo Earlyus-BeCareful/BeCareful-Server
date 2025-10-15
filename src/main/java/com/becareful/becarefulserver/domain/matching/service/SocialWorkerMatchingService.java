@@ -192,6 +192,7 @@ public class SocialWorkerMatchingService {
     }
 
     /**
+     * 2025-10-15
      * 3.1.4 매칭 공고 상세 정보 조회
      * @param recruitmentId
      * @return
