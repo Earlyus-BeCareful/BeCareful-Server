@@ -48,6 +48,9 @@ public class Matching extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MatchingStatus matchingStatus;
 
+    @Enumerated(EnumType.STRING)
+    private MatchingApplicationStatus applicationStatus;
+
     private LocalDate applicationDate;
 
     @Convert(converter = MediationTypeSetConverter.class)
@@ -69,6 +72,7 @@ public class Matching extends BaseEntity {
     @Builder(access = AccessLevel.PRIVATE)
     private Matching(
             MatchingStatus matchingStatus,
+            MatchingApplicationStatus applicationStatus,
             Recruitment recruitment,
             WorkApplication workApplication,
             MatchingResultInfo matchingResultInfo) {
@@ -80,6 +84,7 @@ public class Matching extends BaseEntity {
 
     public static Matching create(Recruitment recruitment, WorkApplication application) {
         return Matching.builder()
+                .applicationStatus(MatchingApplicationStatus.미지원)
                 .matchingStatus(MatchingStatus.미지원)
                 .recruitment(recruitment)
                 .workApplication(application)
@@ -91,11 +96,7 @@ public class Matching extends BaseEntity {
      * Get Method
      */
     public boolean isApplicationReviewing() {
-        return matchingStatus.equals(MatchingStatus.지원검토중);
-    }
-
-    public boolean isApplied() {
-        return !matchingStatus.equals(MatchingStatus.미지원);
+        return matchingStatus.equals(MatchingStatus.지원검토);
     }
 
     /**
@@ -103,7 +104,7 @@ public class Matching extends BaseEntity {
      */
     public void apply() {
         validateMatchingUpdatable();
-        this.matchingStatus = MatchingStatus.지원검토중;
+        this.matchingStatus = MatchingStatus.지원검토;
         this.applicationDate = LocalDate.now();
     }
 
@@ -114,7 +115,7 @@ public class Matching extends BaseEntity {
 
     public void mediate(RecruitmentMediateRequest request) {
         validateMatchingUpdatable();
-        this.matchingStatus = MatchingStatus.지원검토중;
+        this.matchingStatus = MatchingStatus.지원검토;
         this.applicationDate = LocalDate.now();
         this.mediationTypes = EnumSet.copyOf(request.mediationTypes());
         this.mediationDescription = request.mediationDescription();
@@ -126,7 +127,7 @@ public class Matching extends BaseEntity {
 
     public void failed() {
         validateMatchingFailable();
-        this.matchingStatus = MatchingStatus.지원거절;
+        this.matchingStatus = MatchingStatus.지원보류;
     }
 
     public void confirm() {
@@ -143,7 +144,7 @@ public class Matching extends BaseEntity {
     }
 
     private void validateMatchingFailable() {
-        if (matchingStatus.equals(MatchingStatus.지원검토중)) {
+        if (matchingStatus.equals(MatchingStatus.지원검토)) {
             return;
         }
         throw new RecruitmentException("지원한 경우에만 불합격 처리할 수 있습니다.");

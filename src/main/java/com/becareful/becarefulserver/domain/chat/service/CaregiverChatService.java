@@ -69,7 +69,7 @@ public class CaregiverChatService {
         Recruitment recruitment = matching.getRecruitment();
         matchingRepository.findAllByRecruitment(recruitment).forEach(otherMatching -> {
             switch (otherMatching.getMatchingStatus()) {
-                case 지원검토중 -> otherMatching.failed();
+                case 지원검토 -> otherMatching.failed();
                 case 근무제안 -> otherMatching.rejectContract();
             }
         });

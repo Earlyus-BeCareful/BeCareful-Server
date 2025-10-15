@@ -231,7 +231,7 @@ public class SocialWorkerMatchingService {
         matchings.forEach(matching -> {
             MatchingStatus status = matching.getMatchingStatus();
 
-            if (status == 지원검토중 || status == 미지원) {
+            if (status == 지원검토 || status == 미지원) {
                 WorkApplication workApplication = matching.getWorkApplication();
                 if (workApplication == null) {
                     return; // 요양보호사가 탈퇴하며 지원검토중, 미지원인 매칭은 삭제되지만 방어적 설계를 위해 예외처리함
@@ -248,7 +248,7 @@ public class SocialWorkerMatchingService {
 
                 var matchedCaregiverInfo = MatchingCaregiverSimpleResponse.of(caregiverInfo, matchingResult);
 
-                if (status == 지원검토중) {
+                if (status == 지원검토) {
                     appliedCaregivers.add(matchedCaregiverInfo);
                 } else {
                     unAppliedCaregivers.add(matchedCaregiverInfo);
