@@ -78,8 +78,7 @@ public class SocialWorkerMatchingController {
     @Operation(summary = "3.1.4 요양보호사 지원 정보 상세 조회", description = "매칭된 요양보호사 상세 정보를 조회합니다.")
     @GetMapping("/recruitment/{recruitmentId}/caregiver/{caregiverId}")
     public ResponseEntity<MatchingCaregiverDetailResponse> getCaregiverDetailInfo(
-            @PathVariable(name = "recruitmentId") Long recruitmentId,
-            @PathVariable(name = "caregiverId") Long caregiverId) {
+            @PathVariable Long recruitmentId, @PathVariable Long caregiverId) {
         var response = socialWorkerMatchingService.getCaregiverDetailInfo(recruitmentId, caregiverId);
         return ResponseEntity.ok(response);
     }
@@ -87,9 +86,7 @@ public class SocialWorkerMatchingController {
     @Operation(summary = "3.1.4 요양보호사에게 근무 제안", description = "근무 시작일 지정하면, 채팅방을 생성하여 해당 근무 시작일로 제안을 보냅니다.")
     @PostMapping("/recruitment/{recruitmentId}/caregiver/{caregiverId}/propose")
     public ResponseEntity<Void> proposeCaregiver(
-            @PathVariable("recruitmentId") Long recruitmentId,
-            @PathVariable(name = "caregiverId") Long caregiverId,
-            @RequestParam LocalDate workStartDate) {
+            @PathVariable Long recruitmentId, @PathVariable Long caregiverId, @RequestParam LocalDate workStartDate) {
         socialWorkerMatchingService.propose(recruitmentId, caregiverId, workStartDate);
         return ResponseEntity.ok().build();
     }
