@@ -211,6 +211,23 @@ public class SocialWorkerMatchingService {
     }
 
     /**
+     * 3.1.4 공고 마감 처리
+     * @param recruitmentId
+     */
+    @Transactional
+    public void closeRecruitment(Long recruitmentId) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+
+        recruitmentDomainService.validateRecruitmentInstitution(recruitment, loggedInSocialWorker);
+
+        recruitment.close();
+    }
+
+    /**
      * 3.1.4 공고 상세 - 요양보호사 매칭 현황 조회
      * @param recruitmentId
      * @return
