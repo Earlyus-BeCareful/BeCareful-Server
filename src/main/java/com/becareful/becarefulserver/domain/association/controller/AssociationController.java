@@ -26,8 +26,8 @@ public class AssociationController {
     @PostMapping("/create")
     public ResponseEntity<Void> createAssociation(
             @Valid @RequestBody AssociationCreateRequest associationCreateRequest) {
-        Long id = associationService.saveAssociation(associationCreateRequest);
-        return ResponseEntity.created(URI.create("association/" + id)).build();
+        Long id = associationService.createAssociation(associationCreateRequest);
+        return ResponseEntity.created(URI.create("/association/" + id)).build();
     }
 
     @Operation(summary = "협회 가입 전: 서비스에 등록된 협회 검색", description = "협회 가입 단계에서 협회 검색 API")

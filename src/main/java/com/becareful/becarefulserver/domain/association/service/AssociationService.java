@@ -45,21 +45,29 @@ public class AssociationService {
     private final AssociationRepository associationRepository;
     private final PostBoardRepository postBoardRepository;
     private final AssociationJoinApplicationRepository associationJoinApplicationRepository;
+    private final AssociationMemberRepository associationMemberRepository;
 
     @Transactional
-    public long saveAssociation(AssociationCreateRequest request) {
-        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
+    public Long createAssociation(AssociationCreateRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
 
-        Association newAssociation =
+        Association association =
                 Association.create(request.name(), request.profileImageUrl(), request.establishedYear());
-        associationRepository.save(newAssociation);
+        associationRepository.save(association);
 
-        currentSocialWorker.setAssociation(newAssociation);
-
-        List<PostBoard> postBoards = createDefaultPostBoards(newAssociation);
+        List<PostBoard> postBoards = createDefaultPostBoards(association);
         postBoardRepository.saveAll(postBoards);
 
-        return newAssociation.getId();
+        AssociationMember associationMember = AssociationMember.create(
+                loggedInSocialWorker,
+                association,
+                AssociationRank.CHAIRMAN,
+                request.isAgreedToTerms(),
+                request.isAgreedToCollectPersonalInfo(),
+                request.isAgreedToReceiveMarketingInfo());
+        associationMemberRepository.save(associationMember);
+
+        return association.getId();
     }
 
     public AssociationProfileImageUploadResponse uploadProfileImage(MultipartFile file) {
@@ -76,8 +84,8 @@ public class AssociationService {
     // 협회 회원 목록 overview
     @Transactional(readOnly = true)
     public AssociationMemberOverviewResponse getAssociationMemberOverview() {
-        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
-        Association association = currentSocialWorker.getAssociation();
+        AssociationMember loggedInAssociationMember = authUtil.getLoggedInAssociationMember();
+        Association association = loggedInAssociationMember.getAssociation();
         int associationMemberCount = socialWorkerRepository.countByAssociation(association);
         int joinApplicationCount = associationJoinApplicationRepository.countByAssociationAndStatus(
                 association, AssociationJoinApplicationStatus.PENDING);
@@ -88,9 +96,9 @@ public class AssociationService {
     // 협회 회원 목록 반환
     @Transactional(readOnly = true)
     public AssociationMemberListResponse getAssociationMemberList() {
-        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
+        AssociationMember loggedInAssociationMember = authUtil.getLoggedInAssociationMember();
 
-        Association association = currentSocialWorker.getAssociation();
+        Association association = loggedInAssociationMember.getAssociation();
         int associationMemberCount = socialWorkerRepository.countByAssociation(association);
 
         List<SocialWorker> members = socialWorkerRepository.findAllByAssociation(association);
@@ -103,9 +111,9 @@ public class AssociationService {
     // 협회 회원 상세정보 반환
     @Transactional(readOnly = true)
     public AssociationMemberDetailInfoResponse getAssociationMemberDetailInfo(Long memberId) {
-        SocialWorker member = socialWorkerRepository
+        AssociationMember member = associationMemberRepository
                 .findById(memberId)
-                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+                .orElseThrow(() -> new SocialWorkerException(ASSOCIATION_MEMBER_NOT_EXISTS));
 
         Association association = member.getAssociation();
         NursingInstitution institution = member.getNursingInstitution();
@@ -116,11 +124,11 @@ public class AssociationService {
 
     @Transactional
     public void leaveAssociation(HttpServletResponse response) {
-        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        Association association = loggedInSocialWorker.getAssociation();
-        AssociationRank currentRank = loggedInSocialWorker.getAssociationRank();
+        AssociationMember loggedInAssociationMember = authUtil.getLoggedInAssociationMember();
+        Association association = loggedInAssociationMember.getAssociation();
+        AssociationRank currentRank = loggedInAssociationMember.getAssociationRank();
 
-        if (loggedInSocialWorker.getAssociationRank() == AssociationRank.CHAIRMAN) {
+        if (loggedInAssociationMember.getAssociationRank() == AssociationRank.CHAIRMAN) {
             throw new DomainException("협회장은 탈퇴할 수 없습니다.");
         }
         if (currentRank.equals(AssociationRank.EXECUTIVE)) {
@@ -130,21 +138,23 @@ public class AssociationService {
                 throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
             }
         }
-        loggedInSocialWorker.leaveAssociation();
+
+        loggedInAssociationMember.leaveAssociation();
 
         updateJwtAndSecurityContext(
                 response,
-                loggedInSocialWorker.getPhoneNumber(),
-                loggedInSocialWorker.getInstitutionRank(),
-                loggedInSocialWorker.getAssociationRank());
+                loggedInAssociationMember.getPhoneNumber(),
+                loggedInAssociationMember.getInstitutionRank(),
+                loggedInAssociationMember.getAssociationRank());
     }
 
     // 회원을 협회에서 탈퇴 시키는 메서드. 회원정보를 삭제하는게 아님
     @Transactional
     public void expelMember(Long memberId) {
-        SocialWorker member = socialWorkerRepository
+        // TODO : 권한 및 같은 협회 검증
+        AssociationMember member = associationMemberRepository
                 .findById(memberId)
-                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+                .orElseThrow(() -> new SocialWorkerException(ASSOCIATION_MEMBER_NOT_EXISTS));
 
         member.leaveAssociation();
     }
@@ -190,8 +200,8 @@ public class AssociationService {
 
     @Transactional(readOnly = true)
     public AssociationInfoResponse getAssociationInfo() {
-        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        Association association = loggedInSocialWorker.getAssociation();
+        AssociationMember loggedInAssociationMember = authUtil.getLoggedInAssociationMember();
+        Association association = loggedInAssociationMember.getAssociation();
         SocialWorker chairman = socialWorkerRepository
                 .findByAssociationAndAssociationRank(association, AssociationRank.CHAIRMAN)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_CHAIRMAN_NOT_EXISTS));
@@ -202,18 +212,17 @@ public class AssociationService {
 
     @Transactional
     public void updateAssociationInfo(@Valid UpdateAssociationInfoRequest request) {
-        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        Association association = loggedInSocialWorker.getAssociation();
+        AssociationMember loggedInAssociationMember = authUtil.getLoggedInAssociationMember();
+        Association association = loggedInAssociationMember.getAssociation();
 
         association.updateAssociationInfo(request);
     }
 
     @Transactional
     public void updateAssociationRank(@Valid UpdateAssociationRankRequest request) {
-
-        SocialWorker member = socialWorkerRepository
+        AssociationMember member = associationMemberRepository
                 .findById(request.memberId())
-                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+                .orElseThrow(() -> new SocialWorkerException(ASSOCIATION_MEMBER_NOT_EXISTS));
 
         Association association = member.getAssociation();
 
@@ -238,10 +247,10 @@ public class AssociationService {
     @Transactional
     public void updateAssociationChairman(@Valid UpdateAssociationChairmanRequest request, HttpServletResponse response)
             throws ChangeSetPersister.NotFoundException {
-        SocialWorker currentChairman = authUtil.getLoggedInSocialWorker();
-        SocialWorker newChairman = socialWorkerRepository
-                .findByIdAndName(request.newChairmanId(), request.newChairmanName())
-                .orElseThrow(() -> new NotFoundException("회원 정보를 잘못 입력하였습니다."));
+        AssociationMember currentChairman = authUtil.getLoggedInAssociationMember();
+        AssociationMember newChairman = associationMemberRepository
+                .findById(request.newChairmanId())
+                .orElseThrow(() -> new DomainException(ASSOCIATION_MEMBER_NOT_EXISTS));
 
         currentChairman.updateAssociationRank(request.nextRankOfCurrentChairman());
         newChairman.updateAssociationRank(AssociationRank.CHAIRMAN);

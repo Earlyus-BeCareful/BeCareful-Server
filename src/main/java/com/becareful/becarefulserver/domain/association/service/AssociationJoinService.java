@@ -68,7 +68,7 @@ public class AssociationJoinService {
     // 협회 가입 요청 목록 반환
     @Transactional(readOnly = true)
     public AssociationJoinApplicationListResponse getAssociationJoinApplicationList() {
-        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentSocialWorker = authUtil.getLoggedInAssociationMember();
 
         Association association = currentSocialWorker.getAssociation();
         int joinApplicationCount = associationJoinApplicationRepository.countByAssociationAndStatus(

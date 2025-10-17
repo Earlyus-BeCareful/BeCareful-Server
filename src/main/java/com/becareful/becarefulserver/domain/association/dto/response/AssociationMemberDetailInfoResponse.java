@@ -1,12 +1,12 @@
 package com.becareful.becarefulserver.domain.association.dto.response;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import java.time.LocalDate;
 import java.util.EnumSet;
 
@@ -27,7 +27,7 @@ public record AssociationMemberDetailInfoResponse(
         AssociationRank associationRank,
         InstitutionRank institutionRank) {
     public static AssociationMemberDetailInfoResponse of(
-            SocialWorker member, Integer age, NursingInstitution institution, Association association) {
+            AssociationMember member, Integer age, NursingInstitution institution, Association association) {
         return new AssociationMemberDetailInfoResponse(
                 member.getId(),
                 member.getName(),

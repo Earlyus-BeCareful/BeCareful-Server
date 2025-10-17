@@ -45,7 +45,6 @@ public class AssociationMember extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private InstitutionRank institutionRank;
 
-    @Setter(AccessLevel.PUBLIC)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "association_id")
     private Association association;
@@ -102,5 +101,17 @@ public class AssociationMember extends BaseEntity {
                 .isAgreedToCollectPersonalInfo(isAgreedToCollectPersonalInfo)
                 .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
                 .build();
+    }
+
+    /**
+     * update method
+     */
+    public void leaveAssociation() {
+        this.association = null;
+        this.associationRank = AssociationRank.NONE;
+    }
+
+    public void updateAssociationRank(AssociationRank rank) {
+        this.associationRank = rank;
     }
 }

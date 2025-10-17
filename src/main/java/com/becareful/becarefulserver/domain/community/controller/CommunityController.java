@@ -1,8 +1,7 @@
 package com.becareful.becarefulserver.domain.community.controller;
 
-import com.becareful.becarefulserver.domain.association.service.*;
 import com.becareful.becarefulserver.domain.community.dto.response.*;
-import com.becareful.becarefulserver.domain.community.service.*;
+import com.becareful.becarefulserver.domain.community.service.CommunityService;
 import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.tags.*;
 import jakarta.servlet.http.*;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Community", description = "커뮤니티 관련 API 입니다.")
 public class CommunityController {
 
-    private final AssociationService associationService;
     private final CommunityService communityService;
 
     @Operation(summary = "커뮤니티 탭 접근 권한 검증 및 각 화면 별 데이터 조회", description = "협회 가입 여부에 따라 필요한 첫 화면 데이터를 응답합니다.")

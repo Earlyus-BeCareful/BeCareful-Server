@@ -1,6 +1,5 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
-import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
@@ -48,11 +47,6 @@ public class SocialWorker extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nursing_institution_id")
     private NursingInstitution nursingInstitution;
-
-    @Setter(AccessLevel.PUBLIC)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "association_id")
-    private Association association;
 
     @Builder(access = AccessLevel.PRIVATE)
     private SocialWorker(
@@ -123,11 +117,6 @@ public class SocialWorker extends BaseEntity {
                 .build();
     }
 
-    public void leaveAssociation() {
-        this.association = null;
-        this.associationRank = AssociationRank.NONE;
-    }
-
     public void update(
             SocialWorkerProfileUpdateRequest request,
             LocalDate birthday,
@@ -143,9 +132,5 @@ public class SocialWorker extends BaseEntity {
         this.isAgreedToReceiveMarketingInfo = request.isAgreedToReceiveMarketingInfo();
         this.isAgreedToTerms = request.isAgreedToTerms();
         this.isAgreedToCollectPersonalInfo = request.isAgreedToCollectPersonalInfo();
-    }
-
-    public void updateAssociationRank(AssociationRank rank) {
-        this.associationRank = rank;
     }
 }

@@ -5,5 +5,5 @@ import jakarta.validation.constraints.*;
 
 public record UpdateAssociationChairmanRequest(
         @NotNull Long newChairmanId,
-        @NotBlank String newChairmanName,
+        @NotBlank String newChairmanName, // TODO : 필드 제거
         @NotNull AssociationRank nextRankOfCurrentChairman) {}
