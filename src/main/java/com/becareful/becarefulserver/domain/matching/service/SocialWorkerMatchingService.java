@@ -252,11 +252,11 @@ public class SocialWorkerMatchingService {
     }
 
     @Transactional
-    public void propose(Long matchingId, LocalDate workStartDate) {
+    public void propose(Long recruitmentId, Long caregiverId, LocalDate workStartDate) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
         Matching matching = matchingRepository
-                .findByIdWithRecruitment(matchingId)
+                .findByCaregiverIdAndRecruitmentId(caregiverId, recruitmentId)
                 .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
 
         matching.propose();

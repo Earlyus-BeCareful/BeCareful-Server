@@ -48,25 +48,20 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
             "SELECT m FROM Matching m WHERE m.workApplication.caregiver = :caregiver AND m.recruitment.id = :recruitmentId")
     Optional<Matching> findByCaregiverAndRecruitmentId(Caregiver caregiver, Long recruitmentId);
 
+    @Query(
+            """
+                SELECT m
+                  FROM Matching m
+                 WHERE m.workApplication.caregiver.id = :caregiverId
+                   AND m.recruitment.id = :recruitmentId
+    """)
+    Optional<Matching> findByCaregiverIdAndRecruitmentId(Long caregiverId, Long recruitmentId);
+
     List<Matching> findByWorkApplicationAndMatchingStatus(
             WorkApplication workApplication, MatchingStatus matchingStatus);
 
-    @Query("SELECT m FROM Matching m JOIN FETCH m.recruitment WHERE m.id = :id")
-    Optional<Matching> findByIdWithRecruitment(@Param("id") Long id);
-
-    @Transactional
     @Modifying
     @Query("DELETE FROM Matching m WHERE m.workApplication.caregiver = :caregiver AND m.matchingStatus <> :status")
     void deleteAllByCaregiverAndStatusNot(
             @Param("caregiver") Caregiver caregiver, @Param("status") MatchingStatus status);
-
-    @Query(
-            """
-    SELECT m FROM Matching m
-    JOIN FETCH m.recruitment r
-    JOIN FETCH m.workApplication w
-    JOIN FETCH w.caregiver c
-    WHERE m.id = :id
-    """)
-    Optional<Matching> findByIdWithRecruitmentAndWorkApplicationAndCaregiver(@Param("id") Long id);
 }
