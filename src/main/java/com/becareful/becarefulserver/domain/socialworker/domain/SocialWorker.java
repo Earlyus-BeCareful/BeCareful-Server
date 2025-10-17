@@ -33,8 +33,6 @@ public class SocialWorker extends BaseEntity {
 
     private String phoneNumber;
 
-    private String password;
-
     @Enumerated(EnumType.STRING)
     private InstitutionRank institutionRank;
 

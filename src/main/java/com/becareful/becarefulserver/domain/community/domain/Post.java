@@ -90,8 +90,8 @@ public class Post extends BaseEntity {
      * Data Update 로직
      */
     public void update(String title, String content, boolean isImportant, String originalUrl) {
-        this.title = title;
-        this.content = content;
+        if (title != null) this.title = title;
+        if (content != null) this.content = content;
         this.isImportant = isImportant;
         this.originalUrl = originalUrl;
     }

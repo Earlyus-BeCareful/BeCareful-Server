@@ -19,4 +19,7 @@ public class S3Properties {
 
     @Value("${aws.s3.secret-key}")
     private String secretKey;
+
+    @Value("${aws.s3.cleanup.enabled}")
+    private Boolean cleanupEnabled;
 }

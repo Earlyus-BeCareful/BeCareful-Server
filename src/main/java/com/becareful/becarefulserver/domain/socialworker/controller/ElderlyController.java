@@ -80,7 +80,7 @@ public class ElderlyController {
     이후 어르신등록 또는 정보 수정 시, S3에 업로드한 파일의 tempKey를 백엔드로 전달해야 합니다.
     """)
     @PostMapping("/profile-img/presigned-url")
-    public ResponseEntity<PresignedUrlResponse> createPresignedUrl(PresignedUrlRequest request) {
+    public ResponseEntity<PresignedUrlResponse> createPresignedUrl(ProfileImagePresignedUrlRequest request) {
         PresignedUrlResponse response = elderlyService.getPresignedUrl(request);
         return ResponseEntity.ok(response);
     }

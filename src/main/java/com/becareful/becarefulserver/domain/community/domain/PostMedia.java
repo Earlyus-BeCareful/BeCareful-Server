@@ -29,20 +29,16 @@ public class PostMedia extends BaseEntity {
 
     private Long fileSize;
 
-    private Integer videoDuration;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private PostMedia(
-            String fileName, String mediaUrl, FileType fileType, Long fileSize, Integer videoDuration, Post post) {
+    private PostMedia(String fileName, String mediaUrl, FileType fileType, Long fileSize, Post post) {
         this.fileName = fileName;
         this.mediaUrl = mediaUrl;
         this.fileType = fileType;
         this.fileSize = fileSize;
-        this.videoDuration = videoDuration;
         this.post = post;
     }
 
@@ -56,14 +52,12 @@ public class PostMedia extends BaseEntity {
                 .build();
     }
 
-    public static PostMedia createVideo(
-            String fileName, String mediaUrl, Long fileSize, Integer videoDuration, Post post) {
+    public static PostMedia createVideo(String fileName, String mediaUrl, Long fileSize, Post post) {
         return PostMedia.builder()
                 .fileName(fileName)
                 .mediaUrl(mediaUrl)
                 .fileType(FileType.VIDEO)
                 .fileSize(fileSize)
-                .videoDuration(videoDuration)
                 .post(post)
                 .build();
     }

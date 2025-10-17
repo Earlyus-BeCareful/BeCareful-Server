@@ -158,7 +158,7 @@ public class CaregiverService {
         }
     }
 
-    public PresignedUrlResponse getPresignedUrl(PresignedUrlRequest request) {
+    public PresignedUrlResponse getPresignedUrl(ProfileImagePresignedUrlRequest request) {
         String newFileName = s3Util.generateImageFileNameWithSource(request.fileName());
         return s3Service.createPresignedUrl("caregiver-profile-image", newFileName, request.contentType());
     }

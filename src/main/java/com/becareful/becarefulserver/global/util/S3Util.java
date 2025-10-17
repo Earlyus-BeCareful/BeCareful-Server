@@ -31,7 +31,10 @@ public class S3Util {
     public String getPermanentKeyFromTempKey(String tempKey) {
         String[] parts = tempKey.split("/");
         String directory = parts[0];
-        String fileName = parts[2];
+        if (parts.length == 4) {
+            directory += "/" + parts[1];
+        } // post 디렉토리인 경우
+        String fileName = parts[parts.length - 1];
         return directory + "/permanent/" + fileName;
     }
 
