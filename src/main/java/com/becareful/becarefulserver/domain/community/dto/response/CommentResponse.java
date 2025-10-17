@@ -19,7 +19,7 @@ public record CommentResponse(
                 comment.getCreateDate(),
                 comment.getUpdateDate(),
                 AuthorSimpleDto.from(comment.getAuthor()),
-                comment.getCreateDate().isEqual(comment.getUpdateDate()),
+                !comment.getCreateDate().isEqual(comment.getUpdateDate()),
                 isMyComment);
     }
 }
