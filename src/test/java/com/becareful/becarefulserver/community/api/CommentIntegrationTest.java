@@ -82,9 +82,16 @@ public class CommentIntegrationTest extends IntegrationTest {
         Long commentId =
                 commentService.createComment("association-notice", post.getId(), new CommentCreateRequest("hello"));
 
-        commentService.updateComment("association-notice", post.getId(), commentId, new CommentUpdateRequest("hi"));
+        var originalUpdatedAt = commentRepository.findById(commentId).get().getUpdateDate();
 
-        assertThat(commentRepository.findById(commentId).get().getContent()).isEqualTo("hi");
+        var response =
+                commentService.updateComment("association-notice", post.getId(), commentId, new CommentUpdateRequest("hi"));
+
+        var updatedComment = commentRepository.findById(commentId).get();
+
+        assertThat(updatedComment.getContent()).isEqualTo("hi");
+        assertThat(response.updatedAt()).isEqualTo(updatedComment.getUpdateDate());
+        assertThat(response.updatedAt()).isAfter(originalUpdatedAt);
 
         commentService.deleteComment("association-notice", post.getId(), commentId);
 

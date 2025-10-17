@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.community.controller;
 import com.becareful.becarefulserver.domain.community.dto.request.CommentCreateRequest;
 import com.becareful.becarefulserver.domain.community.dto.request.CommentUpdateRequest;
 import com.becareful.becarefulserver.domain.community.dto.response.CommentResponse;
+import com.becareful.becarefulserver.domain.community.dto.response.CommentUpdateResponse;
 import com.becareful.becarefulserver.domain.community.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,13 +41,13 @@ public class CommentController {
 
     @Operation(summary = "댓글 수정")
     @PutMapping("/{commentId}")
-    public ResponseEntity<Void> updateComment(
+    public ResponseEntity<CommentUpdateResponse> updateComment(
             @PathVariable String boardType,
             @PathVariable Long postId,
             @PathVariable Long commentId,
             @RequestBody CommentUpdateRequest request) {
-        commentService.updateComment(boardType, postId, commentId, request);
-        return ResponseEntity.ok().build();
+        var response = commentService.updateComment(boardType, postId, commentId, request);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "댓글 삭제")

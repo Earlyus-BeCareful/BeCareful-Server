@@ -11,6 +11,7 @@ import com.becareful.becarefulserver.domain.community.domain.PostBoard;
 import com.becareful.becarefulserver.domain.community.dto.request.CommentCreateRequest;
 import com.becareful.becarefulserver.domain.community.dto.request.CommentUpdateRequest;
 import com.becareful.becarefulserver.domain.community.dto.response.CommentResponse;
+import com.becareful.becarefulserver.domain.community.dto.response.CommentUpdateResponse;
 import com.becareful.becarefulserver.domain.community.repository.CommentRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
@@ -70,7 +71,8 @@ public class CommentService {
     }
 
     @Transactional
-    public void updateComment(String boardType, Long postId, Long commentId, CommentUpdateRequest request) {
+    public CommentUpdateResponse updateComment(
+            String boardType, Long postId, Long commentId, CommentUpdateRequest request) {
         SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
@@ -86,6 +88,8 @@ public class CommentService {
         comment.validatePost(post);
         comment.validateAuthor(currentMember);
         comment.update(request.content());
+
+        return CommentUpdateResponse.from(comment);
     }
 
     @Transactional
