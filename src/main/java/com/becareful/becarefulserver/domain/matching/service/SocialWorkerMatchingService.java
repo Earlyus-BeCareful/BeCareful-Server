@@ -212,7 +212,7 @@ public class SocialWorkerMatchingService {
 
     /**
      * 3.1.4 공고 마감 처리
-     * @param recruitmentId
+     * @param recruitmentId 마감할 공고의 ID
      */
     @Transactional
     public void closeRecruitment(Long recruitmentId) {
