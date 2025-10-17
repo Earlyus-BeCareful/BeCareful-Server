@@ -131,12 +131,10 @@ public class Recruitment extends BaseEntity {
     }
 
     public void close() {
-        if (this.recruitmentStatus.isCompleted()) {
-            throw new RecruitmentException(RECRUITMENT_NOT_CLOSABLE_COMPLETED);
+        switch (recruitmentStatus) {
+            case 모집중 -> this.recruitmentStatus = RecruitmentStatus.공고마감;
+            case 모집완료 -> throw new RecruitmentException(RECRUITMENT_NOT_CLOSABLE_COMPLETED);
+            case 공고마감 -> throw new RecruitmentException(RECRUITMENT_NOT_CLOSABLE_ALREADY_CLOSED);
         }
-        if (this.recruitmentStatus.isClosed()) {
-            throw new RecruitmentException(RECRUITMENT_NOT_CLOSABLE_ALREADY_CLOSED);
-        }
-        this.recruitmentStatus = RecruitmentStatus.공고마감;
     }
 }
