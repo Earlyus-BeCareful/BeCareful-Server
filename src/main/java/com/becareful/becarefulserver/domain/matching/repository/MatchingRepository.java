@@ -52,8 +52,11 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
             """
                 SELECT m
                   FROM Matching m
-                 WHERE m.workApplication.caregiver.id = :caregiverId
-                   AND m.recruitment.id = :recruitmentId
+                  JOIN FETCH m.workApplication w
+                  JOIN FETCH w.caregiver c
+                  JOIN FETCH m.recruitment r
+                 WHERE c.id = :caregiverId
+                   AND r.id = :recruitmentId
     """)
     Optional<Matching> findByCaregiverIdAndRecruitmentId(Long caregiverId, Long recruitmentId);
 

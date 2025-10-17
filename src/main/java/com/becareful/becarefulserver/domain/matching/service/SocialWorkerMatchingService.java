@@ -115,7 +115,7 @@ public class SocialWorkerMatchingService {
     }
 
     public MatchingCaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
-        authUtil.getLoggedInSocialWorker(); // 사회복지사가 호출하는 API
+        authUtil.getLoggedInSocialWorker();
 
         Caregiver caregiver = caregiverRepository
                 .findById(caregiverId)
