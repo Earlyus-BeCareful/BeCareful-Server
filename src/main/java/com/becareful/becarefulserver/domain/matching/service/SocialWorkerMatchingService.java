@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
 import static com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.*;
-import static com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
@@ -10,6 +9,7 @@ import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.repository.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
+import com.becareful.becarefulserver.domain.matching.domain.service.RecruitmentDomainService;
 import com.becareful.becarefulserver.domain.matching.domain.vo.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
 import com.becareful.becarefulserver.domain.matching.dto.request.*;
@@ -49,6 +49,7 @@ public class SocialWorkerMatchingService {
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
+    private final RecruitmentDomainService recruitmentDomainService;
 
     /***
      * 2025-09-24
@@ -114,7 +115,7 @@ public class SocialWorkerMatchingService {
     }
 
     public MatchingCaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
-        authUtil.getLoggedInSocialWorker(); // 사회복지사가 호출하는 API
+        authUtil.getLoggedInSocialWorker();
 
         Caregiver caregiver = caregiverRepository
                 .findById(caregiverId)
@@ -190,53 +191,89 @@ public class SocialWorkerMatchingService {
         return recruitment.getId();
     }
 
-    // 매칭 상세 - 공고 상세 페이지
-    public MatchingStatusDetailResponse getMatchingDetail(Long recruitmentId) {
+    /**
+     * 2025-10-15
+     * 3.1.4 매칭 공고 상세 정보 조회
+     * @param recruitmentId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public RecruitmentDto getRecruitment(Long recruitmentId) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+
         Recruitment recruitment = recruitmentRepository
                 .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+
+        recruitmentDomainService.validateRecruitmentInstitution(recruitment, loggedInSocialWorker);
+
+        return RecruitmentDto.from(recruitment);
+    }
+
+    /**
+     * 3.1.4 공고 마감 처리
+     * @param recruitmentId 마감할 공고의 ID
+     */
+    @Transactional
+    public void closeRecruitment(Long recruitmentId) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+
+        recruitmentDomainService.validateRecruitmentInstitution(recruitment, loggedInSocialWorker);
+
+        recruitment.close();
+    }
+
+    /**
+     * 3.1.4 공고 상세 - 요양보호사 매칭 현황 조회
+     * @param recruitmentId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public RecruitmentMatchingStatusResponse getMatchingStatus(Long recruitmentId) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+
+        recruitmentDomainService.validateRecruitmentInstitution(recruitment, loggedInSocialWorker);
+
         List<Matching> matchings = matchingRepository.findAllByRecruitment(recruitment);
 
         List<MatchingCaregiverSimpleResponse> unAppliedCaregivers = new ArrayList<>();
         List<MatchingCaregiverSimpleResponse> appliedCaregivers = new ArrayList<>();
 
         matchings.forEach(matching -> {
-            MatchingStatus status = matching.getMatchingStatus();
+            MatchingApplicationStatus applicationStatus = matching.getApplicationStatus();
+            Caregiver caregiver = matching.getWorkApplication().getCaregiver();
+            String careerTitle = careerRepository
+                    .findByCaregiver(caregiver)
+                    .map(Career::getTitle)
+                    .orElse("경력서를 작성하지 않았습니다.");
 
-            if (status == 지원검토중 || status == 미지원) {
-                WorkApplication workApplication = matching.getWorkApplication();
-                if (workApplication == null) {
-                    return; // 요양보호사가 탈퇴하며 지원검토중, 미지원인 매칭은 삭제되지만 방어적 설계를 위해 예외처리함
-                }
+            MatchedCaregiverResponse caregiverInfo = MatchedCaregiverResponse.of(caregiver, careerTitle);
+            MatchingResultStatus matchingResult = matching.getMatchingResultStatus();
 
-                Caregiver caregiver = matching.getWorkApplication().getCaregiver();
-                Career career = careerRepository
-                        .findByCaregiver(caregiver)
-                        .orElseThrow(() -> new CaregiverException(CAREGIVER_CAREER_NOT_EXISTS));
+            var matchedCaregiverInfo = MatchingCaregiverSimpleResponse.of(caregiverInfo, matchingResult);
 
-                MatchedCaregiverDto caregiverInfo = MatchedCaregiverDto.of(caregiver, career);
-                MatchingResultStatus matchingResult =
-                        matching.getMatchingResultInfo().judgeMatchingResultStatus();
-
-                var matchedCaregiverInfo = MatchingCaregiverSimpleResponse.of(caregiverInfo, matchingResult);
-
-                if (status == 지원검토중) {
-                    appliedCaregivers.add(matchedCaregiverInfo);
-                } else {
-                    unAppliedCaregivers.add(matchedCaregiverInfo);
-                }
+            switch (applicationStatus) {
+                case 미지원 -> unAppliedCaregivers.add(matchedCaregiverInfo);
+                case 지원 -> appliedCaregivers.add(matchedCaregiverInfo);
             }
         });
 
-        return MatchingStatusDetailResponse.of(recruitment, unAppliedCaregivers, appliedCaregivers);
+        return RecruitmentMatchingStatusResponse.of(recruitment, unAppliedCaregivers, appliedCaregivers);
     }
 
     @Transactional
-    public void propose(Long matchingId, LocalDate workStartDate) {
+    public void propose(Long recruitmentId, Long caregiverId, LocalDate workStartDate) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
         Matching matching = matchingRepository
-                .findByIdWithRecruitment(matchingId)
+                .findByCaregiverIdAndRecruitmentId(caregiverId, recruitmentId)
                 .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
 
         matching.propose();

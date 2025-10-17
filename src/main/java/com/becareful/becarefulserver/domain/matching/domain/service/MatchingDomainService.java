@@ -13,6 +13,14 @@ import org.springframework.stereotype.Component;
 public class MatchingDomainService {
 
     public Optional<Matching> createMatching(Recruitment recruitment, WorkApplication application) {
+        if (!recruitment.getRecruitmentStatus().isRecruiting()) {
+            return Optional.empty();
+        }
+
+        if (!application.isActive()) {
+            return Optional.empty();
+        }
+
         Matching matching = Matching.create(recruitment, application);
         MatchingResultStatus result = matching.getMatchingResultStatus();
 

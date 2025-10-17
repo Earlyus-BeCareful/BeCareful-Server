@@ -58,7 +58,7 @@ public class WorkApplication extends BaseEntity {
 
     private boolean isActive;
 
-    @JoinColumn(name = "caregiver_id")
+    @JoinColumn(name = "caregiver_id", nullable = false)
     @OneToOne(fetch = FetchType.LAZY)
     private Caregiver caregiver;
 

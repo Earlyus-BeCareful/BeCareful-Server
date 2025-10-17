@@ -6,7 +6,7 @@ import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
-import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerUpdateBasicInfoRequest;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerProfileUpdateRequest;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
@@ -87,6 +87,14 @@ public class SocialWorker extends BaseEntity {
         return Period.between(this.birthday, LocalDate.now()).getYears();
     }
 
+    public Integer getGenderCode() {
+        int genderCode = this.gender == Gender.MALE ? 1 : 2;
+        if (this.birthday.getYear() >= 2000) {
+            genderCode += 2;
+        }
+        return genderCode;
+    }
+
     /**
      * update method
      * */
@@ -125,8 +133,8 @@ public class SocialWorker extends BaseEntity {
         this.associationRank = AssociationRank.NONE;
     }
 
-    public void updateBasicInfo(
-            SocialWorkerUpdateBasicInfoRequest request,
+    public void update(
+            SocialWorkerProfileUpdateRequest request,
             LocalDate birthday,
             Gender gender,
             NursingInstitution nursingInstitution) {

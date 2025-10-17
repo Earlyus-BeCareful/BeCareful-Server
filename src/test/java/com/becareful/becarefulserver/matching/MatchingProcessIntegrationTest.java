@@ -135,12 +135,10 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 .orElseThrow();
 
         caregiverMatchingService.applyRecruitment(recruitmentId);
-        Matching applied = matchingRepository
-                .findByIdWithRecruitmentAndWorkApplicationAndCaregiver(matching.getId())
-                .orElseThrow();
+        Matching applied = matchingRepository.findById(matching.getId()).orElseThrow();
         assertThat(applied.isApplicationReviewing()).isTrue();
 
-        socialWorkerMatchingService.propose(applied.getId(), LocalDate.now());
+        socialWorkerMatchingService.propose(recruitmentId, caregiver.getId(), LocalDate.now());
         Contract firstContract = contractRepository
                 .findTop1ByMatchingOrderByCreateDateDesc(matching)
                 .orElseThrow();

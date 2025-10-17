@@ -4,7 +4,7 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.Instit
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record SocialWorkerUpdateBasicInfoRequest(
+public record SocialWorkerProfileUpdateRequest(
         @NotBlank String realName,
         @NotBlank String nickName,
         @NotBlank String birthYymmdd,

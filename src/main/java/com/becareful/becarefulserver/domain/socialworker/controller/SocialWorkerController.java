@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
 
+import com.becareful.becarefulserver.domain.socialworker.dto.SocialWorkerDto;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.service.*;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/socialworker") // TODO : social-worker 로 수정
+@RequestMapping("/social-worker")
 @Tag(name = "Social Worker", description = "사회복지사 관련 API 입니다.")
 public class SocialWorkerController {
 
@@ -42,26 +43,25 @@ public class SocialWorkerController {
         return ResponseEntity.ok(response);
     }
 
-    // TODO : 요양보호사는 /my 쓰고 있음. 통일 필요
-    @Operation(summary = "회원정보 반환", description = "센터장, 대표, 사회복지사 모두 같은 API")
-    @GetMapping("/me")
-    public ResponseEntity<SocialWorkerMyResponse> getSocialWorkerMyInfo() {
-        var response = socialworkerService.getMyInfo();
+    @Operation(summary = "5.1.1 사회복지사 마이페이지", description = "사회복지사 마이페이지 화면 데이터를 조회합니다.")
+    @GetMapping("/my")
+    public ResponseEntity<SocialWorkerMyPageResponse> getSocialWorkerMyPageData() {
+        var response = socialworkerService.getMyPageData();
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "회원정보 수정화면 정보 반환", description = "센터장, 대표, 사회복지사 모두 같은 API")
-    @GetMapping("/me/edit")
-    public ResponseEntity<SocialWorkerEditResponse> getSocialWorkerEditInfo() {
-        var response = socialworkerService.getEditMyInfo();
+    @Operation(summary = "5.1.2 사회복지사 프로필 조회", description = "사회복지사 프로필 수정시 프로필 데이터를 조회합니다.")
+    @GetMapping("/my/profile")
+    public ResponseEntity<SocialWorkerDto> getSocialWorkerProfile() {
+        var response = socialworkerService.getMyProfile();
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "회원정보 수정", description = "센터장, 대표, 사회복지사 모두 같은 API")
-    @PutMapping("/me")
-    public ResponseEntity<Void> updateMyBasicInfo(
-            @Valid @RequestBody SocialWorkerUpdateBasicInfoRequest request, HttpServletResponse httpServletResponse) {
-        socialworkerService.updateMyBasicInfo(request, httpServletResponse);
+    @Operation(summary = "5.1.2 사회복지사 프로필 수정", description = "사회복지사 프로필을 수정합니다.")
+    @PutMapping("/my/profile")
+    public ResponseEntity<Void> updateMyProfile(
+            @Valid @RequestBody SocialWorkerProfileUpdateRequest request, HttpServletResponse httpServletResponse) {
+        socialworkerService.updateMyProfile(request, httpServletResponse);
         return ResponseEntity.ok().build();
     }
 
