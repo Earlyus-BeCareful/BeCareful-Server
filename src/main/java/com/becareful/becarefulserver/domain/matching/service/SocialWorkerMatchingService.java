@@ -115,7 +115,7 @@ public class SocialWorkerMatchingService {
     }
 
     public MatchingCaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
-        authUtil.getLoggedInSocialWorker(); // 사회복지사가 호출하는 API
+        authUtil.getLoggedInSocialWorker();
 
         Caregiver caregiver = caregiverRepository
                 .findById(caregiverId)
@@ -252,11 +252,11 @@ public class SocialWorkerMatchingService {
     }
 
     @Transactional
-    public void propose(Long matchingId, LocalDate workStartDate) {
+    public void propose(Long recruitmentId, Long caregiverId, LocalDate workStartDate) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
         Matching matching = matchingRepository
-                .findByIdWithRecruitment(matchingId)
+                .findByCaregiverIdAndRecruitmentId(caregiverId, recruitmentId)
                 .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
 
         matching.propose();
