@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.domain;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.RECRUITMENT_NOT_COMPLETABLE_NOT_RECRUITING;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
@@ -120,10 +120,21 @@ public class Recruitment extends BaseEntity {
                 || (startTime.isBefore(workEndTime) && workStartTime.isBefore(endTime));
     }
 
+    /**
+     * 엔티티 메서드
+     */
     public void complete() {
         if (!this.recruitmentStatus.isRecruiting()) {
             throw new RecruitmentException(RECRUITMENT_NOT_COMPLETABLE_NOT_RECRUITING);
         }
         this.recruitmentStatus = RecruitmentStatus.모집완료;
+    }
+
+    public void close() {
+        switch (recruitmentStatus) {
+            case 모집중 -> this.recruitmentStatus = RecruitmentStatus.공고마감;
+            case 모집완료 -> throw new RecruitmentException(RECRUITMENT_NOT_CLOSABLE_COMPLETED);
+            case 공고마감 -> throw new RecruitmentException(RECRUITMENT_NOT_CLOSABLE_ALREADY_CLOSED);
+        }
     }
 }

@@ -46,6 +46,8 @@ public class ErrorMessage {
     public static final String RECRUITMENT_NOT_COMPLETABLE_NOT_RECRUITING = "모집중이 아닌 공고는 완료처리할 수 없습니다.";
     public static final String RECRUITMENT_WORK_TIME_DUPLICATED = "근무 시간이 겹치는 공고가 존재합니다.";
     public static final String RECRUITMENT_DIFFERENT_INSTITUTION = "다른 기관의 공고에는 접근할 수 없습니다.";
+    public static final String RECRUITMENT_NOT_CLOSABLE_COMPLETED = "모집 완료된 공고는 마감할 수 없습니다.";
+    public static final String RECRUITMENT_NOT_CLOSABLE_ALREADY_CLOSED = "이미 마감된 공고입니다.";
 
     public static final String MATCHING_NOT_EXISTS = "매칭 또는 지원 정보가 존재하지 않습니다.";
     public static final String MATCHING_CANNOT_REJECT = "미지원 공고만 거절할 수 있습니다.";

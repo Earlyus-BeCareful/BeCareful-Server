@@ -67,6 +67,13 @@ public class SocialWorkerMatchingController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "3.1.4 공고 마감 처리", description = "공고를 마감하고, 신규 매칭 및 지원을 더 이상 받지 않습니다.")
+    @PostMapping("/recruitment/{recruitmentId}/close")
+    public ResponseEntity<Void> closeRecruitment(@PathVariable Long recruitmentId) {
+        socialWorkerMatchingService.closeRecruitment(recruitmentId);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "3.1.4 공고 매칭 현황 조회", description = "공고의 요양보호사 매칭 및 지원 현황을 조회합니다.")
     @GetMapping("/recruitment/{recruitmentId}/matching-status")
     public ResponseEntity<RecruitmentMatchingStatusResponse> getRecruitmentMatchingStatus(
