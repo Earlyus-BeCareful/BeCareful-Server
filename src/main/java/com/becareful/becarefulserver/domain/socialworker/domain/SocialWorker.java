@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
-import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
@@ -35,9 +35,6 @@ public class SocialWorker extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private InstitutionRank institutionRank;
 
-    @Enumerated(EnumType.STRING)
-    private AssociationRank associationRank;
-
     private boolean isAgreedToTerms;
 
     private boolean isAgreedToCollectPersonalInfo;
@@ -45,8 +42,12 @@ public class SocialWorker extends BaseEntity {
     private boolean isAgreedToReceiveMarketingInfo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "nursing_institution_id")
+    @JoinColumn(name = "nursing_institution_id", nullable = false)
     private NursingInstitution nursingInstitution;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "association_member_id")
+    private AssociationMember associationMember;
 
     @Builder(access = AccessLevel.PRIVATE)
     private SocialWorker(
@@ -57,7 +58,6 @@ public class SocialWorker extends BaseEntity {
             Gender gender,
             String phoneNumber,
             InstitutionRank institutionRank,
-            AssociationRank associationRank,
             boolean isAgreedToTerms,
             boolean isAgreedToCollectPersonalInfo,
             boolean isAgreedToReceiveMarketingInfo) {
@@ -67,7 +67,6 @@ public class SocialWorker extends BaseEntity {
         this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.institutionRank = institutionRank;
-        this.associationRank = associationRank;
         this.isAgreedToTerms = isAgreedToTerms;
         this.nursingInstitution = nursingInstitution;
         this.isAgreedToCollectPersonalInfo = isAgreedToCollectPersonalInfo;
@@ -99,7 +98,6 @@ public class SocialWorker extends BaseEntity {
             Gender gender,
             String phoneNumber,
             InstitutionRank institutionRank,
-            AssociationRank associationRank,
             boolean isAgreedToReceiveMarketingInfo,
             NursingInstitution nursingInstitution) {
         return SocialWorker.builder()
@@ -109,7 +107,6 @@ public class SocialWorker extends BaseEntity {
                 .gender(gender)
                 .phoneNumber(phoneNumber)
                 .institutionRank(institutionRank)
-                .associationRank(associationRank)
                 .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
                 .isAgreedToTerms(true)
                 .isAgreedToCollectPersonalInfo(true)

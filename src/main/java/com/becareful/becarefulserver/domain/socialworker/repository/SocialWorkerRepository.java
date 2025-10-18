@@ -1,7 +1,5 @@
 package com.becareful.becarefulserver.domain.socialworker.repository;
 
-import com.becareful.becarefulserver.domain.association.domain.Association;
-import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import java.util.List;
@@ -17,13 +15,4 @@ public interface SocialWorkerRepository extends JpaRepository<SocialWorker, Long
     boolean existsByNickname(String nickname);
 
     List<SocialWorker> findAllByNursingInstitution(NursingInstitution nursingInstitution);
-
-    Integer countByAssociation(Association association);
-
-    List<SocialWorker> findAllByAssociation(Association association);
-
-    int countByAssociationAndAssociationRank(Association association, AssociationRank associationRank);
-
-    Optional<SocialWorker> findByAssociationAndAssociationRank(
-            Association association, AssociationRank associationRank);
 }

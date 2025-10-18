@@ -88,7 +88,7 @@ public class AssociationJoinService {
                 associationJoinApplicationRepository.findAllByAssociationAndStatus(
                         association, AssociationJoinApplicationStatus.PENDING);
         List<JoinApplicationSimpleDto> applicationDtos =
-                applications.stream().map(JoinApplicationSimpleDto::of).toList();
+                applications.stream().map(JoinApplicationSimpleDto::from).toList();
         return new AssociationJoinApplicationListResponse(joinApplicationCount, applicationDtos);
     }
 

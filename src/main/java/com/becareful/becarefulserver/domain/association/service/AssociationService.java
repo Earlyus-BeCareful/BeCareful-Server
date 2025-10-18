@@ -23,7 +23,6 @@ import java.io.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
-import org.springframework.data.crossstore.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.*;
 import org.springframework.security.core.context.*;
@@ -85,7 +84,7 @@ public class AssociationService {
     public AssociationMemberOverviewResponse getAssociationMemberOverview() {
         AssociationMember loggedInAssociationMember = authUtil.getLoggedInAssociationMember();
         Association association = loggedInAssociationMember.getAssociation();
-        int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+        int associationMemberCount = associationMemberRepository.countByAssociation(association);
         int joinApplicationCount = associationJoinApplicationRepository.countByAssociationAndStatus(
                 association, AssociationJoinApplicationStatus.PENDING);
 
@@ -130,8 +129,8 @@ public class AssociationService {
             throw new DomainException("협회장은 탈퇴할 수 없습니다.");
         }
         if (currentRank.equals(AssociationRank.EXECUTIVE)) {
-            int executiveCount =
-                    socialWorkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
+            int executiveCount = associationMemberRepository.countByAssociationAndAssociationRank(
+                    association, AssociationRank.EXECUTIVE);
             if (executiveCount <= 1) {
                 throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
             }
@@ -178,7 +177,7 @@ public class AssociationService {
                 : associationRepository.findByNameContains(associationName);
         List<AssociationResponse> associationSimpleInfoList = associationList.stream()
                 .map(association -> {
-                    int memberCount = socialWorkerRepository.countByAssociation(association);
+                    int memberCount = associationMemberRepository.countByAssociation(association);
                     return AssociationResponse.of(association, memberCount);
                 })
                 .toList();
@@ -189,7 +188,7 @@ public class AssociationService {
     public AssociationSearchListResponse getAssociationList() {
         List<AssociationResponse> associationResponseList = associationRepository.findAll().stream()
                 .map(association -> {
-                    int memberCount = socialWorkerRepository.countByAssociation(association);
+                    int memberCount = associationMemberRepository.countByAssociation(association);
                     return AssociationResponse.of(association, memberCount);
                 })
                 .toList();
@@ -200,10 +199,10 @@ public class AssociationService {
     public AssociationInfoResponse getAssociationInfo() {
         AssociationMember loggedInAssociationMember = authUtil.getLoggedInAssociationMember();
         Association association = loggedInAssociationMember.getAssociation();
-        SocialWorker chairman = socialWorkerRepository
+        AssociationMember chairman = associationMemberRepository
                 .findByAssociationAndAssociationRank(association, AssociationRank.CHAIRMAN)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_CHAIRMAN_NOT_EXISTS));
-        int memberCount = socialWorkerRepository.countByAssociation(association);
+        int memberCount = associationMemberRepository.countByAssociation(association);
 
         return AssociationInfoResponse.of(association, memberCount, chairman);
     }
@@ -232,8 +231,8 @@ public class AssociationService {
         }
 
         if (currentRank.equals(AssociationRank.EXECUTIVE) && targetRank.equals(AssociationRank.MEMBER)) {
-            int executiveCount =
-                    socialWorkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
+            int executiveCount = associationMemberRepository.countByAssociationAndAssociationRank(
+                    association, AssociationRank.EXECUTIVE);
             if (executiveCount <= 1) {
                 throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
             }
@@ -243,8 +242,7 @@ public class AssociationService {
     }
 
     @Transactional
-    public void updateAssociationChairman(@Valid UpdateAssociationChairmanRequest request, HttpServletResponse response)
-            throws ChangeSetPersister.NotFoundException {
+    public void updateAssociationChairman(AssociationChairmanUpdateRequest request, HttpServletResponse response) {
         AssociationMember currentChairman = authUtil.getLoggedInAssociationMember();
         AssociationMember newChairman = associationMemberRepository
                 .findById(request.newChairmanId())

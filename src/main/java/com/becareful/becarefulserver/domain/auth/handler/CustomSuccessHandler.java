@@ -1,5 +1,9 @@
 package com.becareful.becarefulserver.domain.auth.handler;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_NOT_EXISTS;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.SOCIAL_WORKER_NOT_EXISTS;
+
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.auth.dto.response.CustomOAuth2User;
 import com.becareful.becarefulserver.domain.auth.dto.response.OAuth2LoginResponse;
@@ -9,6 +13,8 @@ import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverReposi
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
+import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
+import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
 import com.becareful.becarefulserver.global.properties.JwtProperties;
 import com.becareful.becarefulserver.global.properties.LoginRedirectUrlProperties;
@@ -122,7 +128,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         if (roles.get(0).equals("NONE")) {
             Caregiver caregiver = caregiverRepository
                     .findByPhoneNumber(phoneNumber)
-                    .orElseThrow(() -> new IllegalStateException("Caregiver not found"));
+                    .orElseThrow(() -> new CaregiverException(CAREGIVER_NOT_EXISTS));
             userResponse = new RegisteredUserLoginResponse(
                     caregiver.getName(), null, AssociationRank.NONE, InstitutionRank.NONE);
             redirectUrlPath = loginRedirectUrlProperties.getCaregiverLoginRedirectUrl();
@@ -130,12 +136,14 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             SocialWorker socialWorker = socialworkerRepository
                     .findByPhoneNumber(phoneNumber)
-                    .orElseThrow(() -> new IllegalStateException("SocialWorker not found"));
+                    .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+
+            AssociationMember associationMember = socialWorker.getAssociationMember();
 
             userResponse = new RegisteredUserLoginResponse(
                     socialWorker.getName(),
                     socialWorker.getNickname(),
-                    socialWorker.getAssociationRank(),
+                    associationMember != null ? associationMember.getAssociationRank() : AssociationRank.NONE,
                     socialWorker.getInstitutionRank());
             redirectUrlPath = loginRedirectUrlProperties.getSocialWorkerLoginRedirectUrl();
         }

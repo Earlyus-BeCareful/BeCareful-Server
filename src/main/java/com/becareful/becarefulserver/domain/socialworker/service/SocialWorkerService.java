@@ -4,6 +4,7 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
 import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
 import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
@@ -43,6 +44,7 @@ public class SocialWorkerService {
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
     private final JwtProperties jwtProperties;
+    private final AssociationMemberRepository associationMemberRepository;
 
     @Transactional
     public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
@@ -65,14 +67,12 @@ public class SocialWorkerService {
                 gender,
                 request.phoneNumber(),
                 request.institutionRank(),
-                AssociationRank.NONE,
                 request.isAgreedToReceiveMarketingInfo(),
                 nursingInstitution);
 
         socialworkerRepository.save(socialWorker);
 
-        updateJwtAndSecurityContext(
-                httpServletResponse, request.phoneNumber(), request.institutionRank(), AssociationRank.NONE);
+        updateJwtAndSecurityContext(httpServletResponse, request.phoneNumber(), request.institutionRank());
 
         return socialWorker.getId();
     }
@@ -107,7 +107,7 @@ public class SocialWorkerService {
     @Transactional(readOnly = true)
     public SocialWorkerMyPageResponse getMyPageData() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        return SocialWorkerMyPageResponse.from(loggedInSocialWorker);
+        return SocialWorkerMyPageResponse.of(loggedInSocialWorker);
     }
 
     @Transactional(readOnly = true)
@@ -144,11 +144,7 @@ public class SocialWorkerService {
         Gender gender = Gender.fromGenderCode(request.genderCode());
 
         if (isInstitutionRankChanged || isPhoneNumberChanged) {
-            updateJwtAndSecurityContext(
-                    response,
-                    request.phoneNumber(),
-                    request.institutionRank(),
-                    loggedInSocialWorker.getAssociationRank());
+            updateJwtAndSecurityContext(response, request.phoneNumber(), request.institutionRank());
         }
 
         loggedInSocialWorker.update(request, birthDate, gender, institution);
@@ -166,17 +162,22 @@ public class SocialWorkerService {
     @Transactional
     public void deleteSocialWorker(HttpServletResponse response) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        AssociationRank rank = loggedInSocialWorker.getAssociationRank();
-        Association association = loggedInSocialWorker.getAssociation();
+        AssociationMember member = loggedInSocialWorker.getAssociationMember();
+        if (member != null) {
+            AssociationRank rank = member.getAssociationRank();
+            Association association = member.getAssociation();
 
-        if (rank == AssociationRank.CHAIRMAN) {
-            throw new AssociationException(ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST);
-        }
+            if (rank == AssociationRank.CHAIRMAN) {
+                throw new AssociationException(ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST);
+            }
 
-        if (rank == AssociationRank.EXECUTIVE
-                & socialworkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE)
+            if (rank == AssociationRank.EXECUTIVE) {
+                if (associationMemberRepository.countByAssociationAndAssociationRank(
+                                association, AssociationRank.EXECUTIVE)
                         == 1) {
-            throw new AssociationException(ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST);
+                    throw new AssociationException(ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST);
+                }
+            }
         }
 
         socialworkerRepository.delete(loggedInSocialWorker);
@@ -230,12 +231,12 @@ public class SocialWorkerService {
     }
 
     private void updateJwtAndSecurityContext(
-            HttpServletResponse response,
-            String phoneNumber,
-            InstitutionRank institutionRankParam,
-            AssociationRank associationRankParam) {
+            HttpServletResponse response, String phoneNumber, InstitutionRank institutionRankParam) {
         String institutionRank = institutionRankParam.toString();
-        String associationRank = associationRankParam.toString();
+        String associationRank = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .toList()
+                .get(1)
+                .getAuthority();
         String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
         String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 

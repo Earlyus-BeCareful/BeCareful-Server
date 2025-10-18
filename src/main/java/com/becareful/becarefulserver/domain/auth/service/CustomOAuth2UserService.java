@@ -21,10 +21,11 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+
     private final SocialWorkerRepository socialworkerRepository;
     private final CaregiverRepository caregiverRepository;
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     // 리소스 서버에서 사용자 정보를 받고 기존 회원인지 아닌지 판단
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -70,7 +71,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             Optional<SocialWorker> socialWorker = socialworkerRepository.findByPhoneNumber(phoneNumber);
             Optional<Caregiver> caregiver = caregiverRepository.findByPhoneNumber(phoneNumber);
 
-            boolean isGuest = socialWorker.isEmpty() && caregiver.isEmpty();
+            boolean isGuest = socialWorker.isEmpty() && caregiver.isEmpty(); // 협회 멤버는 사회복지사 탈퇴 후 남아있을 수 있으므로 체크하지 않음
 
             String institutionRank = isGuest
                     ? "GUEST"
@@ -78,7 +79,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             String associationRank = isGuest
                     ? "GUEST"
-                    : socialWorker.map(sw -> sw.getAssociationRank().name()).orElse("NONE");
+                    : socialWorker
+                            .map(sw -> sw.getAssociationMember() == null
+                                    ? "NONE"
+                                    : sw.getAssociationMember()
+                                            .getAssociationRank()
+                                            .toString())
+                            .orElse("NONE");
 
             OAuth2LoginResponse loginResponse = new OAuth2LoginResponse(
                     name, nickname, phoneNumber, institutionRank, associationRank, birthYymmdd, birthGenderCode);

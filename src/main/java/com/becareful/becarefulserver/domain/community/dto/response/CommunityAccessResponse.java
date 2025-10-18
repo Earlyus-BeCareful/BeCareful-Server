@@ -16,10 +16,10 @@ public record CommunityAccessResponse(
     }
 
     public static CommunityAccessResponse approved(
-            AssociationMember associationMember, String associationName, Integer associationMemberCount) {
+            AssociationMember associationMember, Integer associationMemberCount) {
         return new CommunityAccessResponse(
                 CommunityAccessStatus.APPROVED,
-                associationName,
+                associationMember.getAssociation().getName(),
                 AssociationMyResponse.from(associationMember.getAssociation(), associationMemberCount));
     }
 

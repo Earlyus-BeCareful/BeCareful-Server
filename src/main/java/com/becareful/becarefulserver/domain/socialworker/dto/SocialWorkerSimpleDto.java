@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.dto;
 
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
@@ -15,6 +16,7 @@ public record SocialWorkerSimpleDto(
         InstitutionRank institutionRank,
         AssociationRank associationRank) {
     public static SocialWorkerSimpleDto from(SocialWorker socialWorker) {
+        AssociationMember member = socialWorker.getAssociationMember();
         return new SocialWorkerSimpleDto(
                 socialWorker.getName(),
                 socialWorker.getNickname(),
@@ -23,6 +25,6 @@ public record SocialWorkerSimpleDto(
                 socialWorker.getAge(),
                 socialWorker.getGender(),
                 socialWorker.getInstitutionRank(),
-                socialWorker.getAssociationRank());
+                member != null ? member.getAssociationRank() : AssociationRank.NONE);
     }
 }

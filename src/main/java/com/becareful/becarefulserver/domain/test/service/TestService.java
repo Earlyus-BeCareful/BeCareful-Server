@@ -55,8 +55,14 @@ public class TestService {
 
         String institutionRank =
                 socialWorker == null ? null : socialWorker.getInstitutionRank().toString();
-        String associationRank =
-                socialWorker == null ? null : socialWorker.getAssociationRank().toString();
+        String associationRank = socialWorker == null
+                ? null
+                : socialWorker.getAssociationMember() == null
+                        ? null
+                        : socialWorker
+                                .getAssociationMember()
+                                .getAssociationRank()
+                                .toString();
 
         String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
         String refreshToken = jwtUtil.createRefreshToken(phoneNumber);

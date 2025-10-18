@@ -2,6 +2,9 @@ package com.becareful.becarefulserver.global.security;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.INVALID_REFRESH_TOKEN;
 
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
+import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
@@ -39,6 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final CookieProperties cookieProperties;
     private final SocialWorkerRepository socialWorkerRepository;
     private final CaregiverRepository caregiverRepository;
+    private final AssociationMemberRepository associationMemberRepository;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
@@ -107,8 +111,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         Optional<SocialWorker> socialWorker = socialWorkerRepository.findByPhoneNumber(phoneNumber);
         if (socialWorker.isPresent()) {
+            Optional<AssociationMember> associationMember = associationMemberRepository.findByPhoneNumber(phoneNumber);
             newInstitutionRank = socialWorker.get().getInstitutionRank().toString();
-            newAssociationRank = socialWorker.get().getAssociationRank().toString();
+            newAssociationRank = associationMember
+                    .map(AssociationMember::getAssociationRank)
+                    .orElse(AssociationRank.NONE)
+                    .toString();
         } else {
             Optional<Caregiver> caregiver = caregiverRepository.findByPhoneNumber(phoneNumber);
             if (caregiver.isPresent()) {

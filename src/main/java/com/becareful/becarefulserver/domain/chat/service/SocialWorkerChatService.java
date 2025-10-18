@@ -90,12 +90,6 @@ public class SocialWorkerChatService {
         return contractRepository.save(contract).getId();
     }
 
-    // TODO(계약서 조율하기 채팅 엔티티 추가시 코드 수정)
-    public boolean checkNewChat() {
-        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        return chatReadStatusRepository.existsUnreadContract(loggedInSocialWorker);
-    }
-
     @Transactional
     public void updateReadStatus(SocialWorker socialWorker, Matching matching) {
         SocialWorkerChatReadStatus readStatus = chatReadStatusRepository

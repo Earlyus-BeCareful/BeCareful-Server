@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.dto.response;
 
-import com.becareful.becarefulserver.domain.association.domain.Association;
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.dto.AssociationSimpleDto;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionDto;
@@ -14,12 +14,12 @@ public record SocialWorkerMyPageResponse(
         SocialWorkerSimpleDto socialWorkerInfo,
         InstitutionDto institutionInfo,
         @Nullable AssociationSimpleDto associationInfo) {
-    public static SocialWorkerMyPageResponse from(SocialWorker socialWorker) {
+    public static SocialWorkerMyPageResponse of(SocialWorker socialWorker) {
         NursingInstitution institution = socialWorker.getNursingInstitution();
-        Association association = socialWorker.getAssociation();
+        AssociationMember associationMember = socialWorker.getAssociationMember();
         return new SocialWorkerMyPageResponse(
                 SocialWorkerSimpleDto.from(socialWorker),
                 InstitutionDto.from(institution),
-                association != null ? AssociationSimpleDto.from(association) : null);
+                associationMember != null ? AssociationSimpleDto.from(associationMember.getAssociation()) : null);
     }
 }

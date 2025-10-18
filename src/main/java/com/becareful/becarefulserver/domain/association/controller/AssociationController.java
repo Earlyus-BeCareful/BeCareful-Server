@@ -69,7 +69,7 @@ public class AssociationController {
     @Operation(summary = "협회장 위임", description = "협회장 권한 API")
     @PutMapping("/chairman/delegate")
     public ResponseEntity<Void> updateAssociationChairman(
-            @Valid @RequestBody UpdateAssociationChairmanRequest request, HttpServletResponse response)
+            @Valid @RequestBody AssociationChairmanUpdateRequest request, HttpServletResponse response)
             throws ChangeSetPersister.NotFoundException {
         associationService.updateAssociationChairman(request, response);
         return ResponseEntity.ok().build();
