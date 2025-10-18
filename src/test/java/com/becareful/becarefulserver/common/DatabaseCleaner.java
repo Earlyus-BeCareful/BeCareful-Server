@@ -56,7 +56,6 @@ public class DatabaseCleaner {
                 Gender.FEMALE,
                 "010-1234-5678",
                 InstitutionRank.SOCIAL_WORKER,
-                AssociationRank.NONE,
                 true,
                 institution);
         SocialWorkerFixture.SOCIAL_WORKER_MANAGER = SocialWorker.create(
@@ -66,7 +65,6 @@ public class DatabaseCleaner {
                 Gender.FEMALE,
                 "01099990000",
                 InstitutionRank.SOCIAL_WORKER,
-                AssociationRank.MEMBER,
                 true,
                 institution);
         socialworkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_1);

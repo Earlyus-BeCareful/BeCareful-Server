@@ -17,7 +17,6 @@ public class SocialWorkerFixture {
             Gender.FEMALE,
             "010-1234-5678",
             InstitutionRank.SOCIAL_WORKER,
-            AssociationRank.NONE,
             true,
             NURSING_INSTITUTION);
 
@@ -28,7 +27,6 @@ public class SocialWorkerFixture {
             Gender.FEMALE,
             "010-1234-5678",
             InstitutionRank.SOCIAL_WORKER,
-            AssociationRank.MEMBER,
             true,
             NURSING_INSTITUTION);
 }

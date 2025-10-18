@@ -50,15 +50,14 @@ public class CommentIntegrationTest extends IntegrationTest {
     @Autowired
     private AssociationMemberRepository associationMemberRepository;
 
-    private AssociationMember createMember(String phone) {
+    private AssociationMember createMember(String phoneNumber) {
         SocialWorker member = SocialWorker.create(
                 "name",
                 "nick",
                 LocalDate.now(),
                 Gender.FEMALE,
-                phone,
+                phoneNumber,
                 InstitutionRank.SOCIAL_WORKER,
-                AssociationRank.MEMBER,
                 true,
                 NursingInstitutionFixture.NURSING_INSTITUTION);
         socialWorkerRepository.save(member);

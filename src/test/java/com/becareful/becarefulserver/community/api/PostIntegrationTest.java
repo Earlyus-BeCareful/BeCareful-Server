@@ -55,7 +55,6 @@ public class PostIntegrationTest extends IntegrationTest {
                 Gender.FEMALE,
                 phone,
                 InstitutionRank.SOCIAL_WORKER,
-                associationRank,
                 true,
                 NursingInstitutionFixture.NURSING_INSTITUTION);
         socialWorkerRepository.save(member);
