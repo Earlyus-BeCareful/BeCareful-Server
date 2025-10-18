@@ -1,25 +1,25 @@
-package com.becareful.becarefulserver.domain.association.dto;
+package com.becareful.becarefulserver.domain.association.dto.response;
 
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 
-public record MemberSimpleDto(
+public record AssociationMemberResponse(
         Long memberId,
         String name,
         String phoneNumber,
         AssociationRank associationRank,
-        String institutionName,
         InstitutionRank institutionRank,
+        String institutionName,
         String institutionImageUrl) {
-    public static MemberSimpleDto of(SocialWorker member) {
-        return new MemberSimpleDto(
+    public static AssociationMemberResponse from(AssociationMember member) {
+        return new AssociationMemberResponse(
                 member.getId(),
                 member.getName(),
                 member.getPhoneNumber(),
                 member.getAssociationRank(),
-                member.getNursingInstitution().getName(),
                 member.getInstitutionRank(),
+                member.getNursingInstitution().getName(),
                 member.getNursingInstitution().getProfileImageUrl());
     }
 }

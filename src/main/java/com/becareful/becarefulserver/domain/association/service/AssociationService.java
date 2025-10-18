@@ -5,7 +5,6 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
 import com.becareful.becarefulserver.domain.association.domain.vo.*;
-import com.becareful.becarefulserver.domain.association.dto.*;
 import com.becareful.becarefulserver.domain.association.dto.request.*;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.repository.*;
@@ -99,13 +98,12 @@ public class AssociationService {
         AssociationMember loggedInAssociationMember = authUtil.getLoggedInAssociationMember();
 
         Association association = loggedInAssociationMember.getAssociation();
-        int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+        List<AssociationMemberResponse> associationMemberResponses =
+                associationMemberRepository.findAllByAssociation(association).stream()
+                        .map(AssociationMemberResponse::from)
+                        .toList();
 
-        List<SocialWorker> members = socialWorkerRepository.findAllByAssociation(association);
-        List<MemberSimpleDto> memberSimpleDtos =
-                members.stream().map(MemberSimpleDto::of).toList();
-
-        return new AssociationMemberListResponse(associationMemberCount, memberSimpleDtos);
+        return AssociationMemberListResponse.from(associationMemberResponses);
     }
 
     // 협회 회원 상세정보 반환
