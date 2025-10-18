@@ -107,7 +107,7 @@ public class SocialWorkerService {
     @Transactional(readOnly = true)
     public SocialWorkerMyPageResponse getMyPageData() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        return SocialWorkerMyPageResponse.of(loggedInSocialWorker);
+        return SocialWorkerMyPageResponse.from(loggedInSocialWorker);
     }
 
     @Transactional(readOnly = true)

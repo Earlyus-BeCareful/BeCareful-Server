@@ -14,7 +14,7 @@ public record SocialWorkerMyPageResponse(
         SocialWorkerSimpleDto socialWorkerInfo,
         InstitutionDto institutionInfo,
         @Nullable AssociationSimpleDto associationInfo) {
-    public static SocialWorkerMyPageResponse of(SocialWorker socialWorker) {
+    public static SocialWorkerMyPageResponse from(SocialWorker socialWorker) {
         NursingInstitution institution = socialWorker.getNursingInstitution();
         AssociationMember associationMember = socialWorker.getAssociationMember();
         return new SocialWorkerMyPageResponse(
