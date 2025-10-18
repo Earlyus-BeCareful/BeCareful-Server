@@ -88,9 +88,6 @@ public class SocialWorker extends BaseEntity {
         return genderCode;
     }
 
-    /**
-     * update method
-     * */
     public static SocialWorker create(
             String name,
             String nickname,
@@ -114,6 +111,9 @@ public class SocialWorker extends BaseEntity {
                 .build();
     }
 
+    /**
+     * update method
+     * */
     public void update(
             SocialWorkerProfileUpdateRequest request,
             LocalDate birthday,
@@ -129,5 +129,9 @@ public class SocialWorker extends BaseEntity {
         this.isAgreedToReceiveMarketingInfo = request.isAgreedToReceiveMarketingInfo();
         this.isAgreedToTerms = request.isAgreedToTerms();
         this.isAgreedToCollectPersonalInfo = request.isAgreedToCollectPersonalInfo();
+    }
+
+    public void leaveAssociation() {
+        this.associationMember = null;
     }
 }

@@ -121,7 +121,9 @@ public class AssociationService {
 
     @Transactional
     public void leaveAssociation(HttpServletResponse response) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         AssociationMember loggedInAssociationMember = authUtil.getLoggedInAssociationMember();
+
         Association association = loggedInAssociationMember.getAssociation();
         AssociationRank currentRank = loggedInAssociationMember.getAssociationRank();
 
@@ -136,7 +138,7 @@ public class AssociationService {
             }
         }
 
-        loggedInAssociationMember.leaveAssociation();
+        loggedInSocialWorker.leaveAssociation();
 
         updateJwtAndSecurityContext(
                 response,
