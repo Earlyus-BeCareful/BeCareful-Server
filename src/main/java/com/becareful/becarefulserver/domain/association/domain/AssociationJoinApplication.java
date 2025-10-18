@@ -35,7 +35,7 @@ public class AssociationJoinApplication {
     private boolean isAgreedToReceiveMarketingInfo;
 
     @Builder(access = AccessLevel.PRIVATE)
-    public AssociationJoinApplication(
+    private AssociationJoinApplication(
             Association association,
             SocialWorker socialWorker,
             AssociationRank associationRank,
