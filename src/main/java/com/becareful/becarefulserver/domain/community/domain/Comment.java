@@ -3,8 +3,8 @@ package com.becareful.becarefulserver.domain.community.domain;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.COMMENT_NOT_FOUND;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.COMMENT_NOT_UPDATABLE;
 
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.CommentException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -27,20 +27,20 @@ public class Comment extends BaseEntity {
 
     @JoinColumn(name = "social_worker_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private SocialWorker author;
+    private AssociationMember author;
 
     @JoinColumn(name = "post_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Comment(String content, SocialWorker author, Post post) {
+    private Comment(String content, AssociationMember author, Post post) {
         this.content = content;
         this.author = author;
         this.post = post;
     }
 
-    public static Comment create(String content, SocialWorker author, Post post) {
+    public static Comment create(String content, AssociationMember author, Post post) {
         return Comment.builder().content(content).author(author).post(post).build();
     }
 
@@ -48,7 +48,7 @@ public class Comment extends BaseEntity {
         this.content = content;
     }
 
-    public void validateAuthor(SocialWorker currentMember) {
+    public void validateAuthor(AssociationMember currentMember) {
         if (!this.author.getId().equals(currentMember.getId())) {
             throw new CommentException(COMMENT_NOT_UPDATABLE);
         }
