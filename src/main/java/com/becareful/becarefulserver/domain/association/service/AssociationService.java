@@ -83,6 +83,8 @@ public class AssociationService {
                 joinApplication.isAgreedToTerms(),
                 joinApplication.isAgreedToCollectPersonalInfo(),
                 joinApplication.isAgreedToReceiveMarketingInfo());
+
+        associationMemberRepository.save(member);
         socialWorker.joinAssociation(member);
     }
 
@@ -113,6 +115,7 @@ public class AssociationService {
 
         AssociationMember newMember = AssociationMember.createChairman(
                 currentSocialWorker, newAssociation, true, true, request.isAgreedToReceiveMarketingInfo());
+        associationMemberRepository.save(newMember);
 
         currentSocialWorker.joinAssociation(newMember);
 
