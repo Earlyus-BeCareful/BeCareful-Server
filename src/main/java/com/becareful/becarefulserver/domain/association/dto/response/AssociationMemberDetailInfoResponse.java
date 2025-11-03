@@ -24,8 +24,7 @@ public record AssociationMemberDetailInfoResponse(
         String associationName,
         AssociationRank associationRank,
         InstitutionRank institutionRank) {
-    public static AssociationMemberDetailInfoResponse from(
-            AssociationMember member) {
+    public static AssociationMemberDetailInfoResponse from(AssociationMember member) {
         return new AssociationMemberDetailInfoResponse(
                 member.getId(),
                 member.getName(),

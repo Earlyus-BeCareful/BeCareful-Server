@@ -58,12 +58,7 @@ public class PostIntegrationTest extends IntegrationTest {
                 true,
                 NursingInstitutionFixture.NURSING_INSTITUTION);
         Association association = associationRepository.findAll().get(0);
-        AssociationMember member = AssociationMember.createMember(
-                socialWorker,
-                association,
-                rank,
-                true, true ,true
-        );
+        AssociationMember member = AssociationMember.createMember(socialWorker, association, rank, true, true, true);
         socialWorker.joinAssociation(member);
         associationMemberRepository.save(member);
         socialWorkerRepository.save(socialWorker);

@@ -58,10 +58,7 @@ public class AssociationService {
         }
 
         AssociationJoinApplication newMembershipRequest = AssociationJoinApplication.create(
-                currentSocialWorker,
-                association ,
-                request.associationRank(),
-                request.isAgreedToReceiveMarketingInfo());
+                currentSocialWorker, association, request.associationRank(), request.isAgreedToReceiveMarketingInfo());
         associationJoinApplicationRepository.save(newMembershipRequest);
     }
 
@@ -85,8 +82,7 @@ public class AssociationService {
                 joinApplication.getAssociationRank(),
                 joinApplication.isAgreedToTerms(),
                 joinApplication.isAgreedToCollectPersonalInfo(),
-                joinApplication.isAgreedToReceiveMarketingInfo()
-        );
+                joinApplication.isAgreedToReceiveMarketingInfo());
         socialWorker.joinAssociation(member);
     }
 
@@ -116,11 +112,7 @@ public class AssociationService {
         }
 
         AssociationMember newMember = AssociationMember.createChairman(
-                currentSocialWorker,
-                newAssociation,
-                true,
-                true,
-                request.isAgreedToReceiveMarketingInfo());
+                currentSocialWorker, newAssociation, true, true, request.isAgreedToReceiveMarketingInfo());
 
         currentSocialWorker.joinAssociation(newMember);
 
@@ -190,7 +182,8 @@ public class AssociationService {
     @Transactional(readOnly = true)
     public AssociationMemberDetailInfoResponse getAssociationMemberDetailInfo(Long memberId) {
         AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
-        AssociationMember findMember = associationMemberRepository.findById(memberId)
+        AssociationMember findMember = associationMemberRepository
+                .findById(memberId)
                 .orElseThrow(() -> new DomainException(ASSOCIATION_MEMBER_NOT_EXISTS));
 
         currentMember.validateAssociation(findMember.getAssociation());
@@ -209,8 +202,8 @@ public class AssociationService {
             throw new DomainException("협회장은 탈퇴할 수 없습니다.");
         }
         if (currentRank.equals(AssociationRank.EXECUTIVE)) {
-            int executiveCount =
-                    associationMemberRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
+            int executiveCount = associationMemberRepository.countByAssociationAndAssociationRank(
+                    association, AssociationRank.EXECUTIVE);
             if (executiveCount <= 1) {
                 throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
             }
@@ -313,8 +306,8 @@ public class AssociationService {
         }
 
         if (currentRank.equals(AssociationRank.EXECUTIVE) && targetRank.equals(AssociationRank.MEMBER)) {
-            int executiveCount =
-                    associationMemberRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
+            int executiveCount = associationMemberRepository.countByAssociationAndAssociationRank(
+                    association, AssociationRank.EXECUTIVE);
             if (executiveCount <= 1) {
                 throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
             }
@@ -324,7 +317,8 @@ public class AssociationService {
     }
 
     @Transactional
-    public void updateAssociationChairman(@Valid UpdateAssociationChairmanRequest request, HttpServletResponse response) {
+    public void updateAssociationChairman(
+            @Valid UpdateAssociationChairmanRequest request, HttpServletResponse response) {
         AssociationMember currentChairman = authUtil.getLoggedInAssociationMember();
         AssociationMember newChairman = associationMemberRepository
                 .findByIdAndName(request.newChairmanId(), request.newChairmanName())

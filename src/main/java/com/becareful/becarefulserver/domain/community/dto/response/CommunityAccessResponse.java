@@ -3,12 +3,12 @@ package com.becareful.becarefulserver.domain.community.dto.response;
 import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.dto.response.AssociationMyResponse;
 import com.becareful.becarefulserver.domain.community.domain.vo.CommunityAccessStatus;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 
 public record CommunityAccessResponse(
         CommunityAccessStatus accessStatus, String associationName, AssociationMyResponse associationInfo) {
 
-    public static CommunityAccessResponse alreadyApproved(AssociationMember associationMember, Integer associationMemberCount) {
+    public static CommunityAccessResponse alreadyApproved(
+            AssociationMember associationMember, Integer associationMemberCount) {
         return new CommunityAccessResponse(
                 CommunityAccessStatus.ALREADY_APPROVED,
                 null,

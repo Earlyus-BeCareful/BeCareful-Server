@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.auth.handler;
 
-import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.auth.dto.response.CustomOAuth2User;
 import com.becareful.becarefulserver.domain.auth.dto.response.OAuth2LoginResponse;
 import com.becareful.becarefulserver.domain.auth.dto.response.RegisteredUserLoginResponse;
@@ -10,7 +11,6 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.Instit
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
-import com.becareful.becarefulserver.global.exception.ErrorMessage;
 import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
 import com.becareful.becarefulserver.global.properties.JwtProperties;
@@ -33,8 +33,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {

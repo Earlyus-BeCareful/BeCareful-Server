@@ -178,8 +178,9 @@ public class SocialWorkerService {
             }
 
             if (rank == AssociationRank.EXECUTIVE
-                    & associationMemberRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE)
-                    == 1) {
+                    & associationMemberRepository.countByAssociationAndAssociationRank(
+                                    association, AssociationRank.EXECUTIVE)
+                            == 1) {
                 throw new AssociationException(ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST);
             }
         }

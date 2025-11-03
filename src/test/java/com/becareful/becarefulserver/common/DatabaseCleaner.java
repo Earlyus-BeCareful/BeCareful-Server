@@ -9,7 +9,6 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingIn
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.nursing_institution.repository.NursingInstitutionRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.fixture.AssociationMemberFixture;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
@@ -73,12 +72,7 @@ public class DatabaseCleaner {
         socialworkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_MANAGER);
 
         AssociationMemberFixture.CHAIRMAN = AssociationMember.createChairman(
-                SocialWorkerFixture.SOCIAL_WORKER_1,
-                savedAssociation,
-                true,
-                true,
-                true
-        );
+                SocialWorkerFixture.SOCIAL_WORKER_1, savedAssociation, true, true, true);
 
         associationMemberRepository.save(AssociationMemberFixture.CHAIRMAN);
         SocialWorkerFixture.SOCIAL_WORKER_1.joinAssociation(AssociationMemberFixture.CHAIRMAN);

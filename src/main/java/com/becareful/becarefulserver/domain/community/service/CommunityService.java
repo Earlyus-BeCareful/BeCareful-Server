@@ -9,7 +9,6 @@ import com.becareful.becarefulserver.domain.association.repository.AssociationMe
 import com.becareful.becarefulserver.domain.chat.service.*;
 import com.becareful.becarefulserver.domain.community.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
 import com.becareful.becarefulserver.global.properties.JwtProperties;
 import com.becareful.becarefulserver.global.util.AuthUtil;

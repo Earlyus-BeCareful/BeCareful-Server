@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.global.util;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
@@ -10,8 +12,6 @@ import com.becareful.becarefulserver.global.exception.exception.SocialWorkerExce
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Component
 @RequiredArgsConstructor

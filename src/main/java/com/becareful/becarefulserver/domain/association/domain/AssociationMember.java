@@ -10,10 +10,9 @@ import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDate;
 import java.time.Period;
+import lombok.*;
 
 @Entity
 @Getter
@@ -99,8 +98,13 @@ public class AssociationMember extends BaseEntity {
         return genderCode;
     }
 
-    public static AssociationMember createMember(SocialWorker socialWorker, Association association, AssociationRank associationRank,
-                                                 Boolean isAgreedToTerms, Boolean isAgreedToCollectPersonalInfo, Boolean isAgreedToReceiveMarketingInfo) {
+    public static AssociationMember createMember(
+            SocialWorker socialWorker,
+            Association association,
+            AssociationRank associationRank,
+            Boolean isAgreedToTerms,
+            Boolean isAgreedToCollectPersonalInfo,
+            Boolean isAgreedToReceiveMarketingInfo) {
         return AssociationMember.builder()
                 .name(socialWorker.getName())
                 .nickname(socialWorker.getNickname())
@@ -117,8 +121,12 @@ public class AssociationMember extends BaseEntity {
                 .build();
     }
 
-    public static AssociationMember createChairman(SocialWorker chairman, Association association,
-                                                   Boolean isAgreedToTerms, Boolean isAgreedToCollectPersonalInfo, Boolean isAgreedToReceiveMarketingInfo) {
+    public static AssociationMember createChairman(
+            SocialWorker chairman,
+            Association association,
+            Boolean isAgreedToTerms,
+            Boolean isAgreedToCollectPersonalInfo,
+            Boolean isAgreedToReceiveMarketingInfo) {
         return AssociationMember.builder()
                 .name(chairman.getName())
                 .nickname(chairman.getNickname())
