@@ -57,8 +57,7 @@ public class SecurityConfig {
                                 "/socialworker/check-nickname")
                         .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers(
-                                "/social-worker/me",
-                                "/social-worker/me/edit",
+                                "/social-worker/my",
                                 "/social-worker/logout",
                                 "/social-worker/leave")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
