@@ -13,13 +13,13 @@ public record JoinApplicationSimpleDto(
         String institutionName,
         InstitutionRank institutionRank,
         String institutionImageUrl) {
-    public static JoinApplicationSimpleDto of(AssociationJoinApplication application) {
+    public static JoinApplicationSimpleDto from(AssociationJoinApplication application) {
         SocialWorker socialWorker = application.getSocialWorker();
         NursingInstitution institution = socialWorker.getNursingInstitution();
         return new JoinApplicationSimpleDto(
                 application.getId(),
                 socialWorker.getName(),
-                socialWorker.getAssociationRank(),
+                application.getAssociationRank(),
                 institution.getName(),
                 socialWorker.getInstitutionRank(),
                 institution.getProfileImageUrl());

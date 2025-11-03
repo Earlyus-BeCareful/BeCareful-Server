@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
 import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
@@ -43,6 +44,7 @@ public class SocialWorkerService {
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
     private final JwtProperties jwtProperties;
+    private final AssociationMemberRepository associationMemberRepository;
 
     @Transactional
     public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
@@ -65,7 +67,6 @@ public class SocialWorkerService {
                 gender,
                 request.phoneNumber(),
                 request.institutionRank(),
-                AssociationRank.NONE,
                 request.isAgreedToReceiveMarketingInfo(),
                 nursingInstitution);
 
@@ -166,17 +167,22 @@ public class SocialWorkerService {
     @Transactional
     public void deleteSocialWorker(HttpServletResponse response) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        AssociationRank rank = loggedInSocialWorker.getAssociationRank();
-        Association association = loggedInSocialWorker.getAssociation();
+        AssociationMember associationMember = loggedInSocialWorker.getAssociationMember();
 
-        if (rank == AssociationRank.CHAIRMAN) {
-            throw new AssociationException(ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST);
-        }
+        if (associationMember != null) {
+            AssociationRank rank = associationMember.getAssociationRank();
+            Association association = associationMember.getAssociation();
 
-        if (rank == AssociationRank.EXECUTIVE
-                & socialworkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE)
-                        == 1) {
-            throw new AssociationException(ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST);
+            if (rank == AssociationRank.CHAIRMAN) {
+                throw new AssociationException(ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST);
+            }
+
+            if (rank == AssociationRank.EXECUTIVE
+                    & associationMemberRepository.countByAssociationAndAssociationRank(
+                                    association, AssociationRank.EXECUTIVE)
+                            == 1) {
+                throw new AssociationException(ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST);
+            }
         }
 
         socialworkerRepository.delete(loggedInSocialWorker);

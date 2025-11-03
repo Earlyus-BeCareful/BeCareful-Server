@@ -1,12 +1,15 @@
-package com.becareful.becarefulserver.domain.socialworker.domain;
+package com.becareful.becarefulserver.domain.association.domain;
 
-import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.ASSOCIATION_NOT_ACCESSABLE_OTHER_ASSOCIATION;
+
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerProfileUpdateRequest;
+import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
@@ -15,11 +18,11 @@ import lombok.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SocialWorker extends BaseEntity {
+public class AssociationMember extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "social_worker_id")
+    @Column(name = "association_member_id")
     private Long id;
 
     private String name;
@@ -36,6 +39,9 @@ public class SocialWorker extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private InstitutionRank institutionRank;
 
+    @Enumerated(EnumType.STRING)
+    private AssociationRank associationRank;
+
     private boolean isAgreedToTerms;
 
     private boolean isAgreedToCollectPersonalInfo;
@@ -44,21 +50,23 @@ public class SocialWorker extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nursing_institution_id")
-    private NursingInstitution nursingInstitution;
+    private NursingInstitution institution;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "association_member_id")
-    private AssociationMember associationMember;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "association_id")
+    private Association association;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private SocialWorker(
-            NursingInstitution nursingInstitution,
+    private AssociationMember(
             String name,
             String nickname,
             LocalDate birthday,
             Gender gender,
             String phoneNumber,
+            NursingInstitution institution,
             InstitutionRank institutionRank,
+            Association association,
+            AssociationRank associationRank,
             boolean isAgreedToTerms,
             boolean isAgreedToCollectPersonalInfo,
             boolean isAgreedToReceiveMarketingInfo) {
@@ -68,8 +76,10 @@ public class SocialWorker extends BaseEntity {
         this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.institutionRank = institutionRank;
+        this.association = association;
+        this.associationRank = associationRank;
+        this.institution = institution;
         this.isAgreedToTerms = isAgreedToTerms;
-        this.nursingInstitution = nursingInstitution;
         this.isAgreedToCollectPersonalInfo = isAgreedToCollectPersonalInfo;
         this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
     }
@@ -89,37 +99,42 @@ public class SocialWorker extends BaseEntity {
         return genderCode;
     }
 
-    public AssociationRank getAssociationRank() {
-        if (this.associationMember == null) {
-            return AssociationRank.NONE;
-        }
-        return this.associationMember.getAssociationRank();
+    public static AssociationMember create(
+            SocialWorker socialWorker,
+            Association association,
+            AssociationRank associationRank,
+            Boolean isAgreedToTerms,
+            Boolean isAgreedToCollectPersonalInfo,
+            Boolean isAgreedToReceiveMarketingInfo) {
+        return AssociationMember.builder()
+                .name(socialWorker.getName())
+                .nickname(socialWorker.getNickname())
+                .birthday(socialWorker.getBirthday())
+                .gender(socialWorker.getGender())
+                .phoneNumber(socialWorker.getPhoneNumber())
+                .institution(socialWorker.getNursingInstitution())
+                .institutionRank(socialWorker.getInstitutionRank())
+                .association(association)
+                .associationRank(associationRank)
+                .isAgreedToTerms(isAgreedToTerms)
+                .isAgreedToCollectPersonalInfo(isAgreedToCollectPersonalInfo)
+                .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
+                .build();
     }
 
-    /**
-     * update method
-     * */
-    public static SocialWorker create(
-            String name,
-            String nickname,
-            LocalDate birthday,
-            Gender gender,
-            String phoneNumber,
-            InstitutionRank institutionRank,
-            boolean isAgreedToReceiveMarketingInfo,
-            NursingInstitution nursingInstitution) {
-        return SocialWorker.builder()
-                .name(name)
-                .nickname(nickname)
-                .birthday(birthday)
-                .gender(gender)
-                .phoneNumber(phoneNumber)
-                .institutionRank(institutionRank)
-                .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
-                .isAgreedToTerms(true)
-                .isAgreedToCollectPersonalInfo(true)
-                .nursingInstitution(nursingInstitution)
-                .build();
+    public static AssociationMember createChairman(
+            SocialWorker chairman,
+            Association association,
+            Boolean isAgreedToTerms,
+            Boolean isAgreedToCollectPersonalInfo,
+            Boolean isAgreedToReceiveMarketingInfo) {
+        return AssociationMember.create(
+                chairman,
+                association,
+                AssociationRank.CHAIRMAN,
+                isAgreedToTerms,
+                isAgreedToCollectPersonalInfo,
+                isAgreedToReceiveMarketingInfo);
     }
 
     public void update(
@@ -132,22 +147,23 @@ public class SocialWorker extends BaseEntity {
         this.birthday = birthday;
         this.gender = gender;
         this.phoneNumber = request.phoneNumber();
-        this.nursingInstitution = nursingInstitution;
+        this.institution = nursingInstitution;
         this.institutionRank = request.institutionRank();
         this.isAgreedToReceiveMarketingInfo = request.isAgreedToReceiveMarketingInfo();
         this.isAgreedToTerms = request.isAgreedToTerms();
         this.isAgreedToCollectPersonalInfo = request.isAgreedToCollectPersonalInfo();
+    }
 
-        if (this.associationMember != null) {
-            this.associationMember.update(request, birthday, gender, nursingInstitution);
+    /**
+     * update method
+     * */
+    public void updateAssociationRank(AssociationRank rank) {
+        this.associationRank = rank;
+    }
+
+    public void validateAssociation(Association association) {
+        if (this.association != association) {
+            throw new DomainException(ASSOCIATION_NOT_ACCESSABLE_OTHER_ASSOCIATION);
         }
-    }
-
-    public void joinAssociation(AssociationMember member) {
-        this.associationMember = member;
-    }
-
-    public void leaveAssociation() {
-        this.associationMember = null;
     }
 }

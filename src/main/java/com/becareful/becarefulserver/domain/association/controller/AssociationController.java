@@ -28,7 +28,7 @@ public class AssociationController {
     @PostMapping("/create")
     public ResponseEntity<Void> createAssociation(
             @Valid @RequestBody AssociationCreateRequest associationCreateRequest) {
-        Long id = associationService.saveAssociation(associationCreateRequest);
+        Long id = associationService.createAssociation(associationCreateRequest);
         return ResponseEntity.created(URI.create("association/" + id)).build();
     }
 
