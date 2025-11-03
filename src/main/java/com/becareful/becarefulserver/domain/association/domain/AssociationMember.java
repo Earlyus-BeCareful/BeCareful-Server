@@ -21,7 +21,7 @@ public class AssociationMember extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "social_worker_id")
+    @Column(name = "association_member_id")
     private Long id;
 
     private String name;
