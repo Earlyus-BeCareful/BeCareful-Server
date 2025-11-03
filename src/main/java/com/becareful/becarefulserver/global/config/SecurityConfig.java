@@ -57,10 +57,10 @@ public class SecurityConfig {
                                 "/socialworker/check-nickname")
                         .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers(
-                                "/socialworker/me",
-                                "/socialworker/me/edit",
-                                "/socialworker/logout",
-                                "/socialworker/leave")
+                                "/social-worker/me",
+                                "/social-worker/me/edit",
+                                "/social-worker/logout",
+                                "/social-worker/leave")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/nursingInstitution/upload-profile-img")
                         .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE")
@@ -69,7 +69,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/association/join-requests", "/association/info")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE")
                         .requestMatchers(
-                                "/association/create",
                                 "/association/join-requests/*/accept",
                                 "/association/join-requests/*/reject",
                                 "/association/info",
