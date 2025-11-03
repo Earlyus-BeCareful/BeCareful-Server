@@ -105,7 +105,18 @@ public class AssociationService {
                 Association.create(request.name(), request.profileImageUrl(), request.establishedYear());
         associationRepository.save(newAssociation);
 
-        currentSocialWorker.setAssociation(newAssociation);
+        if (!request.isAgreedToTerms() || !request.isAgreedToCollectPersonalInfo()) {
+            throw new DomainException(COMMUNITY_REQUIRED_AGREEMENT_NOT_AGREED);
+        }
+
+        AssociationMember newMember = AssociationMember.createChairman(
+                currentSocialWorker,
+                newAssociation,
+                true,
+                true,
+                request.isAgreedToReceiveMarketingInfo());
+
+        currentSocialWorker.joinAssociation(newMember);
 
         List<PostBoard> postBoards = createDefaultPostBoards(newAssociation);
         postBoardRepository.saveAll(postBoards);

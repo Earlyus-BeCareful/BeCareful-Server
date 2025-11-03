@@ -6,6 +6,7 @@ import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import jakarta.persistence.*;
@@ -98,9 +99,6 @@ public class AssociationMember extends BaseEntity {
         return genderCode;
     }
 
-    /**
-     * update method
-     * */
     public static AssociationMember create(AssociationJoinApplication application) {
         return AssociationMember.builder()
                 .name(application.getSocialWorker().getName())
@@ -115,6 +113,24 @@ public class AssociationMember extends BaseEntity {
                 .isAgreedToTerms(application.isAgreedToTerms())
                 .isAgreedToCollectPersonalInfo(application.isAgreedToCollectPersonalInfo())
                 .isAgreedToReceiveMarketingInfo(application.isAgreedToReceiveMarketingInfo())
+                .build();
+    }
+
+    public static AssociationMember createChairman(SocialWorker chairman, Association association,
+                                                   Boolean isAgreedToTerms, Boolean isAgreedToCollectPersonalInfo, Boolean isAgreedToReceiveMarketingInfo) {
+        return AssociationMember.builder()
+                .name(chairman.getName())
+                .nickname(chairman.getNickname())
+                .birthday(chairman.getBirthday())
+                .gender(chairman.getGender())
+                .phoneNumber(chairman.getPhoneNumber())
+                .institution(chairman.getNursingInstitution())
+                .institutionRank(chairman.getInstitutionRank())
+                .association(association)
+                .associationRank(AssociationRank.CHAIRMAN)
+                .isAgreedToTerms(isAgreedToTerms)
+                .isAgreedToCollectPersonalInfo(isAgreedToCollectPersonalInfo)
+                .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
                 .build();
     }
 
@@ -135,6 +151,9 @@ public class AssociationMember extends BaseEntity {
         this.isAgreedToCollectPersonalInfo = request.isAgreedToCollectPersonalInfo();
     }*/
 
+    /**
+     * update method
+     * */
     public void updateAssociationRank(AssociationRank rank) {
         this.associationRank = rank;
     }
