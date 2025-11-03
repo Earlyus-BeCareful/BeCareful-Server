@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
@@ -43,6 +44,10 @@ public class SocialWorker extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nursing_institution_id")
     private NursingInstitution nursingInstitution;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "association_member_id")
+    private AssociationMember associationMember;
 
     @Builder(access = AccessLevel.PRIVATE)
     private SocialWorker(

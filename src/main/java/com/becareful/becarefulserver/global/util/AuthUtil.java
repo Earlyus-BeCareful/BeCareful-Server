@@ -1,8 +1,6 @@
 package com.becareful.becarefulserver.global.util;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_NOT_EXISTS;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.SOCIALWORKER_NOT_EXISTS;
-
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
@@ -12,6 +10,8 @@ import com.becareful.becarefulserver.global.exception.exception.SocialWorkerExce
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 @Component
 @RequiredArgsConstructor
@@ -34,5 +34,19 @@ public class AuthUtil {
         return socialworkerRepository
                 .findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new SocialWorkerException(SOCIALWORKER_NOT_EXISTS));
+    }
+
+    public AssociationMember getLoggedInAssociationMember() {
+        String phoneNumber =
+                SecurityContextHolder.getContext().getAuthentication().getName();
+        SocialWorker socialWorker = socialworkerRepository
+                .findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new SocialWorkerException(SOCIALWORKER_NOT_EXISTS));
+
+        if (socialWorker.getAssociationMember() == null) {
+            throw new SocialWorkerException(ASSOCIATION_MEMBER_NOT_EXISTS);
+        }
+
+        return socialWorker.getAssociationMember();
     }
 }
