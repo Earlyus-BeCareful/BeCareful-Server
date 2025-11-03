@@ -6,6 +6,6 @@ import jakarta.validation.constraints.NotNull;
 public record AssociationJoinRequest(
         @NotNull Long associationId,
         @NotNull AssociationRank associationRank,
-        @NotNull boolean isAgreedToTerms,
-        @NotNull boolean isAgreedToCollectPersonalInfo,
-        @NotNull boolean isAgreedToReceiveMarketingInfo) {}
+        @NotNull Boolean isAgreedToTerms,
+        @NotNull Boolean isAgreedToCollectPersonalInfo,
+        @NotNull Boolean isAgreedToReceiveMarketingInfo) {}
