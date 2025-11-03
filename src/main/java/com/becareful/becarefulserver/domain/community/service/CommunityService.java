@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.community.service;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.repository.AssociationJoinApplicationRepository;
 import com.becareful.becarefulserver.domain.chat.service.*;
@@ -46,7 +47,13 @@ public class CommunityService {
                 .map(role -> role.replace("ROLE_", "")) // 예: "CHAIRMAN", "NONE"
                 .toList();
 
-        String dbAssociationRank = socialWorker.getAssociationRank().toString(); // 실제 DB 기준 최신 rank
+        AssociationMember associationMember = socialWorker.getAssociationMember();
+        String dbAssociationRank;
+        if (associationMember == null) {
+            dbAssociationRank = "NONE";
+        } else {
+            dbAssociationRank = associationMember.getAssociationRank().toString(); // 실제 DB 기준 최신 rank
+        }
 
         if (!grantedRoles.contains(dbAssociationRank)) {
             // JWT 재발급 필요
@@ -57,11 +64,11 @@ public class CommunityService {
                     dbAssociationRank);
         }
 
-        Association association = socialWorker.getAssociation();
         Optional<AssociationJoinApplication> requestOpt =
                 associationMembershipRequestRepository.findBySocialWorker(socialWorker);
 
-        if (association != null) { // 가입된 회원인 경우
+        if (associationMember != null) { // 가입된 회원인 경우
+            Association association = associationMember.getAssociation();
             int associationMemberCount = socialWorkerRepository.countByAssociation(association);
             String associationName = association.getName();
 
@@ -94,10 +101,10 @@ public class CommunityService {
 
     @Transactional(readOnly = true)
     public CommunityHomeBasicInfoResponse getCommunityHomeInfo() {
-        SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
 
         boolean hasNewChat = chatService.checkNewChat();
-        Association association = currentSocialWorker.getAssociation();
+        Association association = currentMember.getAssociation();
         int associationMemberCount = socialWorkerRepository.countByAssociation(association);
 
         AssociationMyResponse associationInfo = AssociationMyResponse.from(association, associationMemberCount);
