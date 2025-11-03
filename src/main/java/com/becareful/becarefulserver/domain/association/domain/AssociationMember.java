@@ -1,10 +1,13 @@
 package com.becareful.becarefulserver.domain.association.domain;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.ASSOCIATION_NOT_ACCESSABLE_OTHER_ASSOCIATION;
+
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -99,30 +102,20 @@ public class AssociationMember extends BaseEntity {
     /**
      * update method
      * */
-    public static AssociationMember create(
-            String name,
-            String nickname,
-            LocalDate birthday,
-            Gender gender,
-            String phoneNumber,
-            NursingInstitution institution,
-            InstitutionRank institutionRank,
-            Association association,
-            AssociationRank associationRank,
-            boolean isAgreedToReceiveMarketingInfo) {
+    public static AssociationMember create(AssociationJoinApplication application) {
         return AssociationMember.builder()
-                .name(name)
-                .nickname(nickname)
-                .birthday(birthday)
-                .gender(gender)
-                .phoneNumber(phoneNumber)
-                .institution(institution)
-                .institutionRank(institutionRank)
-                .association(association)
-                .associationRank(associationRank)
-                .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
-                .isAgreedToTerms(true)
-                .isAgreedToCollectPersonalInfo(true)
+                .name(application.getSocialWorker().getName())
+                .nickname(application.getSocialWorker().getNickname())
+                .birthday(application.getSocialWorker().getBirthday())
+                .gender(application.getSocialWorker().getGender())
+                .phoneNumber(application.getSocialWorker().getPhoneNumber())
+                .institution(application.getSocialWorker().getNursingInstitution())
+                .institutionRank(application.getSocialWorker().getInstitutionRank())
+                .association(application.getAssociation())
+                .associationRank(application.getAssociationRank())
+                .isAgreedToTerms(application.isAgreedToTerms())
+                .isAgreedToCollectPersonalInfo(application.isAgreedToCollectPersonalInfo())
+                .isAgreedToReceiveMarketingInfo(application.isAgreedToReceiveMarketingInfo())
                 .build();
     }
 
@@ -145,5 +138,11 @@ public class AssociationMember extends BaseEntity {
 
     public void updateAssociationRank(AssociationRank rank) {
         this.associationRank = rank;
+    }
+
+    public void validateAssociation(Association association) {
+        if (this.association != association) {
+            throw new DomainException(ASSOCIATION_NOT_ACCESSABLE_OTHER_ASSOCIATION);
+        }
     }
 }

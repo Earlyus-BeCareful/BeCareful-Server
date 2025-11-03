@@ -47,7 +47,6 @@ public class AssociationService {
     private final AssociationRepository associationRepository;
     private final PostBoardRepository postBoardRepository;
     private final AssociationJoinApplicationRepository associationJoinApplicationRepository;
-    private final GlobalExceptionHandler globalExceptionHandler;
 
     @Transactional
     public void joinAssociation(AssociationJoinRequest request) {
@@ -57,22 +56,34 @@ public class AssociationService {
                 .findById(request.associationId())
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_NOT_EXISTS));
 
+        if (!request.isAgreedToTerms() || !request.isAgreedToCollectPersonalInfo()) {
+            throw new DomainException(COMMUNITY_REQUIRED_AGREEMENT_NOT_AGREED);
+        }
+
         AssociationJoinApplication newMembershipRequest = AssociationJoinApplication.create(
-                association, currentSocialWorker, request.associationRank(), AssociationJoinApplicationStatus.PENDING);
+                currentSocialWorker,
+                association ,
+                request.associationRank(),
+                request.isAgreedToReceiveMarketingInfo());
         associationJoinApplicationRepository.save(newMembershipRequest);
     }
 
     // 협회 가입 신청 승인
     @Transactional
     public void acceptJoinAssociation(Long associationJoinApplicationId) {
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         AssociationJoinApplication joinApplication = associationJoinApplicationRepository
                 .findById(associationJoinApplicationId)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
 
+        currentMember.validateAssociation(joinApplication.getAssociation());
+
         joinApplication.approve();
 
         SocialWorker socialWorker = joinApplication.getSocialWorker();
-        socialWorker.joinAssociation(joinApplication.getAssociation(), joinApplication.getAssociationRank());
+
+        AssociationMember member = AssociationMember.create(joinApplication);
+        socialWorker.joinAssociation(member);
     }
 
     // 협회 가입 신청 반려(신청자가 반려사실을 확인하면 요청 레코드 삭제)

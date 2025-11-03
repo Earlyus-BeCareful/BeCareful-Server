@@ -33,6 +33,7 @@ public class ErrorMessage {
     public static final String ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_ACCEPTED =
             "가입 신청이 이미 승인되었습니다. 서비스를 이용하고 싶지 않으시다면 탈퇴해 주십시오.";
     public static final String ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_REJECTED = "가입 신청이 이미 반려되었습니다";
+    public static final String ASSOCIATION_NOT_ACCESSABLE_OTHER_ASSOCIATION = "내가 속한 협회가 아니므로 접근할 수 없습니다.";
 
     public static final String ASSOCIATION_CHAIRMAN_NOT_EXISTS = "협회장이 존재하지 않습니다.";
     public static final String ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST = "커뮤니티 협회장 위임을 먼저 해야합니다.";
@@ -60,6 +61,8 @@ public class ErrorMessage {
     public static final String USER_CREATE_INVALID_GENDER_CODE = "유효하지 않은 성별 번호입니다.";
 
     public static final String ASSOCIATION_MEMBER_NOT_EXISTS = "현재 로그인한 사회복지사에 대한 협회 회원 정보가 존재하지 않습니다.";
+
+    public static final String COMMUNITY_REQUIRED_AGREEMENT_NOT_AGREED = "커뮤니티 관련 필수 동의 항목에 동의하지 않았습니다.";
 
     public static final String POST_BOARD_NOT_FOUND = "게시판이 존재하지 않습니다.";
     public static final String POST_BOARD_NOT_WRITABLE = "글 작성 권한이 없습니다.";
