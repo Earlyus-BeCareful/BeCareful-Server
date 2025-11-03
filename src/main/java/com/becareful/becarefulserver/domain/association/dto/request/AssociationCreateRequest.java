@@ -7,6 +7,6 @@ public record AssociationCreateRequest(
         @NotBlank String name,
         String profileImageUrl,
         Integer establishedYear,
-        @NotNull boolean isAgreedToTerms,
-        @NotNull boolean isAgreedToCollectPersonalInfo,
-        @NotNull boolean isAgreedToReceiveMarketingInfo) {}
+        @NotNull Boolean isAgreedToTerms,
+        @NotNull Boolean isAgreedToCollectPersonalInfo,
+        @NotNull Boolean isAgreedToReceiveMarketingInfo) {}
