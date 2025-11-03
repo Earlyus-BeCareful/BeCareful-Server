@@ -67,7 +67,6 @@ public class SocialWorkerService {
                 gender,
                 request.phoneNumber(),
                 request.institutionRank(),
-                AssociationRank.NONE,
                 request.isAgreedToReceiveMarketingInfo(),
                 nursingInstitution);
 
@@ -168,17 +167,21 @@ public class SocialWorkerService {
     @Transactional
     public void deleteSocialWorker(HttpServletResponse response) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        AssociationRank rank = loggedInSocialWorker.getAssociationRank();
-        Association association = loggedInSocialWorker.getAssociation();
+        AssociationMember associationMember = loggedInSocialWorker.getAssociationMember();
 
-        if (rank == AssociationRank.CHAIRMAN) {
-            throw new AssociationException(ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST);
-        }
+        if (associationMember != null) {
+            AssociationRank rank = associationMember.getAssociationRank();
+            Association association = associationMember.getAssociation();
 
-        if (rank == AssociationRank.EXECUTIVE
-                & associationMemberRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE)
-                        == 1) {
-            throw new AssociationException(ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST);
+            if (rank == AssociationRank.CHAIRMAN) {
+                throw new AssociationException(ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST);
+            }
+
+            if (rank == AssociationRank.EXECUTIVE
+                    & associationMemberRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE)
+                    == 1) {
+                throw new AssociationException(ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST);
+            }
         }
 
         socialworkerRepository.delete(loggedInSocialWorker);

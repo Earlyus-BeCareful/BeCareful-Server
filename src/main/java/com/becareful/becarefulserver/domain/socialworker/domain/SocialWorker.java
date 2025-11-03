@@ -5,6 +5,7 @@ import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerProfileUpdateRequest;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -86,6 +87,13 @@ public class SocialWorker extends BaseEntity {
             genderCode += 2;
         }
         return genderCode;
+    }
+
+    public AssociationRank getAssociationRank() {
+        if (this.associationMember == null) {
+            return AssociationRank.NONE;
+        }
+        return this.associationMember.getAssociationRank();
     }
 
     /**

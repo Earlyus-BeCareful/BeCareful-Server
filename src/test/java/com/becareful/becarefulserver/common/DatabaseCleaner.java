@@ -1,6 +1,8 @@
 package com.becareful.becarefulserver.common;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
+import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
@@ -9,6 +11,7 @@ import com.becareful.becarefulserver.domain.nursing_institution.repository.Nursi
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
+import com.becareful.becarefulserver.fixture.AssociationMemberFixture;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
 import com.becareful.becarefulserver.fixture.SocialWorkerFixture;
 import jakarta.persistence.EntityManager;
@@ -33,6 +36,9 @@ public class DatabaseCleaner {
     @Autowired
     private NursingInstitutionRepository institutionRepository;
 
+    @Autowired
+    private AssociationMemberRepository associationMemberRepository;
+
     @Transactional
     public void clean() {
         em.createNativeQuery("set foreign_key_checks = 0").executeUpdate();
@@ -51,7 +57,6 @@ public class DatabaseCleaner {
                 Gender.FEMALE,
                 "010-1234-5678",
                 InstitutionRank.SOCIAL_WORKER,
-                AssociationRank.NONE,
                 true,
                 institution);
         SocialWorkerFixture.SOCIAL_WORKER_MANAGER = SocialWorker.create(
@@ -61,12 +66,22 @@ public class DatabaseCleaner {
                 Gender.FEMALE,
                 "01099990000",
                 InstitutionRank.SOCIAL_WORKER,
-                AssociationRank.MEMBER,
                 true,
                 institution);
+
         socialworkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_1);
-        SocialWorkerFixture.SOCIAL_WORKER_MANAGER.joinAssociation(savedAssociation, AssociationRank.MEMBER);
         socialworkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_MANAGER);
+
+        AssociationMemberFixture.CHAIRMAN = AssociationMember.createChairman(
+                SocialWorkerFixture.SOCIAL_WORKER_1,
+                savedAssociation,
+                true,
+                true,
+                true
+        );
+
+        associationMemberRepository.save(AssociationMemberFixture.CHAIRMAN);
+        SocialWorkerFixture.SOCIAL_WORKER_1.joinAssociation(AssociationMemberFixture.CHAIRMAN);
     }
 
     private String camelToSnake(String value) {

@@ -71,14 +71,13 @@ public class CommunityService {
         if (associationMember != null) { // 가입된 회원인 경우
             Association association = associationMember.getAssociation();
             int associationMemberCount = associationMemberRepository.countByAssociation(association);
-            String associationName = association.getName();
 
             if (requestOpt.isPresent()) {
                 associationMembershipRequestRepository.delete(requestOpt.get());
-                return CommunityAccessResponse.approved(socialWorker, associationName, associationMemberCount);
+                return CommunityAccessResponse.approved(associationMember, associationMemberCount);
             }
 
-            return CommunityAccessResponse.alreadyApproved(socialWorker, associationMemberCount);
+            return CommunityAccessResponse.alreadyApproved(associationMember, associationMemberCount);
         }
 
         return requestOpt // 가입된 회원이 아닌 경우
@@ -88,16 +87,16 @@ public class CommunityService {
                     switch (request.getStatus()) {
                         case REJECTED -> {
                             associationMembershipRequestRepository.delete(request);
-                            return CommunityAccessResponse.rejected(socialWorker, associationName);
+                            return CommunityAccessResponse.rejected(associationName);
                         }
                         case PENDING -> {
-                            return CommunityAccessResponse.pending(socialWorker, associationName);
+                            return CommunityAccessResponse.pending(associationName);
                         }
                         default -> throw new IllegalStateException(
                                 "Unexpected community access status: " + request.getStatus());
                     }
                 })
-                .orElseGet(() -> CommunityAccessResponse.notApplied(socialWorker));
+                .orElseGet(CommunityAccessResponse::notApplied);
     }
 
     @Transactional(readOnly = true)

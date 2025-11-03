@@ -99,20 +99,21 @@ public class AssociationMember extends BaseEntity {
         return genderCode;
     }
 
-    public static AssociationMember create(AssociationJoinApplication application) {
+    public static AssociationMember createMember(SocialWorker socialWorker, Association association, AssociationRank associationRank,
+                                                 Boolean isAgreedToTerms, Boolean isAgreedToCollectPersonalInfo, Boolean isAgreedToReceiveMarketingInfo) {
         return AssociationMember.builder()
-                .name(application.getSocialWorker().getName())
-                .nickname(application.getSocialWorker().getNickname())
-                .birthday(application.getSocialWorker().getBirthday())
-                .gender(application.getSocialWorker().getGender())
-                .phoneNumber(application.getSocialWorker().getPhoneNumber())
-                .institution(application.getSocialWorker().getNursingInstitution())
-                .institutionRank(application.getSocialWorker().getInstitutionRank())
-                .association(application.getAssociation())
-                .associationRank(application.getAssociationRank())
-                .isAgreedToTerms(application.isAgreedToTerms())
-                .isAgreedToCollectPersonalInfo(application.isAgreedToCollectPersonalInfo())
-                .isAgreedToReceiveMarketingInfo(application.isAgreedToReceiveMarketingInfo())
+                .name(socialWorker.getName())
+                .nickname(socialWorker.getNickname())
+                .birthday(socialWorker.getBirthday())
+                .gender(socialWorker.getGender())
+                .phoneNumber(socialWorker.getPhoneNumber())
+                .institution(socialWorker.getNursingInstitution())
+                .institutionRank(socialWorker.getInstitutionRank())
+                .association(association)
+                .associationRank(associationRank)
+                .isAgreedToTerms(isAgreedToTerms)
+                .isAgreedToCollectPersonalInfo(isAgreedToCollectPersonalInfo)
+                .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
                 .build();
     }
 
