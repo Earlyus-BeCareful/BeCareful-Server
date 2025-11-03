@@ -18,6 +18,7 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
+import com.becareful.becarefulserver.global.exception.GlobalExceptionHandler;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.service.*;
@@ -109,7 +110,7 @@ public class AssociationService {
     }
 
     @Transactional
-    public long createAssociation(AssociationCreateRequest request) {
+    public long createAssociation(AssociationCreateRequest request, HttpServletResponse response) {
         SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
 
         String profileImageUrl;
@@ -143,6 +144,11 @@ public class AssociationService {
             }
         }
 
+        updateJwtAndSecurityContext(
+                response,
+                currentSocialWorker.getPhoneNumber(),
+                currentSocialWorker.getInstitutionRank(),
+                AssociationRank.CHAIRMAN);
         return newAssociation.getId();
     }
 

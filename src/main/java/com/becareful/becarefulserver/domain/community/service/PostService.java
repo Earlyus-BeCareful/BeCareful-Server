@@ -1,8 +1,8 @@
 package com.becareful.becarefulserver.domain.community.service;
 
-import com.becareful.becarefulserver.domain.association.domain.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.association.domain.*;
 import com.becareful.becarefulserver.domain.community.domain.*;
 import com.becareful.becarefulserver.domain.community.dto.*;
 import com.becareful.becarefulserver.domain.community.dto.request.*;

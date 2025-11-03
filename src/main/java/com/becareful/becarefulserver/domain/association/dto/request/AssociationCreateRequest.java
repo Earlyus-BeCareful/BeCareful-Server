@@ -9,5 +9,4 @@ public record AssociationCreateRequest(
         Integer establishedYear,
         @NotNull Boolean isAgreedToTerms,
         @NotNull Boolean isAgreedToCollectPersonalInfo,
-        @NotNull Boolean isAgreedToReceiveMarketingInfo
-        ) {}
+        @NotNull Boolean isAgreedToReceiveMarketingInfo) {}

@@ -27,8 +27,8 @@ public class AssociationController {
     @Operation(summary = "협회 생성", description = "협회 회장으로 승인 된 사용자만 협회 등록 가능")
     @PostMapping("/create")
     public ResponseEntity<Void> createAssociation(
-            @Valid @RequestBody AssociationCreateRequest associationCreateRequest) {
-        Long id = associationService.createAssociation(associationCreateRequest);
+            @Valid @RequestBody AssociationCreateRequest associationCreateRequest, HttpServletResponse response) {
+        Long id = associationService.createAssociation(associationCreateRequest, response);
         return ResponseEntity.created(URI.create("association/" + id)).build();
     }
 
