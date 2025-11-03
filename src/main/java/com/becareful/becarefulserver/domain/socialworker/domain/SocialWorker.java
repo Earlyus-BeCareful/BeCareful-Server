@@ -137,6 +137,10 @@ public class SocialWorker extends BaseEntity {
         this.isAgreedToReceiveMarketingInfo = request.isAgreedToReceiveMarketingInfo();
         this.isAgreedToTerms = request.isAgreedToTerms();
         this.isAgreedToCollectPersonalInfo = request.isAgreedToCollectPersonalInfo();
+
+        if (this.associationMember != null) {
+            this.associationMember.update(request, birthday, gender, nursingInstitution);
+        }
     }
 
     public void joinAssociation(AssociationMember member) {

@@ -8,6 +8,7 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingIn
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerProfileUpdateRequest;
 import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -136,7 +137,7 @@ public class AssociationMember extends BaseEntity {
                 isAgreedToReceiveMarketingInfo);
     }
 
-    /*public void update(
+    public void update(
             SocialWorkerProfileUpdateRequest request,
             LocalDate birthday,
             Gender gender,
@@ -146,12 +147,12 @@ public class AssociationMember extends BaseEntity {
         this.birthday = birthday;
         this.gender = gender;
         this.phoneNumber = request.phoneNumber();
-        this.nursingInstitution = nursingInstitution;
+        this.institution = nursingInstitution;
         this.institutionRank = request.institutionRank();
         this.isAgreedToReceiveMarketingInfo = request.isAgreedToReceiveMarketingInfo();
         this.isAgreedToTerms = request.isAgreedToTerms();
         this.isAgreedToCollectPersonalInfo = request.isAgreedToCollectPersonalInfo();
-    }*/
+    }
 
     /**
      * update method
