@@ -16,7 +16,6 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
-import com.becareful.becarefulserver.global.exception.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.util.*;
@@ -89,15 +88,18 @@ public class AssociationService {
     // 협회 가입 신청 반려(신청자가 반려사실을 확인하면 요청 레코드 삭제)
     @Transactional
     public void rejectJoinAssociation(Long associationJoinApplicationId) {
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         AssociationJoinApplication joinApplication = associationJoinApplicationRepository
                 .findById(associationJoinApplicationId)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
+
+        currentMember.validateAssociation(joinApplication.getAssociation());
 
         joinApplication.reject();
     }
 
     @Transactional
-    public long saveAssociation(AssociationCreateRequest request) {
+    public long createAssociation(AssociationCreateRequest request) {
         SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
 
         Association newAssociation =
