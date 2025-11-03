@@ -60,7 +60,7 @@ public class ErrorMessage {
 
     public static final String USER_CREATE_INVALID_GENDER_CODE = "유효하지 않은 성별 번호입니다.";
 
-    public static final String ASSOCIATION_MEMBER_NOT_EXISTS = "현재 로그인한 사회복지사에 대한 협회 회원 정보가 존재하지 않습니다.";
+    public static final String ASSOCIATION_MEMBER_NOT_EXISTS = "협회 회원이 존재하지 않습니다.";
 
     public static final String COMMUNITY_REQUIRED_AGREEMENT_NOT_AGREED = "커뮤니티 관련 필수 동의 항목에 동의하지 않았습니다.";
 

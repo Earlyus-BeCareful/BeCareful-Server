@@ -51,7 +51,6 @@ public class AssociationMember extends BaseEntity {
     @JoinColumn(name = "nursing_institution_id")
     private NursingInstitution institution;
 
-    @Setter(AccessLevel.PUBLIC)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "association_id")
     private Association association;
