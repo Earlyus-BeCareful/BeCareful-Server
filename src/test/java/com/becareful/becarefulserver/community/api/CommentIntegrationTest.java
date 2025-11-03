@@ -62,7 +62,7 @@ public class CommentIntegrationTest extends IntegrationTest {
                 NursingInstitutionFixture.NURSING_INSTITUTION);
         Association association = associationRepository.findAll().get(0);
         AssociationMember member =
-                AssociationMember.createMember(socialWorker, association, AssociationRank.MEMBER, true, true, true);
+                AssociationMember.create(socialWorker, association, AssociationRank.MEMBER, true, true, true);
         socialWorker.joinAssociation(member);
         associationMemberRepository.save(member);
         socialWorkerRepository.save(socialWorker);

@@ -98,7 +98,7 @@ public class AssociationMember extends BaseEntity {
         return genderCode;
     }
 
-    public static AssociationMember createMember(
+    public static AssociationMember create(
             SocialWorker socialWorker,
             Association association,
             AssociationRank associationRank,
@@ -127,20 +127,13 @@ public class AssociationMember extends BaseEntity {
             Boolean isAgreedToTerms,
             Boolean isAgreedToCollectPersonalInfo,
             Boolean isAgreedToReceiveMarketingInfo) {
-        return AssociationMember.builder()
-                .name(chairman.getName())
-                .nickname(chairman.getNickname())
-                .birthday(chairman.getBirthday())
-                .gender(chairman.getGender())
-                .phoneNumber(chairman.getPhoneNumber())
-                .institution(chairman.getNursingInstitution())
-                .institutionRank(chairman.getInstitutionRank())
-                .association(association)
-                .associationRank(AssociationRank.CHAIRMAN)
-                .isAgreedToTerms(isAgreedToTerms)
-                .isAgreedToCollectPersonalInfo(isAgreedToCollectPersonalInfo)
-                .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
-                .build();
+        return AssociationMember.create(
+                chairman,
+                association,
+                AssociationRank.CHAIRMAN,
+                isAgreedToTerms,
+                isAgreedToCollectPersonalInfo,
+                isAgreedToReceiveMarketingInfo);
     }
 
     /*public void update(

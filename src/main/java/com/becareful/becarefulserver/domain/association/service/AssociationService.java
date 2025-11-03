@@ -76,7 +76,7 @@ public class AssociationService {
 
         SocialWorker socialWorker = joinApplication.getSocialWorker();
 
-        AssociationMember member = AssociationMember.createMember(
+        AssociationMember member = AssociationMember.create(
                 joinApplication.getSocialWorker(),
                 joinApplication.getAssociation(),
                 joinApplication.getAssociationRank(),
