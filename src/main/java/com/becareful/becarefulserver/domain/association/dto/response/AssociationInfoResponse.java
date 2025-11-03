@@ -1,7 +1,7 @@
 package com.becareful.becarefulserver.domain.association.dto.response;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 
 public record AssociationInfoResponse(
         String associationName,
@@ -11,7 +11,7 @@ public record AssociationInfoResponse(
         String chairmanRealName,
         String chairmanNickName,
         String chairmanPhoneNumber) {
-    public static AssociationInfoResponse of(Association association, Integer memberCount, SocialWorker chairman) {
+    public static AssociationInfoResponse of(Association association, Integer memberCount, AssociationMember chairman) {
         return new AssociationInfoResponse(
                 association.getName(),
                 association.getEstablishedYear(),

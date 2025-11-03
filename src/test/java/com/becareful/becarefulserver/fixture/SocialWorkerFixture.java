@@ -5,7 +5,6 @@ import static com.becareful.becarefulserver.fixture.NursingInstitutionFixture.NU
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import java.time.LocalDate;
 
 public class SocialWorkerFixture {
@@ -17,7 +16,6 @@ public class SocialWorkerFixture {
             Gender.FEMALE,
             "010-1234-5678",
             InstitutionRank.SOCIAL_WORKER,
-            AssociationRank.NONE,
             true,
             NURSING_INSTITUTION);
 
@@ -28,7 +26,6 @@ public class SocialWorkerFixture {
             Gender.FEMALE,
             "010-1234-5678",
             InstitutionRank.SOCIAL_WORKER,
-            AssociationRank.MEMBER,
             true,
             NURSING_INSTITUTION);
 }

@@ -3,8 +3,8 @@ package com.becareful.becarefulserver.domain.community.domain;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_DIFFERENT_POST_BOARD;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.POST_NOT_UPDATABLE;
 
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.PostException;
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class Post extends BaseEntity {
 
     @JoinColumn(name = "social_worker_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private SocialWorker author;
+    private AssociationMember author;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostMedia> mediaList = new ArrayList<>();
@@ -54,7 +54,7 @@ public class Post extends BaseEntity {
             boolean isImportant,
             String originalUrl,
             PostBoard board,
-            SocialWorker author) {
+            AssociationMember author) {
         this.title = title;
         this.content = content;
         this.isImportant = isImportant;
@@ -69,18 +69,18 @@ public class Post extends BaseEntity {
             boolean isImportant,
             String originalUrl,
             PostBoard board,
-            SocialWorker socialWorker) {
+            AssociationMember associationMember) {
         return Post.builder()
                 .title(title)
                 .content(content)
                 .isImportant(isImportant)
                 .originalUrl(originalUrl)
                 .board(board)
-                .author(socialWorker)
+                .author(associationMember)
                 .build();
     }
 
-    public void validateAuthor(SocialWorker currentMember) {
+    public void validateAuthor(AssociationMember currentMember) {
         if (!this.author.getId().equals(currentMember.getId())) {
             throw new PostException(POST_NOT_UPDATABLE);
         }

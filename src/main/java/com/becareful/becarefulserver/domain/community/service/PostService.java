@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.community.service;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.community.domain.BoardType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
@@ -13,7 +14,6 @@ import com.becareful.becarefulserver.domain.community.dto.request.PostCreateOrUp
 import com.becareful.becarefulserver.domain.community.dto.response.PostDetailResponse;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.PostBoardException;
 import com.becareful.becarefulserver.global.exception.exception.PostException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
@@ -41,7 +41,7 @@ public class PostService {
 
     @Transactional
     public Long createPost(String boardType, PostCreateOrUpdateRequest request) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
         PostBoard postBoard = postBoardRepository
@@ -98,7 +98,7 @@ public class PostService {
 
     @Transactional
     public void updatePost(String boardType, Long postId, PostCreateOrUpdateRequest request) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
         PostBoard postBoard = postBoardRepository
@@ -150,7 +150,7 @@ public class PostService {
 
     @Transactional
     public void deletePost(String boardType, Long postId) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
         PostBoard postBoard = postBoardRepository
@@ -166,7 +166,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<PostSimpleDto> getPosts(String boardType, Pageable pageable) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
         Association association = currentMember.getAssociation();
 
@@ -184,7 +184,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<PostSimpleDto> getImportantPosts(Pageable pageable) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         Association association = currentMember.getAssociation();
 
         return postRepository.findAllImportantPosts(association, pageable).stream()
@@ -195,7 +195,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostDetailResponse getPost(String boardType, Long postId) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
         PostBoard postBoard = postBoardRepository

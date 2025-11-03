@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.auth.handler;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.auth.dto.response.CustomOAuth2User;
 import com.becareful.becarefulserver.domain.auth.dto.response.OAuth2LoginResponse;
 import com.becareful.becarefulserver.domain.auth.dto.response.RegisteredUserLoginResponse;
@@ -9,6 +11,7 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.Instit
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
+import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
 import com.becareful.becarefulserver.global.properties.JwtProperties;
 import com.becareful.becarefulserver.global.properties.LoginRedirectUrlProperties;
@@ -130,7 +133,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             SocialWorker socialWorker = socialworkerRepository
                     .findByPhoneNumber(phoneNumber)
-                    .orElseThrow(() -> new IllegalStateException("SocialWorker not found"));
+                    .orElseThrow(() -> new DomainException(SOCIAL_WORKER_NOT_EXISTS));
 
             userResponse = new RegisteredUserLoginResponse(
                     socialWorker.getName(),

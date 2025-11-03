@@ -28,28 +28,43 @@ public class AssociationJoinApplication {
     @Enumerated(EnumType.STRING)
     private AssociationJoinApplicationStatus status;
 
+    private boolean isAgreedToTerms;
+
+    private boolean isAgreedToCollectPersonalInfo;
+
+    private boolean isAgreedToReceiveMarketingInfo;
+
     @Builder(access = AccessLevel.PRIVATE)
     private AssociationJoinApplication(
             Association association,
             SocialWorker socialWorker,
             AssociationRank associationRank,
-            AssociationJoinApplicationStatus status) {
+            AssociationJoinApplicationStatus status,
+            boolean isAgreedToTerms,
+            boolean isAgreedToCollectPersonalInfo,
+            boolean isAgreedToReceiveMarketingInfo) {
         this.association = association;
         this.socialWorker = socialWorker;
         this.associationRank = associationRank;
         this.status = status;
+        this.isAgreedToTerms = isAgreedToTerms;
+        this.isAgreedToCollectPersonalInfo = isAgreedToCollectPersonalInfo;
+        this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
     }
 
     public static AssociationJoinApplication create(
-            Association association,
             SocialWorker socialWorker,
+            Association association,
             AssociationRank associationRank,
-            AssociationJoinApplicationStatus status) {
+            Boolean isAgreedToReceiveMarketingInfo) {
         return AssociationJoinApplication.builder()
                 .association(association)
                 .socialWorker(socialWorker)
                 .associationRank(associationRank)
-                .status(status)
+                .status(AssociationJoinApplicationStatus.PENDING)
+                .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
+                .isAgreedToTerms(true)
+                .isAgreedToCollectPersonalInfo(true)
                 .build();
     }
 
