@@ -134,4 +134,8 @@ public class SocialWorker extends BaseEntity {
     public void joinAssociation(AssociationMember member) {
         this.associationMember = member;
     }
+
+    public void leaveAssociation() {
+        this.associationMember = null;
+    }
 }
