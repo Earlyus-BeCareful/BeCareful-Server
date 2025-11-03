@@ -23,7 +23,6 @@ import jakarta.validation.*;
 import java.io.*;
 import java.util.*;
 import lombok.*;
-import org.springframework.data.crossstore.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.*;
 import org.springframework.security.core.context.*;
@@ -141,7 +140,7 @@ public class AssociationService {
         AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         Association association = currentMember.getAssociation();
 
-        int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+        int associationMemberCount = associationMemberRepository.countByAssociation(association);
         int joinApplicationCount = associationJoinApplicationRepository.countByAssociationAndStatus(
                 association, AssociationJoinApplicationStatus.PENDING);
 
@@ -154,13 +153,13 @@ public class AssociationService {
         AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         Association association = currentMember.getAssociation();
 
-        int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+        int associationMemberCount = associationMemberRepository.countByAssociation(association);
 
-        List<SocialWorker> members = socialWorkerRepository.findAllByAssociation(association);
-        List<MemberSimpleDto> memberSimpleDtos =
-                members.stream().map(MemberSimpleDto::of).toList();
+        List<AssociationMember> members = associationMemberRepository.findAllByAssociation(association);
+        List<AssociationMemberSimpleDto> associationMemberSimpleDtos =
+                members.stream().map(AssociationMemberSimpleDto::from).toList();
 
-        return new AssociationMemberListResponse(associationMemberCount, memberSimpleDtos);
+        return new AssociationMemberListResponse(associationMemberCount, associationMemberSimpleDtos);
     }
 
     // 협회 가입 요청 목록 반환
@@ -176,7 +175,7 @@ public class AssociationService {
                 associationJoinApplicationRepository.findAllByAssociationAndStatus(
                         association, AssociationJoinApplicationStatus.PENDING);
         List<JoinApplicationSimpleDto> applicationDtos =
-                applications.stream().map(JoinApplicationSimpleDto::of).toList();
+                applications.stream().map(JoinApplicationSimpleDto::from).toList();
         return new AssociationJoinApplicationListResponse(joinApplicationCount, applicationDtos);
     }
 
@@ -204,7 +203,7 @@ public class AssociationService {
         }
         if (currentRank.equals(AssociationRank.EXECUTIVE)) {
             int executiveCount =
-                    socialWorkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
+                    associationMemberRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
             if (executiveCount <= 1) {
                 throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
             }
@@ -308,7 +307,7 @@ public class AssociationService {
 
         if (currentRank.equals(AssociationRank.EXECUTIVE) && targetRank.equals(AssociationRank.MEMBER)) {
             int executiveCount =
-                    socialWorkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
+                    associationMemberRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE);
             if (executiveCount <= 1) {
                 throw new DomainException("최소 한 명의 임원진이 유지되어야 합니다.");
             }

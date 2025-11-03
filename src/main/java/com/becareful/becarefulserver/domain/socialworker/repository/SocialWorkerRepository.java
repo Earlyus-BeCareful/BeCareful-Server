@@ -17,15 +17,4 @@ public interface SocialWorkerRepository extends JpaRepository<SocialWorker, Long
     boolean existsByNickname(String nickname);
 
     List<SocialWorker> findAllByNursingInstitution(NursingInstitution nursingInstitution);
-
-    Integer countByAssociation(Association association);
-
-    List<SocialWorker> findAllByAssociation(Association association);
-
-    int countByAssociationAndAssociationRank(Association association, AssociationRank associationRank);
-
-    Optional<SocialWorker> findByAssociationAndAssociationRank(
-            Association association, AssociationRank associationRank);
-
-    Optional<SocialWorker> findByIdAndName(Long id, String name);
 }

@@ -5,6 +5,7 @@ import com.becareful.becarefulserver.domain.association.domain.AssociationJoinAp
 import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.repository.AssociationJoinApplicationRepository;
+import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
 import com.becareful.becarefulserver.domain.chat.service.*;
 import com.becareful.becarefulserver.domain.community.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
@@ -31,11 +32,11 @@ public class CommunityService {
 
     private final SocialWorkerChatService chatService;
     private final AuthUtil authUtil;
-    private final SocialWorkerRepository socialWorkerRepository;
-    private final AssociationJoinApplicationRepository associationMembershipRequestRepository;
     private final JwtUtil jwtUtil;
     private final JwtProperties jwtProperties;
     private final CookieProperties cookieProperties;
+    private final AssociationJoinApplicationRepository associationMembershipRequestRepository;
+    private final AssociationMemberRepository associationMemberRepository;
 
     public CommunityAccessResponse getCommunityAccess(HttpServletResponse httpServletResponse) {
         SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
@@ -69,7 +70,7 @@ public class CommunityService {
 
         if (associationMember != null) { // 가입된 회원인 경우
             Association association = associationMember.getAssociation();
-            int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+            int associationMemberCount = associationMemberRepository.countByAssociation(association);
             String associationName = association.getName();
 
             if (requestOpt.isPresent()) {
@@ -105,7 +106,7 @@ public class CommunityService {
 
         boolean hasNewChat = chatService.checkNewChat();
         Association association = currentMember.getAssociation();
-        int associationMemberCount = socialWorkerRepository.countByAssociation(association);
+        int associationMemberCount = associationMemberRepository.countByAssociation(association);
 
         AssociationMyResponse associationInfo = AssociationMyResponse.from(association, associationMemberCount);
         return CommunityHomeBasicInfoResponse.of(hasNewChat, associationInfo);

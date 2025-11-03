@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
 import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
@@ -43,6 +44,7 @@ public class SocialWorkerService {
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
     private final JwtProperties jwtProperties;
+    private final AssociationMemberRepository associationMemberRepository;
 
     @Transactional
     public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
@@ -174,7 +176,7 @@ public class SocialWorkerService {
         }
 
         if (rank == AssociationRank.EXECUTIVE
-                & socialworkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE)
+                & associationMemberRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE)
                         == 1) {
             throw new AssociationException(ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST);
         }
