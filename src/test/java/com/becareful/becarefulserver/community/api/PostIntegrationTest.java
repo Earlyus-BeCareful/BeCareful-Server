@@ -13,7 +13,7 @@ import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.community.domain.BoardType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
-import com.becareful.becarefulserver.domain.community.dto.request.PostCreateOrUpdateRequest;
+import com.becareful.becarefulserver.domain.community.dto.request.*;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
 import com.becareful.becarefulserver.domain.community.service.PostService;
@@ -78,8 +78,7 @@ public class PostIntegrationTest extends IntegrationTest {
         createMember("01010000000", AssociationRank.MEMBER);
         createBoard();
 
-        PostCreateOrUpdateRequest request =
-                new PostCreateOrUpdateRequest("title", "content", false, null, null, null, null);
+        PostCreateRequest request = new PostCreateRequest("title", "content", false, null, null, null, null);
 
         Long postId = postService.createPost("association-notice", request);
 
@@ -92,8 +91,7 @@ public class PostIntegrationTest extends IntegrationTest {
         createMember("01020000000", AssociationRank.NONE);
         createBoard();
 
-        PostCreateOrUpdateRequest request =
-                new PostCreateOrUpdateRequest("title", "content", false, null, null, null, null);
+        PostCreateRequest request = new PostCreateRequest("title", "content", false, null, null, null, null);
 
         assertThatThrownBy(() -> postService.createPost("association-notice", request))
                 .isInstanceOf(PostBoardException.class);
@@ -105,14 +103,13 @@ public class PostIntegrationTest extends IntegrationTest {
         createMember("01030000000", AssociationRank.MEMBER);
         createBoard();
 
-        PostCreateOrUpdateRequest request =
-                new PostCreateOrUpdateRequest("title", "content", false, null, null, null, null);
+        PostCreateRequest request = new PostCreateRequest("title", "content", false, null, null, null, null);
         Long postId = postService.createPost("association-notice", request);
 
         postService.updatePost(
                 "association-notice",
                 postId,
-                new PostCreateOrUpdateRequest("title2", "content2", false, null, null, null, null));
+                new PostUpdateRequest("title2", "content2", null, false, null, null, null, null));
 
         Post post = postRepository.findById(postId).get();
         assertThat(post.getTitle()).isEqualTo("title2");

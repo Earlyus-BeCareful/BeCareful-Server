@@ -6,6 +6,7 @@ public class ErrorMessage {
     public static final String SMS_PHONE_NUMBER_AUTH_NOT_EXISTS = "해당 전화번호로 요청된 인증이 없습니다.";
     public static final String SMS_AUTHENTICATION_FAILED = "인증번호가 일치하지 않습니다.";
 
+    public static final String S3_MOVE_FILE_FAILED = "s3 버킷의 파일 위치를 옮기는 과정에서 문제가 발생했습니다.";
     public static final String FAILED_TO_CREATE_IMAGE_FILE_NAME = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
 
     public static final String CAREGIVER_ALREADY_EXISTS = "이미 가입된 전화번호 입니다.";
@@ -13,6 +14,7 @@ public class ErrorMessage {
     public static final String CAREGIVER_REQUIRED_AGREEMENT = "필수 동의 항목에 동의하지 않았습니다.";
     public static final String CAREGIVER_WORK_APPLICATION_NOT_EXISTS = "일자리 신청서가 존재하지 않습니다.";
     public static final String CAREGIVER_CAREER_NOT_EXISTS = "요양보호사 경력사항이 존재하지 않습니다.";
+    public static final String CAREGIVER_FAILED_TO_MOVE_FILE = "요양보호사 프로필 이미지를 S3에 업로드 하는 중 에러가 발생했습니다.";
 
     public static final String TOKEN_NOT_CONTAINED = "요청에 토큰이 포함되지 않았습니다.";
     public static final String INVALID_REFRESH_TOKEN = "리프레시 토큰이 유효하지 않습니다.";
@@ -26,7 +28,9 @@ public class ErrorMessage {
 
     public static final String NURSING_INSTITUTION_ALREADY_EXISTS = "이미 등록된 기관입니다.";
     public static final String NURSING_INSTITUTION_NOT_FOUND = "해당 ID의 요양 기관을 찾을 수 없습니다.";
-    public static final String NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
+    public static final String NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE =
+            "요양 기관 프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
+    public static final String NURSING_INSTITUTION_FAILED_TO_MOVE_FILE = "요양 기관 프로필 이미지를 S3에 업로드 하는 중 에러가 발생했습니다.";
 
     public static final String ASSOCIATION_NOT_EXISTS = "존재하지 않는 협회입니다.";
     public static final String ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS = "존재하지 않는 협회 가입 요청입니다.";
@@ -38,10 +42,12 @@ public class ErrorMessage {
     public static final String ASSOCIATION_CHAIRMAN_NOT_EXISTS = "협회장이 존재하지 않습니다.";
     public static final String ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST = "커뮤니티 협회장 위임을 먼저 해야합니다.";
     public static final String ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST = "커뮤니티 임원진 위임을 먼저 해야합니다.";
+    public static final String ASSOCIATION_FAILED_TO_MOVE_FILE = "협회 프로필 이미지를 S3에 업로드 하는 중 에러가 발생했습니다.";
 
     public static final String ELDERLY_NOT_EXISTS = "존재하지 않는 어르신입니다.";
     public static final String ELDERLY_FAILED_TO_UPLOAD_PROFILE_IMAGE = "프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
     public static final String ELDERLY_DIFFERENT_INSTITUTION = "다른 기관의 어르신에는 접근할 수 없습니다.";
+    public static final String ELDERLY_FAILED_TO_MOVE_FILE = "어르신 프로필 이미지를 S3에 업로드 하는 중 에러가 발생했습니다.";
 
     public static final String RECRUITMENT_NOT_EXISTS = "매칭 공고가 존재하지 않습니다.";
     public static final String RECRUITMENT_NOT_COMPLETABLE_NOT_RECRUITING = "모집중이 아닌 공고는 완료처리할 수 없습니다.";

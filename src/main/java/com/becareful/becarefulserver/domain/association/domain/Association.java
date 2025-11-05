@@ -1,12 +1,9 @@
 package com.becareful.becarefulserver.domain.association.domain;
 
-import com.becareful.becarefulserver.domain.association.dto.request.UpdateAssociationInfoRequest;
-import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.domain.association.dto.request.*;
+import com.becareful.becarefulserver.domain.common.domain.*;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
@@ -37,9 +34,9 @@ public class Association extends BaseEntity {
                 .build();
     }
 
-    public void updateAssociationInfo(UpdateAssociationInfoRequest request) {
+    public void updateAssociationInfo(UpdateAssociationInfoRequest request, String profileImageUrl) {
         this.name = request.associationName();
         this.establishedYear = request.associationEstablishedYear();
-        this.profileImageUrl = request.associationImageUrl();
+        this.profileImageUrl = profileImageUrl;
     }
 }

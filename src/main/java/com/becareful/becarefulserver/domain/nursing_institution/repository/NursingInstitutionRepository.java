@@ -1,10 +1,9 @@
 package com.becareful.becarefulserver.domain.nursing_institution.repository;
 
-import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
-import java.util.List;
-import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
+import java.util.*;
+import org.jetbrains.annotations.*;
+import org.springframework.data.jpa.repository.*;
 
 public interface NursingInstitutionRepository extends JpaRepository<NursingInstitution, Long> {
     boolean existsById(@NotNull Long institutionId);
@@ -16,4 +15,7 @@ public interface NursingInstitutionRepository extends JpaRepository<NursingInsti
     Optional<NursingInstitution> findByName(String name);
 
     boolean existsByCode(@NotNull String nursingInstitutionCode);
+
+    @Query("SELECT n.profileImageUrl FROM NursingInstitution n WHERE n.profileImageUrl IS NOT NULL")
+    Set<String> findAllProfileImageUrls();
 }

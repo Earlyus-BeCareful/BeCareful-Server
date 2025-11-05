@@ -110,10 +110,7 @@ public class Elderly extends BaseEntity {
                 .gender(gender)
                 .residentialLocation(residentialLocation)
                 .detailAddress(detailAddress)
-                .profileImageUrl(
-                        profileImageUrl == null || profileImageUrl.isBlank()
-                                ? ELDERLY_DEFAULT_PROFILE_IMAGE_URL
-                                : profileImageUrl)
+                .profileImageUrl(profileImageUrl)
                 .institution(institution)
                 .careLevel(careLevel)
                 .healthCondition(healthCondition)
@@ -123,6 +120,7 @@ public class Elderly extends BaseEntity {
                 .build();
     }
 
+    // TODO: 삭제
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = (profileImageUrl == null || profileImageUrl.isBlank())
                 ? ELDERLY_DEFAULT_PROFILE_IMAGE_URL
@@ -164,7 +162,7 @@ public class Elderly extends BaseEntity {
         this.residentialLocation = residentialLocation;
         this.detailAddress = detailAddress;
         this.healthCondition = healthCondition;
-        updateProfileImageUrl(profileImageUrl);
+        this.profileImageUrl = profileImageUrl;
         this.detailCareTypes = EnumSet.copyOf(detailCareTypes);
     }
 }

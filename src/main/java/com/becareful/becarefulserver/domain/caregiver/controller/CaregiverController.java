@@ -1,25 +1,23 @@
 package com.becareful.becarefulserver.domain.caregiver.controller;
 
-import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerUpdateRequest;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.MyPageUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.*;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
-import com.becareful.becarefulserver.domain.caregiver.service.CareerService;
-import com.becareful.becarefulserver.domain.caregiver.service.CaregiverService;
-import com.becareful.becarefulserver.domain.matching.dto.request.EditCompletedMatchingNoteRequest;
-import com.becareful.becarefulserver.domain.matching.dto.response.CompletedMatchingInfoResponse;
-import com.becareful.becarefulserver.domain.matching.service.CompletedMatchingService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-import java.net.URI;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import com.becareful.becarefulserver.domain.caregiver.service.*;
+import com.becareful.becarefulserver.domain.common.dto.request.*;
+import com.becareful.becarefulserver.domain.common.dto.response.*;
+import com.becareful.becarefulserver.domain.matching.dto.request.*;
+import com.becareful.becarefulserver.domain.matching.dto.response.*;
+import com.becareful.becarefulserver.domain.matching.service.*;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.tags.*;
+import jakarta.servlet.http.*;
+import jakarta.validation.*;
+import java.net.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -56,10 +54,26 @@ public class CaregiverController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "요양보호사 프로필 사진 신규 업로드", description = "요양보호사 프로필 이미지 업로드 API 입니다.")
+    // Todo: 삭제
+    @Deprecated
+    @Operation(summary = "이미지 업로드 구버전(삭제 예정): 요양보호사 프로필 사진 신규 업로드", description = "요양보호사 프로필 이미지 업로드 API 입니다.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CaregiverProfileUploadResponse> uploadProfileImg(@RequestPart MultipartFile file) {
         var response = caregiverService.uploadProfileImage(file);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "이미지 업로드 (신버전): 프로필 이미지 업로드용 Presigned URL 발급",
+            description =
+                    """
+    프론트엔드에서 사용자가 로컬 파일을 선택할 때마다 이 API를 호출해 Presigned URL을 발급받습니다.
+    발급받은 URL로 S3에 이미지를 직접 업로드합니다.
+    이후 회원가입 또는 정보 수정 시, S3에 업로드한 파일의 tempKey를 백엔드로 전달해야 합니다.
+    """)
+    @PostMapping("/profile-img/presigned-url")
+    public ResponseEntity<PresignedUrlResponse> createPresignedUrl(ProfileImagePresignedUrlRequest request) {
+        PresignedUrlResponse response = caregiverService.getPresignedUrl(request);
         return ResponseEntity.ok(response);
     }
 

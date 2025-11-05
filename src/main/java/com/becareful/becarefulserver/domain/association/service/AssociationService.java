@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.association.service;
 
 import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
@@ -9,14 +10,18 @@ import com.becareful.becarefulserver.domain.association.dto.*;
 import com.becareful.becarefulserver.domain.association.dto.request.*;
 import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.repository.*;
+import com.becareful.becarefulserver.domain.common.dto.request.*;
+import com.becareful.becarefulserver.domain.common.dto.response.*;
 import com.becareful.becarefulserver.domain.community.domain.*;
 import com.becareful.becarefulserver.domain.community.repository.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
+import com.becareful.becarefulserver.global.exception.GlobalExceptionHandler;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.properties.*;
+import com.becareful.becarefulserver.global.service.*;
 import com.becareful.becarefulserver.global.util.*;
 import jakarta.servlet.http.*;
 import jakarta.validation.*;
@@ -44,6 +49,9 @@ public class AssociationService {
     private final PostBoardRepository postBoardRepository;
     private final AssociationJoinApplicationRepository associationJoinApplicationRepository;
     private final AssociationMemberRepository associationMemberRepository;
+    private final GlobalExceptionHandler globalExceptionHandler;
+    private final S3Util s3Util;
+    private final S3Service s3Service;
 
     @Transactional
     public void joinAssociation(AssociationJoinRequest request) {
@@ -102,11 +110,17 @@ public class AssociationService {
     }
 
     @Transactional
-    public long createAssociation(AssociationCreateRequest request) {
+    public long createAssociation(AssociationCreateRequest request, HttpServletResponse response) {
         SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
 
-        Association newAssociation =
-                Association.create(request.name(), request.profileImageUrl(), request.establishedYear());
+        String profileImageUrl;
+        if (request.profileImageTempKey().equals("default")) {
+            profileImageUrl = ASSOCIATION_DEFAULT_PROFILE_IMAGE_URL;
+        } else {
+            profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
+        }
+
+        Association newAssociation = Association.create(request.name(), profileImageUrl, request.establishedYear());
         associationRepository.save(newAssociation);
 
         if (!request.isAgreedToTerms() || !request.isAgreedToCollectPersonalInfo()) {
@@ -122,13 +136,26 @@ public class AssociationService {
         List<PostBoard> postBoards = createDefaultPostBoards(newAssociation);
         postBoardRepository.saveAll(postBoards);
 
+        if (!request.profileImageTempKey().equals("default")) {
+            try {
+                s3Service.moveTempFileToPermanent(request.profileImageTempKey()); // 에러발생시 db롤백
+            } catch (Exception e) {
+                throw new AssociationException(ASSOCIATION_FAILED_TO_MOVE_FILE);
+            }
+        }
+
+        updateJwtAndSecurityContext(
+                response,
+                currentSocialWorker.getPhoneNumber(),
+                currentSocialWorker.getInstitutionRank(),
+                AssociationRank.CHAIRMAN);
         return newAssociation.getId();
     }
 
     public AssociationProfileImageUploadResponse uploadProfileImage(MultipartFile file) {
         try {
             String fileName = generateProfileImageFileName();
-            String profileImageUrl = fileUtil.upload(file, "association-image", fileName);
+            String profileImageUrl = fileUtil.upload(file, "association-profile-image/permanent", fileName);
 
             return new AssociationProfileImageUploadResponse(profileImageUrl);
         } catch (IOException e) {
@@ -287,7 +314,25 @@ public class AssociationService {
         AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         Association association = currentMember.getAssociation();
 
-        association.updateAssociationInfo(request);
+        String profileImageUrl;
+        if (request.profileImageTempKey() == null) {
+            profileImageUrl = association.getProfileImageUrl();
+        } else if (request.profileImageTempKey().equals("default")) {
+            profileImageUrl = ASSOCIATION_DEFAULT_PROFILE_IMAGE_URL;
+        } else {
+            profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
+        }
+
+        association.updateAssociationInfo(request, profileImageUrl);
+
+        if (request.profileImageTempKey() != null
+                && !request.profileImageTempKey().equals("default")) {
+            try {
+                s3Service.moveTempFileToPermanent(request.profileImageTempKey()); // 에러발생시 db롤백
+            } catch (Exception e) {
+                throw new AssociationException(ASSOCIATION_FAILED_TO_MOVE_FILE);
+            }
+        }
     }
 
     @Transactional
@@ -373,5 +418,10 @@ public class AssociationService {
         }
 
         associationJoinApplicationRepository.delete(application);
+    }
+
+    public PresignedUrlResponse getPresignedUrl(ProfileImagePresignedUrlRequest request) {
+        String newFileName = s3Util.generateImageFileNameWithSource(request.fileName());
+        return s3Service.createPresignedUrl("association-profile-image", newFileName, request.contentType());
     }
 }

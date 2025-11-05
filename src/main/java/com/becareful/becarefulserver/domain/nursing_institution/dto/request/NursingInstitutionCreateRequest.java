@@ -14,4 +14,4 @@ public record NursingInstitutionCreateRequest(
         @NotBlank String phoneNumber,
         @NotBlank String streetAddress,
         String detailAddress,
-        String profileImageUrl) {}
+        @NotBlank String profileImageTempKey) {}

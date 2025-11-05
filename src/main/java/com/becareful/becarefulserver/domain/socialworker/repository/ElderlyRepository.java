@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.socialworker.repository;
 
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
+import java.util.*;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,9 @@ public interface ElderlyRepository extends JpaRepository<Elderly, Long> {
     List<Elderly> findAllByNursingInstitution(NursingInstitution institution);
 
     Page<Elderly> findPageByNursingInstitution(NursingInstitution nursingInstitution, Pageable pageable);
+
+    @Query("SELECT e.profileImageUrl FROM Elderly e WHERE e.profileImageUrl IS NOT NULL")
+    Set<String> findAllProfileImageUrls();
 
     Page<Elderly> findByNursingInstitutionAndNameContaining(
             NursingInstitution nursingInstitution, String name, Pageable pageable);

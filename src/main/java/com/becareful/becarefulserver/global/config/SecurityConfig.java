@@ -58,12 +58,18 @@ public class SecurityConfig {
                         .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
                         .requestMatchers("/social-worker/my", "/social-worker/logout", "/social-worker/leave")
                         .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
-                        .requestMatchers("/nursingInstitution/upload-profile-img")
+                        .requestMatchers(
+                                "/nursingInstitution/upload-profile-img",
+                                "/nursingInstitution/profile-img/presigned-url")
                         .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE")
-                        .requestMatchers("/caregiver/upload-profile-img")
+                        .requestMatchers("/caregiver/upload-profile-img", "/caregiver/profile-img/presigned-url")
                         .hasAnyRole("GUEST", "NONE")
                         .requestMatchers(HttpMethod.GET, "/association/join-requests", "/association/info")
                         .hasAnyRole("CHAIRMAN", "EXECUTIVE")
+                        .requestMatchers("/association/create")
+                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE")
+                        .requestMatchers("/association/profile-img/presigned-url")
+                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "CHAIRMAN", "EXECUTIVE")
                         .requestMatchers(
                                 "/association/join-requests/*/accept",
                                 "/association/join-requests/*/reject",
@@ -82,6 +88,8 @@ public class SecurityConfig {
                         .hasRole("CHAIRMAN")
                         .requestMatchers(
                                 "/community/home",
+                                "/community/board/",
+                                "/community/post/",
                                 "/association/members/overview",
                                 "/association/members",
                                 "/association/members/*",
