@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     // 리소스 서버에서 사용자 정보를 받고 기존 회원인지 아닌지 판단
     @Override
+    @Transactional(readOnly = true)
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         try {
             OAuth2User oAuth2User = super.loadUser(userRequest); // provider에서 응답한 사용자 정보 객체
