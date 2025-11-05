@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CustomUserService {
 
-    private final SocialWorkerRepository socialworkerRepository;
+    private final SocialWorkerRepository socialWorkerRepository;
     private final CaregiverRepository caregiverRepository;
 
     @Transactional(readOnly = true)
@@ -46,7 +46,7 @@ public class CustomUserService {
         }
 
         // TODO(role 수정)
-        Optional<SocialWorker> socialWorker = socialworkerRepository.findByPhoneNumber(phoneNumber);
+        Optional<SocialWorker> socialWorker = socialWorkerRepository.findByPhoneNumber(phoneNumber);
         Optional<Caregiver> caregiver = caregiverRepository.findByPhoneNumber(phoneNumber);
 
         boolean isGuest = socialWorker.isEmpty() && caregiver.isEmpty();
