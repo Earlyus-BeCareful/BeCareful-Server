@@ -53,11 +53,17 @@ public class CustomUserService {
 
         String institutionRank = isGuest
                 ? "GUEST"
-                : socialWorker.map(sw -> sw.getInstitutionRank().toString()).orElse("NONE");
+                : socialWorker
+                        .map(SocialWorker::getInstitutionRank)
+                        .map(Enum::name)
+                        .orElse("NONE");
 
         String associationRank = isGuest
                 ? "GUEST"
-                : socialWorker.map(sw -> sw.getAssociationRank().name()).orElse("NONE");
+                : socialWorker
+                        .map(SocialWorker::getAssociationRank)
+                        .map(Enum::name)
+                        .orElse("NONE");
 
         OAuth2LoginResponse loginResponse = new OAuth2LoginResponse(
                 name, nickname, phoneNumber, institutionRank, associationRank, birthYymmdd, birthGenderCode);
