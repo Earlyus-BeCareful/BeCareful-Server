@@ -47,21 +47,20 @@ public class S3Service {
     public PresignedUrlResponse createPresignedUrl(String directory, String fileName, String contentType) {
         String tempKey = s3Util.getTempKey(directory, fileName);
 
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+        PutObjectRequest putRequest = PutObjectRequest.builder()
                 .bucket(s3Properties.getBucket())
                 .key(tempKey)
                 .contentType(contentType)
-                .metadata(Map.of("uploadedAt", Instant.now().toString()))
                 .build();
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
                 .signatureDuration(Duration.ofMinutes(3))
-                .putObjectRequest(putObjectRequest)
+                .putObjectRequest(putRequest)
                 .build();
 
-        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
+        PresignedPutObjectRequest presignedPut = s3Presigner.presignPutObject(presignRequest);
 
-        return new PresignedUrlResponse(tempKey, presignedRequest.url().toString());
+        return new PresignedUrlResponse(tempKey, presignedPut.url().toString());
     }
 
     /**
