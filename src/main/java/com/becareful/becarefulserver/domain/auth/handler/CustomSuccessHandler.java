@@ -7,10 +7,9 @@ import com.becareful.becarefulserver.domain.auth.dto.response.OAuth2LoginRespons
 import com.becareful.becarefulserver.domain.auth.dto.response.RegisteredUserLoginResponse;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
-import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
+import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
 import com.becareful.becarefulserver.global.properties.JwtProperties;
@@ -125,9 +124,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         if (roles.get(0).equals("NONE")) {
             Caregiver caregiver = caregiverRepository
                     .findByPhoneNumber(phoneNumber)
-                    .orElseThrow(() -> new IllegalStateException("Caregiver not found"));
-            userResponse = new RegisteredUserLoginResponse(
-                    caregiver.getName(), null, AssociationRank.NONE, InstitutionRank.NONE);
+                    .orElseThrow(() -> new CaregiverException(CAREGIVER_NOT_EXISTS));
+            userResponse = new RegisteredUserLoginResponse(caregiver.getName(), null);
             redirectUrlPath = loginRedirectUrlProperties.getCaregiverLoginRedirectUrl();
         } else {
 
@@ -135,11 +133,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .findByPhoneNumber(phoneNumber)
                     .orElseThrow(() -> new DomainException(SOCIAL_WORKER_NOT_EXISTS));
 
-            userResponse = new RegisteredUserLoginResponse(
-                    socialWorker.getName(),
-                    socialWorker.getNickname(),
-                    socialWorker.getAssociationRank(),
-                    socialWorker.getInstitutionRank());
+            userResponse = new RegisteredUserLoginResponse(socialWorker.getName(), socialWorker.getNickname());
             redirectUrlPath = loginRedirectUrlProperties.getSocialWorkerLoginRedirectUrl();
         }
 
