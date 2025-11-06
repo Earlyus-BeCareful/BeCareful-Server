@@ -46,7 +46,7 @@ public class S3Service {
      */
     public PresignedUrlResponse createPresignedUrl(String directory, String fileName, String contentType) {
         String tempKey = s3Util.getTempKey(directory, fileName);
-
+      
         PutObjectRequest putRequest = PutObjectRequest.builder()
                 .bucket(s3Properties.getBucket())
                 .key(tempKey)
