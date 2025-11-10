@@ -268,6 +268,39 @@ public class SocialWorkerMatchingService {
         return RecruitmentMatchingStatusResponse.of(recruitment, unAppliedCaregivers, appliedCaregivers);
     }
 
+    /**
+     * 3.1.4 공고 상세 - 공고 수정
+     * @param recruitmentId 공고 ID
+     */
+    @Transactional
+    public void updateRecruitment(Long recruitmentId, RecruitmentUpdateRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(() -> new DomainException(RECRUITMENT_NOT_EXISTS));
+
+        boolean isApplicantOrProcessingContractExists = matchingRepository.existsByApplicantOrProcessingContract(recruitment);
+
+        recruitmentDomainService.validateRecruitmentInstitution(recruitment, loggedInSocialWorker);
+        recruitmentDomainService.validateRecruitmentUpdatable(recruitment, isApplicantOrProcessingContractExists);
+
+        recruitment.update(
+                request.title(),
+                request.workDays(),
+                request.workStartTime(),
+                request.workEndTime(),
+                request.careTypes(),
+                request.workSalaryUnitType(),
+                request.workSalaryAmount(),
+                request.description()
+        );
+
+        matchingRepository.deleteAllByRecruitment(recruitment);
+        workApplicationRepository.findAllActiveWorkApplication().forEach(workApplication -> {
+            matchingDomainService.createMatching(recruitment, workApplication).ifPresent(matchingRepository::save);
+        });
+    }
+
     @Transactional
     public void propose(Long recruitmentId, Long caregiverId, LocalDate workStartDate) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();

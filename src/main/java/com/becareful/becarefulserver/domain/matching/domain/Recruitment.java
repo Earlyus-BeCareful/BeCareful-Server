@@ -11,11 +11,14 @@ import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
+import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import jakarta.persistence.*;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.EnumSet;
+import java.util.List;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -121,6 +124,16 @@ public class Recruitment extends BaseEntity {
     }
 
     /**
+     * 검증 메서드
+     */
+    public void validateUpdatableRecruitmentStatus() {
+        if (recruitmentStatus.isRecruiting()) {
+            return;
+        }
+        throw new DomainException(RECRUITMENT_NOT_UPDATABLE_NOT_RECRUITING);
+    }
+
+    /**
      * 엔티티 메서드
      */
     public void complete() {
@@ -136,5 +149,23 @@ public class Recruitment extends BaseEntity {
             case 모집완료 -> throw new RecruitmentException(RECRUITMENT_NOT_CLOSABLE_COMPLETED);
             case 공고마감 -> throw new RecruitmentException(RECRUITMENT_NOT_CLOSABLE_ALREADY_CLOSED);
         }
+    }
+
+    public void update(String title,
+                       List<DayOfWeek> workDays,
+                       LocalTime workStartTime,
+                       LocalTime workEndTime,
+                       List<CareType> careTypes,
+                       WorkSalaryUnitType workSalaryUnitType,
+                       int workSalaryAmount,
+                       String description) {
+        this.title = title;
+        this.workDays = EnumSet.copyOf(workDays);
+        this.workStartTime = workStartTime;
+        this.workEndTime = workEndTime;
+        this.careTypes = EnumSet.copyOf(careTypes);
+        this.workSalaryUnitType = workSalaryUnitType;
+        this.workSalaryAmount = workSalaryAmount;
+        this.description = description;
     }
 }

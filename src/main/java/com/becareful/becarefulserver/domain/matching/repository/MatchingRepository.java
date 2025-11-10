@@ -67,4 +67,14 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     @Query("DELETE FROM Matching m WHERE m.workApplication.caregiver = :caregiver AND m.matchingStatus <> :status")
     void deleteAllByCaregiverAndStatusNot(
             @Param("caregiver") Caregiver caregiver, @Param("status") MatchingStatus status);
+
+    @Query("""
+        SELECT count(*) > 0
+          FROM Matching m
+         WHERE m.recruitment = :recruitment
+           AND m.matchingStatus NOT IN ('미지원', '매칭거부')
+    """)
+    boolean existsByApplicantOrProcessingContract(Recruitment recruitment);
+
+    void deleteAllByRecruitment(Recruitment recruitment);
 }
