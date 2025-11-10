@@ -9,26 +9,22 @@ import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
-import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
-import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import com.becareful.becarefulserver.global.properties.CookieProperties;
 import com.becareful.becarefulserver.global.properties.JwtProperties;
 import com.becareful.becarefulserver.global.properties.LoginRedirectUrlProperties;
 import com.becareful.becarefulserver.global.util.JwtUtil;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -45,7 +41,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final RedisTemplate<String, RegisteredUserLoginResponse> registeredUserLoginRedisTemplate;
 
     private final CaregiverRepository caregiverRepository;
-    private final SocialWorkerRepository socialworkerRepository;
+    private final SocialWorkerRepository socialWorkerRepository;
 
     public CustomSuccessHandler(
             JwtUtil jwtUtil,
@@ -56,7 +52,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             @Qualifier("registeredUserRedisTemplate") RedisTemplate<String, RegisteredUserLoginResponse> registeredUserLoginRedisTemplate,
             RedisTemplate<String, String> stringRedisTemplate,
             CaregiverRepository caregiverRepository,
-            SocialWorkerRepository socialworkerRepository) {
+            SocialWorkerRepository socialWorkerRepository) {
         this.jwtUtil = jwtUtil;
         this.cookieProperties = cookieProperties;
         this.loginRedirectUrlProperties = loginRedirectUrlProperties;
@@ -65,32 +61,28 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         this.registeredUserLoginRedisTemplate = registeredUserLoginRedisTemplate;
         this.stringRedisTemplate = stringRedisTemplate;
         this.caregiverRepository = caregiverRepository;
-        this.socialworkerRepository = socialworkerRepository;
+        this.socialWorkerRepository = socialWorkerRepository;
     }
 
     @Override
     public void onAuthenticationSuccess(
             HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-            throws IOException, ServletException {
+            throws IOException {
         // OAuth2User
         CustomOAuth2User oAuthUser = (CustomOAuth2User) authentication.getPrincipal();
         OAuth2LoginResponse loginInfo = oAuthUser.getLoginResponse();
 
         // JWT 생성용 정보만 메서드로 꺼냄
         String phoneNumber = oAuthUser.getName(); // phoneNumber
-        List<String> roles = oAuthUser.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .map(role -> role.replace("ROLE_", ""))
-                .toList();
 
-        String accessToken = jwtUtil.createAccessToken(phoneNumber, roles.get(0), roles.get(1));
+        String accessToken = jwtUtil.createAccessToken(phoneNumber);
         String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
         response.addCookie(createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry())); // 15분
         response.addCookie(createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry())); // 일주일
 
         String state = request.getParameter("state");
-        System.out.println("successHandler>>" + state);
+        System.out.println("successHandler >>" + state);
 
         String redirectUri = stringRedisTemplate.opsForValue().get("oauth2:state:" + state);
         if (redirectUri == null) {
@@ -99,14 +91,15 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             stringRedisTemplate.delete("oauth2:state:" + state); // clean up
         }
 
-        if (roles.contains("GUEST")) {
+        Optional<SocialWorker> socialWorkerOpt = socialWorkerRepository.findByPhoneNumber(phoneNumber);
+        Optional<Caregiver> caregiverOpt = caregiverRepository.findByPhoneNumber(phoneNumber);
+
+        if (socialWorkerOpt.isEmpty() && caregiverOpt.isEmpty()) {
             // 민감 정보는 Redis에 저장하고 key만 전달
             String guestKey = UUID.randomUUID().toString();
             oauth2LoginRedisTemplate
                     .opsForValue()
-                    .set(
-                            "guest:" + guestKey, loginInfo, Duration.ofMinutes(5) // 5분 후 만료
-                            );
+                    .set("guest:" + guestKey, loginInfo, Duration.ofMinutes(5)); // 5분 후 만료
 
             String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
                     .path(loginRedirectUrlProperties.getGuestLoginRedirectUrl())
@@ -121,18 +114,12 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         RegisteredUserLoginResponse userResponse;
         String redirectUrlPath;
 
-        if (roles.get(0).equals("NONE")) {
-            Caregiver caregiver = caregiverRepository
-                    .findByPhoneNumber(phoneNumber)
-                    .orElseThrow(() -> new CaregiverException(CAREGIVER_NOT_EXISTS));
+        if (caregiverOpt.isPresent()) {
+            Caregiver caregiver = caregiverOpt.get();
             userResponse = new RegisteredUserLoginResponse(caregiver.getName(), null);
             redirectUrlPath = loginRedirectUrlProperties.getCaregiverLoginRedirectUrl();
         } else {
-
-            SocialWorker socialWorker = socialworkerRepository
-                    .findByPhoneNumber(phoneNumber)
-                    .orElseThrow(() -> new DomainException(SOCIAL_WORKER_NOT_EXISTS));
-
+            SocialWorker socialWorker = socialWorkerOpt.get();
             userResponse = new RegisteredUserLoginResponse(socialWorker.getName(), socialWorker.getNickname());
             redirectUrlPath = loginRedirectUrlProperties.getSocialWorkerLoginRedirectUrl();
         }
@@ -140,9 +127,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String userKey = UUID.randomUUID().toString();
         registeredUserLoginRedisTemplate
                 .opsForValue()
-                .set(
-                        "user:" + userKey, userResponse, Duration.ofMinutes(5) // 5분 후 만료
-                        );
+                .set("user:" + userKey, userResponse, Duration.ofMinutes(5)); // 5분 후 만료
 
         String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
                 .path(redirectUrlPath)

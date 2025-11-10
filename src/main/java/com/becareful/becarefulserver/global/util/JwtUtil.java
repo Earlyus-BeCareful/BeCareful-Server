@@ -58,11 +58,9 @@ public class JwtUtil {
                 .get("associationRank", String.class);
     }
 
-    public String createAccessToken(String phoneNumber, String institutionRank, String associationRank) {
+    public String createAccessToken(String phoneNumber) {
         return Jwts.builder()
                 .subject(phoneNumber)
-                .claim("institutionRank", "ROLE_" + institutionRank)
-                .claim("associationRank", "ROLE_" + associationRank)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + jwtProperties.getAccessTokenExpiry() * 1000L))
                 .signWith(secretKey)
