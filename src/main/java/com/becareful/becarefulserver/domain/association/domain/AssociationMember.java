@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.association.domain;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.ASSOCIATION_MEMBER_NOT_ENOUGH_RANK;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.ASSOCIATION_NOT_ACCESSABLE_OTHER_ASSOCIATION;
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
@@ -161,9 +162,24 @@ public class AssociationMember extends BaseEntity {
         this.associationRank = rank;
     }
 
+    /**
+     * validate method
+     */
     public void validateAssociation(Association association) {
         if (this.association != association) {
             throw new DomainException(ASSOCIATION_NOT_ACCESSABLE_OTHER_ASSOCIATION);
+        }
+    }
+
+    public void validateHasAssociationManagableRank() {
+        if (associationRank.isLowerThan(AssociationRank.EXECUTIVE)) {
+            throw new DomainException(ASSOCIATION_MEMBER_NOT_ENOUGH_RANK);
+        }
+    }
+
+    public void validateChairman() {
+        if (associationRank.isLowerThan(AssociationRank.CHAIRMAN)) {
+            throw new DomainException(ASSOCIATION_MEMBER_NOT_ENOUGH_RANK);
         }
     }
 }
