@@ -40,24 +40,6 @@ public class JwtUtil {
         }
     }
 
-    public String getInstitutionRank(String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get("institutionRank", String.class);
-    }
-
-    public String getAssociationRank(String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get("associationRank", String.class);
-    }
-
     public String createAccessToken(String phoneNumber) {
         return Jwts.builder()
                 .subject(phoneNumber)

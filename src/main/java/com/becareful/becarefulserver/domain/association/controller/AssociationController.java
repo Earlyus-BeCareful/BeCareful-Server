@@ -165,8 +165,8 @@ public class AssociationController {
 
     @Operation(summary = "협회 탈퇴", description = "마이페이지-센터장, 대표")
     @PutMapping("/leave")
-    public ResponseEntity<Void> leaveAssociation(HttpServletResponse response) {
-        associationService.leaveAssociation(response);
+    public ResponseEntity<Void> leaveAssociation() {
+        associationService.leaveAssociation();
         return ResponseEntity.ok().build();
     }
 }

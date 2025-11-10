@@ -9,7 +9,6 @@ import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
-import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
 import com.becareful.becarefulserver.domain.nursing_institution.repository.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
@@ -25,8 +24,6 @@ import jakarta.validation.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.*;
 import org.springframework.security.core.context.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
@@ -41,13 +38,11 @@ public class SocialWorkerService {
     private final ElderlyRepository elderlyRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final AuthUtil authUtil;
-    private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
-    private final JwtProperties jwtProperties;
     private final AssociationMemberRepository associationMemberRepository;
 
     @Transactional
-    public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
+    public Long createSocialWorker(SocialWorkerCreateRequest request) {
         validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
 
         NursingInstitution nursingInstitution = nursingInstitutionRepository
@@ -71,9 +66,6 @@ public class SocialWorkerService {
                 nursingInstitution);
 
         socialworkerRepository.save(socialWorker);
-
-        updateJwtAndSecurityContext(
-                httpServletResponse, request.phoneNumber(), request.institutionRank(), AssociationRank.NONE);
 
         return socialWorker.getId();
     }
@@ -118,7 +110,7 @@ public class SocialWorkerService {
     }
 
     @Transactional
-    public void updateMyProfile(@Valid SocialWorkerProfileUpdateRequest request, HttpServletResponse response) {
+    public void updateSocialWorkerProfile(@Valid SocialWorkerProfileUpdateRequest request) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
 
         validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
@@ -128,29 +120,14 @@ public class SocialWorkerService {
                 .findById(request.nursingInstitutionId())
                 .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
 
-        boolean isInstitutionRankChanged =
-                !Objects.equals(loggedInSocialWorker.getInstitutionRank(), request.institutionRank());
-        boolean isPhoneNumberChanged = !Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber());
         boolean isNicknameChanged = !Objects.equals(request.nickName(), loggedInSocialWorker.getNickname());
 
         if (isNicknameChanged) {
             validateNicknameNotDuplicated(request.nickName());
         }
 
-        if (isPhoneNumberChanged) {
-            validatePhoneNumberNotDuplicated(request.phoneNumber());
-        }
-
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
         Gender gender = Gender.fromGenderCode(request.genderCode());
-
-        if (isInstitutionRankChanged || isPhoneNumberChanged) {
-            updateJwtAndSecurityContext(
-                    response,
-                    request.phoneNumber(),
-                    request.institutionRank(),
-                    loggedInSocialWorker.getAssociationRank());
-        }
 
         loggedInSocialWorker.update(request, birthDate, gender, institution);
     }
@@ -233,26 +210,5 @@ public class SocialWorkerService {
         int day = Integer.parseInt(yymmdd.substring(4, 6));
 
         return LocalDate.of(year, month, day);
-    }
-
-    private void updateJwtAndSecurityContext(
-            HttpServletResponse response,
-            String phoneNumber,
-            InstitutionRank institutionRankParam,
-            AssociationRank associationRankParam) {
-        String institutionRank = institutionRankParam.toString();
-        String associationRank = associationRankParam.toString();
-        String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
-        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
-
-        response.addCookie(cookieUtil.createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
-        response.addCookie(
-                cookieUtil.createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
-
-        List<GrantedAuthority> authorities =
-                List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 }

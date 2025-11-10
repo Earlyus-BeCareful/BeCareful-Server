@@ -18,7 +18,6 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
-import com.becareful.becarefulserver.global.exception.GlobalExceptionHandler;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.service.*;
@@ -41,15 +40,11 @@ public class AssociationService {
 
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
-    private final JwtUtil jwtUtil;
-    private final CookieUtil cookieUtil;
-    private final JwtProperties jwtProperties;
     private final SocialWorkerRepository socialWorkerRepository;
     private final AssociationRepository associationRepository;
     private final PostBoardRepository postBoardRepository;
     private final AssociationJoinApplicationRepository associationJoinApplicationRepository;
     private final AssociationMemberRepository associationMemberRepository;
-    private final GlobalExceptionHandler globalExceptionHandler;
     private final S3Util s3Util;
     private final S3Service s3Service;
 
@@ -144,11 +139,6 @@ public class AssociationService {
             }
         }
 
-        updateJwtAndSecurityContext(
-                response,
-                currentSocialWorker.getPhoneNumber(),
-                currentSocialWorker.getInstitutionRank(),
-                AssociationRank.CHAIRMAN);
         return newAssociation.getId();
     }
 
@@ -222,7 +212,7 @@ public class AssociationService {
     }
 
     @Transactional
-    public void leaveAssociation(HttpServletResponse response) {
+    public void leaveAssociation() {
         AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
         Association association = currentMember.getAssociation();
@@ -240,12 +230,6 @@ public class AssociationService {
         }
 
         currentSocialWorker.leaveAssociation();
-
-        updateJwtAndSecurityContext(
-                response,
-                currentMember.getPhoneNumber(),
-                currentMember.getInstitutionRank(),
-                currentMember.getAssociationRank());
     }
 
     // 회원을 협회에서 탈퇴 시키는 메서드. 회원정보를 삭제하는게 아님
@@ -374,33 +358,6 @@ public class AssociationService {
 
         currentChairman.updateAssociationRank(request.nextRankOfCurrentChairman());
         newChairman.updateAssociationRank(AssociationRank.CHAIRMAN);
-
-        updateJwtAndSecurityContext(
-                response,
-                currentChairman.getPhoneNumber(),
-                currentChairman.getInstitutionRank(),
-                request.nextRankOfCurrentChairman());
-    }
-
-    private void updateJwtAndSecurityContext(
-            HttpServletResponse response,
-            String phoneNumber,
-            InstitutionRank institutionRankParam,
-            AssociationRank associationRankParam) {
-        String institutionRank = institutionRankParam.toString();
-        String associationRank = associationRankParam.toString();
-        String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
-        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
-
-        response.addCookie(cookieUtil.createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
-        response.addCookie(
-                cookieUtil.createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
-
-        List<GrantedAuthority> authorities =
-                List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @Transactional

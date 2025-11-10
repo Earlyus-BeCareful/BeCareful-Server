@@ -23,9 +23,8 @@ public class SocialWorkerController {
 
     @Operation(summary = "사회복지사 회원가입", description = "센터장, 대표, 사회복지사 모두 같은 API")
     @PostMapping("/signup")
-    public ResponseEntity<Void> createSocialWorker(
-            @Valid @RequestBody SocialWorkerCreateRequest request, HttpServletResponse response) {
-        Long id = socialworkerService.createSocialWorker(request, response);
+    public ResponseEntity<Void> createSocialWorker(@Valid @RequestBody SocialWorkerCreateRequest request) {
+        Long id = socialworkerService.createSocialWorker(request);
         return ResponseEntity.created(URI.create("/socialworker/" + id)).build();
     }
 
@@ -59,9 +58,9 @@ public class SocialWorkerController {
 
     @Operation(summary = "5.1.2 사회복지사 프로필 수정", description = "사회복지사 프로필을 수정합니다.")
     @PutMapping("/my/profile")
-    public ResponseEntity<Void> updateMyProfile(
-            @Valid @RequestBody SocialWorkerProfileUpdateRequest request, HttpServletResponse httpServletResponse) {
-        socialworkerService.updateMyProfile(request, httpServletResponse);
+    public ResponseEntity<Void> updateSocialWorkerProfile(
+            @Valid @RequestBody SocialWorkerProfileUpdateRequest request) {
+        socialworkerService.updateSocialWorkerProfile(request);
         return ResponseEntity.ok().build();
     }
 
