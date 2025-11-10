@@ -18,7 +18,6 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.EnumSet;
 import java.util.List;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -151,14 +150,15 @@ public class Recruitment extends BaseEntity {
         }
     }
 
-    public void update(String title,
-                       List<DayOfWeek> workDays,
-                       LocalTime workStartTime,
-                       LocalTime workEndTime,
-                       List<CareType> careTypes,
-                       WorkSalaryUnitType workSalaryUnitType,
-                       int workSalaryAmount,
-                       String description) {
+    public void update(
+            String title,
+            List<DayOfWeek> workDays,
+            LocalTime workStartTime,
+            LocalTime workEndTime,
+            List<CareType> careTypes,
+            WorkSalaryUnitType workSalaryUnitType,
+            int workSalaryAmount,
+            String description) {
         this.title = title;
         this.workDays = EnumSet.copyOf(workDays);
         this.workStartTime = workStartTime;

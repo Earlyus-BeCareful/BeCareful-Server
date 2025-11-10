@@ -276,10 +276,12 @@ public class SocialWorkerMatchingService {
     public void updateRecruitment(Long recruitmentId, RecruitmentUpdateRequest request) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
 
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
                 .orElseThrow(() -> new DomainException(RECRUITMENT_NOT_EXISTS));
 
-        boolean isApplicantOrProcessingContractExists = matchingRepository.existsByApplicantOrProcessingContract(recruitment);
+        boolean isApplicantOrProcessingContractExists =
+                matchingRepository.existsByApplicantOrProcessingContract(recruitment);
 
         recruitmentDomainService.validateRecruitmentInstitution(recruitment, loggedInSocialWorker);
         recruitmentDomainService.validateRecruitmentUpdatable(recruitment, isApplicantOrProcessingContractExists);
@@ -292,8 +294,7 @@ public class SocialWorkerMatchingService {
                 request.careTypes(),
                 request.workSalaryUnitType(),
                 request.workSalaryAmount(),
-                request.description()
-        );
+                request.description());
 
         matchingRepository.deleteAllByRecruitment(recruitment);
         workApplicationRepository.findAllActiveWorkApplication().forEach(workApplication -> {
