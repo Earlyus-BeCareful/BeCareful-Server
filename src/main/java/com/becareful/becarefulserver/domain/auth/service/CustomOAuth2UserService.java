@@ -26,15 +26,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             logger.info("OAuth2User: {}", oAuth2User.getAttributes());
 
             String registrationId = userRequest.getClientRegistration().getRegistrationId(); // kakao인지
-
-            OAuth2Response oAuth2Response = null;
             logger.info("Registration ID: {}", registrationId);
 
-            if (registrationId.equals("kakao")) {
-                oAuth2Response = new KakaoOAuth2Response(oAuth2User.getAttributes());
-            } else {
+            if (!registrationId.equals("kakao")) {
                 throw new OAuth2AuthenticationException("Unsupported OAuth2 provider: " + registrationId);
             }
+
+            OAuth2Response oAuth2Response = new KakaoOAuth2Response(oAuth2User.getAttributes());
 
             return customUserService.createCustomUser(oAuth2Response);
         } catch (OAuth2AuthenticationException ex) {
