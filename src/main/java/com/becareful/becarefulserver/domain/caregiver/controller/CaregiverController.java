@@ -33,9 +33,8 @@ public class CaregiverController {
             summary = "요양보호사 회원가입",
             description = "사회복지사 (social worker), 간호조무사 (nursing care), 프로필 이미지 필드는 생략할 수 있습니다.")
     @PostMapping("/signup")
-    public ResponseEntity<Void> createCaregiver(
-            @Valid @RequestBody CaregiverCreateRequest request, HttpServletResponse response) {
-        Long id = caregiverService.saveCaregiver(request, response);
+    public ResponseEntity<Void> createCaregiver(@Valid @RequestBody CaregiverCreateRequest request) {
+        Long id = caregiverService.saveCaregiver(request);
         return ResponseEntity.created(URI.create("/caregiver/" + id)).build();
     }
 

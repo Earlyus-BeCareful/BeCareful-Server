@@ -2,7 +2,6 @@ package com.becareful.becarefulserver.domain.auth.dto.response;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,10 +26,7 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(() -> "ROLE_" + loginResponse.institutionRank());
-        authorities.add(() -> "ROLE_" + loginResponse.associationRank());
-        return authorities;
+        return new ArrayList<>();
     }
 
     // 사용자 식별 필드

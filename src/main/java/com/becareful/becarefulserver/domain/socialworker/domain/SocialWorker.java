@@ -131,7 +131,6 @@ public class SocialWorker extends BaseEntity {
         this.nickname = request.nickName();
         this.birthday = birthday;
         this.gender = gender;
-        this.phoneNumber = request.phoneNumber();
         this.nursingInstitution = nursingInstitution;
         this.institutionRank = request.institutionRank();
         this.isAgreedToReceiveMarketingInfo = request.isAgreedToReceiveMarketingInfo();

@@ -8,13 +8,11 @@ import com.becareful.becarefulserver.domain.auth.service.CustomOAuth2UserService
 import com.becareful.becarefulserver.global.security.CustomAuthorizationRequestResolver;
 import com.becareful.becarefulserver.global.security.JwtAuthenticationFilter;
 import com.becareful.becarefulserver.global.security.JwtExceptionHandlingFilter;
-import com.becareful.becarefulserver.global.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,7 +32,6 @@ public class SecurityConfig {
     private final CustomSuccessHandler customSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtExceptionHandlingFilter jwtExceptionHandlingFilter;
-    private final JwtUtil jwtUtil;
     private final CustomAuthorizationRequestResolver customResolver;
 
     @Bean
@@ -48,65 +45,13 @@ public class SecurityConfig {
                                 endpoint -> endpoint.authorizationRequestResolver(customResolver))
                         .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
                         .successHandler(customSuccessHandler))
-                .authorizeHttpRequests(auth -> auth.requestMatchers(
-                                "/caregiver/signup", "/nursingInstitution/for-guest/**", "/socialworker/signup")
-                        .hasRole("GUEST")
-                        .requestMatchers(
-                                "/nursingInstitution/search",
-                                "/nursingInstitution/list",
-                                "/socialworker/check-nickname")
-                        .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
-                        .requestMatchers("/social-worker/my", "/social-worker/logout", "/social-worker/leave")
-                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
-                        .requestMatchers(
-                                "/nursingInstitution/upload-profile-img",
-                                "/nursingInstitution/profile-img/presigned-url")
-                        .hasAnyRole("GUEST", "CENTER_DIRECTOR", "REPRESENTATIVE")
-                        .requestMatchers("/caregiver/upload-profile-img", "/caregiver/profile-img/presigned-url")
-                        .hasAnyRole("GUEST", "NONE")
-                        .requestMatchers(HttpMethod.GET, "/association/join-requests", "/association/info")
-                        .hasAnyRole("CHAIRMAN", "EXECUTIVE")
-                        .requestMatchers("/association/create")
-                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE")
-                        .requestMatchers("/association/profile-img/presigned-url")
-                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "CHAIRMAN", "EXECUTIVE")
-                        .requestMatchers(
-                                "/association/join-requests/*/accept",
-                                "/association/join-requests/*/reject",
-                                "/association/info",
-                                "/association/members/*/expel",
-                                "/association/upload-profile-img",
-                                "/association/members/rank")
-                        .hasAnyRole("CHAIRMAN", "EXECUTIVE")
-                        .requestMatchers("/association/join-requests")
-                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
-                        .requestMatchers("/association/search", "/association/list")
-                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE", "SOCIAL_WORKER")
-                        .requestMatchers(HttpMethod.PUT, "/nursingInstitution/info")
-                        .hasAnyRole("CENTER_DIRECTOR", "REPRESENTATIVE")
-                        .requestMatchers("/association/chairman/delegate")
-                        .hasRole("CHAIRMAN")
-                        .requestMatchers(
-                                "/community/home",
-                                "/community/board/",
-                                "/community/post/",
-                                "/association/members/overview",
-                                "/association/members",
-                                "/association/members/*",
-                                "/association/leave")
-                        .hasAnyRole("CHAIRMAN", "EXECUTIVE", "MEMBER")
-                        .requestMatchers("/caregiver/logout", "/caregiver/leave")
-                        .hasAnyRole("NONE")
-                        .requestMatchers("/sms/**")
-                        .authenticated()
-                        .requestMatchers("/post")
-                        .authenticated()
-                        .requestMatchers("/auth/**", "/login/**", "/oauth2/**", "/favicon.ico")
-                        .permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/test/**")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated())
+                .authorizeHttpRequests(
+                        auth -> auth.requestMatchers("/auth/**", "/login/**", "/oauth2/**", "/favicon.ico")
+                                .permitAll()
+                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/test/**")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated())
                 .exceptionHandling(
                         exception -> exception.authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

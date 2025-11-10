@@ -95,7 +95,7 @@ public class CaregiverService {
     }
 
     @Transactional
-    public Long saveCaregiver(CaregiverCreateRequest request, HttpServletResponse httpServletResponse) {
+    public Long saveCaregiver(CaregiverCreateRequest request) {
         validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
 
         if (caregiverRepository.existsByPhoneNumber(request.phoneNumber())) {
@@ -140,8 +140,6 @@ public class CaregiverService {
                 throw new CaregiverException(CAREGIVER_FAILED_TO_MOVE_FILE);
             }
         }
-
-        updateJwtAndSecurityContext(httpServletResponse, request.phoneNumber());
 
         return caregiver.getId();
     }
@@ -244,23 +242,5 @@ public class CaregiverService {
         int day = Integer.parseInt(yymmdd.substring(4, 6));
 
         return LocalDate.of(year, month, day);
-    }
-
-    private void updateJwtAndSecurityContext(HttpServletResponse response, String phoneNumber) {
-        String institutionRank = "NONE";
-        String associationRank = "NONE";
-
-        String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
-        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
-
-        response.addCookie(cookieUtil.createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
-        response.addCookie(
-                cookieUtil.createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
-
-        List<GrantedAuthority> authorities =
-                List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 }

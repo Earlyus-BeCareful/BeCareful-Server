@@ -2,10 +2,6 @@ package com.becareful.becarefulserver.global.security;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.INVALID_REFRESH_TOKEN;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.constant.SecurityConstant;
 import com.becareful.becarefulserver.global.exception.ErrorMessage;
 import com.becareful.becarefulserver.global.exception.exception.AuthException;
@@ -18,14 +14,12 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -37,11 +31,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final JwtProperties jwtProperties;
     private final CookieProperties cookieProperties;
-    private final SocialWorkerRepository socialWorkerRepository;
-    private final CaregiverRepository caregiverRepository;
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
         return isPathNeedToBeAuthenticated(path);
     }
@@ -102,37 +94,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Refresh Token에서 사용자 정보 추출
         String phoneNumber = jwtUtil.getPhoneNumber(refreshToken);
 
-        String newInstitutionRank;
-        String newAssociationRank;
-
-        Optional<SocialWorker> socialWorker = socialWorkerRepository.findByPhoneNumber(phoneNumber);
-        if (socialWorker.isPresent()) {
-            newInstitutionRank = socialWorker.get().getInstitutionRank().toString();
-            newAssociationRank = socialWorker.get().getAssociationRank().toString();
-        } else {
-            Optional<Caregiver> caregiver = caregiverRepository.findByPhoneNumber(phoneNumber);
-            if (caregiver.isPresent()) {
-                newInstitutionRank = "NONE";
-                newAssociationRank = "NONE";
-            } else {
-                newInstitutionRank = "GUEST";
-                newAssociationRank = "GUEST";
-            }
-        }
-
         // 새로운 Access Token 생성
-        return jwtUtil.createAccessToken(phoneNumber, newInstitutionRank, newAssociationRank);
+        return jwtUtil.createAccessToken(phoneNumber);
     }
 
     private void updateSecurityContext(String accessToken) {
         String phoneNumber = jwtUtil.getPhoneNumber(accessToken);
-        String institutionRank = jwtUtil.getInstitutionRank(accessToken);
-        String associationRank = jwtUtil.getAssociationRank(accessToken);
 
-        List<GrantedAuthority> authorities =
-                List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
+        Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, new ArrayList<>());
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 

@@ -18,7 +18,6 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
-import com.becareful.becarefulserver.global.exception.GlobalExceptionHandler;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.service.*;
@@ -41,15 +40,11 @@ public class AssociationService {
 
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
-    private final JwtUtil jwtUtil;
-    private final CookieUtil cookieUtil;
-    private final JwtProperties jwtProperties;
     private final SocialWorkerRepository socialWorkerRepository;
     private final AssociationRepository associationRepository;
     private final PostBoardRepository postBoardRepository;
     private final AssociationJoinApplicationRepository associationJoinApplicationRepository;
     private final AssociationMemberRepository associationMemberRepository;
-    private final GlobalExceptionHandler globalExceptionHandler;
     private final S3Util s3Util;
     private final S3Service s3Service;
 
@@ -79,6 +74,7 @@ public class AssociationService {
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
 
         currentMember.validateAssociation(joinApplication.getAssociation());
+        currentMember.validateHasAssociationManagableRank();
 
         joinApplication.approve();
 
@@ -105,6 +101,7 @@ public class AssociationService {
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_MEMBERSHIP_REQUEST_NOT_EXISTS));
 
         currentMember.validateAssociation(joinApplication.getAssociation());
+        currentMember.validateHasAssociationManagableRank();
 
         joinApplication.reject();
     }
@@ -144,11 +141,6 @@ public class AssociationService {
             }
         }
 
-        updateJwtAndSecurityContext(
-                response,
-                currentSocialWorker.getPhoneNumber(),
-                currentSocialWorker.getInstitutionRank(),
-                AssociationRank.CHAIRMAN);
         return newAssociation.getId();
     }
 
@@ -197,6 +189,8 @@ public class AssociationService {
         AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         Association association = currentMember.getAssociation();
 
+        currentMember.validateHasAssociationManagableRank();
+
         int joinApplicationCount = associationJoinApplicationRepository.countByAssociationAndStatus(
                 association, AssociationJoinApplicationStatus.PENDING);
 
@@ -222,7 +216,7 @@ public class AssociationService {
     }
 
     @Transactional
-    public void leaveAssociation(HttpServletResponse response) {
+    public void leaveAssociation() {
         AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         SocialWorker currentSocialWorker = authUtil.getLoggedInSocialWorker();
         Association association = currentMember.getAssociation();
@@ -240,20 +234,24 @@ public class AssociationService {
         }
 
         currentSocialWorker.leaveAssociation();
-
-        updateJwtAndSecurityContext(
-                response,
-                currentMember.getPhoneNumber(),
-                currentMember.getInstitutionRank(),
-                currentMember.getAssociationRank());
     }
 
     // 회원을 협회에서 탈퇴 시키는 메서드. 회원정보를 삭제하는게 아님
     @Transactional
     public void expelMember(Long memberId) {
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
+        currentMember.validateHasAssociationManagableRank();
+
         SocialWorker member = socialWorkerRepository
                 .findById(memberId)
                 .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+
+        AssociationMember expelMember = member.getAssociationMember();
+        if (expelMember == null) {
+            return;
+        }
+
+        currentMember.validateAssociation(expelMember.getAssociation());
 
         member.leaveAssociation();
     }
@@ -301,6 +299,9 @@ public class AssociationService {
     public AssociationInfoResponse getAssociationInfo() {
         AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         Association association = currentMember.getAssociation();
+
+        currentMember.validateHasAssociationManagableRank();
+
         AssociationMember chairman = associationMemberRepository
                 .findByAssociationAndAssociationRank(association, AssociationRank.CHAIRMAN)
                 .orElseThrow(() -> new AssociationException(ASSOCIATION_CHAIRMAN_NOT_EXISTS));
@@ -313,6 +314,8 @@ public class AssociationService {
     public void updateAssociationInfo(@Valid UpdateAssociationInfoRequest request) {
         AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         Association association = currentMember.getAssociation();
+
+        currentMember.validateHasAssociationManagableRank();
 
         String profileImageUrl;
         if (request.profileImageTempKey() == null) {
@@ -339,11 +342,11 @@ public class AssociationService {
     public void updateAssociationRank(@Valid UpdateAssociationRankRequest request) {
         AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         Association association = currentMember.getAssociation();
+        currentMember.validateHasAssociationManagableRank();
 
         AssociationMember member = associationMemberRepository
                 .findById(request.memberId())
                 .orElseThrow(() -> new DomainException(ASSOCIATION_MEMBER_NOT_EXISTS));
-
         currentMember.validateAssociation(member.getAssociation());
 
         AssociationRank currentRank = member.getAssociationRank();
@@ -365,42 +368,18 @@ public class AssociationService {
     }
 
     @Transactional
-    public void updateAssociationChairman(
-            @Valid UpdateAssociationChairmanRequest request, HttpServletResponse response) {
+    public void updateAssociationChairman(@Valid UpdateAssociationChairmanRequest request) {
         AssociationMember currentChairman = authUtil.getLoggedInAssociationMember();
+        currentChairman.validateChairman();
+
         AssociationMember newChairman = associationMemberRepository
                 .findByIdAndName(request.newChairmanId(), request.newChairmanName())
-                .orElseThrow(() -> new NotFoundException("회원 정보를 잘못 입력하였습니다."));
+                .orElseThrow(() -> new DomainException(ASSOCIATION_MEMBER_NOT_EXISTS));
+
+        currentChairman.validateAssociation(newChairman.getAssociation());
 
         currentChairman.updateAssociationRank(request.nextRankOfCurrentChairman());
         newChairman.updateAssociationRank(AssociationRank.CHAIRMAN);
-
-        updateJwtAndSecurityContext(
-                response,
-                currentChairman.getPhoneNumber(),
-                currentChairman.getInstitutionRank(),
-                request.nextRankOfCurrentChairman());
-    }
-
-    private void updateJwtAndSecurityContext(
-            HttpServletResponse response,
-            String phoneNumber,
-            InstitutionRank institutionRankParam,
-            AssociationRank associationRankParam) {
-        String institutionRank = institutionRankParam.toString();
-        String associationRank = associationRankParam.toString();
-        String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
-        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
-
-        response.addCookie(cookieUtil.createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
-        response.addCookie(
-                cookieUtil.createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
-
-        List<GrantedAuthority> authorities =
-                List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @Transactional

@@ -38,6 +38,7 @@ public class ErrorMessage {
             "가입 신청이 이미 승인되었습니다. 서비스를 이용하고 싶지 않으시다면 탈퇴해 주십시오.";
     public static final String ASSOCIATION_MEMBERSHIP_REQUEST_ALREADY_REJECTED = "가입 신청이 이미 반려되었습니다";
     public static final String ASSOCIATION_NOT_ACCESSABLE_OTHER_ASSOCIATION = "내가 속한 협회가 아니므로 접근할 수 없습니다.";
+    public static final String ASSOCIATION_MEMBER_NOT_ENOUGH_RANK = "협회 회원의 권한이 충분하지 않습니다.";
 
     public static final String ASSOCIATION_CHAIRMAN_NOT_EXISTS = "협회장이 존재하지 않습니다.";
     public static final String ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST = "커뮤니티 협회장 위임을 먼저 해야합니다.";

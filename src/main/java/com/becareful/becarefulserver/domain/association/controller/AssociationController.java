@@ -85,9 +85,8 @@ public class AssociationController {
     @Operation(summary = "협회장 위임", description = "협회장 권한 API")
     @PutMapping("/chairman/delegate")
     public ResponseEntity<Void> updateAssociationChairman(
-            @Valid @RequestBody UpdateAssociationChairmanRequest request, HttpServletResponse response)
-            throws ChangeSetPersister.NotFoundException {
-        associationService.updateAssociationChairman(request, response);
+            @Valid @RequestBody UpdateAssociationChairmanRequest request) {
+        associationService.updateAssociationChairman(request);
         return ResponseEntity.ok().build();
     }
 
@@ -165,8 +164,8 @@ public class AssociationController {
 
     @Operation(summary = "협회 탈퇴", description = "마이페이지-센터장, 대표")
     @PutMapping("/leave")
-    public ResponseEntity<Void> leaveAssociation(HttpServletResponse response) {
-        associationService.leaveAssociation(response);
+    public ResponseEntity<Void> leaveAssociation() {
+        associationService.leaveAssociation();
         return ResponseEntity.ok().build();
     }
 }
