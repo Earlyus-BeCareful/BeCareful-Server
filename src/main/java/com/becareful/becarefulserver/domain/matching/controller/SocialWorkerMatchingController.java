@@ -67,6 +67,14 @@ public class SocialWorkerMatchingController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "3.1.4 공고 수정", description = "공고 내용을 수정합니다. 지원자가 없을 때만 수정 가능합니다.")
+    @PutMapping("/recruitment/{recruitmentId}")
+    public ResponseEntity<Void> updateRecruitmentDetail(
+            @PathVariable Long recruitmentId, @Valid @RequestBody RecruitmentUpdateRequest request) {
+        socialWorkerMatchingService.updateRecruitment(recruitmentId, request);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "3.1.4 공고 마감 처리", description = "공고를 마감하고, 신규 매칭 및 지원을 더 이상 받지 않습니다.")
     @PostMapping("/recruitment/{recruitmentId}/close")
     public ResponseEntity<Void> closeRecruitment(@PathVariable Long recruitmentId) {
