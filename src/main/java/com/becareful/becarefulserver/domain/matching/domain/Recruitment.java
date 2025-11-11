@@ -11,7 +11,6 @@ import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import jakarta.persistence.*;
 import java.time.DayOfWeek;
@@ -120,16 +119,6 @@ public class Recruitment extends BaseEntity {
     private boolean isWorkTimeOverlap(LocalTime startTime, LocalTime endTime) {
         return (workStartTime.isBefore(endTime) && startTime.isAfter(workEndTime))
                 || (startTime.isBefore(workEndTime) && workStartTime.isBefore(endTime));
-    }
-
-    /**
-     * 검증 메서드
-     */
-    public void validateUpdatableRecruitmentStatus() {
-        if (recruitmentStatus.isRecruiting()) {
-            return;
-        }
-        throw new DomainException(RECRUITMENT_NOT_UPDATABLE_NOT_RECRUITING);
     }
 
     /**

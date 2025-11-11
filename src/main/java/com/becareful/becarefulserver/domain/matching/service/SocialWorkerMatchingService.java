@@ -1,6 +1,5 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
-import static com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
@@ -300,6 +299,27 @@ public class SocialWorkerMatchingService {
         workApplicationRepository.findAllActiveWorkApplication().forEach(workApplication -> {
             matchingDomainService.createMatching(recruitment, workApplication).ifPresent(matchingRepository::save);
         });
+    }
+
+    /**
+     * 3.1.4 공고 삭제 - 지원자가 없을 때만 공고 삭제 가능
+     * @param recruitmentId 공고 ID
+     */
+    @Transactional
+    public void deleteRecruitment(Long recruitmentId) {
+        SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
+                .orElseThrow(() -> new DomainException(RECRUITMENT_NOT_EXISTS));
+
+        boolean isApplicantOrProcessingContractExists =
+                matchingRepository.existsByApplicantOrProcessingContract(recruitment);
+
+        recruitmentDomainService.validateRecruitmentInstitution(recruitment, socialWorker);
+        recruitmentDomainService.validateRecruitmentDeletable(recruitment, isApplicantOrProcessingContractExists);
+
+        matchingRepository.deleteAllByRecruitment(recruitment);
+        recruitmentRepository.delete(recruitment);
     }
 
     @Transactional
