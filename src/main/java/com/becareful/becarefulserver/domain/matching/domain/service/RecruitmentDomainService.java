@@ -33,7 +33,7 @@ public class RecruitmentDomainService {
         }
 
         if (isApplicantOrProcessingContractExists) {
-            throw new DomainException(RECRUITMENT_NOT_UPDATABLE_APPLICANTS_OR_PROCESSING_CONTRACT_EXISTS);
+            throw new DomainException(RECRUITMENT_NOT_DELETABLE_APPLICANTS_OR_PROCESSING_CONTRACT_EXISTS);
         }
     }
 }
