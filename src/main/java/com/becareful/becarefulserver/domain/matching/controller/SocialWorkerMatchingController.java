@@ -75,6 +75,13 @@ public class SocialWorkerMatchingController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "3.1.4 공고 삭제", description = "공고를 삭제합니다. 지원자가 없을 때만 삭제 가능합니다.")
+    @DeleteMapping("/recruitment/{recruitmentId}")
+    public ResponseEntity<Void> deleteRecruitmentDetail(@PathVariable Long recruitmentId) {
+        socialWorkerMatchingService.deleteRecruitment(recruitmentId);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "3.1.4 공고 마감 처리", description = "공고를 마감하고, 신규 매칭 및 지원을 더 이상 받지 않습니다.")
     @PostMapping("/recruitment/{recruitmentId}/close")
     public ResponseEntity<Void> closeRecruitment(@PathVariable Long recruitmentId) {

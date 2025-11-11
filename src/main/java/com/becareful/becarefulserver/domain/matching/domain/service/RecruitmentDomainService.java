@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.domain.service;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.RECRUITMENT_DIFFERENT_INSTITUTION;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.RECRUITMENT_NOT_UPDATABLE_APPLICANTS_OR_PROCESSING_CONTRACT_EXISTS;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
@@ -19,7 +18,19 @@ public class RecruitmentDomainService {
     }
 
     public void validateRecruitmentUpdatable(Recruitment recruitment, boolean isApplicantOrProcessingContractExists) {
-        recruitment.validateUpdatableRecruitmentStatus();
+        if (!recruitment.getRecruitmentStatus().isRecruiting()) {
+            throw new DomainException(RECRUITMENT_NOT_UPDATABLE_NOT_RECRUITING);
+        }
+
+        if (isApplicantOrProcessingContractExists) {
+            throw new DomainException(RECRUITMENT_NOT_UPDATABLE_APPLICANTS_OR_PROCESSING_CONTRACT_EXISTS);
+        }
+    }
+
+    public void validateRecruitmentDeletable(Recruitment recruitment, boolean isApplicantOrProcessingContractExists) {
+        if (!recruitment.getRecruitmentStatus().isRecruiting()) {
+            throw new DomainException(RECRUITMENT_NOT_DELETABLE_NOT_RECRUITING);
+        }
 
         if (isApplicantOrProcessingContractExists) {
             throw new DomainException(RECRUITMENT_NOT_UPDATABLE_APPLICANTS_OR_PROCESSING_CONTRACT_EXISTS);
