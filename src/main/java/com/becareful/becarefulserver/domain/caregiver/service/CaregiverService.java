@@ -41,12 +41,9 @@ public class CaregiverService {
     private final WorkApplicationRepository workApplicationRepository;
     private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
+    private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
-    private final JwtUtil jwtUtil;
-    private final CookieUtil cookieUtil;
-    private final JwtProperties jwtProperties;
-    private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final S3Util s3Util;
     private final S3Service s3Service;
 
@@ -193,12 +190,6 @@ public class CaregiverService {
         }
     }
 
-    public void logout(HttpServletResponse response) {
-        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
-        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
-        SecurityContextHolder.clearContext();
-    }
-
     @Transactional
     public void deleteCaregiver(HttpServletResponse response) {
         /**
@@ -211,7 +202,7 @@ public class CaregiverService {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         matchingRepository.deleteAllByCaregiverAndStatusNot(loggedInCaregiver, 근무제안);
         caregiverRepository.delete(loggedInCaregiver);
-        logout(response);
+        authUtil.logout(response);
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {

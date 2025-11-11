@@ -9,6 +9,7 @@ import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ public class AuthUtil {
 
     private final CaregiverRepository caregiverRepository;
     private final SocialWorkerRepository socialworkerRepository;
+    private final CookieUtil cookieUtil;
 
     public Caregiver getLoggedInCaregiver() {
         String phoneNumber =
@@ -48,5 +50,11 @@ public class AuthUtil {
         }
 
         return socialWorker.getAssociationMember();
+    }
+
+    public void logout(HttpServletResponse response) {
+        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
+        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
+        SecurityContextHolder.clearContext();
     }
 }
