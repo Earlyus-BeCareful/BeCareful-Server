@@ -154,10 +154,7 @@ public class SocialWorkerService {
         }
 
         socialworkerRepository.delete(loggedInSocialWorker);
-
-        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
-        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
-        SecurityContextHolder.clearContext();
+        authUtil.logout(response);
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {

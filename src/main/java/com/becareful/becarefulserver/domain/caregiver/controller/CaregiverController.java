@@ -1,6 +1,5 @@
 package com.becareful.becarefulserver.domain.caregiver.controller;
 
-import com.becareful.becarefulserver.domain.auth.service.AuthService;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.*;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.service.*;
@@ -9,6 +8,7 @@ import com.becareful.becarefulserver.domain.common.dto.response.*;
 import com.becareful.becarefulserver.domain.matching.dto.request.*;
 import com.becareful.becarefulserver.domain.matching.dto.response.*;
 import com.becareful.becarefulserver.domain.matching.service.*;
+import com.becareful.becarefulserver.global.util.AuthUtil;
 import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.tags.*;
 import jakarta.servlet.http.*;
@@ -29,7 +29,7 @@ public class CaregiverController {
     private final CaregiverService caregiverService;
     private final CareerService careerService;
     private final CompletedMatchingService completedMatchingService;
-    private final AuthService authService;
+    private final AuthUtil authUtil;
 
     @Operation(
             summary = "요양보호사 회원가입",
@@ -43,7 +43,7 @@ public class CaregiverController {
     @Operation(summary = "요양보호사 로그아웃")
     @PutMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse httpServletResponse) {
-        authService.logout(httpServletResponse);
+        authUtil.logout(httpServletResponse);
         return ResponseEntity.ok().build();
     }
 

@@ -1,10 +1,10 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
 
-import com.becareful.becarefulserver.domain.auth.service.AuthService;
 import com.becareful.becarefulserver.domain.socialworker.dto.SocialWorkerDto;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.service.*;
+import com.becareful.becarefulserver.global.util.AuthUtil;
 import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.tags.*;
 import jakarta.servlet.http.*;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class SocialWorkerController {
 
     private final SocialWorkerService socialworkerService;
-    private final AuthService authService;
+    private final AuthUtil authUtil;
 
     @Operation(summary = "사회복지사 회원가입", description = "센터장, 대표, 사회복지사 모두 같은 API")
     @PostMapping("/signup")
@@ -69,7 +69,7 @@ public class SocialWorkerController {
     @Operation(summary = "로그아웃")
     @PutMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse httpServletResponse) {
-        authService.logout(httpServletResponse);
+        authUtil.logout(httpServletResponse);
         return ResponseEntity.ok().build();
     }
 
