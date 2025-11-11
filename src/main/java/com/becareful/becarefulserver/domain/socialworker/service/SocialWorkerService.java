@@ -132,15 +132,6 @@ public class SocialWorkerService {
         loggedInSocialWorker.update(request, birthDate, gender, institution);
     }
 
-    public void logout(HttpServletResponse response) {
-        // AccessToken 쿠키 삭제
-        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
-        // RefreshToken 쿠키 삭제
-        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
-        // SecurityContext 초기화
-        SecurityContextHolder.clearContext();
-    }
-
     @Transactional
     public void deleteSocialWorker(HttpServletResponse response) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
@@ -166,7 +157,6 @@ public class SocialWorkerService {
 
         response.addCookie(cookieUtil.deleteCookie("AccessToken"));
         response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
-
         SecurityContextHolder.clearContext();
     }
 

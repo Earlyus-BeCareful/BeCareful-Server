@@ -46,6 +46,7 @@ public class CaregiverService {
     private final AuthUtil authUtil;
     private final S3Util s3Util;
     private final S3Service s3Service;
+    private final CookieUtil cookieUtil;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -202,6 +203,10 @@ public class CaregiverService {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         matchingRepository.deleteAllByCaregiverAndStatusNot(loggedInCaregiver, 근무제안);
         caregiverRepository.delete(loggedInCaregiver);
+
+        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
+        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
+        SecurityContextHolder.clearContext();
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
