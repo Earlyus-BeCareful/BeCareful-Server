@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.community.domain.vo;
 
-import com.becareful.becarefulserver.global.exception.ErrorMessage;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.COMMUNITY_REQUIRED_AGREEMENT_NOT_AGREED;
+
 import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -23,7 +24,7 @@ public class CommunityAgreement {
     public static CommunityAgreement of(
             boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo, boolean isAgreedToReceiveMarketingInfo) {
         if (!isAgreedToTerms || !isAgreedToCollectPersonalInfo) {
-            throw new DomainException(ErrorMessage.COMMUNITY_REQUIRED_AGREEMENT_NOT_AGREED);
+            throw new DomainException(COMMUNITY_REQUIRED_AGREEMENT_NOT_AGREED);
         }
 
         return new CommunityAgreement(isAgreedToTerms, isAgreedToCollectPersonalInfo, isAgreedToReceiveMarketingInfo);
