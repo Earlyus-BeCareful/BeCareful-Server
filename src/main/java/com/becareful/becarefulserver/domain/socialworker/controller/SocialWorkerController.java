@@ -28,7 +28,7 @@ public class SocialWorkerController {
     @PostMapping("/signup")
     public ResponseEntity<Void> createSocialWorker(@Valid @RequestBody SocialWorkerCreateRequest request) {
         Long id = socialWorkerService.createSocialWorker(request);
-        return ResponseEntity.created(URI.create("/socialworker/" + id)).build();
+        return ResponseEntity.created(URI.create("/social-worker/" + id)).build();
     }
 
     @Operation(summary = "닉네임 중복 확인", description = "닉네임 중복 확인 API. 동일한 닉네임이 있다면 true 반환")
