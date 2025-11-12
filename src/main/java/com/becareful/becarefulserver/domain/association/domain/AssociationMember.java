@@ -5,6 +5,7 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.ASSOCI
 
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
+import com.becareful.becarefulserver.domain.community.domain.vo.CommunityAgreement;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
@@ -43,11 +44,8 @@ public class AssociationMember extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private AssociationRank associationRank;
 
-    private boolean isAgreedToTerms;
-
-    private boolean isAgreedToCollectPersonalInfo;
-
-    private boolean isAgreedToReceiveMarketingInfo;
+    @Embedded
+    private CommunityAgreement communityAgreement;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nursing_institution_id")
@@ -68,9 +66,7 @@ public class AssociationMember extends BaseEntity {
             InstitutionRank institutionRank,
             Association association,
             AssociationRank associationRank,
-            boolean isAgreedToTerms,
-            boolean isAgreedToCollectPersonalInfo,
-            boolean isAgreedToReceiveMarketingInfo) {
+            CommunityAgreement communityAgreement) {
         this.name = name;
         this.nickname = nickname;
         this.birthday = birthday;
@@ -80,9 +76,7 @@ public class AssociationMember extends BaseEntity {
         this.association = association;
         this.associationRank = associationRank;
         this.institution = institution;
-        this.isAgreedToTerms = isAgreedToTerms;
-        this.isAgreedToCollectPersonalInfo = isAgreedToCollectPersonalInfo;
-        this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
+        this.communityAgreement = communityAgreement;
     }
 
     /**
@@ -90,14 +84,6 @@ public class AssociationMember extends BaseEntity {
      */
     public Integer getAge() {
         return Period.between(this.birthday, LocalDate.now()).getYears();
-    }
-
-    public Integer getGenderCode() {
-        int genderCode = this.gender == Gender.MALE ? 1 : 2;
-        if (this.birthday.getYear() >= 2000) {
-            genderCode += 2;
-        }
-        return genderCode;
     }
 
     public static AssociationMember create(
@@ -117,9 +103,8 @@ public class AssociationMember extends BaseEntity {
                 .institutionRank(socialWorker.getInstitutionRank())
                 .association(association)
                 .associationRank(associationRank)
-                .isAgreedToTerms(isAgreedToTerms)
-                .isAgreedToCollectPersonalInfo(isAgreedToCollectPersonalInfo)
-                .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
+                .communityAgreement(CommunityAgreement.of(
+                        isAgreedToTerms, isAgreedToCollectPersonalInfo, isAgreedToReceiveMarketingInfo))
                 .build();
     }
 
@@ -150,9 +135,10 @@ public class AssociationMember extends BaseEntity {
         this.phoneNumber = request.phoneNumber();
         this.institution = nursingInstitution;
         this.institutionRank = request.institutionRank();
-        this.isAgreedToReceiveMarketingInfo = request.isAgreedToReceiveMarketingInfo();
-        this.isAgreedToTerms = request.isAgreedToTerms();
-        this.isAgreedToCollectPersonalInfo = request.isAgreedToCollectPersonalInfo();
+        this.communityAgreement = CommunityAgreement.of(
+                request.isAgreedToTerms(),
+                request.isAgreedToCollectPersonalInfo(),
+                request.isAgreedToReceiveMarketingInfo());
     }
 
     /**
