@@ -2,7 +2,7 @@ package com.becareful.becarefulserver.domain.association.repository;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
-import com.becareful.becarefulserver.domain.association.domain.vo.AssociationJoinApplicationStatus;
+import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplicationStatus;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import java.util.List;
 import java.util.Optional;
