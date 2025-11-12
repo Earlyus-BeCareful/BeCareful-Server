@@ -60,7 +60,7 @@ public class CaregiverMatchingController {
 
     @Operation(
             summary = "지원 현황 조회 (요양보호사 나의 지원현황 조회)",
-            description = "일자리 지원서가 없거나, 지원 내역이 없다면 빈 리스트를 응답합니다. 관리자가 거절한 경우에는 '불합격' 상태로 조회해야 합니다.")
+            description = "일자리 지원서가 없거나, 지원 내역이 없다면 빈 리스트를 응답합니다.")
     @GetMapping("/my/recruitment")
     public ResponseEntity<CaregiverAppliedRecruitmentsResponse> getMyRecruitment(
             @RequestParam("matchingStatus") MatchingStatus matchingStatus) {
@@ -70,7 +70,7 @@ public class CaregiverMatchingController {
 
     @Operation(
             summary = "지원 현황 상세 조회 (요양보호사 나의 지원현황 상세 조회)",
-            description = "일자리 지원서가 없거나, 지원 내역이 없다면 빈 리스트를 응답합니다. 관리자가 거절한 경우에는 '불합격' 상태로 조회해야 합니다.")
+            description = "일자리 지원서가 없거나, 지원 내역이 없다면 빈 리스트를 응답합니다.")
     @GetMapping("/my/recruitment/{recruitmentId}")
     public ResponseEntity<CaregiverAppliedMatchingDetailResponse> getMyRecruitmentDetail(
             @PathVariable("recruitmentId") Long recruitmentId) {
