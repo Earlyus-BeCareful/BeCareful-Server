@@ -1,6 +1,5 @@
 package com.becareful.becarefulserver.domain.association.domain;
 
-import com.becareful.becarefulserver.domain.association.domain.vo.AssociationJoinApplicationStatus;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import jakarta.persistence.*;

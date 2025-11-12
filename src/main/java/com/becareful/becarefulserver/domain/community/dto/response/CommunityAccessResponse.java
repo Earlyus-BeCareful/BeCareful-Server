@@ -2,7 +2,7 @@ package com.becareful.becarefulserver.domain.community.dto.response;
 
 import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.dto.response.AssociationMyResponse;
-import com.becareful.becarefulserver.domain.community.domain.vo.CommunityAccessStatus;
+import com.becareful.becarefulserver.domain.community.domain.CommunityAccessStatus;
 
 public record CommunityAccessResponse(
         CommunityAccessStatus accessStatus, String associationName, AssociationMyResponse associationInfo) {
