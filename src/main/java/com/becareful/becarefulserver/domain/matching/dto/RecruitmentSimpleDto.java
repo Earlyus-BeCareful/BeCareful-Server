@@ -5,6 +5,8 @@ import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionSimpleDto;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -18,7 +20,8 @@ public record RecruitmentSimpleDto(
         WorkSalaryUnitType workSalaryUnitType,
         Integer workSalaryAmount,
         boolean isRecruiting,
-        InstitutionSimpleDto institutionInfo) {
+        InstitutionSimpleDto institutionInfo,
+        LocalDateTime createdTime) {
 
     public static RecruitmentSimpleDto from(Recruitment recruitment) {
         return new RecruitmentSimpleDto(
@@ -31,6 +34,7 @@ public record RecruitmentSimpleDto(
                 recruitment.getWorkSalaryUnitType(),
                 recruitment.getWorkSalaryAmount(),
                 recruitment.getRecruitmentStatus().isRecruiting(),
-                InstitutionSimpleDto.from(recruitment.getElderly().getNursingInstitution()));
+                InstitutionSimpleDto.from(recruitment.getElderly().getNursingInstitution()),
+                recruitment.getCreateDate());
     }
 }
