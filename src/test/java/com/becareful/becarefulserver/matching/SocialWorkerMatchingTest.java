@@ -15,6 +15,7 @@ import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
+import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentUpdateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.request.WaitingMatchingElderlySearchRequest;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.domain.matching.service.CaregiverMatchingService;
@@ -175,6 +176,86 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
                     socialWorkerMatchingService.deleteRecruitment(recruitmentId);
                 })
                 .hasMessage(ErrorMessage.RECRUITMENT_NOT_DELETABLE_APPLICANTS_OR_PROCESSING_CONTRACT_EXISTS);
+    }
+
+    @Test
+    @WithSocialWorker(phoneNumber = "01099990000")
+    void 공고_수정에_성공한다() {
+        // given
+        Elderly elderly = createElderly("박요양");
+        RecruitmentCreateRequest recruitmentRequest = new RecruitmentCreateRequest(
+                elderly.getId(),
+                "title",
+                List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
+                LocalTime.of(9, 0),
+                LocalTime.of(12, 0),
+                List.of(CareType.식사보조),
+                WorkSalaryUnitType.DAY,
+                10000,
+                "desc");
+        Long recruitmentId = socialWorkerMatchingService.createRecruitment(recruitmentRequest);
+
+        RecruitmentUpdateRequest updateRequest = new RecruitmentUpdateRequest(
+                "updated title",
+                List.of(DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY),
+                LocalTime.of(10, 0),
+                LocalTime.of(13, 0),
+                List.of(CareType.배변보조),
+                WorkSalaryUnitType.HOUR,
+                20000,
+                "updated desc");
+
+        // when
+        socialWorkerMatchingService.updateRecruitment(recruitmentId, updateRequest);
+
+        // then
+        Recruitment updatedRecruitment =
+                recruitmentRepository.findById(recruitmentId).orElseThrow();
+        Assertions.assertThat(updatedRecruitment.getTitle()).isEqualTo("updated title");
+        Assertions.assertThat(updatedRecruitment.getWorkDays())
+                .containsExactlyInAnyOrder(DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY);
+        Assertions.assertThat(updatedRecruitment.getWorkStartTime()).isEqualTo(LocalTime.of(10, 0));
+        Assertions.assertThat(updatedRecruitment.getWorkEndTime()).isEqualTo(LocalTime.of(13, 0));
+        Assertions.assertThat(updatedRecruitment.getCareTypes()).containsExactly(CareType.배변보조);
+        Assertions.assertThat(updatedRecruitment.getWorkSalaryUnitType()).isEqualTo(WorkSalaryUnitType.HOUR);
+        Assertions.assertThat(updatedRecruitment.getWorkSalaryAmount()).isEqualTo(20000);
+        Assertions.assertThat(updatedRecruitment.getDescription()).isEqualTo("updated desc");
+    }
+
+    @Test
+    @WithSocialWorker(phoneNumber = "01099990000")
+    void 지원자가_있다면_공고_수정에_실패한다() {
+        // given
+        Elderly elderly = createElderly("박요양");
+        RecruitmentCreateRequest recruitmentRequest = new RecruitmentCreateRequest(
+                elderly.getId(),
+                "title",
+                List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
+                LocalTime.of(9, 0),
+                LocalTime.of(12, 0),
+                List.of(CareType.식사보조),
+                WorkSalaryUnitType.DAY,
+                10000,
+                "desc");
+        Long recruitmentId = socialWorkerMatchingService.createRecruitment(recruitmentRequest);
+
+        caregiverMatchingService.applyRecruitment(recruitmentId);
+
+        RecruitmentUpdateRequest updateRequest = new RecruitmentUpdateRequest(
+                "updated title",
+                List.of(DayOfWeek.WEDNESDAY),
+                LocalTime.of(10, 0),
+                LocalTime.of(13, 0),
+                List.of(CareType.배변보조),
+                WorkSalaryUnitType.HOUR,
+                20000,
+                "updated desc");
+
+        // when & then
+        Assertions.assertThatThrownBy(() -> {
+                    socialWorkerMatchingService.updateRecruitment(recruitmentId, updateRequest);
+                })
+                .hasMessage(ErrorMessage.RECRUITMENT_NOT_UPDATABLE_APPLICANTS_OR_PROCESSING_CONTRACT_EXISTS);
     }
 
     private Elderly createElderly(String name) {
