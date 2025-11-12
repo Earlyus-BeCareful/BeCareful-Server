@@ -26,6 +26,6 @@ public class CommunityAgreement {
             throw new DomainException(ErrorMessage.COMMUNITY_REQUIRED_AGREEMENT_NOT_AGREED);
         }
 
-        return new CommunityAgreement(true, true, isAgreedToReceiveMarketingInfo);
+        return new CommunityAgreement(isAgreedToTerms, isAgreedToCollectPersonalInfo, isAgreedToReceiveMarketingInfo);
     }
 }
