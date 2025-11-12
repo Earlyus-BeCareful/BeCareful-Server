@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.association.dto.AssociationMemberDto;
 import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
 import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.common.domain.*;
@@ -17,14 +18,12 @@ import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
-import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.util.*;
 import jakarta.servlet.http.*;
 import jakarta.validation.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
-import org.springframework.security.core.context.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 
@@ -130,6 +129,18 @@ public class SocialWorkerService {
         Gender gender = Gender.fromGenderCode(request.genderCode());
 
         loggedInSocialWorker.update(request, birthDate, gender, institution);
+    }
+
+    @Transactional(readOnly = true)
+    public AssociationMemberDto getSocialWorkerMyAssociationDetail() {
+        AssociationMember loggedInAssociationMember = authUtil.getLoggedInAssociationMember();
+        return AssociationMemberDto.from(loggedInAssociationMember);
+    }
+
+    @Transactional
+    public void updateSocialWorkerMyAssociationDetail(SocialWorkerMyAssociationDetailUpdateRequest request) {
+        AssociationMember loggedInAssociationMember = authUtil.getLoggedInAssociationMember();
+        loggedInAssociationMember.updateAgreement(request.isAgreedToReceiveMarketingInfo());
     }
 
     @Transactional

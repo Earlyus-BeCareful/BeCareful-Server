@@ -135,10 +135,13 @@ public class AssociationMember extends BaseEntity {
         this.phoneNumber = request.phoneNumber();
         this.institution = nursingInstitution;
         this.institutionRank = request.institutionRank();
+    }
+
+    public void updateAgreement(boolean isAgreedToReceiveMarketingInfo) {
         this.communityAgreement = CommunityAgreement.of(
-                request.isAgreedToTerms(),
-                request.isAgreedToCollectPersonalInfo(),
-                request.isAgreedToReceiveMarketingInfo());
+                this.communityAgreement.isAgreedToTerms(),
+                this.communityAgreement.isAgreedToCollectPersonalInfo(),
+                isAgreedToReceiveMarketingInfo);
     }
 
     /**
