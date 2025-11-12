@@ -50,13 +50,6 @@ public class CaregiverMatchingController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "매칭 공고 거부 (요양보호사 일자리 거부)")
-    @PostMapping("/recruitment/{recruitmentId}/reject")
-    public ResponseEntity<Void> rejectMatching(@PathVariable("recruitmentId") Long recruitmentId) {
-        caregiverMatchingService.rejectMatching(recruitmentId);
-        return ResponseEntity.ok().build();
-    }
-
     @Operation(summary = "근무 조건 조율 (요양보호사 일자리 조율 지원)")
     @PostMapping("/recruitment/{recruitmentId}/mediate")
     public ResponseEntity<Void> mediateMatching(

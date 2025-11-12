@@ -110,11 +110,6 @@ public class Matching extends BaseEntity {
         this.applicationDate = LocalDate.now();
     }
 
-    public void reject() {
-        validateMatchingRejectable();
-        this.matchingStatus = MatchingStatus.매칭거부;
-    }
-
     public void mediate(RecruitmentMediateRequest request) {
         validateMatchingApplicable();
         this.matchingStatus = MatchingStatus.지원검토;
