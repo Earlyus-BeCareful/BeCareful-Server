@@ -73,7 +73,7 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
         SELECT count(*) > 0
           FROM Matching m
          WHERE m.recruitment = :recruitment
-           AND m.matchingStatus NOT IN ('미지원', '매칭거부')
+           AND m.matchingStatus <> '미지원'
     """)
     boolean existsByApplicantOrProcessingContract(Recruitment recruitment);
 

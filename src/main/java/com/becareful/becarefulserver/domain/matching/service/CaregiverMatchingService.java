@@ -65,23 +65,6 @@ public class CaregiverMatchingService {
         matching.apply();
     }
 
-    @Transactional
-    public void rejectMatching(Long recruitmentId) {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Recruitment recruitment = recruitmentRepository
-                .findById(recruitmentId)
-                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        WorkApplication workApplication = workApplicationRepository
-                .findByCaregiver(caregiver)
-                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
-
-        Matching matching = matchingRepository
-                .findByWorkApplicationAndRecruitment(workApplication, recruitment)
-                .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
-
-        matching.reject();
-    }
-
     @Transactional(readOnly = true)
     public RecruitmentDetailResponse getRecruitmentDetail(Long recruitmentId) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();

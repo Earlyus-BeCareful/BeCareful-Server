@@ -2,7 +2,6 @@ package com.becareful.becarefulserver.domain.matching.domain;
 
 /**
  * - '미지원'    - 매칭 생성시 초기 상태
- * - '매칭거부'  - 요양보호사가 보고싶지 않은 공고를 삭제한 경우
  * - '지원검토'  - 요양보호사가 원하는 공고에 지원 / 조율 지원한 경우
  * - '지원보류'  - 사회복지사가 요양보호사의 지원을 보류
  * - '근무제안'  - 사회복지사가 요양보호사의 지원을 승인 / 매칭된 요양보호사에게 먼저 제안하는 경우 (채팅방 개설)
@@ -11,7 +10,6 @@ package com.becareful.becarefulserver.domain.matching.domain;
  */
 public enum MatchingStatus {
     미지원,
-    매칭거부,
     지원검토,
     지원보류,
     근무제안,

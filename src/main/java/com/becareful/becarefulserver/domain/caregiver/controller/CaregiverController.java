@@ -74,7 +74,7 @@ public class CaregiverController {
     """)
     @PostMapping("/profile-img/presigned-url")
     public ResponseEntity<PresignedUrlResponse> createPresignedUrl(ProfileImagePresignedUrlRequest request) {
-        PresignedUrlResponse response = caregiverService.getPresignedUrl(request);
+        var response = caregiverService.getPresignedUrl(request);
         return ResponseEntity.ok(response);
     }
 
@@ -95,7 +95,7 @@ public class CaregiverController {
     @Operation(summary = "경력서 조회", description = "경력서가 없는 경우에는 null 과 빈 리스트를 반환합니다.")
     @GetMapping("/career")
     public ResponseEntity<CareerResponse> getCareer() {
-        CareerResponse response = careerService.getCareer();
+        var response = careerService.getCareer();
         return ResponseEntity.ok(response);
     }
 
@@ -116,9 +116,9 @@ public class CaregiverController {
     // TODO : url 에 list 는 적지 않도록 삭제
     @Operation(summary = "확정된 일자리의 리스트가 반환됩니다.")
     @GetMapping("/my/completed-matching-list")
-    public ResponseEntity<List<CompletedMatchingInfoResponse>> getCompletedMatchingsByCaregiverId() {
-        List<CompletedMatchingInfoResponse> responseList = completedMatchingService.getCompletedMatchings();
-        return ResponseEntity.ok(responseList);
+    public ResponseEntity<List<CompletedMatchingInfoResponse>> getCompletedMatchings() {
+        var response = completedMatchingService.getCompletedMatchings();
+        return ResponseEntity.ok(response);
     }
 
     // TODO : url 에 list 는 적지 않도록 삭제

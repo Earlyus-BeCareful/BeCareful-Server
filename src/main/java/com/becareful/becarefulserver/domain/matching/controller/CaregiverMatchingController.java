@@ -50,13 +50,6 @@ public class CaregiverMatchingController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "매칭 공고 거부 (요양보호사 일자리 거부)")
-    @PostMapping("/recruitment/{recruitmentId}/reject")
-    public ResponseEntity<Void> rejectMatching(@PathVariable("recruitmentId") Long recruitmentId) {
-        caregiverMatchingService.rejectMatching(recruitmentId);
-        return ResponseEntity.ok().build();
-    }
-
     @Operation(summary = "근무 조건 조율 (요양보호사 일자리 조율 지원)")
     @PostMapping("/recruitment/{recruitmentId}/mediate")
     public ResponseEntity<Void> mediateMatching(
@@ -65,22 +58,15 @@ public class CaregiverMatchingController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(
-            summary = "지원 현황 조회 (요양보호사 나의 지원현황 조회)",
-            description =
-                    "일자리 신청서가 없거나, 지원 내역이 없다면 빈 리스트를 응답합니다. '거절'은 요양보호사가 지원 거절한 경우이므로, 관리자가 거절한 경우에는 '불합격' 상태로 조회해야 합니다.")
+    @Operation(summary = "지원 현황 조회 (요양보호사 나의 지원현황 조회)", description = "일자리 지원서가 없거나, 지원 내역이 없다면 빈 리스트를 응답합니다.")
     @GetMapping("/my/recruitment")
     public ResponseEntity<CaregiverAppliedRecruitmentsResponse> getMyRecruitment(
             @RequestParam("matchingStatus") MatchingStatus matchingStatus) {
-        CaregiverAppliedRecruitmentsResponse response =
-                caregiverMatchingService.getMyAppliedRecruitment(matchingStatus);
+        var response = caregiverMatchingService.getMyAppliedRecruitment(matchingStatus);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(
-            summary = "지원 현황 상세 조회 (요양보호사 나의 지원현황 상세 조회)",
-            description =
-                    "일자리 신청서가 없거나, 지원 내역이 없다면 빈 리스트를 응답합니다. '거절'은 요양보호사가 지원 거절한 경우이므로, 관리자가 거절한 경우에는 '불합격' 상태로 조회해야 합니다.")
+    @Operation(summary = "지원 현황 상세 조회 (요양보호사 나의 지원현황 상세 조회)", description = "일자리 지원서가 없거나, 지원 내역이 없다면 빈 리스트를 응답합니다.")
     @GetMapping("/my/recruitment/{recruitmentId}")
     public ResponseEntity<CaregiverAppliedMatchingDetailResponse> getMyRecruitmentDetail(
             @PathVariable("recruitmentId") Long recruitmentId) {
