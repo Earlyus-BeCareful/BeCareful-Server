@@ -155,13 +155,6 @@ public class Matching extends BaseEntity {
         throw new RecruitmentException(MATCHING_CANNOT_REJECT);
     }
 
-    private void validateMatchingRejectable() {
-        if (matchingStatus.equals(MatchingStatus.미지원)) {
-            return;
-        }
-        throw new RecruitmentException(MATCHING_CANNOT_REJECT);
-    }
-
     public void validateCaregiver(Long caregiverId) {
         if (workApplication.getCaregiver().getId().equals(caregiverId)) {
             return;

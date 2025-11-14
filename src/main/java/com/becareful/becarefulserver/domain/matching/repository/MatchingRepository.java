@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.matching.repository;
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
-import jakarta.transaction.*;
 import java.util.*;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.*;
@@ -62,6 +61,19 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
     List<Matching> findByWorkApplicationAndMatchingStatus(
             WorkApplication workApplication, MatchingStatus matchingStatus);
+
+    @Query(
+            """
+        SELECT m
+          FROM Matching m
+         WHERE m.workApplication.caregiver = :caregiver
+           AND m.applicationStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.지원
+           AND m.matchingStatus IN (:matchingStatus)
+           AND ((:isShouldBeRecruiting = TRUE AND (m.recruitment.recruitmentStatus = com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중)
+               ) OR (:isShouldBeRecruiting = FALSE AND (m.recruitment.recruitmentStatus <> com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중)))
+    """)
+    List<Matching> findAllAppliedByCaregiverAndMatchingStatusIn(
+            Caregiver caregiver, List<MatchingStatus> matchingStatus, boolean isShouldBeRecruiting);
 
     @Modifying
     @Query("DELETE FROM Matching m WHERE m.workApplication.caregiver = :caregiver AND m.matchingStatus <> :status")
