@@ -5,7 +5,6 @@ import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
 import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public record CareerDto(
         Long careerId, String careerTitle, String lastModifiedDate, List<CareerDetailDto> careerDetails) {
@@ -18,7 +17,7 @@ public record CareerDto(
                 career.getId(),
                 career.getTitle(),
                 career.getUpdateDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")),
-                careerDetails.stream().map(CareerDetailDto::from).collect(Collectors.toList()));
+                careerDetails.stream().map(CareerDetailDto::from).toList());
     }
 
     private record CareerDetailDto(String workInstitution, String workYear) {
