@@ -8,7 +8,6 @@ import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
-import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
@@ -81,7 +80,8 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
     @Test
     @WithCaregiver(phoneNumber = "01099990000")
     void 매칭_과정_전체_플로우() {
-        Caregiver caregiver = caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
+        Caregiver caregiver =
+                caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
 
         WorkApplicationCreateOrUpdateRequest workRequest = new WorkApplicationCreateOrUpdateRequest(
                 List.of(Location.of("서울시", "종로구", "청운동")),

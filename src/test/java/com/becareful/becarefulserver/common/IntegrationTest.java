@@ -16,12 +16,11 @@ import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorker
 import com.becareful.becarefulserver.fixture.AssociationMemberFixture;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
 import com.becareful.becarefulserver.fixture.SocialWorkerFixture;
+import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.time.LocalDate;
 
 @ActiveProfiles("test")
 @SpringBootTest

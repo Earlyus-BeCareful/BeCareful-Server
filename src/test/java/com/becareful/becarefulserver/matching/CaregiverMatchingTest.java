@@ -20,28 +20,31 @@ import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.EnumSet;
+import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.EnumSet;
-import java.util.List;
-
 public class CaregiverMatchingTest extends IntegrationTest {
 
     @Autowired
     private CaregiverMatchingService caregiverMatchingService;
+
     @Autowired
     private WorkApplicationService workApplicationService;
+
     @Autowired
     private ElderlyRepository elderlyRepository;
+
     @Autowired
     private SocialWorkerMatchingService socialWorkerMatchingService;
+
     @Autowired
     private CaregiverRepository caregiverRepository;
 
@@ -104,14 +107,16 @@ public class CaregiverMatchingTest extends IntegrationTest {
 
             // then
             Assertions.assertThat(response).hasSize(1);
-            Assertions.assertThat(response.get(0).recruitmentInfo().recruitmentId()).isEqualTo(recruitmentId1);
+            Assertions.assertThat(response.get(0).recruitmentInfo().recruitmentId())
+                    .isEqualTo(recruitmentId1);
         }
 
         @Test
         @WithCaregiver(phoneNumber = "01099990000")
         void 지원_후_근무제안이_온_공고가_조회된다() {
             // given
-            Caregiver caregiver = caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
+            Caregiver caregiver =
+                    caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
             Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
             Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
 
@@ -126,7 +131,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
 
             // then
             Assertions.assertThat(response).hasSize(1);
-            Assertions.assertThat(response.get(0).recruitmentInfo().recruitmentId()).isEqualTo(recruitmentId1);
+            Assertions.assertThat(response.get(0).recruitmentInfo().recruitmentId())
+                    .isEqualTo(recruitmentId1);
         }
 
         @Test
@@ -152,7 +158,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
         @WithCaregiver(phoneNumber = "01099990000")
         void 지원_후_근무제안이_온_공고가_마감됐다면_조회되지_않는다() {
             // given
-            Caregiver caregiver = caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
+            Caregiver caregiver =
+                    caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
             Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
             Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
 
@@ -191,14 +198,16 @@ public class CaregiverMatchingTest extends IntegrationTest {
 
             // then
             Assertions.assertThat(response).hasSize(1);
-            Assertions.assertThat(response.get(0).recruitmentInfo().recruitmentId()).isEqualTo(recruitmentId1);
+            Assertions.assertThat(response.get(0).recruitmentInfo().recruitmentId())
+                    .isEqualTo(recruitmentId1);
         }
 
         @Test
         @WithCaregiver(phoneNumber = "01099990000")
         void 지원_후_근무제안이_온_공고가_마감됐다면_조회된다() {
             // given
-            Caregiver caregiver = caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
+            Caregiver caregiver =
+                    caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
             Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
             Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
 
@@ -214,7 +223,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
 
             // then
             Assertions.assertThat(response).hasSize(1);
-            Assertions.assertThat(response.get(0).recruitmentInfo().recruitmentId()).isEqualTo(recruitmentId1);
+            Assertions.assertThat(response.get(0).recruitmentInfo().recruitmentId())
+                    .isEqualTo(recruitmentId1);
         }
     }
 }
