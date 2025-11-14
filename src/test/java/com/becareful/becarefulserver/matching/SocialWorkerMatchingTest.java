@@ -49,9 +49,6 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
     private RecruitmentRepository recruitmentRepository;
 
     @Autowired
-    private CaregiverRepository caregiverRepository;
-
-    @Autowired
     private WorkApplicationService workApplicationService;
 
     @Autowired
@@ -59,17 +56,6 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
 
     @BeforeEach
     void setCaregiver() {
-        Caregiver caregiver = caregiverRepository.save(Caregiver.create(
-                "caregiver",
-                LocalDate.of(1990, 1, 1),
-                Gender.FEMALE,
-                "01099990000",
-                null,
-                "서울특별시",
-                "상세주소",
-                new CaregiverInfo(false, false, null, null, null),
-                true));
-
         WorkApplicationCreateOrUpdateRequest workRequest = new WorkApplicationCreateOrUpdateRequest(
                 List.of(Location.of("서울특별시", "마포구", "상수동")),
                 List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),

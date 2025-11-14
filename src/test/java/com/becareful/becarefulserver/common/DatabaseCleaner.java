@@ -26,18 +26,6 @@ public class DatabaseCleaner {
     @PersistenceContext
     private EntityManager em;
 
-    @Autowired
-    private SocialWorkerRepository socialworkerRepository;
-
-    @Autowired
-    private AssociationRepository associationRepository;
-
-    @Autowired
-    private NursingInstitutionRepository institutionRepository;
-
-    @Autowired
-    private AssociationMemberRepository associationMemberRepository;
-
     @Transactional
     public void clean() {
         em.createNativeQuery("set foreign_key_checks = 0").executeUpdate();
@@ -46,36 +34,6 @@ public class DatabaseCleaner {
             em.createNativeQuery("truncate table " + tableName).executeUpdate();
         });
         em.createNativeQuery("set foreign_key_checks = 1").executeUpdate();
-        NursingInstitutionFixture.NURSING_INSTITUTION = NursingInstitutionFixture.create();
-        NursingInstitution institution = institutionRepository.save(NursingInstitutionFixture.NURSING_INSTITUTION);
-        Association savedAssociation = associationRepository.save(Association.create("전주완주장기요양협회", "url", 2000));
-        SocialWorkerFixture.SOCIAL_WORKER_1 = SocialWorker.create(
-                "김복지",
-                "nickname",
-                LocalDate.of(2000, 5, 9),
-                Gender.FEMALE,
-                "010-1234-5678",
-                InstitutionRank.SOCIAL_WORKER,
-                true,
-                institution);
-        SocialWorkerFixture.SOCIAL_WORKER_MANAGER = SocialWorker.create(
-                "박복지",
-                "nickname",
-                LocalDate.of(2000, 5, 9),
-                Gender.FEMALE,
-                "01099990000",
-                InstitutionRank.SOCIAL_WORKER,
-                true,
-                institution);
-
-        socialworkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_1);
-        socialworkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_MANAGER);
-
-        AssociationMemberFixture.CHAIRMAN = AssociationMember.createChairman(
-                SocialWorkerFixture.SOCIAL_WORKER_1, savedAssociation, true, true, true);
-
-        associationMemberRepository.save(AssociationMemberFixture.CHAIRMAN);
-        SocialWorkerFixture.SOCIAL_WORKER_1.joinAssociation(AssociationMemberFixture.CHAIRMAN);
     }
 
     private String camelToSnake(String value) {

@@ -81,16 +81,7 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
     @Test
     @WithCaregiver(phoneNumber = "01099990000")
     void 매칭_과정_전체_플로우() {
-        Caregiver caregiver = caregiverRepository.save(Caregiver.create(
-                "caregiver",
-                LocalDate.of(1990, 1, 1),
-                Gender.FEMALE,
-                "01099990000",
-                null,
-                "서울시",
-                "상세주소",
-                new CaregiverInfo(false, false, null, null, null),
-                true));
+        Caregiver caregiver = caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
 
         WorkApplicationCreateOrUpdateRequest workRequest = new WorkApplicationCreateOrUpdateRequest(
                 List.of(Location.of("서울시", "종로구", "청운동")),
