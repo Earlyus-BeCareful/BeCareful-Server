@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.common.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 
@@ -18,10 +19,12 @@ public class Location {
 
     private String eupMyeonDong;
 
+    @JsonIgnore
     public String getFullLocation() {
         return siDo + " " + siGuGun + " " + eupMyeonDong;
     }
 
+    @JsonIgnore
     public String getShortLocation() {
         return siDo + " " + siGuGun;
     }
