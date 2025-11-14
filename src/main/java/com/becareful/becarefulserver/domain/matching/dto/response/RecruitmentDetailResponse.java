@@ -11,8 +11,6 @@ import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 
 public record RecruitmentDetailResponse(
         RecruitmentDto recruitmentInfo,
-        ElderlyDto elderlyInfo,
-        InstitutionSimpleDto institutionInfo,
         MatchingResultStatus matchingResultStatus,
         boolean isHotRecruitment,
         boolean isHourlySalaryTop,
@@ -21,13 +19,8 @@ public record RecruitmentDetailResponse(
     public static RecruitmentDetailResponse from(
             Matching matching, boolean isHotRecruitment, boolean isHourlySalaryTop, boolean hasNewChat) {
         Recruitment recruitment = matching.getRecruitment();
-        Elderly elderly = recruitment.getElderly();
-        NursingInstitution institution = elderly.getNursingInstitution();
-
         return new RecruitmentDetailResponse(
                 RecruitmentDto.from(recruitment),
-                ElderlyDto.from(elderly),
-                InstitutionSimpleDto.from(institution),
                 matching.getMatchingResultStatus(),
                 isHotRecruitment,
                 isHourlySalaryTop,
