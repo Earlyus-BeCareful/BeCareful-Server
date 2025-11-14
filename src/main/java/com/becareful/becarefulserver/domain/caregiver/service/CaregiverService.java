@@ -178,7 +178,7 @@ public class CaregiverService {
                 request.socialWorkerCertificate(),
                 request.nursingCareCertificate());
 
-        caregiver.updateInfo(request.phoneNumber(), profileImageUrl, caregiverInfo);
+        caregiver.updateInfo(request.phoneNumber(), profileImageUrl, caregiverInfo, request.address());
 
         if (request.profileImageTempKey() != null
                 && !request.profileImageTempKey().equals("default")) {
