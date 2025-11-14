@@ -69,8 +69,11 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
          WHERE m.workApplication.caregiver = :caregiver
            AND m.applicationStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.지원
            AND m.matchingStatus IN (:matchingStatus)
-           AND ((:isShouldBeRecruiting = TRUE AND (m.recruitment.recruitmentStatus = com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중)
-               ) OR (:isShouldBeRecruiting = FALSE AND (m.recruitment.recruitmentStatus <> com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중)))
+           AND (
+                 (:isShouldBeRecruiting = TRUE AND m.recruitment.recruitmentStatus = com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중)
+                 OR
+                 (:isShouldBeRecruiting = FALSE AND m.recruitment.recruitmentStatus <> com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중)
+               )
     """)
     List<Matching> findAllAppliedByCaregiverAndMatchingStatusIn(
             Caregiver caregiver, List<MatchingStatus> matchingStatus, boolean isShouldBeRecruiting);
