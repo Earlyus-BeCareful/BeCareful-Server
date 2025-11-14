@@ -3,11 +3,7 @@ package com.becareful.becarefulserver.domain.matching.dto.response;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
-import com.becareful.becarefulserver.domain.matching.dto.ElderlyDto;
 import com.becareful.becarefulserver.domain.matching.dto.RecruitmentDto;
-import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
-import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionSimpleDto;
-import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 
 public record RecruitmentDetailResponse(
         RecruitmentDto recruitmentInfo,
