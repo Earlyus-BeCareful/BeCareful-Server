@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.controller;
 
-import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
+import com.becareful.becarefulserver.domain.matching.dto.request.CaregiverAppliedStatusFilter;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedRecruitmentsResponse;
@@ -61,8 +61,8 @@ public class CaregiverMatchingController {
     @Operation(summary = "지원 현황 조회 (요양보호사 나의 지원현황 조회)", description = "일자리 지원서가 없거나, 지원 내역이 없다면 빈 리스트를 응답합니다.")
     @GetMapping("/my/recruitment")
     public ResponseEntity<CaregiverAppliedRecruitmentsResponse> getMyRecruitment(
-            @RequestParam("matchingStatus") MatchingStatus matchingStatus) {
-        var response = caregiverMatchingService.getMyAppliedRecruitment(matchingStatus);
+            @RequestParam CaregiverAppliedStatusFilter appliedStatusFilter) {
+        var response = caregiverMatchingService.getMyAppliedRecruitment(appliedStatusFilter);
         return ResponseEntity.ok(response);
     }
 

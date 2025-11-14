@@ -2,15 +2,11 @@ package com.becareful.becarefulserver.matching;
 
 import com.becareful.becarefulserver.common.IntegrationTest;
 import com.becareful.becarefulserver.common.WithSocialWorker;
-import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
-import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationCreateOrUpdateRequest;
-import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.caregiver.service.WorkApplicationService;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
-import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
@@ -26,7 +22,6 @@ import com.becareful.becarefulserver.fixture.ElderlyFixture;
 import com.becareful.becarefulserver.fixture.RecruitmentFixture;
 import com.becareful.becarefulserver.global.exception.ErrorMessage;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import org.assertj.core.api.Assertions;
@@ -49,9 +44,6 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
     private RecruitmentRepository recruitmentRepository;
 
     @Autowired
-    private CaregiverRepository caregiverRepository;
-
-    @Autowired
     private WorkApplicationService workApplicationService;
 
     @Autowired
@@ -59,17 +51,6 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
 
     @BeforeEach
     void setCaregiver() {
-        Caregiver caregiver = caregiverRepository.save(Caregiver.create(
-                "caregiver",
-                LocalDate.of(1990, 1, 1),
-                Gender.FEMALE,
-                "01099990000",
-                null,
-                "서울특별시",
-                "상세주소",
-                new CaregiverInfo(false, false, null, null, null),
-                true));
-
         WorkApplicationCreateOrUpdateRequest workRequest = new WorkApplicationCreateOrUpdateRequest(
                 List.of(Location.of("서울특별시", "마포구", "상수동")),
                 List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
