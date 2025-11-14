@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.chat.dto.response;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
+import com.becareful.becarefulserver.domain.chat.domain.Contract;
 import com.becareful.becarefulserver.domain.chat.dto.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
@@ -9,7 +10,7 @@ import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import java.util.*;
 
 public record ChatRoomDetailResponse(
-        Long matchingId,
+        Long matchingId, //TODO: 필수 정보인가??
         Long recruitmentId,
         ElderlySimpleDto elderlyInfo,
         InstitutionSimpleDto institutionInfo,

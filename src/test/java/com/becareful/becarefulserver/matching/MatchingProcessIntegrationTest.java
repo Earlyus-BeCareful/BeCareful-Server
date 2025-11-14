@@ -20,7 +20,7 @@ import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
+import com.becareful.becarefulserver.domain.chat.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;

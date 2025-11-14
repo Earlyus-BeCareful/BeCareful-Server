@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.chat.dto.response;
 
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
+import com.becareful.becarefulserver.domain.chat.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import java.time.Duration;

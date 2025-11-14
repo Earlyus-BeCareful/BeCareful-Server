@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.repository;
 
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
+import com.becareful.becarefulserver.domain.chat.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import java.util.List;
 import java.util.Optional;

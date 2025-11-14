@@ -24,22 +24,22 @@ public class CaregiverChatReadStatus extends BaseEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Caregiver caregiver;
 
-    @JoinColumn(name = "matching_id")
+    @JoinColumn(name = "chat_room_id")
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Matching matching;
+    private ChatRoom chatRoom;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private CaregiverChatReadStatus(Caregiver caregiver, Matching matching) {
+    private CaregiverChatReadStatus(Caregiver caregiver, ChatRoom chatRoom) {
         this.caregiver = caregiver;
-        this.matching = matching;
+        this.chatRoom = chatRoom;
         this.lastReadAt = LocalDateTime.now();
     }
 
-    public static CaregiverChatReadStatus create(Caregiver caregiver, Matching matching) {
+    public static CaregiverChatReadStatus create(Caregiver caregiver, ChatRoom chatRoom) {
         return CaregiverChatReadStatus.builder()
                 .caregiver(caregiver)
-                .matching(matching)
+                .chatRoom(chatRoom)
                 .build();
     }
 

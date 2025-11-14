@@ -2,7 +2,7 @@ package com.becareful.becarefulserver.domain.matching.repository;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.matching.domain.CompletedMatching;
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
+import com.becareful.becarefulserver.domain.chat.domain.Contract;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;

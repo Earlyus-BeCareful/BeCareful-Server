@@ -20,4 +20,6 @@ public interface CaregiverChatReadStatusRepository extends JpaRepository<Caregiv
     boolean existsUnreadContract(@Param("caregiver") Caregiver caregiver);
 
     Optional<CaregiverChatReadStatus> findByCaregiverAndMatching(Caregiver caregiver, Matching matching);
+
+    Optional<CaregiverChatReadStatus> findByChatRoom(ChatRoom chatRoom);
 }

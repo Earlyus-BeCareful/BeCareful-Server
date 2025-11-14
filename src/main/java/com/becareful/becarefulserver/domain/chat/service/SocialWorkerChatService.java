@@ -13,7 +13,7 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
-import java.time.*;
+
 import java.util.*;
 import lombok.*;
 import org.springframework.stereotype.*;
@@ -78,7 +78,6 @@ public class SocialWorkerChatService {
         }
 
         Contract contract = Contract.edit(
-                matching,
                 EnumSet.copyOf(request.workDays()),
                 request.workStartTime(),
                 request.workEndTime(),

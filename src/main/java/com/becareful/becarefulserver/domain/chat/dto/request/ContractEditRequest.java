@@ -10,7 +10,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 public record ContractEditRequest(
-        @NotNull Long matchingId,
+        @NotNull Long chatRoomId,
         @Size(min = 1) List<DayOfWeek> workDays,
         @NotNull LocalTime workStartTime,
         @NotNull LocalTime workEndTime,

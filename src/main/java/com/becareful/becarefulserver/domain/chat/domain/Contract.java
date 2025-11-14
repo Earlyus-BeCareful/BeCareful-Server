@@ -1,10 +1,12 @@
-package com.becareful.becarefulserver.domain.matching.domain;
+package com.becareful.becarefulserver.domain.chat.domain;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
+import com.becareful.becarefulserver.domain.matching.domain.Matching;
+import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import jakarta.persistence.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -25,10 +27,6 @@ public class Contract extends BaseEntity {
     @Column(name = "contract_id")
     private Long id;
 
-    @JoinColumn(name = "matching_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Matching matching;
-
     @Convert(converter = DayOfWeekSetConverter.class)
     private EnumSet<DayOfWeek> workDays;
 
@@ -44,7 +42,6 @@ public class Contract extends BaseEntity {
 
     @Builder(access = AccessLevel.PRIVATE)
     private Contract(
-            Matching matching,
             EnumSet<DayOfWeek> workDays,
             LocalTime workStartTime,
             LocalTime workEndTime,
@@ -52,7 +49,6 @@ public class Contract extends BaseEntity {
             WorkSalaryUnitType workSalaryUnitType,
             int workSalaryAmount,
             EnumSet<CareType> careTypes) {
-        this.matching = matching;
         this.workDays = workDays;
         this.workStartTime = workStartTime;
         this.workEndTime = workEndTime;
@@ -65,7 +61,6 @@ public class Contract extends BaseEntity {
     public static Contract create(Matching matching, LocalDate workStartDate) {
         Recruitment recruitment = matching.getRecruitment();
         return Contract.builder()
-                .matching(matching)
                 .workDays(recruitment.getWorkDays())
                 .workStartTime(recruitment.getWorkStartTime())
                 .workEndTime(recruitment.getWorkEndTime())
@@ -77,7 +72,6 @@ public class Contract extends BaseEntity {
     }
 
     public static Contract edit(
-            Matching matching,
             EnumSet<DayOfWeek> workDays,
             LocalTime workStartTime,
             LocalTime workEndTime,
@@ -86,7 +80,6 @@ public class Contract extends BaseEntity {
             LocalDate workStartDate,
             EnumSet<CareType> careTypes) {
         return Contract.builder()
-                .matching(matching)
                 .workDays(workDays)
                 .workStartTime(workStartTime)
                 .workEndTime(workEndTime)

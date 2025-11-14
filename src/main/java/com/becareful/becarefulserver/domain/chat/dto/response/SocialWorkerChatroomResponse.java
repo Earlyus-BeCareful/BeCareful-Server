@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.chat.dto.response;
 
+import com.becareful.becarefulserver.domain.chat.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;

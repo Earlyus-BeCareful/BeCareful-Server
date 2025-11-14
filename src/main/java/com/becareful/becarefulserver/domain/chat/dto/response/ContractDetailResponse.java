@@ -3,7 +3,7 @@ package com.becareful.becarefulserver.domain.chat.dto.response;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
+import com.becareful.becarefulserver.domain.chat.domain.Contract;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import java.time.DayOfWeek;
 import java.time.LocalDate;

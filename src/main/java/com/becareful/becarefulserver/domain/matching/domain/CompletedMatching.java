@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.matching.domain;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
+import com.becareful.becarefulserver.domain.chat.domain.Contract;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
