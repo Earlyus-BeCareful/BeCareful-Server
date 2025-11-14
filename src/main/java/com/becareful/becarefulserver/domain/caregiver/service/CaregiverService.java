@@ -37,7 +37,6 @@ import org.springframework.web.multipart.*;
 public class CaregiverService {
 
     private final CaregiverRepository caregiverRepository;
-    private final CareerRepository careerRepository;
     private final WorkApplicationRepository workApplicationRepository;
     private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
@@ -46,6 +45,7 @@ public class CaregiverService {
     private final AuthUtil authUtil;
     private final S3Util s3Util;
     private final S3Service s3Service;
+    private final CareerDetailRepository careerDetailRepository;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -85,10 +85,10 @@ public class CaregiverService {
 
     public CaregiverMyPageHomeResponse getCaregiverMyPageHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Career career = careerRepository.findByCaregiver(caregiver).orElse(null);
+        List<CareerDetail> careerDetails = careerDetailRepository.findAllByCaregiver(caregiver);
         WorkApplication workApplication =
                 workApplicationRepository.findByCaregiver(caregiver).orElse(null);
-        return CaregiverMyPageHomeResponse.of(caregiver, career, workApplication);
+        return CaregiverMyPageHomeResponse.of(caregiver, careerDetails, workApplication);
     }
 
     @Transactional
@@ -178,7 +178,7 @@ public class CaregiverService {
                 request.socialWorkerCertificate(),
                 request.nursingCareCertificate());
 
-        caregiver.updateInfo(request.phoneNumber(), profileImageUrl, caregiverInfo);
+        caregiver.updateInfo(request.phoneNumber(), profileImageUrl, caregiverInfo, request.address());
 
         if (request.profileImageTempKey() != null
                 && !request.profileImageTempKey().equals("default")) {
