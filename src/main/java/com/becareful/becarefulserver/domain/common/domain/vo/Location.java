@@ -29,6 +29,13 @@ public class Location {
         return siDo + " " + siGuGun;
     }
 
+    public boolean matches(Location location) {
+        if (this.eupMyeonDong.equals("전체") || location.eupMyeonDong.equals("전체")) {
+            return this.getShortLocation().equals(location.getShortLocation());
+        }
+        return this.getFullLocation().equals(location.getFullLocation());
+    }
+
     public static Location of(String siDo, String siGuGun, String eupMyeonDong) {
         return Location.builder()
                 .siDo(siDo)

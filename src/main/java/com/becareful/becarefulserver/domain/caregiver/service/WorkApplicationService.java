@@ -85,7 +85,7 @@ public class WorkApplicationService {
 
     private void matchingWith(WorkApplication application) {
         matchingRepository.deleteAllByApplicationAndMatchingStatus(application, 미지원);
-        recruitmentRepository.findAllByIsRecruiting().forEach(recruitment -> {
+        recruitmentRepository.findAllByIsRecruiting(application).forEach(recruitment -> {
             matchingDomainService.createMatching(recruitment, application).ifPresent(matchingRepository::save);
         });
     }

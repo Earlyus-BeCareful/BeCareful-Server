@@ -92,5 +92,7 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     """)
     boolean existsByApplicantOrProcessingContract(Recruitment recruitment);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from Matching m where m.recruitment = :recruitment")
     void deleteAllByRecruitment(Recruitment recruitment);
 }
