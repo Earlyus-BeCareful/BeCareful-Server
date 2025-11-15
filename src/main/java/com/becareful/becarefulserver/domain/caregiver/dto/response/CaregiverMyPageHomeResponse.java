@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.dto.response;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.Career;
 import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
@@ -12,10 +13,10 @@ public record CaregiverMyPageHomeResponse(
         CaregiverDto caregiverInfo, CareerDto careerInfo, WorkApplicationDto workApplicationInfo) {
 
     public static CaregiverMyPageHomeResponse of(
-            Caregiver caregiver, List<CareerDetail> careerDetails, WorkApplication workApplication) {
+            Caregiver caregiver, Career career, List<CareerDetail> careerDetail, WorkApplication workApplication) {
         return new CaregiverMyPageHomeResponse(
                 CaregiverDto.from(caregiver),
-                careerDetails.isEmpty() ? null : CareerDto.from(careerDetails),
+                career == null ? null : CareerDto.of(career, careerDetail),
                 workApplication == null ? null : WorkApplicationDto.from(workApplication));
     }
 }
