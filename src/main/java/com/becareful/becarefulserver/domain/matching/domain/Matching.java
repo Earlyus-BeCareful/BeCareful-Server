@@ -178,7 +178,7 @@ public class Matching extends BaseEntity {
 
     private static boolean isWorkLocationMatched(Location residentialLocation, List<Location> workableLocations) {
         for (Location location : workableLocations) {
-            if (location.equals(residentialLocation)) {
+            if (location.matches(residentialLocation)) {
                 return true;
             }
         }

@@ -241,7 +241,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
 
             var prevResponse = caregiverMatchingService.getCaregiverMatchingRecruitmentList();
             Assertions.assertThat(prevResponse).hasSize(1);
-            Assertions.assertThat(prevResponse.get(0).recruitmentInfo().recruitmentId()).isEqualTo(recruitmentId1);
+            Assertions.assertThat(prevResponse.get(0).recruitmentInfo().recruitmentId())
+                    .isEqualTo(recruitmentId1);
 
             WorkApplicationCreateOrUpdateRequest workRequest = new WorkApplicationCreateOrUpdateRequest(
                     List.of(Location.of("경기", "수원시 장안구", "율전동")),
@@ -257,8 +258,10 @@ public class CaregiverMatchingTest extends IntegrationTest {
             // then
             var response = caregiverMatchingService.getCaregiverMatchingRecruitmentList();
             Assertions.assertThat(response).hasSize(1);
-            Assertions.assertThat(response.get(0).recruitmentInfo().recruitmentId()).isEqualTo(recruitmentId2);
-            Assertions.assertThat(response.get(0).recruitmentInfo().workLocation()).isEqualTo(Location.of("경기", "수원시 장안구", "율전동").getShortLocation());
+            Assertions.assertThat(response.get(0).recruitmentInfo().recruitmentId())
+                    .isEqualTo(recruitmentId2);
+            Assertions.assertThat(response.get(0).recruitmentInfo().workLocation())
+                    .isEqualTo(Location.of("경기", "수원시 장안구", "율전동").getShortLocation());
         }
     }
 
