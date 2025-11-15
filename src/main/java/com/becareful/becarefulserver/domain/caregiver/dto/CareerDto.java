@@ -2,27 +2,28 @@ package com.becareful.becarefulserver.domain.caregiver.dto;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Career;
 import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
-import com.becareful.becarefulserver.global.exception.exception.DomainException;
+import com.becareful.becarefulserver.domain.caregiver.domain.CareerType;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public record CareerDto(
-        Long careerId, String careerTitle, String lastModifiedDate, List<CareerDetailDto> careerDetails) {
-    public static CareerDto from(List<CareerDetail> careerDetails) {
-        if (careerDetails == null || careerDetails.isEmpty()) {
-            throw new DomainException("[CareerDto] career detail 이 없습니다.");
-        }
-        Career career = careerDetails.get(0).getCareer();
+        Long careerId,
+        String title,
+        CareerType careerType,
+        String introduce,
+        String lastModifiedDate,
+        List<CareerDetailDto> careerDetails) {
+    public static CareerDto of(Career career, List<CareerDetail> careerDetails) {
         return new CareerDto(
                 career.getId(),
                 career.getTitle(),
+                career.getCareerType(),
+                career.getIntroduce(),
                 career.getUpdateDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")),
                 careerDetails.stream().map(CareerDetailDto::from).toList());
     }
 
-    private record CareerDetailDto(String workInstitution, String workYear) {
-        public static CareerDetailDto from(CareerDetail careerDetail) {
-            return new CareerDetailDto(careerDetail.getWorkInstitution(), careerDetail.getWorkYear());
-        }
+    public static CareerDto empty() {
+        return new CareerDto(null, null, null, null, null, List.of());
     }
 }

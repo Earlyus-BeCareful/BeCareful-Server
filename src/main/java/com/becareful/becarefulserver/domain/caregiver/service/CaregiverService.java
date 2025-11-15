@@ -16,7 +16,6 @@ import com.becareful.becarefulserver.domain.common.dto.response.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
-import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.service.*;
 import com.becareful.becarefulserver.global.util.*;
 import jakarta.servlet.http.*;
@@ -24,9 +23,6 @@ import java.io.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.*;
-import org.springframework.security.core.context.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.multipart.*;
@@ -46,6 +42,7 @@ public class CaregiverService {
     private final S3Util s3Util;
     private final S3Service s3Service;
     private final CareerDetailRepository careerDetailRepository;
+    private final CareerRepository careerRepository;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -84,11 +81,12 @@ public class CaregiverService {
     }
 
     public CaregiverMyPageHomeResponse getCaregiverMyPageHomeData() {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        List<CareerDetail> careerDetails = careerDetailRepository.findAllByCaregiver(caregiver);
+        Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
+        Career career = careerRepository.findByCaregiver(loggedInCaregiver).orElse(null);
+        List<CareerDetail> careerDetails = career == null ? List.of() : careerDetailRepository.findAllByCareer(career);
         WorkApplication workApplication =
-                workApplicationRepository.findByCaregiver(caregiver).orElse(null);
-        return CaregiverMyPageHomeResponse.of(caregiver, careerDetails, workApplication);
+                workApplicationRepository.findByCaregiver(loggedInCaregiver).orElse(null);
+        return CaregiverMyPageHomeResponse.of(loggedInCaregiver, career, careerDetails, workApplication);
     }
 
     @Transactional

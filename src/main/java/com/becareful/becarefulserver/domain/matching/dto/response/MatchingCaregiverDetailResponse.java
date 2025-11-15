@@ -3,10 +3,10 @@ package com.becareful.becarefulserver.domain.matching.dto.response;
 import com.becareful.becarefulserver.domain.caregiver.domain.Career;
 import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
+import com.becareful.becarefulserver.domain.caregiver.dto.CareerDetailDto;
+import com.becareful.becarefulserver.domain.caregiver.dto.CareerDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.CaregiverDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.WorkApplicationDto;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerDetailResponse;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerResponse;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MediationType;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
@@ -21,7 +21,7 @@ public record MatchingCaregiverDetailResponse(
         MatchingResultReasonType workTimeMatchingResultReason,
         CaregiverDto caregiverInfo,
         WorkApplicationDto workApplicationInfo,
-        CareerResponse careerInfo,
+        CareerDto careerInfo,
         List<MediationType> mediationTypes,
         String mediationDescription) {
 
@@ -47,10 +47,10 @@ public record MatchingCaregiverDetailResponse(
                 CaregiverDto.from(workApplication.getCaregiver()),
                 WorkApplicationDto.from(workApplication),
                 career != null
-                        ? CareerResponse.of(
+                        ? CareerDto.of(
                                 career,
                                 careerDetails.stream()
-                                        .map(CareerDetailResponse::from)
+                                        .map(CareerDetailDto::from)
                                         .toList())
                         : null,
                 matching.getMediationTypes().stream().toList(),
