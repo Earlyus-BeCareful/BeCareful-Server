@@ -7,12 +7,11 @@ import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerDetailUp
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.service.CareerService;
 import com.becareful.becarefulserver.domain.caregiver.service.CaregiverService;
+import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
 
 public class CaregiverTest extends IntegrationTest {
 
@@ -59,10 +58,11 @@ public class CaregiverTest extends IntegrationTest {
         @WithCaregiver(phoneNumber = "01099990000")
         void 경력_경력서를_반환한다() {
             // given
-            careerService.updateCareer(new CareerUpdateRequest("경력서 제목", CareerType.경력, "잘 부탁드립니다.", List.of(
-                    new CareerDetailUpdateRequest("전주기관", "3년"),
-                    new CareerDetailUpdateRequest("서울기관", "2년")
-            )));
+            careerService.updateCareer(new CareerUpdateRequest(
+                    "경력서 제목",
+                    CareerType.경력,
+                    "잘 부탁드립니다.",
+                    List.of(new CareerDetailUpdateRequest("전주기관", "3년"), new CareerDetailUpdateRequest("서울기관", "2년"))));
 
             // when
             var response = caregiverService.getCaregiverMyPageHomeData();
