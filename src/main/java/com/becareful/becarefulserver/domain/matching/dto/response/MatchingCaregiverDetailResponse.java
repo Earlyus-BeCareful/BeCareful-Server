@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.matching.dto.response;
 import com.becareful.becarefulserver.domain.caregiver.domain.Career;
 import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
-import com.becareful.becarefulserver.domain.caregiver.dto.CareerDetailDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.CareerDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.CaregiverDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.WorkApplicationDto;
@@ -46,13 +45,7 @@ public record MatchingCaregiverDetailResponse(
                         : MatchingResultReasonType.NOT_MATCHED,
                 CaregiverDto.from(workApplication.getCaregiver()),
                 WorkApplicationDto.from(workApplication),
-                career != null
-                        ? CareerDto.of(
-                                career,
-                                careerDetails.stream()
-                                        .map(CareerDetailDto::from)
-                                        .toList())
-                        : null,
+                career != null ? CareerDto.of(career, careerDetails) : null,
                 matching.getMediationTypes().stream().toList(),
                 matching.getMediationDescription());
     }
