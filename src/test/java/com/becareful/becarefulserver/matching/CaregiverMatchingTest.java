@@ -239,10 +239,10 @@ public class CaregiverMatchingTest extends IntegrationTest {
             Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
             Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(unmatchedRecruitmentCreateRequest);
 
-            var prevResponse = caregiverMatchingService.getCaregiverMatchingRecruitmentList();
-            Assertions.assertThat(prevResponse).hasSize(1);
-            Assertions.assertThat(prevResponse.get(0).recruitmentInfo().recruitmentId())
-                    .isEqualTo(recruitmentId1);
+            var prevRecruitmentIds = caregiverMatchingService.getCaregiverMatchingRecruitmentList().stream()
+                    .map(res -> res.recruitmentInfo().recruitmentId())
+                    .toList();
+            Assertions.assertThat(prevRecruitmentIds).containsExactlyInAnyOrder(recruitmentId1);
 
             WorkApplicationCreateOrUpdateRequest workRequest = new WorkApplicationCreateOrUpdateRequest(
                     List.of(Location.of("경기", "수원시 장안구", "율전동")),
@@ -262,6 +262,66 @@ public class CaregiverMatchingTest extends IntegrationTest {
                     .isEqualTo(recruitmentId2);
             Assertions.assertThat(response.get(0).recruitmentInfo().workLocation())
                     .isEqualTo(Location.of("경기", "수원시 장안구", "율전동").getShortLocation());
+        }
+
+        @Test
+        @WithCaregiver(phoneNumber = "01099990000")
+        void 지역을_전체로_수정시_전체를_고려하여_매칭된다() {
+            // given
+            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
+            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(unmatchedRecruitmentCreateRequest);
+
+            var prevRecruitmentIds = caregiverMatchingService.getCaregiverMatchingRecruitmentList().stream()
+                    .map(res -> res.recruitmentInfo().recruitmentId())
+                    .toList();
+            Assertions.assertThat(prevRecruitmentIds).containsExactlyInAnyOrder(recruitmentId1);
+
+            WorkApplicationCreateOrUpdateRequest workRequest = new WorkApplicationCreateOrUpdateRequest(
+                    List.of(Location.of("서울시", "마포구", "전체")),
+                    List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
+                    List.of(WorkTime.MORNING),
+                    List.of(CareType.식사보조),
+                    WorkSalaryUnitType.DAY,
+                    10000);
+
+            // when
+            workApplicationService.createOrUpdateWorkApplication(workRequest);
+
+            // then
+            var recruitmentIds = caregiverMatchingService.getCaregiverMatchingRecruitmentList().stream()
+                    .map(res -> res.recruitmentInfo().recruitmentId())
+                    .toList();
+            Assertions.assertThat(recruitmentIds).containsExactlyInAnyOrder(recruitmentId1);
+        }
+
+        @Test
+        @WithCaregiver(phoneNumber = "01099990000")
+        void 근무_희망_지역을_다수로_설정하면_그에_맞게_매칭된다() {
+            // given
+            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
+            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(unmatchedRecruitmentCreateRequest);
+
+            var prevRecruitmentIds = caregiverMatchingService.getCaregiverMatchingRecruitmentList().stream()
+                    .map(res -> res.recruitmentInfo().recruitmentId())
+                    .toList();
+            Assertions.assertThat(prevRecruitmentIds).containsExactlyInAnyOrder(recruitmentId1);
+
+            WorkApplicationCreateOrUpdateRequest workRequest = new WorkApplicationCreateOrUpdateRequest(
+                    List.of(Location.of("서울시", "마포구", "전체"), Location.of("경기", "수원시 장안구", "율전동")),
+                    List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
+                    List.of(WorkTime.MORNING),
+                    List.of(CareType.식사보조),
+                    WorkSalaryUnitType.DAY,
+                    10000);
+
+            // when
+            workApplicationService.createOrUpdateWorkApplication(workRequest);
+
+            // then
+            var recruitmentIds = caregiverMatchingService.getCaregiverMatchingRecruitmentList().stream()
+                    .map(res -> res.recruitmentInfo().recruitmentId())
+                    .toList();
+            Assertions.assertThat(recruitmentIds).containsExactlyInAnyOrder(recruitmentId1, recruitmentId2);
         }
     }
 
