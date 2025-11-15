@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.matching;
+package com.becareful.becarefulserver.matching.caregiver;
 
 import com.becareful.becarefulserver.common.IntegrationTest;
 import com.becareful.becarefulserver.common.WithCaregiver;
