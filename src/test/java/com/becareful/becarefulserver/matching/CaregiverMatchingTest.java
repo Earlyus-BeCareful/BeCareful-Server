@@ -48,7 +48,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
     @Autowired
     private CaregiverRepository caregiverRepository;
 
-    private RecruitmentCreateRequest defaultRecruitmentCreateRequest;
+    private RecruitmentCreateRequest matchedRecruitmentCreateRequest;
+    private RecruitmentCreateRequest unmatchedRecruitmentCreateRequest;
 
     @BeforeEach
     void setCaregiver() {
@@ -61,23 +62,23 @@ public class CaregiverMatchingTest extends IntegrationTest {
                 10000);
         workApplicationService.createOrUpdateWorkApplication(workRequest);
 
-        Elderly elderly = elderlyRepository.save(Elderly.create(
-                "어르신",
-                LocalDate.of(1950, 1, 1),
-                Gender.FEMALE,
-                Location.of("서울시", "마포구", "상수동"),
-                "상세",
-                false,
-                false,
-                null,
-                NursingInstitutionFixture.NURSING_INSTITUTION,
-                CareLevel.일등급,
-                "건강",
-                EnumSet.of(DetailCareType.스스로식사가능)));
-
+        Elderly elderly = createElderly("어르신", Location.of("서울시", "마포구", "상수동"));
         Long elderlyId = elderly.getId();
-        defaultRecruitmentCreateRequest = new RecruitmentCreateRequest(
+        matchedRecruitmentCreateRequest = new RecruitmentCreateRequest(
                 elderlyId,
+                "title",
+                List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
+                LocalTime.of(9, 0),
+                LocalTime.of(12, 0),
+                List.of(CareType.식사보조),
+                WorkSalaryUnitType.DAY,
+                10000,
+                "desc");
+
+        Elderly elderly2 = createElderly("어르신2", Location.of("경기", "수원시 장안구", "율전동"));
+        Long elderlyId2 = elderly2.getId();
+        unmatchedRecruitmentCreateRequest = new RecruitmentCreateRequest(
+                elderlyId2,
                 "title",
                 List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
                 LocalTime.of(9, 0),
@@ -95,8 +96,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
         @WithCaregiver(phoneNumber = "01099990000")
         void 지원한_공고가_조회된다() {
             // given
-            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
-            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
+            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
+            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
 
             caregiverMatchingService.applyRecruitment(recruitmentId1);
 
@@ -117,8 +118,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
             // given
             Caregiver caregiver =
                     caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
-            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
-            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
+            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
+            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
 
             caregiverMatchingService.applyRecruitment(recruitmentId1);
             socialWorkerMatchingService.propose(recruitmentId1, caregiver.getId(), LocalDate.of(2025, 11, 14));
@@ -139,8 +140,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
         @WithCaregiver(phoneNumber = "01099990000")
         void 지원한_공고가_마감됐다면_조회되지_않는다() {
             // given
-            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
-            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
+            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
+            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
 
             caregiverMatchingService.applyRecruitment(recruitmentId1);
             socialWorkerMatchingService.closeRecruitment(recruitmentId1);
@@ -160,8 +161,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
             // given
             Caregiver caregiver =
                     caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
-            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
-            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
+            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
+            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
 
             caregiverMatchingService.applyRecruitment(recruitmentId1);
             socialWorkerMatchingService.propose(recruitmentId1, caregiver.getId(), LocalDate.of(2025, 11, 14));
@@ -185,8 +186,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
         @WithCaregiver(phoneNumber = "01099990000")
         void 지원한_공고가_마감됐다면_조회된다() {
             // given
-            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
-            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
+            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
+            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
 
             caregiverMatchingService.applyRecruitment(recruitmentId1);
             socialWorkerMatchingService.closeRecruitment(recruitmentId1);
@@ -208,8 +209,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
             // given
             Caregiver caregiver =
                     caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
-            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
-            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(defaultRecruitmentCreateRequest);
+            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
+            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
 
             caregiverMatchingService.applyRecruitment(recruitmentId1);
             socialWorkerMatchingService.propose(recruitmentId1, caregiver.getId(), LocalDate.of(2025, 11, 14));
@@ -226,5 +227,54 @@ public class CaregiverMatchingTest extends IntegrationTest {
             Assertions.assertThat(response.get(0).recruitmentInfo().recruitmentId())
                     .isEqualTo(recruitmentId1);
         }
+    }
+
+    @Nested
+    class 매칭_로직_테스트 {
+
+        @Test
+        @WithCaregiver(phoneNumber = "01099990000")
+        void 지원서_수정시_매칭_데이터가_수정된다() {
+            // given
+            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
+            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(unmatchedRecruitmentCreateRequest);
+
+            var prevResponse = caregiverMatchingService.getCaregiverMatchingRecruitmentList();
+            Assertions.assertThat(prevResponse).hasSize(1);
+            Assertions.assertThat(prevResponse.get(0).recruitmentInfo().recruitmentId()).isEqualTo(recruitmentId1);
+
+            WorkApplicationCreateOrUpdateRequest workRequest = new WorkApplicationCreateOrUpdateRequest(
+                    List.of(Location.of("경기", "수원시 장안구", "율전동")),
+                    List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
+                    List.of(WorkTime.MORNING),
+                    List.of(CareType.식사보조),
+                    WorkSalaryUnitType.DAY,
+                    10000);
+
+            // when
+            workApplicationService.createOrUpdateWorkApplication(workRequest);
+
+            // then
+            var response = caregiverMatchingService.getCaregiverMatchingRecruitmentList();
+            Assertions.assertThat(response).hasSize(1);
+            Assertions.assertThat(response.get(0).recruitmentInfo().recruitmentId()).isEqualTo(recruitmentId2);
+            Assertions.assertThat(response.get(0).recruitmentInfo().workLocation()).isEqualTo(Location.of("경기", "수원시 장안구", "율전동").getShortLocation());
+        }
+    }
+
+    private Elderly createElderly(String name, Location location) {
+        return elderlyRepository.save(Elderly.create(
+                name,
+                LocalDate.of(1950, 1, 1),
+                Gender.FEMALE,
+                location,
+                "상세",
+                false,
+                false,
+                null,
+                NursingInstitutionFixture.NURSING_INSTITUTION,
+                CareLevel.일등급,
+                "건강",
+                EnumSet.of(DetailCareType.스스로식사가능)));
     }
 }
