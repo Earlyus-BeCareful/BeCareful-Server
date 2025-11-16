@@ -2,22 +2,41 @@ package com.becareful.becarefulserver.domain.matching.dto.response;
 
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.RecruitmentSimpleDto;
+import lombok.Getter;
 
 public record CaregiverRecruitmentResponse(
         RecruitmentSimpleDto recruitmentInfo,
         MatchingResultStatus matchingResultStatus,
+        String recruitmentStatus,
         boolean isHotRecruitment,
         boolean isHourlySalaryTop) {
 
     public static CaregiverRecruitmentResponse from(Matching matching) {
         Recruitment recruitment = matching.getRecruitment();
+        CaregiverRecruitmentStatus recruitmentStatus = recruitment.getRecruitmentStatus() == RecruitmentStatus.모집중
+                ? CaregiverRecruitmentStatus.모집중
+                : CaregiverRecruitmentStatus.마감;
         return new CaregiverRecruitmentResponse(
                 RecruitmentSimpleDto.from(recruitment),
                 matching.getMatchingResultInfo().judgeMatchingResultStatus(),
+                recruitmentStatus.getValue(),
                 // TODO : 매칭 필터 정보 추가
                 false,
                 false);
+    }
+
+    @Getter
+    private enum CaregiverRecruitmentStatus {
+        모집중("일자리 모집중"),
+        마감("일자리 마감");
+
+        CaregiverRecruitmentStatus(String value) {
+            this.value = value;
+        }
+
+        private String value;
     }
 }

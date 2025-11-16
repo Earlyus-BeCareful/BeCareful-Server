@@ -28,7 +28,7 @@ public class CaregiverMatchingController {
 
     private final CaregiverMatchingService caregiverMatchingService;
 
-    @Operation(summary = "매칭 공고 리스트 조회 (요양보호사 일자리 리스트 조회)")
+    @Operation(summary = "요양보호사 일자리 (공고) 리스트 조회")
     @GetMapping("/list")
     public ResponseEntity<List<CaregiverRecruitmentResponse>> getCaregiverMatchingRecruitmentList() {
         var responses = caregiverMatchingService.getCaregiverMatchingRecruitmentList();
