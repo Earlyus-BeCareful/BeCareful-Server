@@ -1,0 +1,32 @@
+package com.becareful.becarefulserver.domain.chat.dto.response;
+
+import com.becareful.becarefulserver.domain.chat.domain.*;
+import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.matching.domain.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.*;
+import java.util.*;
+
+public record CaregiverChatRoomDetailResponse(
+        String institutionName,
+        String institutionProfileImageUrl,
+        String elderlyName,
+        String elderlyProfileImageUrl,
+        ChatRoomActivateStatus chatRoomStatus,
+        ChatRoomContractStatus chatRoomContractStatus,
+        long recruitmentId,
+        List<ChatResponseDto> chatList
+) {
+    public static CaregiverChatRoomDetailResponse of(Recruitment recruitment, NursingInstitution institution, Elderly elderly, ChatRoom chatRoom, List<ChatResponseDto> chatList){
+        return new CaregiverChatRoomDetailResponse(
+                institution.getName(),
+                institution.getProfileImageUrl(),
+                elderly.getName(),
+                elderly.getProfileImageUrl(),
+                chatRoom.getChatRoomActivateStatus(),
+                chatRoom.getChatRoomContractStatus(),
+                recruitment.getId(),
+                chatList
+        );
+    }
+}

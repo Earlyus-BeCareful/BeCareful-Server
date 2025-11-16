@@ -2,7 +2,6 @@ package com.becareful.becarefulserver.domain.chat.domain;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.common.domain.*;
-import com.becareful.becarefulserver.domain.matching.domain.*;
 import jakarta.persistence.*;
 import java.time.*;
 import lombok.*;
@@ -33,7 +32,7 @@ public class CaregiverChatReadStatus extends BaseEntity {
     private CaregiverChatReadStatus(Caregiver caregiver, ChatRoom chatRoom) {
         this.caregiver = caregiver;
         this.chatRoom = chatRoom;
-        this.lastReadAt = LocalDateTime.now();
+        this.lastReadAt = LocalDateTime.MIN;
     }
 
     public static CaregiverChatReadStatus create(Caregiver caregiver, ChatRoom chatRoom) {

@@ -1,31 +1,29 @@
 package com.becareful.becarefulserver.domain.chat.domain;
 
-import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.domain.chat.domain.vo.*;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TextChat extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    long id;
+@DiscriminatorValue("TEXT")
+public class TextChat extends Chat {
 
-    String text;
+    private String text;
 
-    @Builder
-    private TextChat(String text)
+    @Builder(access = AccessLevel.PRIVATE)
+    private TextChat(ChatRoom chatRoom, String text)
     {
+        create(chatRoom, ChatType.TEXT);
+        this.setChatType(ChatType.TEXT);
         this.text = text;
     }
 
-    public static TextChat create(String text)
+    public static TextChat create(ChatRoom chatRoom, String text)
     {
         return TextChat.builder()
+                .chatRoom(chatRoom)
                 .text(text)
                 .build();
     }

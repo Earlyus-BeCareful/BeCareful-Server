@@ -16,7 +16,6 @@ import com.becareful.becarefulserver.domain.common.dto.response.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
-import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.service.*;
 import com.becareful.becarefulserver.global.util.*;
 import jakarta.servlet.http.*;
@@ -24,9 +23,6 @@ import java.io.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.*;
-import org.springframework.security.core.context.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.multipart.*;
@@ -50,7 +46,7 @@ public class CaregiverService {
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
-        boolean hasNewChat = caregiverChatReadStatusRepository.existsUnreadContract(caregiver);
+        boolean hasNewChat = caregiverChatReadStatusRepository.existsUnreadChat(caregiver.getId());
 
         Optional<WorkApplication> optionalWorkApplication = workApplicationRepository.findByCaregiver(caregiver);
 

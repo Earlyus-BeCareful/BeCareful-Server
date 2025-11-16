@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.matching.repository;
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
-import jakarta.transaction.*;
 import java.util.*;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.*;
@@ -78,4 +77,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     boolean existsByApplicantOrProcessingContract(Recruitment recruitment);
 
     void deleteAllByRecruitment(Recruitment recruitment);
+
+    List<Matching> findAllByRecruitmentId(Long recruitmentId);
 }

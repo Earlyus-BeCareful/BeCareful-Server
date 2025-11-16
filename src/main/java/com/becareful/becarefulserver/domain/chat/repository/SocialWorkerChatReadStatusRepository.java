@@ -12,14 +12,19 @@ public interface SocialWorkerChatReadStatusRepository extends JpaRepository<Soci
     Optional<SocialWorkerChatReadStatus> findBySocialWorkerAndMatching(
             SocialWorker loggedInSocialWorker, Matching matching);
 
-    @Query(
-            """
-        SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END
-        FROM SocialWorkerChatReadStatus s
-        JOIN s.matching m
-        JOIN Contract c ON c.matching = m
-        WHERE s.socialWorker = :socialWorker
-            AND c.createDate > s.lastReadAt
-        """)
-    boolean existsUnreadContract(@Param("socialWorker") SocialWorker socialWorker);
+    @Query(value = """
+    SELECT EXISTS (
+        SELECT 1
+        FROM chat c
+        JOIN social_worker_chat_read_status r 
+            ON r.chat_room_id = c.chat_room_id
+        WHERE r.social_worker_id = :socialWorkerId
+          AND c.create_date > r.last_read_at
+    )
+""", nativeQuery = true)
+    boolean existsUnreadChat(
+            @Param("socialWorkerId") Long socialWorkerId
+    );
+
+    List<SocialWorkerChatReadStatus> findAllBySocialWorker(SocialWorker socialWorker);
 }

@@ -7,7 +7,7 @@ import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregi
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentMatchingStatusResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
-import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -105,12 +105,12 @@ public class SocialWorkerMatchingController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "3.1.4 요양보호사에게 근무 제안", description = "근무 시작일 지정하면, 채팅방을 생성하여 해당 근무 시작일로 제안을 보냅니다.")
+    @Operation(summary = "3.1.4 요양보호사에게 근무 제안", description = "근무 시작일을 지정하면 해당 요양보호사에게 근무 제안을 보내며,제안과 동시에 채팅방이 생성됩니다.")
     @PostMapping("/recruitment/{recruitmentId}/caregiver/{caregiverId}/propose")
-    public ResponseEntity<Void> proposeCaregiver(
+    public ResponseEntity<Long> proposeCaregiver(
             @PathVariable Long recruitmentId, @PathVariable Long caregiverId, @RequestParam LocalDate workStartDate) {
-        socialWorkerMatchingService.propose(recruitmentId, caregiverId, workStartDate);
-        return ResponseEntity.ok().build();
+        Long chatRoomId = socialWorkerMatchingService.proposeMatching(recruitmentId, caregiverId, workStartDate);
+        return ResponseEntity.ok(chatRoomId);
     }
 
     @Operation(summary = "3.2.1 매칭 공고 등록", description = "3.2.1.3 화면에서 사용하는 매칭 공고 등록 API")
@@ -126,6 +126,24 @@ public class SocialWorkerMatchingController {
     public ResponseEntity<Void> validateRecruitmentDuplicated(
             @Valid @RequestBody RecruitmentValidateDuplicatedRequest request) {
         socialWorkerMatchingService.validateDuplicated(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "3.5/7 매칭리스트(매칭 현황) & 3.6 지원리스트(지원 현황)", description = "매칭 보류하기")
+    @PutMapping("/{matchingId}/pending")
+    public ResponseEntity<Void> setPending(
+            @Parameter Long matchingId
+    ){
+        socialWorkerMatchingService.setMatchingPending(matchingId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "3.5/7 매칭리스트(매칭 현황) & 3.6 지원리스트(지원 현황)", description = "매칭 보류 상태에서 [근무 제안하기] 버튼 클릭시 보류하기 취소 모달 - 보류 취소하기")
+    @PutMapping("/{matchingId}/pending/cancel")
+    public ResponseEntity<Void> unsetPending(
+            @Parameter Long matchingId
+    ){
+        socialWorkerMatchingService.unsetMatchingPending(matchingId);
         return ResponseEntity.ok().build();
     }
 }

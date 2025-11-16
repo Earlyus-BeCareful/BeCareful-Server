@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
+import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
@@ -49,6 +51,8 @@ public class SocialWorkerMatchingService {
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
     private final RecruitmentDomainService recruitmentDomainService;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatRepository chatRepository;
 
     /***
      * 2025-09-24
@@ -154,14 +158,14 @@ public class SocialWorkerMatchingService {
         List<CompletedMatching> completedMatchings = completedMatchingRepository.findAllByElderly(elderly);
 
         completedMatchings.forEach(completedMatching -> {
-            Recruitment recruitment =
-                    completedMatching.getContract().getMatching().getRecruitment();
-            if (Collections.disjoint(recruitment.getWorkDays(), request.workDays())) {
+            Contract contract =
+                    completedMatching.getContract();
+            if (Collections.disjoint(contract.getWorkDays(), request.workDays())) {
                 return;
             }
             // TODO : Period 로 만들어서 오버랩 검증 로직 작성
-            if (recruitment.getWorkEndTime().isBefore(request.workStartTime())
-                    || request.workEndTime().isBefore(recruitment.getWorkStartTime())) {
+            if (contract.getWorkEndTime().isBefore(request.workStartTime())
+                    || request.workEndTime().isBefore(contract.getWorkStartTime())) {
                 return;
             }
             throw new RecruitmentException(RECRUITMENT_WORK_TIME_DUPLICATED);
@@ -224,6 +228,17 @@ public class SocialWorkerMatchingService {
         recruitmentDomainService.validateRecruitmentInstitution(recruitment, loggedInSocialWorker);
 
         recruitment.close();
+
+        List<Matching> matchingList = matchingRepository.findAllByRecruitmentId(recruitmentId);
+
+        //매칭마다 chatRoom 조회 후 상태 변경
+        for (Matching matching : matchingList) {
+            chatRoomRepository.findByMatchingIdAndChatRoomStatus(matching.getId(), ChatRoomActivateStatus.채팅가능)
+                    .ifPresent(
+                    chatRoom -> chatRoom.updateStatusTo(ChatRoomActivateStatus.공고마감)
+                    );
+        }
+
     }
 
     /**
@@ -323,32 +338,56 @@ public class SocialWorkerMatchingService {
     }
 
     @Transactional
-    public void propose(Long recruitmentId, Long caregiverId, LocalDate workStartDate) {
+    public long proposeMatching(Long recruitmentId, Long caregiverId, LocalDate workStartDate) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
+
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(
+                //TODO: 예외처리
+                //"공고가 존재하지 않습니다."
+        );
 
         Matching matching = matchingRepository
                 .findByCaregiverIdAndRecruitmentId(caregiverId, recruitmentId)
                 .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
 
+
         matching.propose();
 
-        initChatReadStatuses(matching, socialworker);
-
-        Contract contract = Contract.create(matching, workStartDate);
-        contractRepository.save(contract);
+        return initChatRoomAndChatReadStatuses(recruitment, matching.getWorkApplication().getCaregiver(), socialworker.getNursingInstitution(), workStartDate);
     }
 
-    private void initChatReadStatuses(Matching matching, SocialWorker loggedInSocialWorker) {
-        // Caregiver 상태 생성
-        Caregiver caregiver = matching.getWorkApplication().getCaregiver();
-        CaregiverChatReadStatus caregiverStatus = CaregiverChatReadStatus.create(caregiver, matching);
-        caregiverChatReadStatusRepository.save(caregiverStatus);
+    private long initChatRoomAndChatReadStatuses(Recruitment recruitment, Caregiver caregiver, NursingInstitution institution, LocalDate workStartDate) {
+        ChatRoom newChatRoom = ChatRoom.create(recruitment);
+        chatRoomRepository.save(newChatRoom);
+
+        //Caregiver 상태 생성
+        CaregiverChatReadStatus caregiverChatReadStatus = CaregiverChatReadStatus.create(caregiver, newChatRoom);
+        caregiverChatReadStatusRepository.save(caregiverChatReadStatus);
+
         // SocialWorker 상태 생성
         List<SocialWorker> socialWorkers =
-                socialWorkerRepository.findAllByNursingInstitution(loggedInSocialWorker.getNursingInstitution());
+                socialWorkerRepository.findAllByNursingInstitution(institution);
         List<SocialWorkerChatReadStatus> socialWorkerChatReadStatuses = socialWorkers.stream()
-                .map(s -> SocialWorkerChatReadStatus.create(s, matching))
+                .map(s -> SocialWorkerChatReadStatus.create(s, newChatRoom))
                 .toList();
         socialWorkerChatReadStatusRepository.saveAll(socialWorkerChatReadStatuses);
+
+        //최초 계약서채팅 생성
+        Contract contract = Contract.create(newChatRoom, recruitment, workStartDate);
+        chatRepository.save(contract);
+
+        return newChatRoom.getId();
+    }
+
+    @Transactional
+    public void setMatchingPending(Long matchingId) {
+        Matching matching = matchingRepository.findById(matchingId).orElseThrow(() -> new DomainException(MATCHING_NOT_EXISTS));
+        matching.setPending();
+    }
+
+    @Transactional
+    public void unsetMatchingPending(Long matchingId) {
+        Matching matching = matchingRepository.findById(matchingId).orElseThrow(() -> new DomainException(MATCHING_NOT_EXISTS));
+        matching.unsetPending();
     }
 }

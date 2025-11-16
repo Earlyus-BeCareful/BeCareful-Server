@@ -1,18 +1,15 @@
 package com.becareful.becarefulserver.domain.chat.domain;
 
-import com.becareful.becarefulserver.domain.chat.domain.vo.ChatType;
-import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
+import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.common.domain.*;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.util.UUID;
+import lombok.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "chat_type")
 public class Chat extends BaseEntity {
     @Id
     @GeneratedValue
@@ -25,20 +22,20 @@ public class Chat extends BaseEntity {
     @Enumerated(EnumType.STRING)
     ChatType chatType;
 
-    private long targetId;
-
     @Builder
     private Chat(ChatRoom chatRoom, ChatType chatType, long targetId) {
         this.chatRoom = chatRoom;
         this.chatType = chatType;
-        this.targetId = targetId;
     }
 
-    public static Chat create(ChatRoom chatRoom, ChatType chatType, long targetId){
+    public static Chat create(ChatRoom chatRoom, ChatType chatType){
         return Chat.builder()
                 .chatRoom(chatRoom)
                 .chatType(chatType)
-                .targetId(targetId)
                 .build();
+    }
+
+    protected void setChatType(ChatType chatType) {
+        this.chatType = chatType;
     }
 }

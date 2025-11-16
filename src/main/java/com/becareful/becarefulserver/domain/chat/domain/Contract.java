@@ -1,31 +1,20 @@
 package com.becareful.becarefulserver.domain.chat.domain;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
-import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
-import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
-import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-import com.becareful.becarefulserver.domain.common.domain.CareType;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.caregiver.domain.converter.*;
+import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.common.domain.*;
+import com.becareful.becarefulserver.domain.matching.domain.*;
 import jakarta.persistence.*;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.EnumSet;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.time.*;
+import java.util.*;
+import lombok.*;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Contract extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "contract_id")
-    private Long id;
+@DiscriminatorValue("CONTRACT")
+public class Contract extends Chat {
 
     @Convert(converter = DayOfWeekSetConverter.class)
     private EnumSet<DayOfWeek> workDays;
@@ -42,6 +31,7 @@ public class Contract extends BaseEntity {
 
     @Builder(access = AccessLevel.PRIVATE)
     private Contract(
+            ChatRoom chatRoom,
             EnumSet<DayOfWeek> workDays,
             LocalTime workStartTime,
             LocalTime workEndTime,
@@ -49,6 +39,8 @@ public class Contract extends BaseEntity {
             WorkSalaryUnitType workSalaryUnitType,
             int workSalaryAmount,
             EnumSet<CareType> careTypes) {
+        super.create(chatRoom, ChatType.CONTRACT);
+        this.setChatType(ChatType.CONTRACT);
         this.workDays = workDays;
         this.workStartTime = workStartTime;
         this.workEndTime = workEndTime;
@@ -58,9 +50,9 @@ public class Contract extends BaseEntity {
         this.careTypes = careTypes;
     }
 
-    public static Contract create(Matching matching, LocalDate workStartDate) {
-        Recruitment recruitment = matching.getRecruitment();
+    public static Contract create(ChatRoom chatRoom, Recruitment recruitment, LocalDate workStartDate) {
         return Contract.builder()
+                .chatRoom(chatRoom)
                 .workDays(recruitment.getWorkDays())
                 .workStartTime(recruitment.getWorkStartTime())
                 .workEndTime(recruitment.getWorkEndTime())
