@@ -59,7 +59,10 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
          GROUP BY r, e
     """)
     Page<SocialWorkerRecruitmentResponse> searchByInstitutionAndElderlyNameOrRecruitmentTitle(
-            NursingInstitution institution, List<RecruitmentStatus> recruitmentStatus, String keyword, Pageable pageable);
+            NursingInstitution institution,
+            List<RecruitmentStatus> recruitmentStatus,
+            String keyword,
+            Pageable pageable);
 
     @Query(
             """

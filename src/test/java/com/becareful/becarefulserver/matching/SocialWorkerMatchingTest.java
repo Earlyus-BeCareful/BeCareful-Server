@@ -273,7 +273,9 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
             caregiverMatchingService.applyRecruitment(recruitmentId2);
 
             // when
-            var response = socialWorkerMatchingService.getRecruitmentList(ElderlyMatchingStatusFilter.매칭중, PageRequest.of(0, 10)).getContent();
+            var response = socialWorkerMatchingService
+                    .getRecruitmentList(ElderlyMatchingStatusFilter.매칭중, PageRequest.of(0, 10))
+                    .getContent();
 
             // then
             Assertions.assertThat(response).hasSize(2);
@@ -299,7 +301,9 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
             socialWorkerMatchingService.closeRecruitment(recruitmentId2);
 
             // when
-            var response = socialWorkerMatchingService.getRecruitmentList(ElderlyMatchingStatusFilter.매칭완료, PageRequest.of(0, 10)).getContent();
+            var response = socialWorkerMatchingService
+                    .getRecruitmentList(ElderlyMatchingStatusFilter.매칭완료, PageRequest.of(0, 10))
+                    .getContent();
 
             // then
             Assertions.assertThat(response).hasSize(2);
