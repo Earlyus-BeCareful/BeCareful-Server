@@ -343,6 +343,7 @@ public class CaregiverMatchingTest extends IntegrationTest {
             Assertions.assertThat(response).hasSize(2);
             Assertions.assertThat(response.get(0).recruitmentStatus()).isEqualTo("일자리 모집중");
             Assertions.assertThat(response.get(1).recruitmentStatus()).isEqualTo("일자리 마감");
+            // TODO : recruitment status 가 '모집완료' 일 때 '일자리 마감' 으로 보이는지 테스트 추가
         }
     }
 
