@@ -325,6 +325,27 @@ public class CaregiverMatchingTest extends IntegrationTest {
         }
     }
 
+    @Nested
+    class 일자리_리스트_조회시 {
+
+        @Test
+        @WithCaregiver(phoneNumber = "01099990000")
+        void 태그가_정상적으로_조회된다() {
+            // given
+            Long recruitmentId1 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
+            Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
+
+            socialWorkerMatchingService.closeRecruitment(recruitmentId2);
+
+            // when
+            var response = caregiverMatchingService.getCaregiverMatchingRecruitmentList();
+
+            Assertions.assertThat(response).hasSize(2);
+            Assertions.assertThat(response.get(0).recruitmentStatus()).isEqualTo("일자리 모집중");
+            Assertions.assertThat(response.get(1).recruitmentStatus()).isEqualTo("일자리 마감");
+        }
+    }
+
     private Elderly createElderly(String name, Location location) {
         return elderlyRepository.save(Elderly.create(
                 name,
