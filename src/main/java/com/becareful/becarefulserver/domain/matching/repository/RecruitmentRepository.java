@@ -31,11 +31,11 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
           JOIN r.elderly e
           LEFT JOIN Matching m ON m.recruitment = r
          WHERE r.elderly.nursingInstitution = :institution
-           AND r.recruitmentStatus IN :recruitmentStatus
+           AND r.recruitmentStatus = :recruitmentStatus
          GROUP BY r, e
     """)
     Page<SocialWorkerRecruitmentResponse> findAllByInstitution(
-            NursingInstitution institution, List<RecruitmentStatus> recruitmentStatus, Pageable pageable);
+            NursingInstitution institution, RecruitmentStatus recruitmentStatus, Pageable pageable);
 
     @Query(
             """
@@ -54,15 +54,12 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
           JOIN r.elderly e
           LEFT JOIN Matching m ON m.recruitment = r
          WHERE r.elderly.nursingInstitution = :institution
-           AND r.recruitmentStatus IN :recruitmentStatus
+           AND r.recruitmentStatus = :recruitmentStatus
            AND (r.title LIKE %:keyword% OR r.elderly.name LIKE %:keyword%)
          GROUP BY r, e
     """)
     Page<SocialWorkerRecruitmentResponse> searchByInstitutionAndElderlyNameOrRecruitmentTitle(
-            NursingInstitution institution,
-            List<RecruitmentStatus> recruitmentStatus,
-            String keyword,
-            Pageable pageable);
+            NursingInstitution institution, RecruitmentStatus recruitmentStatus, String keyword, Pageable pageable);
 
     @Query(
             """

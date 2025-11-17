@@ -15,7 +15,7 @@ public class RecruitmentFixture {
         RecruitmentCreateRequest request = new RecruitmentCreateRequest(
                 elderly.getId(),
                 title,
-                List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
+                List.of(DayOfWeek.MONDAY),
                 LocalTime.of(9, 0),
                 LocalTime.of(11, 0),
                 List.of(CareType.식사보조),
