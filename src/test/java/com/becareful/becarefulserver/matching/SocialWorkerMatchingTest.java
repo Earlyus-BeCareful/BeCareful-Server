@@ -69,18 +69,6 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
                 WorkSalaryUnitType.DAY,
                 10000);
         workApplicationService.createOrUpdateWorkApplication(workRequest);
-
-        Elderly elderly = createElderly("어르신", Location.of("서울시", "마포구", "상수동"));
-        matchedRecruitmentCreateRequest = new RecruitmentCreateRequest(
-                elderly.getId(),
-                "title",
-                List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
-                LocalTime.of(9, 0),
-                LocalTime.of(12, 0),
-                List.of(CareType.식사보조),
-                WorkSalaryUnitType.DAY,
-                10000,
-                "desc");
     }
 
     @Test
@@ -264,6 +252,21 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
     @Nested
     class 공고_목록_조회시 {
 
+        @BeforeEach
+        void setElderly() {
+            Elderly elderly = createElderly("어르신", Location.of("서울시", "마포구", "상수동"));
+            matchedRecruitmentCreateRequest = new RecruitmentCreateRequest(
+                    elderly.getId(),
+                    "title",
+                    List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
+                    LocalTime.of(9, 0),
+                    LocalTime.of(12, 0),
+                    List.of(CareType.식사보조),
+                    WorkSalaryUnitType.DAY,
+                    10000,
+                    "desc");
+        }
+
         @Test
         @WithSocialWorker(phoneNumber = "01099990000")
         void 매칭중_탭_근무제안한_요보사가_없다면_태그가_매칭중으로_조회된다() {
@@ -309,6 +312,12 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
             Assertions.assertThat(response).hasSize(2);
             Assertions.assertThat(response.get(0).recruitmentStatus()).isEqualTo("공고 마감");
             Assertions.assertThat(response.get(1).recruitmentStatus()).isEqualTo("공고 마감");
+        }
+
+        @Test
+        @WithSocialWorker(phoneNumber = "01099990000")
+        void 매칭완료_탭_모집완료된_공고는_태그가_매칭완료로_조회된다() {
+            // TODO
         }
     }
 
