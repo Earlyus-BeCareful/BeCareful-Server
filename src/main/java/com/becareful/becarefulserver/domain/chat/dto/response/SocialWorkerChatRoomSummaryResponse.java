@@ -18,7 +18,14 @@ public record SocialWorkerChatRoomSummaryResponse(
         Integer unreadCount,
         boolean isContractAccepted) {
 
-    public static SocialWorkerChatRoomSummaryResponse of(ChatRoom chatRoom, Caregiver caregiver, Elderly elderly, String recentChat, String lastSendTime, Integer unreadCount, boolean isContractAccepted) {
+    public static SocialWorkerChatRoomSummaryResponse of(
+            ChatRoom chatRoom,
+            Caregiver caregiver,
+            Elderly elderly,
+            String recentChat,
+            String lastSendTime,
+            Integer unreadCount,
+            boolean isContractAccepted) {
         return new SocialWorkerChatRoomSummaryResponse(
                 chatRoom.getId(),
                 caregiver.getId(),
@@ -30,7 +37,6 @@ public record SocialWorkerChatRoomSummaryResponse(
                 recentChat,
                 lastSendTime,
                 unreadCount,
-                isContractAccepted
-        );
+                isContractAccepted);
     }
 }

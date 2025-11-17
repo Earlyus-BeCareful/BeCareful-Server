@@ -7,13 +7,14 @@ import java.util.*;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.*;
 
-public interface ChatRepository extends JpaRepository<Chat,Long> {
+public interface ChatRepository extends JpaRepository<Chat, Long> {
 
     int countByChatRoom(ChatRoom chatRoom);
 
     int countByChatRoomAndCreateDateAfter(ChatRoom chatRoom, LocalDateTime lastReadAt);
 
-    @Query("""
+    @Query(
+            """
     SELECT c
     FROM Chat c
     LEFT JOIN FETCH TextChat t ON c.id = t.id
@@ -31,6 +32,4 @@ public interface ChatRepository extends JpaRepository<Chat,Long> {
     ORDER BY c.createDate ASC
     """)
     List<Chat> findAllChatWithContent(@Param("chatRoomId") Long chatRoomId);
-
-    Optional<Chat> findTopByChatTypeAndChatRoom(ChatType chatType, ChatRoom chatRoom);
 }

@@ -19,26 +19,43 @@ public class ChatRoom extends BaseEntity {
     private Recruitment recruitment;
 
     @Enumerated(EnumType.STRING)
-    private ChatRoomActivateStatus chatRoomActivateStatus;
+    private ChatRoomActiveStatus chatRoomActiveStatus;
 
     @Enumerated(EnumType.STRING)
     private ChatRoomContractStatus chatRoomContractStatus;
 
-
     @Builder(access = AccessLevel.PRIVATE)
     private ChatRoom(Recruitment recruitment) {
-        this.chatRoomActivateStatus = ChatRoomActivateStatus.채팅가능;
+        this.chatRoomActiveStatus = ChatRoomActiveStatus.채팅가능;
         this.chatRoomContractStatus = ChatRoomContractStatus.근무조건조율중;
         this.recruitment = recruitment;
     }
 
     public static ChatRoom create(Recruitment recruitment) {
-        return builder()
-                .recruitment(recruitment)
-                .build();
+        return builder().recruitment(recruitment).build();
     }
 
-    public void updateStatusTo(ChatRoomActivateStatus chatRoomStatus) {
-        this.chatRoomActivateStatus = chatRoomStatus;
+    public void otherMatchingConfirmed() {
+        this.chatRoomActiveStatus = ChatRoomActiveStatus.타매칭채용완료;
+    }
+
+    public void caregiverLeave() {
+        this.chatRoomActiveStatus = ChatRoomActiveStatus.요양보호사탈퇴;
+    }
+
+    public void allSocialWorkerLeave() {
+        this.chatRoomActiveStatus = ChatRoomActiveStatus.사회복지사전원탈퇴;
+    }
+
+    public void recruitmentClosed() {
+        this.chatRoomActiveStatus = ChatRoomActiveStatus.공고마감;
+    }
+
+    public void acceptContract() {
+        this.chatRoomContractStatus = ChatRoomContractStatus.근무조건동의;
+    }
+
+    public void confirmContract() {
+        this.chatRoomContractStatus = ChatRoomContractStatus.채용완료;
     }
 }

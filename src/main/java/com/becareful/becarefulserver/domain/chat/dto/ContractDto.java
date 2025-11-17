@@ -1,7 +1,7 @@
 package com.becareful.becarefulserver.domain.chat.dto;
 
-import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.chat.domain.Contract;
+import com.becareful.becarefulserver.domain.common.domain.CareType;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

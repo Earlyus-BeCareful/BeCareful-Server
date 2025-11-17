@@ -11,14 +11,18 @@ public record CaregiverChatRoomSummaryResponse(
         String lastSendTime,
         Integer unreadCount) {
 
-    public static CaregiverChatRoomSummaryResponse of(ChatRoom chatRoom, NursingInstitution institution, String recentChat, String lastSendTime, Integer unreadCount) {
+    public static CaregiverChatRoomSummaryResponse of(
+            ChatRoom chatRoom,
+            NursingInstitution institution,
+            String recentChat,
+            String lastSendTime,
+            Integer unreadCount) {
         return new CaregiverChatRoomSummaryResponse(
                 chatRoom.getId(),
                 institution.getProfileImageUrl(),
                 institution.getName(),
                 recentChat,
                 lastSendTime,
-                unreadCount
-                );
+                unreadCount);
     }
 }

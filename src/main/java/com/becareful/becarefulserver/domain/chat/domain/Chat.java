@@ -19,23 +19,7 @@ public class Chat extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private ChatRoom chatRoom;
 
-    @Enumerated(EnumType.STRING)
-    ChatType chatType;
-
-    @Builder
-    private Chat(ChatRoom chatRoom, ChatType chatType, long targetId) {
+    protected Chat(ChatRoom chatRoom) {
         this.chatRoom = chatRoom;
-        this.chatType = chatType;
-    }
-
-    public static Chat create(ChatRoom chatRoom, ChatType chatType){
-        return Chat.builder()
-                .chatRoom(chatRoom)
-                .chatType(chatType)
-                .build();
-    }
-
-    protected void setChatType(ChatType chatType) {
-        this.chatType = chatType;
     }
 }

@@ -132,7 +132,6 @@ public class Matching extends BaseEntity {
         this.isPending = true;
     }
 
-
     public void unsetPending() {
         validateCanUnsetPending();
         this.isPending = false;
@@ -143,6 +142,9 @@ public class Matching extends BaseEntity {
         this.recruitment.complete();
     }
 
+    public void failedConfirm() {
+        this.matchingStatus = MatchingStatus.채용불발;
+    }
 
     public MatchingResultStatus getMatchingResultStatus() {
         return matchingResultInfo.judgeMatchingResultStatus();
@@ -160,8 +162,8 @@ public class Matching extends BaseEntity {
         }
     }
 
-    private void validateCanPropose(){
-        if(isPending){
+    private void validateCanPropose() {
+        if (isPending) {
             throw new MatchingException(MATCHING_CANNOT_PROPOSE_PENDING_MATCHING);
         }
     }

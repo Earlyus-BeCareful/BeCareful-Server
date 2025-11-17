@@ -29,7 +29,7 @@ public class Contract extends Chat {
     @Convert(converter = CareTypeSetConverter.class)
     private EnumSet<CareType> careTypes;
 
-    @Builder(access = AccessLevel.PRIVATE)
+    @Builder
     private Contract(
             ChatRoom chatRoom,
             EnumSet<DayOfWeek> workDays,
@@ -39,8 +39,7 @@ public class Contract extends Chat {
             WorkSalaryUnitType workSalaryUnitType,
             int workSalaryAmount,
             EnumSet<CareType> careTypes) {
-        super.create(chatRoom, ChatType.CONTRACT);
-        this.setChatType(ChatType.CONTRACT);
+        super(chatRoom);
         this.workDays = workDays;
         this.workStartTime = workStartTime;
         this.workEndTime = workEndTime;
@@ -64,14 +63,16 @@ public class Contract extends Chat {
     }
 
     public static Contract edit(
+            ChatRoom chatRoom,
             EnumSet<DayOfWeek> workDays,
             LocalTime workStartTime,
             LocalTime workEndTime,
+            LocalDate workStartDate,
             WorkSalaryUnitType workSalaryUnitType,
             int workSalaryAmount,
-            LocalDate workStartDate,
             EnumSet<CareType> careTypes) {
         return Contract.builder()
+                .chatRoom(chatRoom)
                 .workDays(workDays)
                 .workStartTime(workStartTime)
                 .workEndTime(workEndTime)

@@ -79,4 +79,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     void deleteAllByRecruitment(Recruitment recruitment);
 
     List<Matching> findAllByRecruitmentId(Long recruitmentId);
+
+    List<Matching> findAllByMatchingStatusAndRecruitment(MatchingStatus matchingStatus, Recruitment recruitment);
 }

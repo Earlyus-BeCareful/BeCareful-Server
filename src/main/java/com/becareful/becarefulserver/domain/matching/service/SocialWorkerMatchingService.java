@@ -1,12 +1,11 @@
 package com.becareful.becarefulserver.domain.matching.service;
 
-import com.becareful.becarefulserver.domain.chat.domain.vo.*;
-import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
+import com.becareful.becarefulserver.domain.chat.domain.vo.*;
 import com.becareful.becarefulserver.domain.chat.repository.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
@@ -16,6 +15,7 @@ import com.becareful.becarefulserver.domain.matching.dto.*;
 import com.becareful.becarefulserver.domain.matching.dto.request.*;
 import com.becareful.becarefulserver.domain.matching.dto.response.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.service.ElderlyDomainService;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
@@ -158,8 +158,7 @@ public class SocialWorkerMatchingService {
         List<CompletedMatching> completedMatchings = completedMatchingRepository.findAllByElderly(elderly);
 
         completedMatchings.forEach(completedMatching -> {
-            Contract contract =
-                    completedMatching.getContract();
+            Contract contract = completedMatching.getContract();
             if (Collections.disjoint(contract.getWorkDays(), request.workDays())) {
                 return;
             }
@@ -229,16 +228,10 @@ public class SocialWorkerMatchingService {
 
         recruitment.close();
 
-        List<Matching> matchingList = matchingRepository.findAllByRecruitmentId(recruitmentId);
-
-        //매칭마다 chatRoom 조회 후 상태 변경
-        for (Matching matching : matchingList) {
-            chatRoomRepository.findByMatchingIdAndChatRoomStatus(matching.getId(), ChatRoomActivateStatus.채팅가능)
-                    .ifPresent(
-                    chatRoom -> chatRoom.updateStatusTo(ChatRoomActivateStatus.공고마감)
-                    );
-        }
-
+        // 매칭마다 chatRoom 조회 후 상태 변경
+        chatRoomRepository
+                .findAllByChatRoomActiveStatusAndRecruitmentId(ChatRoomActiveStatus.채팅가능, recruitmentId)
+                .forEach(ChatRoom::recruitmentClosed);
     }
 
     /**
@@ -341,38 +334,43 @@ public class SocialWorkerMatchingService {
     public long proposeMatching(Long recruitmentId, Long caregiverId, LocalDate workStartDate) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(
-                //TODO: 예외처리
-                //"공고가 존재하지 않습니다."
-        );
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
+                .orElseThrow(
+                        // TODO: 예외처리
+                        // "공고가 존재하지 않습니다."
+                        );
 
         Matching matching = matchingRepository
                 .findByCaregiverIdAndRecruitmentId(caregiverId, recruitmentId)
                 .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
 
-
         matching.propose();
 
-        return initChatRoomAndChatReadStatuses(recruitment, matching.getWorkApplication().getCaregiver(), socialworker.getNursingInstitution(), workStartDate);
+        return initChatRoomAndChatReadStatuses(
+                recruitment,
+                matching.getWorkApplication().getCaregiver(),
+                socialworker.getNursingInstitution(),
+                workStartDate);
     }
 
-    private long initChatRoomAndChatReadStatuses(Recruitment recruitment, Caregiver caregiver, NursingInstitution institution, LocalDate workStartDate) {
+    private long initChatRoomAndChatReadStatuses(
+            Recruitment recruitment, Caregiver caregiver, NursingInstitution institution, LocalDate workStartDate) {
         ChatRoom newChatRoom = ChatRoom.create(recruitment);
         chatRoomRepository.save(newChatRoom);
 
-        //Caregiver 상태 생성
+        // Caregiver 상태 생성
         CaregiverChatReadStatus caregiverChatReadStatus = CaregiverChatReadStatus.create(caregiver, newChatRoom);
         caregiverChatReadStatusRepository.save(caregiverChatReadStatus);
 
         // SocialWorker 상태 생성
-        List<SocialWorker> socialWorkers =
-                socialWorkerRepository.findAllByNursingInstitution(institution);
+        List<SocialWorker> socialWorkers = socialWorkerRepository.findAllByNursingInstitution(institution);
         List<SocialWorkerChatReadStatus> socialWorkerChatReadStatuses = socialWorkers.stream()
                 .map(s -> SocialWorkerChatReadStatus.create(s, newChatRoom))
                 .toList();
         socialWorkerChatReadStatusRepository.saveAll(socialWorkerChatReadStatuses);
 
-        //최초 계약서채팅 생성
+        // 최초 계약서채팅 생성
         Contract contract = Contract.create(newChatRoom, recruitment, workStartDate);
         chatRepository.save(contract);
 
@@ -381,13 +379,15 @@ public class SocialWorkerMatchingService {
 
     @Transactional
     public void setMatchingPending(Long matchingId) {
-        Matching matching = matchingRepository.findById(matchingId).orElseThrow(() -> new DomainException(MATCHING_NOT_EXISTS));
+        Matching matching =
+                matchingRepository.findById(matchingId).orElseThrow(() -> new DomainException(MATCHING_NOT_EXISTS));
         matching.setPending();
     }
 
     @Transactional
     public void unsetMatchingPending(Long matchingId) {
-        Matching matching = matchingRepository.findById(matchingId).orElseThrow(() -> new DomainException(MATCHING_NOT_EXISTS));
+        Matching matching =
+                matchingRepository.findById(matchingId).orElseThrow(() -> new DomainException(MATCHING_NOT_EXISTS));
         matching.unsetPending();
     }
 }

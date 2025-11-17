@@ -35,8 +35,7 @@ public class CaregiverChatService {
     public List<CaregiverChatRoomSummaryResponse> getChatRoomList() {
 
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        List<CaregiverChatReadStatus> readStatusList =
-                caregiverChatReadStatusRepository.findAllByCaregiver(caregiver);
+        List<CaregiverChatReadStatus> readStatusList = caregiverChatReadStatusRepository.findAllByCaregiver(caregiver);
 
         List<CaregiverChatRoomSummaryResponse> responses = new ArrayList<>();
 
@@ -47,41 +46,27 @@ public class CaregiverChatService {
             Recruitment recruitment = chatRoom.getRecruitment();
             NursingInstitution institution = recruitment.getElderly().getNursingInstitution();
 
-            //JOIN FETCH 로 내용까지 한 번에 조회
-            Chat lastChat = chatRepository
-                    .findLastChatWithContent(chatRoom.getId())
-                    .orElseThrow();
+            // JOIN FETCH 로 내용까지 한 번에 조회
+            Chat lastChat =
+                    chatRepository.findLastChatWithContent(chatRoom.getId()).orElseThrow();
 
             String lastChatSendTime = formatTimeAgo(lastChat.getCreateDate());
 
-            //JOINED 구조 기반 메시지 내용 결정
-            String textOfLastChat = chatRoom.getChatRoomActivateStatus()!=ChatRoomActivateStatus.채팅가능 ?
-                    "종료된 대화입니다.":
-                    resolveLastChatTextUsingInheritance(readStatus, lastChat, chatRoom);
+            // JOINED 구조 기반 메시지 내용 결정
+            String textOfLastChat = chatRoom.getChatRoomActiveStatus() != ChatRoomActiveStatus.채팅가능
+                    ? "종료된 대화입니다."
+                    : resolveLastChatTextUsingInheritance(readStatus, lastChat, chatRoom);
 
-            int unreadCnt = chatRepository.countByChatRoomAndCreateDateAfter(
-                    chatRoom,
-                    readStatus.getLastReadAt()
-            );
+            int unreadCnt = chatRepository.countByChatRoomAndCreateDateAfter(chatRoom, readStatus.getLastReadAt());
 
-            responses.add(
-                    CaregiverChatRoomSummaryResponse.of(
-                            chatRoom,
-                            institution,
-                            textOfLastChat,
-                            lastChatSendTime,
-                            unreadCnt
-                    )
-            );
+            responses.add(CaregiverChatRoomSummaryResponse.of(
+                    chatRoom, institution, textOfLastChat, lastChatSendTime, unreadCnt));
         }
         return responses;
     }
 
     private String resolveLastChatTextUsingInheritance(
-            CaregiverChatReadStatus readStatus,
-            Chat lastChat,
-            ChatRoom chatRoom
-    ) {
+            CaregiverChatReadStatus readStatus, Chat lastChat, ChatRoom chatRoom) {
 
         // 1) 첫 방문
         if (readStatus.getLastReadAt().equals(LocalDateTime.MIN)) {
@@ -102,18 +87,14 @@ public class CaregiverChatService {
         return "지원하지 않는 메시지 타입입니다.";
     }
 
-
     private String getContractMessage(ChatRoomContractStatus status, int totalChatCnt) {
         return switch (status) {
-            case 근무조건조율중  -> (totalChatCnt == 1)
-                    ? "기관에서 근무 제안이 왔습니다."
-                    : "새로운 근무 조건을 확인해주세요.";
+            case 근무조건조율중 -> (totalChatCnt == 1) ? "기관에서 근무 제안이 왔습니다." : "새로운 근무 조건을 확인해주세요.";
             case 근무조건동의 -> "요양보호사님이 조건에 동의했습니다";
             case 채용완료 -> "채용이 확정되었습니다.";
             default -> null;
         };
     }
-
 
     public static String formatTimeAgo(LocalDateTime sendTime) {
 
@@ -128,15 +109,17 @@ public class CaregiverChatService {
         return days + "일 전";
     }
 
-    //대화내용 모두 반환
+    // 대화내용 모두 반환
     @Transactional
     public CaregiverChatRoomDetailResponse getChatRoomDetail(Long chatRoomId) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(
-                //TODO: 예외처리
-                //채팅방이 존재하지 않습니다.
-        );
+        ChatRoom chatRoom = chatRoomRepository
+                .findById(chatRoomId)
+                .orElseThrow(
+                        // TODO: 예외처리
+                        // 채팅방이 존재하지 않습니다.
+                        );
 
         Recruitment recruitment = chatRoom.getRecruitment();
         Elderly elderly = recruitment.getElderly();
@@ -146,13 +129,14 @@ public class CaregiverChatService {
         List<Chat> chatList = chatRepository.findAllChatWithContent(chatRoomId);
         List<ChatResponseDto> chatResponseDtoList = chatList.stream()
                 .map(chat -> {
-                    if(chat instanceof TextChat textChat) {
-                        return  TextChatResponseDto.from(textChat, formatTimeAgo(textChat.getCreateDate()));
-                    }else if(chat instanceof Contract contract) {
-                        return (ChatResponseDto) ContractChatResponseDto.from(contract, formatTimeAgo(contract.getCreateDate()));
-                    }else{
-                        //TODO: 예외처리
-                        //"허용되지 않는 메시지 타입입니다."
+                    if (chat instanceof TextChat textChat) {
+                        return TextChatResponseDto.from(textChat, formatTimeAgo(textChat.getCreateDate()));
+                    } else if (chat instanceof Contract contract) {
+                        return (ChatResponseDto)
+                                ContractChatResponseDto.from(contract, formatTimeAgo(contract.getCreateDate()));
+                    } else {
+                        // TODO: 예외처리
+                        // "허용되지 않는 메시지 타입입니다."
                         throw new IllegalArgumentException();
                     }
                 })
@@ -163,10 +147,11 @@ public class CaregiverChatService {
 
     @Transactional
     protected void updateReadStatus(ChatRoom chatRoom) {
-        CaregiverChatReadStatus readStatus = caregiverChatReadStatusRepository.findByChatRoom(chatRoom)
+        CaregiverChatReadStatus readStatus = caregiverChatReadStatusRepository
+                .findByChatRoom(chatRoom)
                 .orElseThrow(
-                        //TODO: 예외처리
-                );
+                        // TODO: 예외처리
+                        );
 
         readStatus.updateLastReadAt();
     }
@@ -174,9 +159,11 @@ public class CaregiverChatService {
     @Transactional
     public void saveTextChat(CaregiverSendTextChatRequest request) {
 
-        ChatRoom chatRoom = chatRoomRepository.findById(request.chatRoomId()).orElseThrow(
-                //TODO: 채팅방 존재하지 않을 경우 에러메시지 반환
-        );
+        ChatRoom chatRoom = chatRoomRepository
+                .findById(request.chatRoomId())
+                .orElseThrow(
+                        // TODO: 채팅방 존재하지 않을 경우 에러메시지 반환
+                        );
 
         checkChatRoomIsActive(chatRoom);
 
@@ -186,29 +173,33 @@ public class CaregiverChatService {
 
     @Transactional
     public void acceptContract(AcceptContractRequest request) {
-        ChatRoom chatRoom = chatRoomRepository.findById(request.chatRoomId()).orElseThrow(
-                //TODO: 예외처리
-        );
+        ChatRoom chatRoom = chatRoomRepository
+                .findById(request.chatRoomId())
+                .orElseThrow(
+                        // TODO: 예외처리
+                        );
 
         checkChatRoomIsActive(chatRoom);
 
-        long lastContractId = chatRepository.findTopByChatTypeAndChatRoom(ChatType.CONTRACT, chatRoom).orElseThrow(
-                //TODO: 예외처리
-                //"근무조건에 동의할 계약서가 없습니다."
-        ).getId();
+        long lastContractId = contractRepository
+                .findTopByChatRoom(chatRoom)
+                .orElseThrow(
+                        // TODO: 예외처리
+                        // "근무조건에 동의할 계약서가 없습니다."
+                        )
+                .getId();
 
-        if(request.lastContractId()!=lastContractId){
-            //TODO:예외처리
-            //"가장 최신의 근무조건만 동의 가능합니다."
+        if (request.lastContractId() != lastContractId) {
+            // TODO:예외처리
+            // "가장 최신의 근무조건만 동의 가능합니다."
         }
     }
 
-    //채팅방 검증 메서드
-    private void checkChatRoomIsActive (ChatRoom chatRoom){
-        if(chatRoom.getChatRoomActivateStatus() != ChatRoomActivateStatus.채팅가능) {
-            //TODO: 에러 메시지 반환
-            //"채팅방이 활성화되어있지 않아, 채팅을 전송할 수 없습니다."
+    // 채팅방 검증 메서드
+    private void checkChatRoomIsActive(ChatRoom chatRoom) {
+        if (chatRoom.getChatRoomActiveStatus() != ChatRoomActiveStatus.채팅가능) {
+            // TODO: 에러 메시지 반환
+            // "채팅방이 활성화되어있지 않아, 채팅을 전송할 수 없습니다."
         }
     }
-
 }

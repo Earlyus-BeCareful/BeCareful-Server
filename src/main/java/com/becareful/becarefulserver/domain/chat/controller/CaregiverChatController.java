@@ -27,12 +27,13 @@ public class CaregiverChatController {
 
     @Operation(summary = "요양보호사 채팅방 입장 & 채팅 조회", description = "채팅방 데이터 (어르신 정보, 채팅) 반환")
     @GetMapping
-    public ResponseEntity<CaregiverChatRoomDetailResponse> getChatRoomData(@RequestParam(name = "chatRoomId") Long chatRoomId) {
+    public ResponseEntity<CaregiverChatRoomDetailResponse> getChatRoomData(
+            @RequestParam(name = "chatRoomId") Long chatRoomId) {
         var response = caregiverChatService.getChatRoomDetail(chatRoomId);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary =  "요양보호사 텍스트 전송")
+    @Operation(summary = "요양보호사 텍스트 전송")
     @GetMapping("/send")
     public ResponseEntity<Void> createTextChat(CaregiverSendTextChatRequest request) {
         caregiverChatService.saveTextChat(request);

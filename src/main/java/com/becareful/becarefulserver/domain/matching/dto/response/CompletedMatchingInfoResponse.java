@@ -10,8 +10,7 @@ import java.util.List;
 public record CompletedMatchingInfoResponse(
         Long id, List<DayOfWeek> workDays, List<CareType> careTypes, String note, ElderlyDto elderlyInfo) {
     public static CompletedMatchingInfoResponse from(CompletedMatching completedMatching) {
-        Elderly elderly =
-                completedMatching.getContract().getMatching().getRecruitment().getElderly();
+        Elderly elderly = completedMatching.getRecruitment().getElderly();
 
         return new CompletedMatchingInfoResponse(
                 completedMatching.getId(),

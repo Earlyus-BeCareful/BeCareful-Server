@@ -12,21 +12,25 @@ public record SocialWorkerChatRoomDetailResponse(
         String caregiverProfileImageUrl,
         String elderlyName,
         String elderlyProfileImageUrl,
-        ChatRoomActivateStatus chatRoomStatus,
+        ChatRoomActiveStatus chatRoomStatus,
         ChatRoomContractStatus chatRoomContractStatus,
         long recruitmentId,
         List<ChatResponseDto> chatList) {
 
-    public static SocialWorkerChatRoomDetailResponse of(Recruitment recruitment, Caregiver caregiver, Elderly elderly, ChatRoom chatRoom, List<ChatResponseDto> chatList) {
+    public static SocialWorkerChatRoomDetailResponse of(
+            Recruitment recruitment,
+            Caregiver caregiver,
+            Elderly elderly,
+            ChatRoom chatRoom,
+            List<ChatResponseDto> chatList) {
         return new SocialWorkerChatRoomDetailResponse(
                 caregiver.getName(),
                 caregiver.getProfileImageUrl(),
                 elderly.getName(),
                 elderly.getProfileImageUrl(),
-                chatRoom.getChatRoomActivateStatus(),
+                chatRoom.getChatRoomActiveStatus(),
                 chatRoom.getChatRoomContractStatus(),
                 recruitment.getId(),
-                chatList
-        );
+                chatList);
     }
 }

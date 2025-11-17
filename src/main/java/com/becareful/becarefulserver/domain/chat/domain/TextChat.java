@@ -12,20 +12,13 @@ public class TextChat extends Chat {
 
     private String text;
 
-    @Builder(access = AccessLevel.PRIVATE)
-    private TextChat(ChatRoom chatRoom, String text)
-    {
-        create(chatRoom, ChatType.TEXT);
-        this.setChatType(ChatType.TEXT);
+    @Builder
+    private TextChat(ChatRoom chatRoom, String text) {
+        super(chatRoom);
         this.text = text;
     }
 
-    public static TextChat create(ChatRoom chatRoom, String text)
-    {
-        return TextChat.builder()
-                .chatRoom(chatRoom)
-                .text(text)
-                .build();
+    public static TextChat create(ChatRoom chatRoom, String text) {
+        return TextChat.builder().chatRoom(chatRoom).text(text).build();
     }
 }
-

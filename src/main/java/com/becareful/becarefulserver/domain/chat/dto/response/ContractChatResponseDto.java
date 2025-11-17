@@ -13,8 +13,8 @@ public record ContractChatResponseDto(
         LocalTime workStartTime,
         LocalTime workEndTime,
         Integer workSalaryAmount,
-        LocalDate workStartDate
-) implements ChatResponseDto {
+        LocalDate workStartDate)
+        implements ChatResponseDto {
     public static ContractChatResponseDto from(Contract contract, String formattedTimeAgo) {
         return new ContractChatResponseDto(
                 contract.getId(),
@@ -24,8 +24,6 @@ public record ContractChatResponseDto(
                 contract.getWorkStartTime(),
                 contract.getWorkEndTime(),
                 contract.getWorkSalaryAmount(),
-                contract.getWorkStartDate()
-        );
+                contract.getWorkStartDate());
     }
 }
-

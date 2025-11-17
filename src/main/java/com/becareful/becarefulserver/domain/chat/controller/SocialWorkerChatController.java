@@ -1,8 +1,8 @@
 package com.becareful.becarefulserver.domain.chat.controller;
 
 import com.becareful.becarefulserver.domain.chat.dto.request.*;
-import com.becareful.becarefulserver.domain.chat.dto.response.SocialWorkerChatRoomDetailResponse;
 import com.becareful.becarefulserver.domain.chat.dto.response.ContractDetailResponse;
+import com.becareful.becarefulserver.domain.chat.dto.response.SocialWorkerChatRoomDetailResponse;
 import com.becareful.becarefulserver.domain.chat.dto.response.SocialWorkerChatRoomSummaryResponse;
 import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +31,8 @@ public class SocialWorkerChatController {
 
     @Operation(summary = "사회복지사 채팅 데이터 조회", description = "채팅방 데이터 (어르신 정보, 계약서 리스트) 반환")
     @GetMapping
-    public ResponseEntity<SocialWorkerChatRoomDetailResponse> getChatRoomData(@RequestParam(name = "matchingId") Long matchingId) {
+    public ResponseEntity<SocialWorkerChatRoomDetailResponse> getChatRoomData(
+            @RequestParam(name = "matchingId") Long matchingId) {
         var response = socialWorkerChatService.getChatRoomDetailData(matchingId);
         return ResponseEntity.ok(response);
     }
@@ -51,12 +52,11 @@ public class SocialWorkerChatController {
         return ResponseEntity.created(URI.create("/contract/" + contractId)).build();
     }
 
-    //TODO: 채용 확정
+    // TODO: 채용 확정
     @Operation(summary = "계약서를 기반으로 매칭을 확정합니다.")
     @PostMapping("/confirm")
     public ResponseEntity<Void> confirmMatching(ConfirmContractRequest request) {
         socialWorkerChatService.createCompletedMatching(request);
         return ResponseEntity.ok().build();
     }
-
 }
