@@ -84,10 +84,10 @@ public class SocialWorkerMatchingService {
             ElderlyMatchingStatusFilter elderlyMatchingStatusFilter, Pageable pageable) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
-        RecruitmentStatus recruitmentStatus =
+        List<RecruitmentStatus> recruitmentStatus =
                 switch (elderlyMatchingStatusFilter) {
-                    case 매칭중 -> RecruitmentStatus.모집중;
-                    case 매칭완료 -> RecruitmentStatus.모집완료;
+                    case 매칭중 -> List.of(RecruitmentStatus.모집중);
+                    case 매칭완료 -> List.of(RecruitmentStatus.모집완료, RecruitmentStatus.공고마감);
                     default -> throw new RecruitmentException("매칭 상태 필터가 잘못되었습니다 : " + elderlyMatchingStatusFilter);
                 };
 
@@ -102,10 +102,10 @@ public class SocialWorkerMatchingService {
             MatchingRecruitmentSearchRequest request) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
-        RecruitmentStatus recruitmentStatus =
+        List<RecruitmentStatus> recruitmentStatus =
                 switch (elderlyMatchingStatusFilter) {
-                    case 매칭중 -> RecruitmentStatus.모집중;
-                    case 매칭완료 -> RecruitmentStatus.모집완료;
+                    case 매칭중 -> List.of(RecruitmentStatus.모집중);
+                    case 매칭완료 -> List.of(RecruitmentStatus.모집완료, RecruitmentStatus.공고마감);
                     default -> throw new RecruitmentException("매칭 상태 필터가 잘못되었습니다 : " + elderlyMatchingStatusFilter);
                 };
 
