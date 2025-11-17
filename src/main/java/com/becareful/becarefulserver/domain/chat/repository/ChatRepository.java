@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.domain.chat.repository;
 
 import com.becareful.becarefulserver.domain.chat.domain.*;
-import com.becareful.becarefulserver.domain.chat.domain.vo.*;
 import java.time.*;
 import java.util.*;
 import org.springframework.data.jpa.repository.*;
@@ -32,4 +31,6 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     ORDER BY c.createDate ASC
     """)
     List<Chat> findAllChatWithContent(@Param("chatRoomId") Long chatRoomId);
+
+    Optional<Chat> findTopByChatRoomId(long chatRoomId);
 }

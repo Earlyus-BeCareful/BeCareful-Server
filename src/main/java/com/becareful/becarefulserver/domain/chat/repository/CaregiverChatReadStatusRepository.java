@@ -2,7 +2,6 @@ package com.becareful.becarefulserver.domain.chat.repository;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
-import com.becareful.becarefulserver.domain.matching.domain.*;
 import java.util.*;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.*;
@@ -28,4 +27,6 @@ public interface CaregiverChatReadStatusRepository extends JpaRepository<Caregiv
     List<CaregiverChatReadStatus> findAllByCaregiver(Caregiver caregiver);
 
     Optional<CaregiverChatReadStatus> findByChatRoomId(Long chatRoomId);
+
+    Optional<CaregiverChatReadStatus> findByCaregiverAndChatRoom(Caregiver caregiver, ChatRoom chatRoom);
 }

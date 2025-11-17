@@ -5,8 +5,7 @@ import com.becareful.becarefulserver.domain.chat.domain.SocialWorkerChatReadStat
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 
 public class SocialWorkerChatReadStatusFixture {
-    public static SocialWorkerChatReadStatus create(SocialWorker socialWorker, ChatRoom chatRoom){
+    public static SocialWorkerChatReadStatus create(SocialWorker socialWorker, ChatRoom chatRoom) {
         return SocialWorkerChatReadStatus.create(socialWorker, chatRoom);
     }
-
 }

@@ -16,7 +16,6 @@ import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCrea
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -35,8 +34,7 @@ public class MatchingFixture {
                 "서울시",
                 "상세주소",
                 new CaregiverInfo(false, false, null, null, null),
-                true
-        );
+                true);
     }
 
     public static Elderly createElderly(NursingInstitution institution) {
@@ -52,8 +50,7 @@ public class MatchingFixture {
                 institution,
                 CareLevel.일등급,
                 "건강",
-                EnumSet.of(DetailCareType.스스로식사가능)
-        );
+                EnumSet.of(DetailCareType.스스로식사가능));
     }
 
     public static Recruitment createRecruitment(String title, Elderly elderly) {
@@ -66,11 +63,9 @@ public class MatchingFixture {
                 List.of(CareType.식사보조),
                 WorkSalaryUnitType.DAY,
                 10000,
-                "description"
-        );
+                "description");
         return Recruitment.create(request, elderly);
     }
-
 
     public static WorkApplication createWorkApplication(Caregiver caregiver) {
 

@@ -227,8 +227,8 @@ public class SocialWorkerChatService {
             m.failedConfirm();
         }
 
-        List<ChatRoom> chatRooms = chatRoomRepository.findAllByChatRoomActiveStatusAndRecruitment(
-                ChatRoomActiveStatus.채팅가능, recruitment);
+        List<ChatRoom> chatRooms =
+                chatRoomRepository.findAllByChatRoomActiveStatusAndRecruitment(ChatRoomActiveStatus.채팅가능, recruitment);
 
         for (ChatRoom room : chatRooms) {
             if (room.getId().equals(chatRoom.getId())) continue;

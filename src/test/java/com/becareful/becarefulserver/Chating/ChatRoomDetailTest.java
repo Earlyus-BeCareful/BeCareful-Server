@@ -1,4 +1,4 @@
 package com.becareful.becarefulserver.Chating;
 
-public class ChatingCreateTest {
+public class ChatRoomDetailTest {
 }

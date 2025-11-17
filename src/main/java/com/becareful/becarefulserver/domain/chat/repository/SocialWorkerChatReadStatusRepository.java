@@ -1,7 +1,6 @@
 package com.becareful.becarefulserver.domain.chat.repository;
 
 import com.becareful.becarefulserver.domain.chat.domain.*;
-import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import java.util.*;
 import org.springframework.data.jpa.repository.*;
@@ -29,4 +28,6 @@ public interface SocialWorkerChatReadStatusRepository extends JpaRepository<Soci
     List<SocialWorkerChatReadStatus> chatRoom(ChatRoom chatRoom);
 
     SocialWorkerChatReadStatus findByChatRoomIdAndSocialWorkerId(Long chatRoomId, Long socialWorkerId);
+
+    Optional<SocialWorkerChatReadStatus> findBySocialWorkerAndChatRoom(SocialWorker sw, ChatRoom chatRoom);
 }
