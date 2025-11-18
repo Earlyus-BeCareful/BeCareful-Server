@@ -27,8 +27,7 @@ public class CaregiverChatController {
 
     @Operation(summary = "요양보호사 채팅방 입장 & 채팅 조회", description = "채팅방 데이터 (어르신 정보, 채팅) 반환")
     @GetMapping
-    public ResponseEntity<CaregiverChatRoomDetailResponse> getChatRoomData(
-            @RequestParam(name = "chatRoomId") Long chatRoomId) {
+    public ResponseEntity<CaregiverChatRoomDetailResponse> getChatRoomData(@RequestParam Long chatRoomId) {
         var response = caregiverChatService.getChatRoomDetail(chatRoomId);
         return ResponseEntity.ok(response);
     }

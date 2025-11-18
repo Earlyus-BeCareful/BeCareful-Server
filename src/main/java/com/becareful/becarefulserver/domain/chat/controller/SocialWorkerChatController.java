@@ -31,9 +31,8 @@ public class SocialWorkerChatController {
 
     @Operation(summary = "사회복지사 채팅 데이터 조회", description = "채팅방 데이터 (어르신 정보, 계약서 리스트) 반환")
     @GetMapping
-    public ResponseEntity<SocialWorkerChatRoomDetailResponse> getChatRoomData(
-            @RequestParam(name = "matchingId") Long matchingId) {
-        var response = socialWorkerChatService.getChatRoomDetailData(matchingId);
+    public ResponseEntity<SocialWorkerChatRoomDetailResponse> getChatRoomData(@RequestParam Long chatRoomId) {
+        var response = socialWorkerChatService.getChatRoomDetailData(chatRoomId);
         return ResponseEntity.ok(response);
     }
 
