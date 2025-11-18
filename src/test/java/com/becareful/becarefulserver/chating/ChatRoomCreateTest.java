@@ -1,16 +1,25 @@
-package com.becareful.becarefulserver.Chating;
+package com.becareful.becarefulserver.chating;
 
+import static com.becareful.becarefulserver.fixture.NursingInstitutionFixture.NURSING_INSTITUTION;
 import static org.assertj.core.api.Assertions.*;
 
 import com.becareful.becarefulserver.common.*;
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
+import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.repository.*;
+import com.becareful.becarefulserver.domain.common.domain.CareType;
+import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
+import com.becareful.becarefulserver.domain.common.domain.Gender;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.*;
+import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.matching.service.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
 import com.becareful.becarefulserver.fixture.*;
 import java.time.*;
@@ -34,12 +43,6 @@ public class ChatRoomCreateTest extends IntegrationTest {
     private RecruitmentRepository recruitmentRepository;
 
     @Autowired
-    private WorkApplicationRepository workApplicationRepository;
-
-    @Autowired
-    private MatchingRepository matchingRepository;
-
-    @Autowired
     private ChatRoomRepository chatRoomRepository;
 
     @Autowired
@@ -58,13 +61,14 @@ public class ChatRoomCreateTest extends IntegrationTest {
     @WithCaregiver(phoneNumber = "01099990000")
     void 채팅방_생성_및_읽음상태_계약_검증() {
         // 1. Fixture로 데이터 생성
-        Caregiver caregiver = caregiverRepository.save(MatchingFixture.createCaregiver("01011112222"));
+        Caregiver caregiver = caregiverRepository.save(CaregiverFixture.createCaregiver());
         Elderly elderly =
-                elderlyRepository.save(MatchingFixture.createElderly(NursingInstitutionFixture.NURSING_INSTITUTION));
-        Recruitment recruitment = recruitmentRepository.save(MatchingFixture.createRecruitment("테스트 공고", elderly));
-        WorkApplication workApplication =
-                workApplicationRepository.save(MatchingFixture.createWorkApplication(caregiver));
-        Matching matching = matchingRepository.save(MatchingFixture.createMatching(recruitment, workApplication));
+                elderlyRepository.save(ElderlyFixture.create("김춘자"));
+
+        Recruitment recruitment = recruitmentRepository.save(RecruitmentFixture.createRecruitment("테스트 공고", elderly));
+
+        socialWorkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_1);
+        socialWorkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_MANAGER);
 
         // 2. 채팅방 생성 호출
         long chatRoomId =
@@ -82,7 +86,7 @@ public class ChatRoomCreateTest extends IntegrationTest {
 
         // 5. SocialWorker 읽음 상태 검증
         List<SocialWorker> socialWorkers =
-                socialWorkerRepository.findAllByNursingInstitution(NursingInstitutionFixture.NURSING_INSTITUTION);
+                socialWorkerRepository.findAllByNursingInstitution(NURSING_INSTITUTION);
         for (SocialWorker sw : socialWorkers) {
             assertThat(socialWorkerChatReadStatusRepository.findBySocialWorkerAndChatRoom(sw, chatRoom))
                     .isPresent();

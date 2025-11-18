@@ -13,12 +13,12 @@ public class TextChat extends Chat {
     private String text;
 
     @Builder
-    private TextChat(ChatRoom chatRoom, String text) {
-        super(chatRoom);
+    private TextChat(ChatRoom chatRoom, ChatSenderType senderType, String text) {
+        super(chatRoom, senderType);
         this.text = text;
     }
 
-    public static TextChat create(ChatRoom chatRoom, String text) {
-        return TextChat.builder().chatRoom(chatRoom).text(text).build();
+    public static TextChat create(ChatRoom chatRoom, ChatSenderType senderType, String text) {
+        return TextChat.builder().chatRoom(chatRoom).senderType(senderType).text(text).build();
     }
 }

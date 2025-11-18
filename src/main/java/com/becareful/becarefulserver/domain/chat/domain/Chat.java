@@ -19,7 +19,10 @@ public class Chat extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private ChatRoom chatRoom;
 
-    protected Chat(ChatRoom chatRoom) {
+    private ChatSenderType senderType;
+
+    protected Chat(ChatRoom chatRoom, ChatSenderType senderType) {
         this.chatRoom = chatRoom;
+        this.senderType = senderType;
     }
 }

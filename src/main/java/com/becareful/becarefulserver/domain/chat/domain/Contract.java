@@ -39,7 +39,7 @@ public class Contract extends Chat {
             WorkSalaryUnitType workSalaryUnitType,
             int workSalaryAmount,
             EnumSet<CareType> careTypes) {
-        super(chatRoom);
+        super(chatRoom, ChatSenderType.SOCIAL_WORKER);
         this.workDays = workDays;
         this.workStartTime = workStartTime;
         this.workEndTime = workEndTime;

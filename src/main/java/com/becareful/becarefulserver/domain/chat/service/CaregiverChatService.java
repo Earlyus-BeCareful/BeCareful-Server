@@ -167,7 +167,7 @@ public class CaregiverChatService {
 
         checkChatRoomIsActive(chatRoom);
 
-        TextChat textChat = TextChat.create(chatRoom, request.text());
+        TextChat textChat = TextChat.create(chatRoom, ChatSenderType.CAREGIVER, request.text());
         chatRepository.save(textChat);
     }
 
@@ -193,6 +193,11 @@ public class CaregiverChatService {
             // TODO:예외처리
             // "가장 최신의 근무조건만 동의 가능합니다."
         }
+    }
+    @Transactional(readOnly = true)
+    public boolean checkNewChat() {
+        Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
+        return caregiverChatReadStatusRepository.existsUnreadChat(loggedInCaregiver.getId());
     }
 
     // 채팅방 검증 메서드

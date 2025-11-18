@@ -37,6 +37,13 @@ public class SocialWorkerChatController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "사회복지사 텍스트 전송")
+    @GetMapping("/send")
+    public ResponseEntity<Void> createTextChat(SocialWorkerSendTextChatRequest request) {
+        socialWorkerChatService.saveTextChat(request);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "계약서 상세 내용 반환", description = "계약서 수정시 이전 조건 내용을 불러오는데 사용하는 API")
     @GetMapping("/contract/{contractId}")
     public ResponseEntity<ContractDetailResponse> getContractDetail(@PathVariable Long contractId) {

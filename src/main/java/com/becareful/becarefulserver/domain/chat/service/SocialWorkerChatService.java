@@ -197,6 +197,8 @@ public class SocialWorkerChatService {
                         // TODO: 채팅방 에러처리
                         );
 
+        checkChatRoomIsActive(chatRoom);
+
         Recruitment recruitment = chatRoom.getRecruitment();
 
         // TODO: 삭제 예정된 코드. contract 불필요.
@@ -253,5 +255,28 @@ public class SocialWorkerChatService {
     @Transactional
     public void updateReadStatus(SocialWorkerChatReadStatus chatReadStatus) {
         chatReadStatus.updateLastReadAt();
+    }
+
+    @Transactional
+    public void saveTextChat(SocialWorkerSendTextChatRequest request) {
+        ChatRoom chatRoom = chatRoomRepository
+                .findById(request.chatRoomId())
+                .orElseThrow(
+                        // TODO: 채팅방 존재하지 않을 경우 에러메시지 반환
+                );
+
+        checkChatRoomIsActive(chatRoom);
+
+        TextChat textChat = TextChat.create(chatRoom, ChatSenderType.SOCIAL_WORKER, request.text());
+        chatRepository.save(textChat);
+    }
+
+
+    // 채팅방 검증 메서드
+    private void checkChatRoomIsActive(ChatRoom chatRoom) {
+        if (chatRoom.getChatRoomActiveStatus() != ChatRoomActiveStatus.채팅가능) {
+            // TODO: 에러 메시지 반환
+            // "채팅방이 활성화되어있지 않아, 채팅을 전송할 수 없습니다."
+        }
     }
 }
