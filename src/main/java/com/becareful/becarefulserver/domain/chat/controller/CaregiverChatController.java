@@ -5,9 +5,8 @@ import com.becareful.becarefulserver.domain.chat.dto.response.*;
 import com.becareful.becarefulserver.domain.chat.service.CaregiverChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
-
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
