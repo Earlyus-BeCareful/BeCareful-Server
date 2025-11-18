@@ -33,10 +33,10 @@ public class CaregiverChatController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "요양보호사 텍스트 전송")
-    @GetMapping("/send")
+    @Operation(summary = "요양보호사 텍스트 채팅 전송")
+    @PostMapping("/send")
     public ResponseEntity<Void> createTextChat(CaregiverSendTextChatRequest request) {
-        caregiverChatService.saveTextChat(request);
+        caregiverChatService.createTextChat(request);
         return ResponseEntity.ok().build();
     }
 

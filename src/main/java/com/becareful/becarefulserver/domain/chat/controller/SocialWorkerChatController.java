@@ -37,10 +37,10 @@ public class SocialWorkerChatController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "사회복지사 텍스트 전송")
-    @GetMapping("/send")
+    @Operation(summary = "사회복지사 텍스트 채팅 전송")
+    @PostMapping("/send")
     public ResponseEntity<Void> createTextChat(SocialWorkerSendTextChatRequest request) {
-        socialWorkerChatService.saveTextChat(request);
+        socialWorkerChatService.createTextChat(request);
         return ResponseEntity.ok().build();
     }
 

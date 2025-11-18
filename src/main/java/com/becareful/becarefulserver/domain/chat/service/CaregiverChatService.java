@@ -157,7 +157,7 @@ public class CaregiverChatService {
     }
 
     @Transactional
-    public void saveTextChat(CaregiverSendTextChatRequest request) {
+    public void createTextChat(CaregiverSendTextChatRequest request) {
 
         ChatRoom chatRoom = chatRoomRepository
                 .findById(request.chatRoomId())

@@ -257,7 +257,7 @@ public class SocialWorkerChatService {
     }
 
     @Transactional
-    public void saveTextChat(SocialWorkerSendTextChatRequest request) {
+    public void createTextChat(SocialWorkerSendTextChatRequest request) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(request.chatRoomId())
                 .orElseThrow(
