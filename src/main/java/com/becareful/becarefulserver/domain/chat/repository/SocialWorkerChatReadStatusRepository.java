@@ -25,8 +25,6 @@ public interface SocialWorkerChatReadStatusRepository extends JpaRepository<Soci
 
     List<SocialWorkerChatReadStatus> findAllBySocialWorker(SocialWorker socialWorker);
 
-    List<SocialWorkerChatReadStatus> chatRoom(ChatRoom chatRoom);
-
     SocialWorkerChatReadStatus findByChatRoomIdAndSocialWorkerId(Long chatRoomId, Long socialWorkerId);
 
     Optional<SocialWorkerChatReadStatus> findBySocialWorkerAndChatRoom(SocialWorker sw, ChatRoom chatRoom);

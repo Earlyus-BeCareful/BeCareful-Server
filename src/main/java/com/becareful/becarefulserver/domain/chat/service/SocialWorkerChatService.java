@@ -30,7 +30,6 @@ public class SocialWorkerChatService {
     private final CompletedMatchingRepository completedMatchingRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
-    private final RecruitmentRepository recruitmentRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final ChatRepository chatRepository;
 
@@ -99,7 +98,6 @@ public class SocialWorkerChatService {
     }
 
     public static String formatTimeAgo(LocalDateTime sendTime) {
-
         Duration duration = Duration.between(sendTime, LocalDateTime.now());
 
         long hours = duration.toHours();
@@ -158,6 +156,7 @@ public class SocialWorkerChatService {
     }
 
     // 직전 계약서 내용 불러오기
+    @Transactional(readOnly = true)
     public ContractDetailResponse getContractDetail(Long contractId) {
         Contract contract =
                 contractRepository.findById(contractId).orElseThrow(() -> new ContractException(CONTRACT_NOT_EXISTS));
@@ -191,6 +190,7 @@ public class SocialWorkerChatService {
     public void createCompletedMatching(ConfirmContractRequest request) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
 
+        // TODO: 채팅방이 이 사회복지사가 접근 가능한 채팅방이 맞는지 검증 필요
         ChatRoom chatRoom = chatRoomRepository
                 .findById(request.chatRoomId())
                 .orElseThrow(
