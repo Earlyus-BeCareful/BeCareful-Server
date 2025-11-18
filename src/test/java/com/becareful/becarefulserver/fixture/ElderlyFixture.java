@@ -15,7 +15,7 @@ public class ElderlyFixture {
                 name,
                 LocalDate.of(1940, 1, 1),
                 Gender.FEMALE,
-                Location.of("서울특별시", "마포구", "상수동"),
+                Location.of("서울시", "마포구", "상수동"),
                 "홍익대학교",
                 false,
                 false,

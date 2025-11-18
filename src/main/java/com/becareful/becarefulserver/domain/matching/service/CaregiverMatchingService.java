@@ -10,6 +10,7 @@ import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadSta
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.matching.dto.request.CaregiverAppliedStatusFilter;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedMatchingDetailResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedRecruitmentsResponse;
@@ -96,20 +97,23 @@ public class CaregiverMatchingService {
     }
 
     @Transactional(readOnly = true)
-    public CaregiverAppliedRecruitmentsResponse getMyAppliedRecruitment(MatchingStatus matchingStatus) {
+    public CaregiverAppliedRecruitmentsResponse getMyAppliedRecruitment(CaregiverAppliedStatusFilter appliedStatus) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
-        List<CaregiverAppliedRecruitmentsResponse.Item> recruitments = workApplicationRepository
-                .findByCaregiver(caregiver)
-                .map(workApplication ->
-                        matchingRepository
-                                .findByWorkApplicationAndMatchingStatus(workApplication, matchingStatus)
-                                .stream()
-                                .map(CaregiverAppliedRecruitmentsResponse.Item::from)
-                                .toList())
-                .orElse(List.of());
+        List<MatchingStatus> matchingStatuses =
+                switch (appliedStatus) {
+                    case 검토중 -> List.of(MatchingStatus.지원검토, MatchingStatus.근무제안);
+                    case 합격 -> List.of(MatchingStatus.채용완료);
+                    case 마감 -> List.of(
+                            MatchingStatus.지원검토, MatchingStatus.근무제안);
+                };
+
+        boolean isShouldBeRecruiting = appliedStatus == CaregiverAppliedStatusFilter.검토중;
+
+        List<Matching> matchings = matchingRepository.findAllAppliedByCaregiverAndMatchingStatusIn(
+                caregiver, matchingStatuses, isShouldBeRecruiting);
         boolean hasNewChat = chatReadStatusRepository.existsUnreadChat(caregiver.getId());
-        return CaregiverAppliedRecruitmentsResponse.of(recruitments, hasNewChat);
+        return CaregiverAppliedRecruitmentsResponse.of(matchings, hasNewChat);
     }
 
     @Transactional(readOnly = true)

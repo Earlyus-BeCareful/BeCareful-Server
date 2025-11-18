@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.caregiver.controller;
 
+import com.becareful.becarefulserver.domain.caregiver.dto.CareerDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.*;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.service.*;
@@ -94,7 +95,7 @@ public class CaregiverController {
 
     @Operation(summary = "경력서 조회", description = "경력서가 없는 경우에는 null 과 빈 리스트를 반환합니다.")
     @GetMapping("/career")
-    public ResponseEntity<CareerResponse> getCareer() {
+    public ResponseEntity<CareerDto> getCareer() {
         var response = careerService.getCareer();
         return ResponseEntity.ok(response);
     }

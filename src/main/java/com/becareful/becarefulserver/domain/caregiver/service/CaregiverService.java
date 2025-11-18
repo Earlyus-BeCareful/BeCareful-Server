@@ -33,7 +33,6 @@ import org.springframework.web.multipart.*;
 public class CaregiverService {
 
     private final CaregiverRepository caregiverRepository;
-    private final CareerRepository careerRepository;
     private final WorkApplicationRepository workApplicationRepository;
     private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
@@ -42,6 +41,8 @@ public class CaregiverService {
     private final AuthUtil authUtil;
     private final S3Util s3Util;
     private final S3Service s3Service;
+    private final CareerDetailRepository careerDetailRepository;
+    private final CareerRepository careerRepository;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -80,11 +81,12 @@ public class CaregiverService {
     }
 
     public CaregiverMyPageHomeResponse getCaregiverMyPageHomeData() {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Career career = careerRepository.findByCaregiver(caregiver).orElse(null);
+        Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
+        Career career = careerRepository.findByCaregiver(loggedInCaregiver).orElse(null);
+        List<CareerDetail> careerDetails = career == null ? List.of() : careerDetailRepository.findAllByCareer(career);
         WorkApplication workApplication =
-                workApplicationRepository.findByCaregiver(caregiver).orElse(null);
-        return CaregiverMyPageHomeResponse.of(caregiver, career, workApplication);
+                workApplicationRepository.findByCaregiver(loggedInCaregiver).orElse(null);
+        return CaregiverMyPageHomeResponse.of(loggedInCaregiver, career, careerDetails, workApplication);
     }
 
     @Transactional
@@ -174,7 +176,7 @@ public class CaregiverService {
                 request.socialWorkerCertificate(),
                 request.nursingCareCertificate());
 
-        caregiver.updateInfo(request.phoneNumber(), profileImageUrl, caregiverInfo);
+        caregiver.updateInfo(request.phoneNumber(), profileImageUrl, caregiverInfo, request.address());
 
         if (request.profileImageTempKey() != null
                 && !request.profileImageTempKey().equals("default")) {

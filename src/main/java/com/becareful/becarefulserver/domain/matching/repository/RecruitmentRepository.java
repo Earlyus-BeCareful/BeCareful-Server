@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.matching.repository;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus;
 import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
@@ -30,11 +31,11 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
           JOIN r.elderly e
           LEFT JOIN Matching m ON m.recruitment = r
          WHERE r.elderly.nursingInstitution = :institution
-           AND r.recruitmentStatus = :recruitmentStatus
+           AND r.recruitmentStatus IN :recruitmentStatus
          GROUP BY r, e
     """)
     Page<SocialWorkerRecruitmentResponse> findAllByInstitution(
-            NursingInstitution institution, RecruitmentStatus recruitmentStatus, Pageable pageable);
+            NursingInstitution institution, List<RecruitmentStatus> recruitmentStatus, Pageable pageable);
 
     @Query(
             """
@@ -53,12 +54,15 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
           JOIN r.elderly e
           LEFT JOIN Matching m ON m.recruitment = r
          WHERE r.elderly.nursingInstitution = :institution
-           AND r.recruitmentStatus = :recruitmentStatus
+           AND r.recruitmentStatus IN :recruitmentStatus
            AND (r.title LIKE %:keyword% OR r.elderly.name LIKE %:keyword%)
          GROUP BY r, e
     """)
     Page<SocialWorkerRecruitmentResponse> searchByInstitutionAndElderlyNameOrRecruitmentTitle(
-            NursingInstitution institution, RecruitmentStatus recruitmentStatus, String keyword, Pageable pageable);
+            NursingInstitution institution,
+            List<RecruitmentStatus> recruitmentStatus,
+            String keyword,
+            Pageable pageable);
 
     @Query(
             """
@@ -87,8 +91,12 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
         select r
           from Recruitment r
          where r.recruitmentStatus = com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중
+           and not exists (select m
+                             from Matching m
+                            where m.recruitment = r
+                              and m.workApplication = :workApplication)
     """)
-    List<Recruitment> findAllByIsRecruiting();
+    List<Recruitment> findAllByIsRecruiting(WorkApplication workApplication);
 
     List<Recruitment> findAllByElderlyIn(List<Elderly> elderlys);
 }
