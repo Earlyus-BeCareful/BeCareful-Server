@@ -6,6 +6,8 @@ import com.becareful.becarefulserver.domain.chat.service.CaregiverChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,14 +36,14 @@ public class CaregiverChatController {
 
     @Operation(summary = "요양보호사 텍스트 채팅 전송")
     @PostMapping("/send")
-    public ResponseEntity<Void> createTextChat(CaregiverSendTextChatRequest request) {
+    public ResponseEntity<Void> createTextChat(@RequestBody @Valid CaregiverSendTextChatRequest request) {
         caregiverChatService.createTextChat(request);
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "근무조건 동의하기 팝업-동의하기")
     @PostMapping("/accept")
-    public ResponseEntity<Void> acceptContract(AcceptContractRequest request) {
+    public ResponseEntity<Void> acceptContract(@RequestBody @Valid AcceptContractRequest request) {
         caregiverChatService.acceptContract(request);
         return ResponseEntity.ok().build();
     }
