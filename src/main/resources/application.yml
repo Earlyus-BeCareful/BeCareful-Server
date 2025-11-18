@@ -23,7 +23,7 @@ spring:
       - sms
       - redis
       - s3
-    active: local
+    active: "${SPRING_PROFILES_ACTIVE}"
 
 jwt:
   secret: "${JWT_SECRET_KEY}"

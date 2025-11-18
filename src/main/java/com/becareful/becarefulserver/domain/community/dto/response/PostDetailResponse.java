@@ -1,10 +1,10 @@
 package com.becareful.becarefulserver.domain.community.dto.response;
 
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.community.domain.FileType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.dto.AuthorSimpleDto;
 import com.becareful.becarefulserver.domain.community.dto.PostMediaDto;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -23,7 +23,7 @@ public record PostDetailResponse(
         String originalUrl) {
 
     public static PostDetailResponse of(Post post, Long currentUserId) {
-        SocialWorker author = post.getAuthor();
+        AssociationMember author = post.getAuthor();
         boolean isMyPost = author != null && author.getId().equals(currentUserId);
         return new PostDetailResponse(
                 post.getId(),

@@ -23,7 +23,7 @@ public class CompletedMatchingService {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         List<CompletedMatching> completedMatchings = completedMatchingRepository.findByCaregiver(caregiver);
         return completedMatchings.stream()
-                .map(CompletedMatchingInfoResponse::from)
+                .map(cm -> CompletedMatchingInfoResponse.from(cm, cm.getContract()))
                 .toList();
     }
 

@@ -1,59 +1,90 @@
 package com.becareful.becarefulserver.domain.socialworker.dto.response;
 
+import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
+import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionSimpleDto;
+import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.dto.SocialWorkerSimpleDto;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record SocialWorkerHomeResponse(
         SocialWorkerSimpleDto socialWorkerInfo,
-        boolean hasNewChat,
         InstitutionInfo institutionInfo,
-        MatchingStatistics matchingStatistics,
-        ApplicationStatistics applicationStatistics,
-        List<ElderlySimpleDto> matchingElderlyList) {
+        RecruitmentStatistics recruitmentStatistics,
+        List<MatchingProcessingElderlyInfo> matchingProcessingElderlys,
+        boolean hasNewChat) {
 
     public static SocialWorkerHomeResponse of(
-            SocialWorker socialWorker,
-            boolean hasNewChat,
-            Integer elderlyCount,
-            Integer socialWorkerCount,
+            SocialWorker loggedInSocialWorker,
             List<SocialWorkerSimpleDto> socialWorkerList,
-            Integer matchingProcessingCount,
-            Integer recentlyMatchedCount,
-            Integer totalMatchedCount,
-            Integer appliedCaregiverCount,
-            Double averageAppliedCaregiver,
-            Double averageApplyingRate,
-            List<ElderlySimpleDto> matchingElderlyList) {
+            List<Recruitment> recruitments,
+            Integer elderlyCount,
+            boolean hasNewChat) {
+
+        List<MatchingProcessingElderlyInfo> matchingProcessingElderlyInfos = recruitments.stream()
+                .filter(r -> r.getRecruitmentStatus().isRecruiting())
+                .collect(Collectors.groupingBy(Recruitment::getElderly, Collectors.counting()))
+                .entrySet()
+                .stream()
+                .map(MatchingProcessingElderlyInfo::from)
+                .toList();
+
         return SocialWorkerHomeResponse.builder()
-                .socialWorkerInfo(SocialWorkerSimpleDto.from(socialWorker))
-                .hasNewChat(hasNewChat)
+                .socialWorkerInfo(SocialWorkerSimpleDto.from(loggedInSocialWorker))
                 .institutionInfo(new InstitutionInfo(
-                        socialWorker.getNursingInstitution().getName(),
+                        InstitutionSimpleDto.from(loggedInSocialWorker.getNursingInstitution()),
                         elderlyCount,
-                        socialWorkerCount,
+                        socialWorkerList.size(),
                         socialWorkerList))
-                .matchingStatistics(
-                        new MatchingStatistics(matchingProcessingCount, recentlyMatchedCount, totalMatchedCount))
-                .applicationStatistics(new ApplicationStatistics(
-                        appliedCaregiverCount, averageAppliedCaregiver.intValue(), averageApplyingRate.intValue()))
-                .matchingElderlyList(matchingElderlyList)
+                .recruitmentStatistics(RecruitmentStatistics.from(recruitments))
+                .matchingProcessingElderlys(matchingProcessingElderlyInfos)
+                .hasNewChat(hasNewChat)
                 .build();
     }
 
     private record InstitutionInfo(
-            String institutionName,
+            InstitutionSimpleDto institutionDetail,
             Integer elderlyCount,
             Integer socialWorkerCount,
             List<SocialWorkerSimpleDto> socialWorkerList) {}
 
-    private record MatchingStatistics(
-            Integer matchingProcessingCount, Integer recentlyMatchedCount, Integer totalMatchingCompletedCount) {}
+    private record RecruitmentStatistics(
+            Integer recruitmentProcessingCount,
+            Integer recentlyCompletedCount,
+            Integer totalRecruitmentCompletedCount) {
 
-    private record ApplicationStatistics(
-            Integer appliedCaregiverCount, Integer averageAppliedCaregiver, Integer averageApplyingRate) {}
+        public static RecruitmentStatistics from(List<Recruitment> recruitments) {
+            int processingRecruitmentCount = 0; // 진행중인 공고
+            int recentlyCompletedRecruitmentCount = 0; // 최근 일주일 동안 완료된 공고
+            int totalCompletedRecruitmentCount = 0; // 누적 완료된 공고
+
+            for (Recruitment recruitment : recruitments) {
+                if (recruitment.getRecruitmentStatus().isRecruiting()) {
+                    processingRecruitmentCount++;
+                } else {
+                    if (recruitment.getUpdateDate().isAfter(LocalDateTime.now().minusDays(7))) {
+                        recentlyCompletedRecruitmentCount++;
+                    }
+                    totalCompletedRecruitmentCount++;
+                }
+            }
+
+            return new RecruitmentStatistics(
+                    processingRecruitmentCount, recentlyCompletedRecruitmentCount, totalCompletedRecruitmentCount);
+        }
+    }
+
+    private record MatchingProcessingElderlyInfo(ElderlySimpleDto elderlyDetail, Long recruitmentCount) {
+        public static MatchingProcessingElderlyInfo from(Map.Entry<Elderly, Long> elderlyInfo) {
+            return new MatchingProcessingElderlyInfo(
+                    ElderlySimpleDto.from(elderlyInfo.getKey()), elderlyInfo.getValue());
+        }
+    }
 }

@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.matching.domain;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
@@ -9,10 +11,12 @@ import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
+import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import jakarta.persistence.*;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.EnumSet;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,6 +33,9 @@ public class Recruitment extends BaseEntity {
     private Long id;
 
     private String title;
+
+    @Enumerated(EnumType.STRING)
+    private RecruitmentStatus recruitmentStatus = RecruitmentStatus.모집중;
 
     @Convert(converter = DayOfWeekSetConverter.class)
     private EnumSet<DayOfWeek> workDays;
@@ -47,8 +54,6 @@ public class Recruitment extends BaseEntity {
 
     private String description;
 
-    private boolean isRecruiting = true;
-
     @JoinColumn(name = "elderly_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Elderly elderly;
@@ -63,7 +68,6 @@ public class Recruitment extends BaseEntity {
             WorkSalaryUnitType workSalaryUnitType,
             int workSalaryAmount,
             String description,
-            boolean isRecruiting,
             Elderly elderly) {
         this.title = title;
         this.workDays = workDays;
@@ -73,7 +77,6 @@ public class Recruitment extends BaseEntity {
         this.workSalaryUnitType = workSalaryUnitType;
         this.workSalaryAmount = workSalaryAmount;
         this.description = description;
-        this.isRecruiting = isRecruiting;
         this.elderly = elderly;
     }
 
@@ -87,7 +90,6 @@ public class Recruitment extends BaseEntity {
                 .workSalaryUnitType(request.workSalaryUnitType())
                 .workSalaryAmount(request.workSalaryAmount())
                 .description(request.description())
-                .isRecruiting(true)
                 .elderly(elderly)
                 .build();
     }
@@ -119,7 +121,40 @@ public class Recruitment extends BaseEntity {
                 || (startTime.isBefore(workEndTime) && workStartTime.isBefore(endTime));
     }
 
+    /**
+     * 엔티티 메서드
+     */
     public void complete() {
-        this.isRecruiting = false;
+        if (!this.recruitmentStatus.isRecruiting()) {
+            throw new RecruitmentException(RECRUITMENT_NOT_COMPLETABLE_NOT_RECRUITING);
+        }
+        this.recruitmentStatus = RecruitmentStatus.모집완료;
+    }
+
+    public void close() {
+        switch (recruitmentStatus) {
+            case 모집중 -> this.recruitmentStatus = RecruitmentStatus.공고마감;
+            case 모집완료 -> throw new RecruitmentException(RECRUITMENT_NOT_CLOSABLE_COMPLETED);
+            case 공고마감 -> throw new RecruitmentException(RECRUITMENT_NOT_CLOSABLE_ALREADY_CLOSED);
+        }
+    }
+
+    public void update(
+            String title,
+            List<DayOfWeek> workDays,
+            LocalTime workStartTime,
+            LocalTime workEndTime,
+            List<CareType> careTypes,
+            WorkSalaryUnitType workSalaryUnitType,
+            int workSalaryAmount,
+            String description) {
+        this.title = title;
+        this.workDays = EnumSet.copyOf(workDays);
+        this.workStartTime = workStartTime;
+        this.workEndTime = workEndTime;
+        this.careTypes = EnumSet.copyOf(careTypes);
+        this.workSalaryUnitType = workSalaryUnitType;
+        this.workSalaryAmount = workSalaryAmount;
+        this.description = description;
     }
 }

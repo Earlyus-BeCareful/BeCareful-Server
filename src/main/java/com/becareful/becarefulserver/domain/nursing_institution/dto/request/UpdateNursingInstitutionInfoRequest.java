@@ -10,4 +10,4 @@ public record UpdateNursingInstitutionInfoRequest(
         @NotNull Integer openYear,
         @NotNull @Size(min = 1, max = 6) List<FacilityType> facilityTypeList,
         @NotBlank String phoneNumber,
-        @NotBlank String profileImageUrl) {}
+        String profileImageTempKey) {}

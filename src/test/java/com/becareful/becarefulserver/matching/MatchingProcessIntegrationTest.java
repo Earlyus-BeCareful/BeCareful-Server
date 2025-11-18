@@ -8,18 +8,21 @@ import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
-import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.service.WorkApplicationService;
+import com.becareful.becarefulserver.domain.chat.domain.Contract;
+import com.becareful.becarefulserver.domain.chat.dto.request.ConfirmContractRequest;
 import com.becareful.becarefulserver.domain.chat.dto.request.ContractEditRequest;
+import com.becareful.becarefulserver.domain.chat.repository.ChatRepository;
+import com.becareful.becarefulserver.domain.chat.repository.ChatRoomRepository;
 import com.becareful.becarefulserver.domain.chat.service.CaregiverChatService;
 import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
@@ -27,12 +30,11 @@ import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchin
 import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
-import com.becareful.becarefulserver.domain.matching.service.ContractService;
-import com.becareful.becarefulserver.domain.matching.service.MatchingService;
+import com.becareful.becarefulserver.domain.matching.service.CaregiverMatchingService;
+import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
-import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
 import java.time.*;
 import java.util.EnumSet;
@@ -55,16 +57,13 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
     private ElderlyRepository elderlyRepository;
 
     @Autowired
-    private MatchingService matchingService;
+    private SocialWorkerMatchingService socialWorkerMatchingService;
 
     @Autowired
     private MatchingRepository matchingRepository;
 
     @Autowired
     private RecruitmentRepository recruitmentRepository;
-
-    @Autowired
-    private ContractService contractService;
 
     @Autowired
     private ContractRepository contractRepository;
@@ -78,36 +77,35 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
     @Autowired
     private CompletedMatchingRepository completedMatchingRepository;
 
+    @Autowired
+    private CaregiverMatchingService caregiverMatchingService;
+
+    @Autowired
+    private ChatRoomRepository chatRoomRepository;
+
+    @Autowired
+    private ChatRepository chatRepository;
+
     @Test
     @WithCaregiver(phoneNumber = "01099990000")
     void 매칭_과정_전체_플로우() {
-        Caregiver caregiver = caregiverRepository.save(Caregiver.create(
-                "caregiver",
-                LocalDate.of(1990, 1, 1),
-                Gender.FEMALE,
-                "01099990000",
-                null,
-                "서울시",
-                "상세주소",
-                new CaregiverInfo(false, false, null, null, null),
-                true));
+        Caregiver caregiver =
+                caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
 
-        WorkApplicationUpdateRequest workRequest = new WorkApplicationUpdateRequest(
-                List.of(new WorkLocationDto("서울시", "종로구", "청운동")),
+        WorkApplicationCreateOrUpdateRequest workRequest = new WorkApplicationCreateOrUpdateRequest(
+                List.of(Location.of("서울시", "종로구", "청운동")),
                 List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY),
                 List.of(WorkTime.MORNING),
                 List.of(CareType.식사보조),
                 WorkSalaryUnitType.DAY,
                 10000);
-        workApplicationService.updateWorkApplication(workRequest);
+        workApplicationService.createOrUpdateWorkApplication(workRequest);
 
         Elderly elderly = elderlyRepository.save(Elderly.create(
                 "어르신",
                 LocalDate.of(1950, 1, 1),
                 Gender.FEMALE,
-                "서울시",
-                "종로구",
-                "청운동",
+                Location.of("서울시", "종로구", "청운동"),
                 "상세",
                 false,
                 false,
@@ -127,7 +125,7 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 WorkSalaryUnitType.DAY,
                 10000,
                 "desc");
-        Long recruitmentId = matchingService.createRecruitment(recruitmentRequest);
+        Long recruitmentId = socialWorkerMatchingService.createRecruitment(recruitmentRequest);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow();
         WorkApplication workApp =
@@ -136,20 +134,19 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 .findByWorkApplicationAndRecruitment(workApp, recruitment)
                 .orElseThrow();
 
-        matchingService.applyRecruitment(recruitmentId);
-        Matching applied = matchingRepository
-                .findByIdWithRecruitmentAndWorkApplicationAndCaregiver(matching.getId())
-                .orElseThrow();
+        caregiverMatchingService.applyRecruitment(recruitmentId);
+        Matching applied = matchingRepository.findById(matching.getId()).orElseThrow();
         assertThat(applied.isApplicationReviewing()).isTrue();
 
-        contractService.createContract(applied, LocalDate.now());
-        Contract firstContract = contractRepository
-                .findTop1ByMatchingOrderByCreateDateDesc(matching)
-                .orElseThrow();
+        long chatRoomId =
+                socialWorkerMatchingService.proposeMatching(recruitmentId, caregiver.getId(), LocalDate.now());
+
+        Contract firstContract =
+                (Contract) chatRepository.findLastChatWithContent(chatRoomId).orElseThrow();
         assertThat(firstContract.getWorkSalaryAmount()).isEqualTo(10000);
 
         ContractEditRequest editRequest = new ContractEditRequest(
-                matching.getId(),
+                chatRoomId,
                 List.of(DayOfWeek.MONDAY),
                 LocalTime.of(10, 0),
                 LocalTime.of(13, 0),
@@ -157,12 +154,17 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 12000,
                 LocalDate.now(),
                 List.of(CareType.식사보조));
+
         socialWorkerChatService.editContract(editRequest);
-        List<Contract> contracts = contractRepository.findByMatchingIdOrderByCreateDateAsc(matching.getId());
-        Contract edited = contracts.get(contracts.size() - 1);
+        Contract edited = contractRepository
+                .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
+                .orElseThrow();
+
         assertThat(edited.getWorkSalaryAmount()).isEqualTo(12000);
 
-        caregiverChatService.createCompletedMatching(edited.getId());
+        ConfirmContractRequest confirmRequest = new ConfirmContractRequest(chatRoomId, edited.getId());
+
+        socialWorkerChatService.createCompletedMatching(confirmRequest);
         assertThat(completedMatchingRepository.existsCompletedMatchingByContract(edited))
                 .isTrue();
     }

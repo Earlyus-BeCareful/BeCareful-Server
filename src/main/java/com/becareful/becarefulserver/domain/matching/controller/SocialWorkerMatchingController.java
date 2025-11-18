@@ -1,18 +1,20 @@
 package com.becareful.becarefulserver.domain.matching.controller;
 
-import com.becareful.becarefulserver.domain.matching.domain.MatchingStatusFilter;
-import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
+import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
+import com.becareful.becarefulserver.domain.matching.dto.RecruitmentDto;
+import com.becareful.becarefulserver.domain.matching.dto.request.*;
 import com.becareful.becarefulserver.domain.matching.dto.response.MatchingCaregiverDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusDetailResponse;
-import com.becareful.becarefulserver.domain.matching.dto.response.MatchingStatusSimpleResponse;
-import com.becareful.becarefulserver.domain.matching.service.ContractService;
-import com.becareful.becarefulserver.domain.matching.service.MatchingService;
-import io.swagger.v3.oas.annotations.Operation;
+import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentMatchingStatusResponse;
+import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
+import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
+import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.net.URI;
 import java.time.LocalDate;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,45 +24,124 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Social Worker Matching", description = "사회복지사가 사용하는 매칭 공고 관련 API 입니다.")
 public class SocialWorkerMatchingController {
 
-    private final MatchingService matchingService;
-    private final ContractService contractService;
+    private final SocialWorkerMatchingService socialWorkerMatchingService;
 
-    @Operation(summary = "매칭 공고 등록")
-    @PostMapping("/recruitment")
-    public ResponseEntity<Long> createRecruitment(@Valid @RequestBody RecruitmentCreateRequest request) {
-        Long recruitmentId = matchingService.createRecruitment(request);
-        return ResponseEntity.ok(recruitmentId); // TODO : Created 응답으로 변경
-    }
-
-    @Operation(summary = "매칭 현황 조회")
-    @GetMapping("/list")
-    public ResponseEntity<List<MatchingStatusSimpleResponse>> getMatchingList(
-            @RequestParam MatchingStatusFilter matchingStatusFilter) {
-        var response = matchingService.getMatchingList(matchingStatusFilter);
+    @Operation(summary = "3.1 공고 등록 대기 어르신 리스트 조회 (매칭 대기)")
+    @GetMapping("/elderly/waiting")
+    public ResponseEntity<Page<ElderlySimpleDto>> getWaitingElderlys(Pageable pageable) {
+        var response = socialWorkerMatchingService.getWaitingElderlys(pageable);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "매칭 현황 상세 조회", description = "매칭 현황 데이터의 상세화면을 조회합니다. 매칭된 요양보호사와 지원한 요양보호사 정보가 있습니다.")
+    @Operation(summary = "3.1 공고 등록 대기 어르신 리스트 검색 (매칭 대기)")
+    @PostMapping("/elderly/waiting/search")
+    public ResponseEntity<Page<ElderlySimpleDto>> searchWaitingElderlys(
+            Pageable pageable, @Valid @RequestBody WaitingMatchingElderlySearchRequest request) {
+        var response = socialWorkerMatchingService.searchWaitingElderlys(pageable, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "3.1 공고 목록 조회 (매칭중 / 매칭완료)")
+    @GetMapping("/recruitment")
+    public ResponseEntity<Page<SocialWorkerRecruitmentResponse>> getMatchingList(
+            @RequestParam ElderlyMatchingStatusFilter elderlyMatchingStatusFilter, Pageable pageable) {
+        var response = socialWorkerMatchingService.getRecruitmentList(elderlyMatchingStatusFilter, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "3.1 공고 목록 검색 (매칭중 / 매칭완료)")
+    @PostMapping("/recruitment/search")
+    public ResponseEntity<Page<SocialWorkerRecruitmentResponse>> searchMatchingList(
+            @RequestParam ElderlyMatchingStatusFilter elderlyMatchingStatusFilter,
+            Pageable pageable,
+            @Valid @RequestBody MatchingRecruitmentSearchRequest request) {
+        var response =
+                socialWorkerMatchingService.searchRecruitmentList(elderlyMatchingStatusFilter, pageable, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "3.1.4 공고 상세 조회", description = "공고 상세 화면을 조회합니다.")
     @GetMapping("/recruitment/{recruitmentId}")
-    public ResponseEntity<MatchingStatusDetailResponse> getMatchingListDetail(@PathVariable Long recruitmentId) {
-        var response = matchingService.getMatchingDetail(recruitmentId);
+    public ResponseEntity<RecruitmentDto> getRecruitmentDetail(@PathVariable Long recruitmentId) {
+        var response = socialWorkerMatchingService.getRecruitment(recruitmentId);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "요양보호사 지원 정보 상세 조회", description = "요양보호사의 지원 정보를 자세히 조회합니다.")
+    @Operation(summary = "3.1.4 공고 수정", description = "공고 내용을 수정합니다. 지원자가 없을 때만 수정 가능합니다.")
+    @PutMapping("/recruitment/{recruitmentId}")
+    public ResponseEntity<Void> updateRecruitmentDetail(
+            @PathVariable Long recruitmentId, @Valid @RequestBody RecruitmentUpdateRequest request) {
+        socialWorkerMatchingService.updateRecruitment(recruitmentId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "3.1.4 공고 삭제", description = "공고를 삭제합니다. 지원자가 없을 때만 삭제 가능합니다.")
+    @DeleteMapping("/recruitment/{recruitmentId}")
+    public ResponseEntity<Void> deleteRecruitmentDetail(@PathVariable Long recruitmentId) {
+        socialWorkerMatchingService.deleteRecruitment(recruitmentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "3.1.4 공고 마감 처리", description = "공고를 마감하고, 신규 매칭 및 지원을 더 이상 받지 않습니다.")
+    @PostMapping("/recruitment/{recruitmentId}/close")
+    public ResponseEntity<Void> closeRecruitment(@PathVariable Long recruitmentId) {
+        socialWorkerMatchingService.closeRecruitment(recruitmentId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "3.1.4 공고 매칭 현황 조회", description = "공고의 요양보호사 매칭 및 지원 현황을 조회합니다.")
+    @GetMapping("/recruitment/{recruitmentId}/matching-status")
+    public ResponseEntity<RecruitmentMatchingStatusResponse> getRecruitmentMatchingStatus(
+            @PathVariable Long recruitmentId) {
+        var response = socialWorkerMatchingService.getMatchingStatus(recruitmentId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "3.1.4 요양보호사 지원 정보 상세 조회", description = "매칭된 요양보호사 상세 정보를 조회합니다.")
     @GetMapping("/recruitment/{recruitmentId}/caregiver/{caregiverId}")
     public ResponseEntity<MatchingCaregiverDetailResponse> getCaregiverDetailInfo(
-            @PathVariable(name = "recruitmentId") Long recruitmentId,
-            @PathVariable(name = "caregiverId") Long caregiverId) {
-        var response = matchingService.getCaregiverDetailInfo(recruitmentId, caregiverId);
+            @PathVariable Long recruitmentId, @PathVariable Long caregiverId) {
+        var response = socialWorkerMatchingService.getCaregiverDetailInfo(recruitmentId, caregiverId);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "요양보호사 채용하기", description = "근무 시작일 선택 후 계약서 생성")
-    @PostMapping("/{matchingId}/hire")
-    public ResponseEntity<Void> hireCaregiver(
-            @PathVariable("matchingId") Long matchingId, @RequestParam LocalDate workStartDate) {
-        matchingService.hire(matchingId, workStartDate);
+    @Operation(summary = "3.1.4 요양보호사에게 근무 제안", description = "근무 시작일을 지정하면 해당 요양보호사에게 근무 제안을 보내며,제안과 동시에 채팅방이 생성됩니다.")
+    @PostMapping("/recruitment/{recruitmentId}/caregiver/{caregiverId}/propose")
+    public ResponseEntity<Long> proposeCaregiver(
+            @PathVariable Long recruitmentId, @PathVariable Long caregiverId, @RequestParam LocalDate workStartDate) {
+        Long chatRoomId = socialWorkerMatchingService.proposeMatching(recruitmentId, caregiverId, workStartDate);
+        return ResponseEntity.ok(chatRoomId);
+    }
+
+    @Operation(summary = "3.2.1 매칭 공고 등록", description = "3.2.1.3 화면에서 사용하는 매칭 공고 등록 API")
+    @PostMapping("/recruitment")
+    public ResponseEntity<Void> createRecruitment(@Valid @RequestBody RecruitmentCreateRequest request) {
+        Long recruitmentId = socialWorkerMatchingService.createRecruitment(request);
+        return ResponseEntity.created(URI.create("/matching/social-worker/recruitment/" + recruitmentId))
+                .build();
+    }
+
+    @Operation(summary = "3.2.1 매칭 공고 검증", description = "3.2.1.3 화면에서 매칭 공고 등록시 일정 중복을 검증하는 API, 검증에 실패하면 에러 발생")
+    @PostMapping("/recruitment/validate-duplicated")
+    public ResponseEntity<Void> validateRecruitmentDuplicated(
+            @Valid @RequestBody RecruitmentValidateDuplicatedRequest request) {
+        socialWorkerMatchingService.validateDuplicated(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "3.5/7 매칭리스트(매칭 현황) & 3.6 지원리스트(지원 현황)", description = "매칭 보류하기")
+    @PutMapping("/{matchingId}/pending")
+    public ResponseEntity<Void> setPending(@Parameter Long matchingId) {
+        socialWorkerMatchingService.setMatchingPending(matchingId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(
+            summary = "3.5/7 매칭리스트(매칭 현황) & 3.6 지원리스트(지원 현황)",
+            description = "매칭 보류 상태에서 [근무 제안하기] 버튼 클릭시 보류하기 취소 모달 - 보류 취소하기")
+    @PutMapping("/{matchingId}/pending/cancel")
+    public ResponseEntity<Void> unsetPending(@Parameter Long matchingId) {
+        socialWorkerMatchingService.unsetMatchingPending(matchingId);
         return ResponseEntity.ok().build();
     }
 }

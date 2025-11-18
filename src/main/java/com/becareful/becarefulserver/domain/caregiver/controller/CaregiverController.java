@@ -1,25 +1,25 @@
 package com.becareful.becarefulserver.domain.caregiver.controller;
 
-import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerUpdateRequest;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverCreateRequest;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.MyPageUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.CareerDto;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.*;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
-import com.becareful.becarefulserver.domain.caregiver.service.CareerService;
-import com.becareful.becarefulserver.domain.caregiver.service.CaregiverService;
-import com.becareful.becarefulserver.domain.matching.dto.request.EditCompletedMatchingNoteRequest;
-import com.becareful.becarefulserver.domain.matching.dto.response.CompletedMatchingInfoResponse;
-import com.becareful.becarefulserver.domain.matching.service.CompletedMatchingService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-import java.net.URI;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import com.becareful.becarefulserver.domain.caregiver.service.*;
+import com.becareful.becarefulserver.domain.common.dto.request.*;
+import com.becareful.becarefulserver.domain.common.dto.response.*;
+import com.becareful.becarefulserver.domain.matching.dto.request.*;
+import com.becareful.becarefulserver.domain.matching.dto.response.*;
+import com.becareful.becarefulserver.domain.matching.service.*;
+import com.becareful.becarefulserver.global.util.AuthUtil;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.tags.*;
+import jakarta.servlet.http.*;
+import jakarta.validation.*;
+import java.net.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,35 +30,52 @@ public class CaregiverController {
     private final CaregiverService caregiverService;
     private final CareerService careerService;
     private final CompletedMatchingService completedMatchingService;
+    private final AuthUtil authUtil;
 
     @Operation(
             summary = "요양보호사 회원가입",
             description = "사회복지사 (social worker), 간호조무사 (nursing care), 프로필 이미지 필드는 생략할 수 있습니다.")
     @PostMapping("/signup")
-    public ResponseEntity<Void> createCaregiver(
-            @Valid @RequestBody CaregiverCreateRequest request, HttpServletResponse response) {
-        Long id = caregiverService.saveCaregiver(request, response);
+    public ResponseEntity<Void> createCaregiver(@Valid @RequestBody CaregiverCreateRequest request) {
+        Long id = caregiverService.saveCaregiver(request);
         return ResponseEntity.created(URI.create("/caregiver/" + id)).build();
     }
 
     @Operation(summary = "요양보호사 로그아웃")
     @PutMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse httpServletResponse) {
-        caregiverService.logout(httpServletResponse);
+        authUtil.logout(httpServletResponse);
         return ResponseEntity.ok().build();
     }
 
+    // TODO : 특별한 상황이 아니면 url 에 동사는 사용하지 않음. delete caregiver 의미로 회원 탈퇴는 충분하므로 DELETE /caregiver 만 사용
     @Operation(summary = "요양보호사 탈퇴")
     @DeleteMapping("/leave")
     public ResponseEntity<Void> deleteCaregiver(HttpServletResponse httpServletResponse) {
-        caregiverService.leave(httpServletResponse);
-        return ResponseEntity.ok().build();
+        caregiverService.deleteCaregiver(httpServletResponse);
+        return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "요양보호사 프로필 사진 신규 업로드", description = "요양보호사 프로필 이미지 업로드 API 입니다.")
+    // Todo: 삭제
+    @Deprecated
+    @Operation(summary = "이미지 업로드 구버전(삭제 예정): 요양보호사 프로필 사진 신규 업로드", description = "요양보호사 프로필 이미지 업로드 API 입니다.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CaregiverProfileUploadResponse> uploadProfileImg(@RequestPart MultipartFile file) {
         var response = caregiverService.uploadProfileImage(file);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "이미지 업로드 (신버전): 프로필 이미지 업로드용 Presigned URL 발급",
+            description =
+                    """
+    프론트엔드에서 사용자가 로컬 파일을 선택할 때마다 이 API를 호출해 Presigned URL을 발급받습니다.
+    발급받은 URL로 S3에 이미지를 직접 업로드합니다.
+    이후 회원가입 또는 정보 수정 시, S3에 업로드한 파일의 tempKey를 백엔드로 전달해야 합니다.
+    """)
+    @PostMapping("/profile-img/presigned-url")
+    public ResponseEntity<PresignedUrlResponse> createPresignedUrl(ProfileImagePresignedUrlRequest request) {
+        var response = caregiverService.getPresignedUrl(request);
         return ResponseEntity.ok(response);
     }
 
@@ -78,8 +95,8 @@ public class CaregiverController {
 
     @Operation(summary = "경력서 조회", description = "경력서가 없는 경우에는 null 과 빈 리스트를 반환합니다.")
     @GetMapping("/career")
-    public ResponseEntity<CareerResponse> getCareer() {
-        CareerResponse response = careerService.getCareer();
+    public ResponseEntity<CareerDto> getCareer() {
+        var response = careerService.getCareer();
         return ResponseEntity.ok(response);
     }
 
@@ -97,13 +114,15 @@ public class CaregiverController {
         return ResponseEntity.ok().build();
     }
 
+    // TODO : url 에 list 는 적지 않도록 삭제
     @Operation(summary = "확정된 일자리의 리스트가 반환됩니다.")
     @GetMapping("/my/completed-matching-list")
-    public ResponseEntity<List<CompletedMatchingInfoResponse>> getCompletedMatchingsByCaregiverId() {
-        List<CompletedMatchingInfoResponse> responseList = completedMatchingService.getCompletedMatchings();
-        return ResponseEntity.ok(responseList);
+    public ResponseEntity<List<CompletedMatchingInfoResponse>> getCompletedMatchings() {
+        var response = completedMatchingService.getCompletedMatchings();
+        return ResponseEntity.ok(response);
     }
 
+    // TODO : url 에 list 는 적지 않도록 삭제
     @Operation(summary = "나의 일자리 화면에서 메모 수정")
     @PutMapping("/my/complete-matching-list/{completedMatchingId}")
     public ResponseEntity<Void> editCompletedMatchingMemo(

@@ -40,29 +40,9 @@ public class JwtUtil {
         }
     }
 
-    public String getInstitutionRank(String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get("institutionRank", String.class);
-    }
-
-    public String getAssociationRank(String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get("associationRank", String.class);
-    }
-
-    public String createAccessToken(String phoneNumber, String institutionRank, String associationRank) {
+    public String createAccessToken(String phoneNumber) {
         return Jwts.builder()
                 .subject(phoneNumber)
-                .claim("institutionRank", "ROLE_" + institutionRank)
-                .claim("associationRank", "ROLE_" + associationRank)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + jwtProperties.getAccessTokenExpiry() * 1000L))
                 .signWith(secretKey)

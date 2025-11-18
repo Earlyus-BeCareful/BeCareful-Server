@@ -3,11 +3,14 @@ package com.becareful.becarefulserver.domain.caregiver.domain;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.CareTypeSetConverter;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.DayOfWeekSetConverter;
 import com.becareful.becarefulserver.domain.caregiver.domain.converter.WorkTimeSetConverter;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,6 +22,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import java.time.DayOfWeek;
 import java.util.EnumSet;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,11 +50,15 @@ public class WorkApplication extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private WorkSalaryUnitType workSalaryUnitType;
 
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "work_location", joinColumns = @JoinColumn(name = "work_application_id"))
+    private List<Location> workLocations;
+
     private int workSalaryAmount;
 
     private boolean isActive;
 
-    @JoinColumn(name = "caregiver_id")
+    @JoinColumn(name = "caregiver_id", nullable = false)
     @OneToOne(fetch = FetchType.LAZY)
     private Caregiver caregiver;
 
@@ -60,6 +68,7 @@ public class WorkApplication extends BaseEntity {
             EnumSet<WorkTime> workTimes,
             EnumSet<CareType> workCareTypes,
             WorkSalaryUnitType workSalaryUnitType,
+            List<Location> workLocations,
             int workSalaryAmount,
             boolean isActive,
             Caregiver caregiver) {
@@ -68,28 +77,31 @@ public class WorkApplication extends BaseEntity {
         this.workCareTypes = workCareTypes;
         this.workSalaryUnitType = workSalaryUnitType;
         this.workSalaryAmount = workSalaryAmount;
+        this.workLocations = workLocations;
         this.isActive = isActive;
         this.caregiver = caregiver;
     }
 
-    public static WorkApplication create(WorkApplicationUpdateRequest request, Caregiver caregiver) {
+    public static WorkApplication create(WorkApplicationCreateOrUpdateRequest request, Caregiver caregiver) {
         return WorkApplication.builder()
                 .workCareTypes(EnumSet.copyOf(request.careTypes()))
                 .workDays(EnumSet.copyOf(request.workDays()))
                 .workTimes(EnumSet.copyOf(request.workTimes()))
                 .workSalaryUnitType(request.workSalaryUnitType())
                 .workSalaryAmount(request.workSalaryAmount())
+                .workLocations(request.workLocations())
                 .isActive(true)
                 .caregiver(caregiver)
                 .build();
     }
 
-    public void updateWorkApplication(WorkApplicationUpdateRequest request) {
+    public void updateWorkApplication(WorkApplicationCreateOrUpdateRequest request) {
         this.workDays = EnumSet.copyOf(request.workDays());
         this.workTimes = EnumSet.copyOf(request.workTimes());
         this.workCareTypes = EnumSet.copyOf(request.careTypes());
         this.workSalaryUnitType = request.workSalaryUnitType();
         this.workSalaryAmount = request.workSalaryAmount();
+        this.workLocations = request.workLocations();
     }
 
     /***

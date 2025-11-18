@@ -3,15 +3,13 @@ package com.becareful.becarefulserver.domain.matching.dto.response;
 import com.becareful.becarefulserver.domain.caregiver.domain.Career;
 import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
+import com.becareful.becarefulserver.domain.caregiver.dto.CareerDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.CaregiverDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.WorkApplicationDto;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerDetailResponse;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerResponse;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MediationType;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
-import com.becareful.becarefulserver.domain.work_location.dto.request.WorkLocationDto;
 import java.util.List;
 
 public record MatchingCaregiverDetailResponse(
@@ -22,12 +20,12 @@ public record MatchingCaregiverDetailResponse(
         MatchingResultReasonType workTimeMatchingResultReason,
         CaregiverDto caregiverInfo,
         WorkApplicationDto workApplicationInfo,
-        CareerResponse careerInfo,
+        CareerDto careerInfo,
         List<MediationType> mediationTypes,
         String mediationDescription) {
 
     public static MatchingCaregiverDetailResponse of(
-            Matching matching, Career career, List<CareerDetail> careerDetails, List<WorkLocationDto> locations) {
+            Matching matching, Career career, List<CareerDetail> careerDetails) {
 
         WorkApplication workApplication = matching.getWorkApplication();
         MatchingResultInfo socialWorkerMatchingResult = matching.getMatchingResultInfo();
@@ -46,14 +44,8 @@ public record MatchingCaregiverDetailResponse(
                         ? MatchingResultReasonType.MATCHED_ALL
                         : MatchingResultReasonType.NOT_MATCHED,
                 CaregiverDto.from(workApplication.getCaregiver()),
-                WorkApplicationDto.of(locations, workApplication),
-                career != null
-                        ? CareerResponse.of(
-                                career,
-                                careerDetails.stream()
-                                        .map(CareerDetailResponse::from)
-                                        .toList())
-                        : null,
+                WorkApplicationDto.from(workApplication),
+                career != null ? CareerDto.of(career, careerDetails) : null,
                 matching.getMediationTypes().stream().toList(),
                 matching.getMediationDescription());
     }

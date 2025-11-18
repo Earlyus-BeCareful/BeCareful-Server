@@ -2,22 +2,24 @@ package com.becareful.becarefulserver.domain.socialworker.dto.request;
 
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
+import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public record ElderlyUpdateRequest(
-        Optional<String> name,
-        Optional<LocalDate> birthday,
-        Optional<Boolean> inmate,
-        Optional<Boolean> pet,
-        Optional<Gender> gender,
-        Optional<CareLevel> careLevel,
-        Optional<String> siDo,
-        Optional<String> siGuGun,
-        Optional<String> eupMyeonDong,
-        Optional<String> detailAddress,
-        Optional<String> profileImageUrl,
-        Optional<String> healthCondition,
-        Optional<List<DetailCareType>> detailCareTypeList) {}
+        // TODO : 에러 메세지 구체화
+        String profileImageTempKey,
+        @NotBlank String name,
+        @NotNull LocalDate birthday,
+        @NotNull Gender gender,
+        @NotNull CareLevel careLevel,
+        @NotNull Location residentialLocation,
+        String detailAddress,
+        @NotBlank String healthCondition,
+        @NotNull @Size(min = 1) List<DetailCareType> detailCareTypeList,
+        @NotNull Boolean hasInmate,
+        @NotNull Boolean hasPet) {}

@@ -1,18 +1,11 @@
 package com.becareful.becarefulserver.domain.caregiver.domain;
 
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
-
-import com.becareful.becarefulserver.domain.caregiver.domain.vo.Address;
-import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
-import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-import com.becareful.becarefulserver.domain.common.domain.Gender;
+import com.becareful.becarefulserver.domain.caregiver.domain.vo.*;
+import com.becareful.becarefulserver.domain.common.domain.*;
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.util.List;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.time.*;
+import java.util.*;
+import lombok.*;
 
 @Entity
 @Getter
@@ -86,10 +79,7 @@ public class Caregiver extends BaseEntity {
                 .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber(phoneNumber)
-                .profileImageUrl(
-                        profileImageUrl == null || profileImageUrl.isBlank()
-                                ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
-                                : profileImageUrl)
+                .profileImageUrl(profileImageUrl)
                 .address(new Address(streetAddress, detailAddress))
                 .caregiverInfo(caregiverInfo)
                 .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
@@ -101,10 +91,6 @@ public class Caregiver extends BaseEntity {
     /***
      * Entity Method
      * */
-    public void updateProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
-    }
-
     public List<String> getCertificateNames() {
         return this.getCaregiverInfo().getCertificateNames();
     }
@@ -113,8 +99,10 @@ public class Caregiver extends BaseEntity {
         return LocalDate.now().getYear() - this.birthDate.getYear() + 1;
     }
 
-    public void updateInfo(String phoneNumber, CaregiverInfo caregiverInfo) {
+    public void updateInfo(String phoneNumber, String profileImageUrl, CaregiverInfo caregiverInfo, Address address) {
         this.phoneNumber = phoneNumber;
+        this.profileImageUrl = profileImageUrl;
         this.caregiverInfo = caregiverInfo;
+        this.address = address;
     }
 }

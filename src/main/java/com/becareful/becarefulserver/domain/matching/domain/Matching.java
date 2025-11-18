@@ -12,18 +12,7 @@ import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultSta
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.global.exception.exception.MatchingException;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.EnumSet;
@@ -38,6 +27,12 @@ import lombok.ToString;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    name = "uk_matching_application_recruitment",
+                    columnNames = {"work_application_id", "recruitment_id"})
+        })
 public class Matching extends BaseEntity {
 
     @Id
@@ -46,7 +41,12 @@ public class Matching extends BaseEntity {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private MatchingApplicationStatus matchingApplicationStatus;
+    private MatchingStatus matchingStatus;
+
+    boolean isPending;
+
+    @Enumerated(EnumType.STRING)
+    private MatchingApplicationStatus applicationStatus;
 
     private LocalDate applicationDate;
 
@@ -58,93 +58,113 @@ public class Matching extends BaseEntity {
     @Embedded
     private MatchingResultInfo matchingResultInfo;
 
-    @JoinColumn(name = "recruitment_id")
+    @JoinColumn(name = "recruitment_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Recruitment recruitment;
 
-    @JoinColumn(name = "work_application_id")
+    @JoinColumn(name = "work_application_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private WorkApplication workApplication;
 
     @Builder(access = AccessLevel.PRIVATE)
     private Matching(
-            MatchingApplicationStatus matchingApplicationStatus,
+            MatchingStatus matchingStatus,
+            MatchingApplicationStatus applicationStatus,
             Recruitment recruitment,
             WorkApplication workApplication,
             MatchingResultInfo matchingResultInfo) {
-        this.matchingApplicationStatus = matchingApplicationStatus;
+        this.matchingStatus = matchingStatus;
+        this.isPending = false;
+        this.applicationStatus = applicationStatus;
         this.recruitment = recruitment;
         this.workApplication = workApplication;
         this.matchingResultInfo = matchingResultInfo;
     }
 
-    public static Matching create(Recruitment recruitment, WorkApplication application, List<Location> locations) {
+    public static Matching create(Recruitment recruitment, WorkApplication application) {
         return Matching.builder()
-                .matchingApplicationStatus(MatchingApplicationStatus.미지원)
+                .applicationStatus(MatchingApplicationStatus.미지원)
+                .matchingStatus(MatchingStatus.미지원)
                 .recruitment(recruitment)
                 .workApplication(application)
-                .matchingResultInfo(calculateMatchingRate(recruitment, application, locations))
+                .matchingResultInfo(calculateMatchingRate(recruitment, application))
                 .build();
     }
+
     /**
      * Get Method
      */
     public boolean isApplicationReviewing() {
-        return matchingApplicationStatus.equals(MatchingApplicationStatus.지원검토중);
-    }
-
-    public boolean isApplicationPassed() {
-        return matchingApplicationStatus.equals(MatchingApplicationStatus.합격);
-    }
-
-    public boolean isApplicationRefused() {
-        return matchingApplicationStatus.equals(MatchingApplicationStatus.지원거절);
+        return matchingStatus.equals(MatchingStatus.지원검토);
     }
 
     /**
      * Entity Method
      */
     public void apply() {
-        validateMatchingUpdatable();
-        this.matchingApplicationStatus = MatchingApplicationStatus.지원검토중;
+        validateMatchingApplicable();
+        this.matchingStatus = MatchingStatus.지원검토;
+        this.applicationStatus = MatchingApplicationStatus.지원;
         this.applicationDate = LocalDate.now();
     }
 
-    public void reject() {
-        validateMatchingUpdatable();
-        this.matchingApplicationStatus = MatchingApplicationStatus.매칭거절;
-    }
-
     public void mediate(RecruitmentMediateRequest request) {
-        validateMatchingUpdatable();
-        this.matchingApplicationStatus = MatchingApplicationStatus.지원검토중;
+        validateMatchingApplicable();
+        this.matchingStatus = MatchingStatus.지원검토;
+        this.applicationStatus = MatchingApplicationStatus.지원;
         this.applicationDate = LocalDate.now();
         this.mediationTypes = EnumSet.copyOf(request.mediationTypes());
         this.mediationDescription = request.mediationDescription();
     }
 
-    public void hire() {
-        this.matchingApplicationStatus = MatchingApplicationStatus.합격;
+    public void propose() {
+        validateCanPropose();
+        this.matchingStatus = MatchingStatus.근무제안;
     }
 
-    public void failed() {
-        validateMatchingFailable();
-        this.matchingApplicationStatus = MatchingApplicationStatus.지원거절;
+    public void setPending() {
+        validateCanSetPending();
+        this.isPending = true;
+    }
+
+    public void unsetPending() {
+        validateCanUnsetPending();
+        this.isPending = false;
+    }
+
+    public void confirm() {
+        this.matchingStatus = MatchingStatus.채용완료;
+        this.recruitment.complete();
+    }
+
+    public void failedConfirm() {
+        this.matchingStatus = MatchingStatus.채용불발;
     }
 
     public MatchingResultStatus getMatchingResultStatus() {
         return matchingResultInfo.judgeMatchingResultStatus();
     }
 
-    private void validateMatchingFailable() {
-        if (matchingApplicationStatus.equals(MatchingApplicationStatus.지원검토중)) {
-            return;
+    private void validateCanSetPending() {
+        if (isPending) {
+            throw new RecruitmentException(MATCHING_ALREADY_PENDING);
         }
-        throw new RecruitmentException("지원한 경우에만 불합격 처리할 수 있습니다.");
     }
 
-    private void validateMatchingUpdatable() {
-        if (matchingApplicationStatus.equals(MatchingApplicationStatus.미지원)) {
+    private void validateCanUnsetPending() {
+        if (!isPending) {
+            throw new RecruitmentException(MATCHING_ALREADY_NOT_PENDING);
+        }
+    }
+
+    private void validateCanPropose() {
+        if (isPending) {
+            throw new MatchingException(MATCHING_CANNOT_PROPOSE_PENDING_MATCHING);
+        }
+    }
+
+    private void validateMatchingApplicable() {
+        if (matchingStatus.equals(MatchingStatus.미지원) && applicationStatus.equals(MatchingApplicationStatus.미지원)) {
             return;
         }
         throw new RecruitmentException(MATCHING_CANNOT_REJECT);
@@ -157,22 +177,14 @@ public class Matching extends BaseEntity {
         throw new MatchingException(MATCHING_CAREGIVER_DIFFERENT);
     }
 
-    public void validateSocialWorker(Long socialWorkerId) {
-        if (workApplication.getCaregiver().getId().equals(socialWorkerId)) {
-            return;
-        }
-        throw new MatchingException(MATCHING_SOCIAL_WORKER_DIFFERENT);
-    }
-
     /**
      * @param recruitment       - 사회복지사가 등록한 공고
      * @param workApplication   - 요양보호사가 등록한 지원서
-     * @param locations         - 지원서에 등록된 희망 근무 장소
      * @return                  - MatchingInfo
      */
-    private static MatchingResultInfo calculateMatchingRate(
-            Recruitment recruitment, WorkApplication workApplication, List<Location> locations) {
-        boolean workLocationMatchingRate = isWorkLocationMatched(recruitment.getResidentialLocation(), locations);
+    private static MatchingResultInfo calculateMatchingRate(Recruitment recruitment, WorkApplication workApplication) {
+        boolean workLocationMatchingRate =
+                isWorkLocationMatched(recruitment.getResidentialLocation(), workApplication.getWorkLocations());
         Double workDayMatchingRate = calculateDayMatchingRate(recruitment.getWorkDays(), workApplication.getWorkDays());
         boolean workTimeMatchingRate = isWorkTimeMatched(recruitment.getWorkTimes(), workApplication.getWorkTimes());
 
@@ -181,7 +193,7 @@ public class Matching extends BaseEntity {
 
     private static boolean isWorkLocationMatched(Location residentialLocation, List<Location> workableLocations) {
         for (Location location : workableLocations) {
-            if (location.equals(residentialLocation)) {
+            if (location.matches(residentialLocation)) {
                 return true;
             }
         }

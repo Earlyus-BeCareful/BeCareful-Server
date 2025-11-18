@@ -24,33 +24,16 @@ public record WorkScheduleResponse(
                 .workStartTime(
                         completedMatching.getContract().getWorkStartTime().format(ofPattern("HH:mm")))
                 .workEndTime(completedMatching.getContract().getWorkEndTime().format(ofPattern("HH:mm")))
-                .seniorName(completedMatching
-                        .getContract()
-                        .getMatching()
-                        .getRecruitment()
-                        .getElderly()
-                        .getName())
-                .seniorGender(completedMatching
-                        .getContract()
-                        .getMatching()
-                        .getRecruitment()
-                        .getElderly()
-                        .getGender())
-                .seniorAge(completedMatching
-                        .getContract()
-                        .getMatching()
-                        .getRecruitment()
-                        .getElderly()
-                        .getAge())
+                .seniorName(completedMatching.getRecruitment().getElderly().getName())
+                .seniorGender(completedMatching.getRecruitment().getElderly().getGender())
+                .seniorAge(completedMatching.getRecruitment().getElderly().getAge())
                 .seniorCareType(
                         completedMatching.getContract().getCareTypes().stream().toList())
                 .workLocation(completedMatching
-                        .getContract()
-                        .getMatching()
                         .getRecruitment()
                         .getElderly()
                         .getResidentialLocation()
-                        .getFullAddress())
+                        .getFullLocation())
                 .build();
     }
 }

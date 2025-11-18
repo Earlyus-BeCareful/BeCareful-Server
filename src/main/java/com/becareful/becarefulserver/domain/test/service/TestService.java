@@ -53,12 +53,7 @@ public class TestService {
                     .orElseThrow(() -> new CaregiverException(CAREGIVER_NOT_EXISTS));
         }
 
-        String institutionRank =
-                socialWorker == null ? null : socialWorker.getInstitutionRank().toString();
-        String associationRank =
-                socialWorker == null ? null : socialWorker.getAssociationRank().toString();
-
-        String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
+        String accessToken = jwtUtil.createAccessToken(phoneNumber);
         String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
 
         response.addCookie(

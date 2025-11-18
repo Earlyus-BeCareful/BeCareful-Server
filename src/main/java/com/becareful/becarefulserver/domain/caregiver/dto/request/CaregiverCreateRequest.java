@@ -19,4 +19,4 @@ public record CaregiverCreateRequest(
         @NotNull boolean isAgreedToTerms,
         @NotNull boolean isAgreedToCollectPersonalInfo,
         @NotNull boolean isAgreedToReceiveMarketingInfo,
-        String profileImageUrl) {}
+        @NotBlank String profileImageTempKey) {}

@@ -1,22 +1,18 @@
 package com.becareful.becarefulserver.domain.community.controller;
 
-import com.becareful.becarefulserver.domain.community.domain.FileType;
-import com.becareful.becarefulserver.domain.community.dto.MediaInfoDto;
-import com.becareful.becarefulserver.domain.community.dto.PostSimpleDto;
-import com.becareful.becarefulserver.domain.community.dto.request.PostCreateOrUpdateRequest;
-import com.becareful.becarefulserver.domain.community.dto.response.PostDetailResponse;
-import com.becareful.becarefulserver.domain.community.service.PostMediaService;
-import com.becareful.becarefulserver.domain.community.service.PostService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import java.net.URI;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import com.becareful.becarefulserver.domain.common.dto.response.*;
+import com.becareful.becarefulserver.domain.community.dto.*;
+import com.becareful.becarefulserver.domain.community.dto.request.*;
+import com.becareful.becarefulserver.domain.community.dto.response.*;
+import com.becareful.becarefulserver.domain.community.service.*;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.tags.*;
+import java.net.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.data.domain.*;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,8 +25,7 @@ public class PostController {
 
     @Operation(summary = "게시글 작성", description = "original url 필드의 경우, 협회 공지 게시판 이외에는 비워둡니다.")
     @PostMapping("/board/{boardType}/post")
-    public ResponseEntity<Void> createPost(
-            @PathVariable String boardType, @RequestBody PostCreateOrUpdateRequest request) {
+    public ResponseEntity<Void> createPost(@PathVariable String boardType, @RequestBody PostCreateRequest request) {
         Long postId = postService.createPost(boardType, request);
         return ResponseEntity.created(URI.create("/board/" + boardType + "/post/" + postId))
                 .build();
@@ -53,7 +48,7 @@ public class PostController {
     @Operation(summary = "게시글 수정")
     @PutMapping("/board/{boardType}/post/{postId}")
     public ResponseEntity<Void> updatePost(
-            @PathVariable String boardType, @PathVariable Long postId, @RequestBody PostCreateOrUpdateRequest request) {
+            @PathVariable String boardType, @PathVariable Long postId, @RequestBody PostUpdateRequest request) {
         postService.updatePost(boardType, postId, request);
         return ResponseEntity.ok().build();
     }
@@ -73,17 +68,20 @@ public class PostController {
     }
 
     @Operation(
-            summary = "미디어 파일 업로드",
-            description = "게시글 작성/수정 전에 미디어 파일을 먼저 업로드합니다.\n" + "- 이미지: 1개당 30MB 이하, 최대 100개\n"
-                    + "- 동영상: 1개당 1GB 이하, 최대 3개, 각 15분 이내\n"
-                    + "- 파일: 1개당 10MB 이하, 최대 5개, 게시글당 총 30MB 이하\n"
-                    + "\n[videoDuration] 파라미터는 fileType이 VIDEO일 때만 필수이며, 그 외 타입(IMAGE, FILE)일 때는 비워서 보내도 됩니다.")
-    @PostMapping(value = "/media/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MediaInfoDto> uploadMedia(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("fileType") FileType fileType,
-            @RequestParam(value = "videoDuration", required = false) Integer videoDuration) {
-        var response = postMediaService.uploadPostMedia(file, fileType, videoDuration);
+            summary = "게시글 이미지 업로드 (신버전): 게시글 파일 업로드용 Presigned URL 발급",
+            description =
+                    """
+    프론트엔드에서 사용자가 로컬 파일을 선택할 때마다 이 API를 호출해 Presigned URL을 발급받습니다.
+    발급받은 URL로 S3에 이미지를 직접 업로드합니다.
+    이후 게시글 등록/수정 시, S3에 업로드한 파일의 tempKey를 백엔드로 전달해야 합니다.
+    - 이미지: 1개당 30MB 이하, 최대 100개\\n
+    - 동영상: 1개당 1GB 이하, 최대 3개, 각 15분 이내\\n
+    - 파일: 1개당 10MB 이하, 최대 5개, 게시글당 총 30MB 이하\\n
+    \\n[videoDuration] 파라미터는 fileType이 VIDEO일 때만 필수이며, 그 외 타입(IMAGE, FILE)일 때는 비워서 보내도 됩니다.)
+    """)
+    @PostMapping("/post/media/presigned-url")
+    public ResponseEntity<PresignedUrlResponse> createPresignedUrl(PostMediaPresignedUrlRequest request) {
+        PresignedUrlResponse response = postMediaService.getPresignedUrl(request);
         return ResponseEntity.ok(response);
     }
 }

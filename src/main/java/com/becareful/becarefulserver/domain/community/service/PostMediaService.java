@@ -2,54 +2,36 @@ package com.becareful.becarefulserver.domain.community.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.community.domain.FileType;
-import com.becareful.becarefulserver.domain.community.dto.MediaInfoDto;
-import com.becareful.becarefulserver.global.exception.exception.PostException;
-import com.becareful.becarefulserver.global.util.FileUtil;
-import java.io.IOException;
-import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+import com.becareful.becarefulserver.domain.common.dto.response.*;
+import com.becareful.becarefulserver.domain.community.domain.*;
+import com.becareful.becarefulserver.domain.community.dto.request.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
+import com.becareful.becarefulserver.global.service.*;
+import com.becareful.becarefulserver.global.util.*;
+import lombok.*;
+import lombok.extern.slf4j.*;
+import org.springframework.stereotype.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostMediaService {
 
-    private final FileUtil fileUtil;
     private static final long MAX_IMAGE_SIZE = 30 * 1024 * 1024; // 30MB
     private static final long MAX_VIDEO_SIZE = 1024 * 1024 * 1024; // 1GB
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     private static final int MAX_VIDEO_DURATION = 15 * 60; // 15분(초 단위)
+    private final S3Util s3Util;
+    private final S3Service s3Service;
 
-    @Transactional
-    public MediaInfoDto uploadPostMedia(MultipartFile file, FileType fileType, Integer videoDuration) {
-        try {
-            validateFileSize(file, fileType);
-            if (fileType == FileType.VIDEO) {
-                validateVideoDuration(videoDuration);
-            }
-
-            String fileName = generateFileName(file);
-            String mediaUrl = fileUtil.upload(file, getDirectoryByFileType(fileType), fileName);
-
-            return MediaInfoDto.of(mediaUrl, file, fileType, videoDuration);
-        } catch (IOException e) {
-            throw new PostException(POST_MEDIA_UPLOAD_FAILED);
-        }
-    }
-
-    private void validateFileSize(MultipartFile file, FileType fileType) {
-        if (fileType == FileType.IMAGE && file.getSize() <= MAX_IMAGE_SIZE) {
+    private void validateFileSize(int fileSize, FileType fileType) {
+        if (fileType == FileType.IMAGE && fileSize <= MAX_IMAGE_SIZE) {
             return;
         }
-        if (fileType == FileType.VIDEO && file.getSize() <= MAX_VIDEO_SIZE) {
+        if (fileType == FileType.VIDEO && fileSize <= MAX_VIDEO_SIZE) {
             return;
         }
-        if (fileType == FileType.FILE && file.getSize() <= MAX_FILE_SIZE) {
+        if (fileType == FileType.FILE && fileSize <= MAX_FILE_SIZE) {
             return;
         }
         throw new PostException(POST_MEDIA_VALIDATION_FAILED);
@@ -61,29 +43,34 @@ public class PostMediaService {
         }
     }
 
-    private String getDirectoryByFileType(FileType fileType) {
+    private java.lang.String getDirectoryByFileType(FileType fileType) {
         // TODO : 디렉토리 경로 상수화
         if (fileType == FileType.IMAGE) {
-            return "post-images";
+            return "post/images";
         }
         if (fileType == FileType.VIDEO) {
-            return "post-videos";
+            return "post/videos";
         }
         if (fileType == FileType.FILE) {
-            return "post-files";
+            return "post/files";
         }
         throw new PostException(POST_MEDIA_UNSUPPORTED_FILE_TYPE);
     }
 
-    private String generateFileName(MultipartFile file) {
-        return UUID.randomUUID() + getExtension(file);
-    }
+    public PresignedUrlResponse getPresignedUrl(PostMediaPresignedUrlRequest request) {
 
-    private String getExtension(MultipartFile file) {
-        String fileName = file.getOriginalFilename();
-        if (fileName == null) {
-            throw new PostException(POST_MEDIA_FILE_HAS_NO_NAME);
+        try {
+            validateFileSize(request.fileSize(), request.fileType());
+            if (request.fileType() == FileType.VIDEO) {
+                validateVideoDuration(request.videoDuration());
+            }
+
+            String fileName = s3Util.generateImageFileNameWithSource(request.fileName());
+            return s3Service.createPresignedUrl(
+                    getDirectoryByFileType(request.fileType()), fileName, request.contentType());
+
+        } catch (Exception e) {
+            throw new PostException(POST_MEDIA_UPLOAD_FAILED);
         }
-        return fileName.substring(fileName.lastIndexOf("."));
     }
 }
