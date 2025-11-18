@@ -10,12 +10,14 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoom extends BaseEntity {
+
     @Id
-    @GeneratedValue()
+    @Column(name = "chat_room_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "matching_id", nullable = false)
-    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "recruitment_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Recruitment recruitment;
 
     @Enumerated(EnumType.STRING)

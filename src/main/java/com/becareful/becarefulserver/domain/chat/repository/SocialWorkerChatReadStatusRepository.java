@@ -17,15 +17,13 @@ public interface SocialWorkerChatReadStatusRepository extends JpaRepository<Soci
         JOIN social_worker_chat_read_status r
             ON r.chat_room_id = c.chat_room_id
         WHERE r.social_worker_id = :socialWorkerId
-          AND c.create_date. > r.last_read_at
+          AND c.create_date > r.last_read_at
     )
 """,
             nativeQuery = true)
     boolean existsUnreadChat(@Param("socialWorkerId") Long socialWorkerId);
 
     List<SocialWorkerChatReadStatus> findAllBySocialWorker(SocialWorker socialWorker);
-
-    List<SocialWorkerChatReadStatus> chatRoom(ChatRoom chatRoom);
 
     SocialWorkerChatReadStatus findByChatRoomIdAndSocialWorkerId(Long chatRoomId, Long socialWorkerId);
 

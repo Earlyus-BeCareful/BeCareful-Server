@@ -31,6 +31,4 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     ORDER BY c.createDate ASC
     """)
     List<Chat> findAllChatWithContent(@Param("chatRoomId") Long chatRoomId);
-
-    int countAllByChatRoom(ChatRoom chatRoom);
 }

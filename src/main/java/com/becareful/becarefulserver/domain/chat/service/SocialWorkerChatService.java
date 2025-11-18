@@ -30,7 +30,6 @@ public class SocialWorkerChatService {
     private final CompletedMatchingRepository completedMatchingRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
-    private final RecruitmentRepository recruitmentRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final ChatRepository chatRepository;
 
@@ -59,7 +58,7 @@ public class SocialWorkerChatService {
             Chat lastChat =
                     chatRepository.findLastChatWithContent(chatRoom.getId()).orElseThrow();
 
-            String lastChatSendTime = formatTimeAgo(lastChat.getCreateDate());
+            String lastChatSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(lastChat.getCreateDate());
 
             // JOINED 구조 기반 메시지 내용 결정
             String textOfLastChat = chatRoom.getChatRoomActiveStatus() != ChatRoomActiveStatus.채팅가능
@@ -98,19 +97,6 @@ public class SocialWorkerChatService {
         };
     }
 
-    public static String formatTimeAgo(LocalDateTime sendTime) {
-
-        Duration duration = Duration.between(sendTime, LocalDateTime.now());
-
-        long hours = duration.toHours();
-        long minutes = duration.toMinutes();
-        long days = duration.toDays();
-
-        if (hours < 1) return minutes + "분 전";
-        if (days < 1) return hours + "시간 전";
-        return days + "일 전";
-    }
-
     @Transactional
     public SocialWorkerChatRoomDetailResponse getChatRoomDetailData(Long chatRoomId) {
         SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
@@ -142,10 +128,11 @@ public class SocialWorkerChatService {
         List<ChatResponseDto> chatResponseDtoList = chatList.stream()
                 .map(chat -> {
                     if (chat instanceof TextChat textChat) {
-                        return TextChatResponseDto.from(textChat, formatTimeAgo(textChat.getCreateDate()));
+                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(textChat.getCreateDate());
+                        return TextChatResponseDto.from(textChat, lastSendTime);
                     } else if (chat instanceof Contract contract) {
-                        return (ChatResponseDto)
-                                ContractChatResponseDto.from(contract, formatTimeAgo(contract.getCreateDate()));
+                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(contract.getCreateDate());
+                        return (ChatResponseDto) ContractChatResponseDto.from(contract, lastSendTime);
                     } else {
                         // TODO: 예외처리
                         // "허용되지 않는 메시지 타입입니다."
@@ -158,6 +145,7 @@ public class SocialWorkerChatService {
     }
 
     // 직전 계약서 내용 불러오기
+    @Transactional(readOnly = true)
     public ContractDetailResponse getContractDetail(Long contractId) {
         Contract contract =
                 contractRepository.findById(contractId).orElseThrow(() -> new ContractException(CONTRACT_NOT_EXISTS));
@@ -191,6 +179,7 @@ public class SocialWorkerChatService {
     public void createCompletedMatching(ConfirmContractRequest request) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
 
+        // TODO: 채팅방이 이 사회복지사가 접근 가능한 채팅방이 맞는지 검증 필요
         ChatRoom chatRoom = chatRoomRepository
                 .findById(request.chatRoomId())
                 .orElseThrow(
@@ -257,7 +246,7 @@ public class SocialWorkerChatService {
     }
 
     @Transactional
-    public void saveTextChat(SocialWorkerSendTextChatRequest request) {
+    public void createTextChat(SocialWorkerSendTextChatRequest request) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(request.chatRoomId())
                 .orElseThrow(
