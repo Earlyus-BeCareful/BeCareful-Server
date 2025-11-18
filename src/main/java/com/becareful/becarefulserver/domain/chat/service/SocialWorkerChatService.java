@@ -203,7 +203,7 @@ public class SocialWorkerChatService {
 
         // TODO: 삭제 예정된 코드. contract 불필요.
         Contract contract = contractRepository
-                .findLastContractByChatRoomId(request.chatRoomId())
+                .findDistinctTopByChatRoomIdOrderByCreateDateDesc(request.chatRoomId())
                 .orElseThrow(() -> new ContractException(CONTRACT_NOT_EXISTS));
 
         Caregiver caregiver = caregiverChatReadStatusRepository
@@ -238,7 +238,6 @@ public class SocialWorkerChatService {
             room.otherMatchingConfirmed();
         }
 
-        recruitment.complete();
         winnerMatching.confirm();
 
         // TODO: 매칭완료 생성메서드에서 contract 파라미터 삭제
@@ -263,14 +262,13 @@ public class SocialWorkerChatService {
                 .findById(request.chatRoomId())
                 .orElseThrow(
                         // TODO: 채팅방 존재하지 않을 경우 에러메시지 반환
-                );
+                        );
 
         checkChatRoomIsActive(chatRoom);
 
         TextChat textChat = TextChat.create(chatRoom, ChatSenderType.SOCIAL_WORKER, request.text());
         chatRepository.save(textChat);
     }
-
 
     // 채팅방 검증 메서드
     private void checkChatRoomIsActive(ChatRoom chatRoom) {

@@ -104,8 +104,7 @@ public class CaregiverMatchingService {
                 switch (appliedStatus) {
                     case 검토중 -> List.of(MatchingStatus.지원검토, MatchingStatus.근무제안);
                     case 합격 -> List.of(MatchingStatus.채용완료);
-                    case 마감 -> List.of(
-                            MatchingStatus.지원검토, MatchingStatus.근무제안);
+                    case 마감 -> List.of(MatchingStatus.지원검토, MatchingStatus.근무제안, MatchingStatus.채용불발);
                 };
 
         boolean isShouldBeRecruiting = appliedStatus == CaregiverAppliedStatusFilter.검토중;

@@ -19,6 +19,10 @@ public class TextChat extends Chat {
     }
 
     public static TextChat create(ChatRoom chatRoom, ChatSenderType senderType, String text) {
-        return TextChat.builder().chatRoom(chatRoom).senderType(senderType).text(text).build();
+        return TextChat.builder()
+                .chatRoom(chatRoom)
+                .senderType(senderType)
+                .text(text)
+                .build();
     }
 }

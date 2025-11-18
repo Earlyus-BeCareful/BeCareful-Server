@@ -182,7 +182,7 @@ public class CaregiverChatService {
         checkChatRoomIsActive(chatRoom);
 
         long lastContractId = contractRepository
-                .findTopByChatRoom(chatRoom)
+                .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoom.getId())
                 .orElseThrow(
                         // TODO: 예외처리
                         // "근무조건에 동의할 계약서가 없습니다."
@@ -194,6 +194,7 @@ public class CaregiverChatService {
             // "가장 최신의 근무조건만 동의 가능합니다."
         }
     }
+
     @Transactional(readOnly = true)
     public boolean checkNewChat() {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();

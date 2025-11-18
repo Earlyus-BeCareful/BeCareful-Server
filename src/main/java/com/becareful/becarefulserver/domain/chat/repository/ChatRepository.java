@@ -32,5 +32,5 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     """)
     List<Chat> findAllChatWithContent(@Param("chatRoomId") Long chatRoomId);
 
-    Optional<Chat> findTopByChatRoomId(long chatRoomId);
+    int countAllByChatRoom(ChatRoom chatRoom);
 }

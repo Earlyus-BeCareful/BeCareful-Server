@@ -142,7 +142,7 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 socialWorkerMatchingService.proposeMatching(recruitmentId, caregiver.getId(), LocalDate.now());
 
         Contract firstContract =
-                contractRepository.findTopByChatRoomId(chatRoomId).orElseThrow();
+                (Contract) chatRepository.findLastChatWithContent(chatRoomId).orElseThrow();
         assertThat(firstContract.getWorkSalaryAmount()).isEqualTo(10000);
 
         ContractEditRequest editRequest = new ContractEditRequest(
@@ -154,8 +154,12 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 12000,
                 LocalDate.now(),
                 List.of(CareType.식사보조));
+
         socialWorkerChatService.editContract(editRequest);
-        Contract edited = contractRepository.findTopByChatRoomId(chatRoomId).orElseThrow();
+        Contract edited = contractRepository
+                .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
+                .orElseThrow();
+
         assertThat(edited.getWorkSalaryAmount()).isEqualTo(12000);
 
         ConfirmContractRequest confirmRequest = new ConfirmContractRequest(chatRoomId, edited.getId());

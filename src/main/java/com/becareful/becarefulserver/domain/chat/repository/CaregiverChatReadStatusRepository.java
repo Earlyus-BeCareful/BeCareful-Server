@@ -20,7 +20,7 @@ public interface CaregiverChatReadStatusRepository extends JpaRepository<Caregiv
     )
     """,
             nativeQuery = true)
-    boolean existsUnreadChat(@Param("caregiver") Long caregiverId);
+    boolean existsUnreadChat(@Param("caregiverId") Long caregiverId);
 
     Optional<CaregiverChatReadStatus> findByChatRoom(ChatRoom chatRoom);
 
