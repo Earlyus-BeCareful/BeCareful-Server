@@ -2,7 +2,10 @@ package com.becareful.becarefulserver.global.util;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChatUtil {
 
     public static String convertChatRoomListLastSendTimeFormat(LocalDateTime sendTime) {
