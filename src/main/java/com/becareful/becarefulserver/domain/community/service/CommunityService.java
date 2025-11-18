@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.community.service;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.ASSOCIATION_MEMBER_NOT_EXISTS;
+
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
 import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
@@ -16,8 +18,6 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.ASSOCIATION_MEMBER_NOT_EXISTS;
 
 @Service
 @RequiredArgsConstructor
