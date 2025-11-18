@@ -10,11 +10,14 @@ import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatRead
 import com.becareful.becarefulserver.domain.chat.service.*;
 import com.becareful.becarefulserver.domain.community.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
+import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
+
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.ASSOCIATION_MEMBER_NOT_EXISTS;
 
 @Service
 @RequiredArgsConstructor
@@ -66,6 +69,10 @@ public class CommunityService {
     @Transactional(readOnly = true)
     public CommunityHomeBasicInfoResponse getCommunityHomeInfo() {
         SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
+        if (socialWorker.getAssociationMember() == null) {
+            throw new SocialWorkerException(ASSOCIATION_MEMBER_NOT_EXISTS);
+        }
+
         Association association = socialWorker.getAssociationMember().getAssociation();
 
         boolean hasNewChat = socialWorkerChatReadStatusRepository.existsUnreadChat(socialWorker);
