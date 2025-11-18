@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.matching.domain;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
+import com.becareful.becarefulserver.domain.chat.domain.Contract;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,12 +27,17 @@ public class CompletedMatching {
     @OneToOne(fetch = FetchType.LAZY)
     private Contract contract;
 
+    @JoinColumn(name = "recruitment_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    private Recruitment recruitment;
+
     public void updateNote(String note) {
         this.note = note;
     }
 
-    public CompletedMatching(Caregiver caregiver, Contract contract) {
+    public CompletedMatching(Caregiver caregiver, Contract contract, Recruitment recruitment) {
         this.caregiver = caregiver;
         this.contract = contract;
+        this.recruitment = recruitment;
     }
 }

@@ -1,8 +1,8 @@
 package com.becareful.becarefulserver.domain.matching.dto.response;
 
+import com.becareful.becarefulserver.domain.chat.domain.Contract;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.matching.domain.CompletedMatching;
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.matching.dto.ElderlyDto;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import java.time.DayOfWeek;
@@ -17,9 +17,8 @@ public record CompletedMatchingInfoResponse(
         List<CareType> careTypes,
         String note,
         ElderlyDto elderlyInfo) {
-    public static CompletedMatchingInfoResponse from(CompletedMatching completedMatching) {
-        Contract contract = completedMatching.getContract();
-        Elderly elderly = contract.getMatching().getRecruitment().getElderly();
+    public static CompletedMatchingInfoResponse from(CompletedMatching completedMatching, Contract contract) {
+        Elderly elderly = completedMatching.getRecruitment().getElderly();
         return new CompletedMatchingInfoResponse(
                 completedMatching.getId(),
                 contract.getWorkDays().stream().toList(),

@@ -43,6 +43,8 @@ public class Matching extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MatchingStatus matchingStatus;
 
+    boolean isPending;
+
     @Enumerated(EnumType.STRING)
     private MatchingApplicationStatus applicationStatus;
 
@@ -72,6 +74,7 @@ public class Matching extends BaseEntity {
             WorkApplication workApplication,
             MatchingResultInfo matchingResultInfo) {
         this.matchingStatus = matchingStatus;
+        this.isPending = false;
         this.applicationStatus = applicationStatus;
         this.recruitment = recruitment;
         this.workApplication = workApplication;
@@ -115,32 +118,49 @@ public class Matching extends BaseEntity {
     }
 
     public void propose() {
+        validateCanPropose();
         this.matchingStatus = MatchingStatus.근무제안;
     }
 
-    public void failed() {
-        validateMatchingFailable();
-        this.matchingStatus = MatchingStatus.지원보류;
+    public void setPending() {
+        validateCanSetPending();
+        this.isPending = true;
+    }
+
+    public void unsetPending() {
+        validateCanUnsetPending();
+        this.isPending = false;
     }
 
     public void confirm() {
-        this.matchingStatus = MatchingStatus.계약완료;
+        this.matchingStatus = MatchingStatus.채용완료;
         this.recruitment.complete();
     }
 
-    public void rejectContract() {
-        this.matchingStatus = MatchingStatus.계약거절;
+    public void failedConfirm() {
+        this.matchingStatus = MatchingStatus.채용불발;
     }
 
     public MatchingResultStatus getMatchingResultStatus() {
         return matchingResultInfo.judgeMatchingResultStatus();
     }
 
-    private void validateMatchingFailable() {
-        if (matchingStatus.equals(MatchingStatus.지원검토)) {
-            return;
+    private void validateCanSetPending() {
+        if (isPending) {
+            throw new RecruitmentException(MATCHING_ALREADY_PENDING);
         }
-        throw new RecruitmentException("지원한 경우에만 불합격 처리할 수 있습니다.");
+    }
+
+    private void validateCanUnsetPending() {
+        if (!isPending) {
+            throw new RecruitmentException(MATCHING_ALREADY_NOT_PENDING);
+        }
+    }
+
+    private void validateCanPropose() {
+        if (isPending) {
+            throw new MatchingException(MATCHING_CANNOT_PROPOSE_PENDING_MATCHING);
+        }
     }
 
     private void validateMatchingApplicable() {

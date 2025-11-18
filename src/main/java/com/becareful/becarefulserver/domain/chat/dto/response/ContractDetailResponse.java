@@ -1,9 +1,9 @@
 package com.becareful.becarefulserver.domain.chat.dto.response;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
+import com.becareful.becarefulserver.domain.chat.domain.Contract;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+// 사복이 계약서 수정시 계약서 상세정보 반환
 public record ContractDetailResponse(
-        Long matchingId,
         List<DayOfWeek> workDays,
         LocalTime workStartTime,
         LocalTime workEndTime,
@@ -24,7 +24,7 @@ public record ContractDetailResponse(
     public record CareInfoResponse(CareType careType, List<String> detailCareTypes, Boolean check) {}
 
     public static ContractDetailResponse from(Contract contract) {
-        Elderly elderly = contract.getMatching().getRecruitment().getElderly();
+        Elderly elderly = contract.getChatRoom().getRecruitment().getElderly();
 
         // CareType별로 detailCareTypes 그룹화
         Map<CareType, List<String>> groupedCareInfo = elderly.getDetailCareTypes().stream()
@@ -38,7 +38,6 @@ public record ContractDetailResponse(
                 .collect(Collectors.toList());
 
         return new ContractDetailResponse(
-                contract.getMatching().getId(),
                 contract.getWorkDays().stream().toList(),
                 contract.getWorkStartTime(),
                 contract.getWorkEndTime(),
