@@ -8,6 +8,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.dto.WorkApplicationDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
+import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
@@ -29,18 +30,20 @@ public class WorkApplicationService {
     private final MatchingRepository matchingRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
+    private final CareerRepository careerRepository;
 
     @Transactional(readOnly = true)
     public CaregiverMyWorkApplicationPageResponse getMyWorkApplicationPageInfo() {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
 
-        boolean hasNewChat = caregiverChatReadStatusRepository.existsUnreadChat(caregiver.getId());
+        boolean hasNewChat = caregiverChatReadStatusRepository.existsUnreadChat(loggedInCaregiver.getId());
+        boolean hasCareer = careerRepository.existsByCaregiver(loggedInCaregiver);
         WorkApplicationDto workApplicationDto = workApplicationRepository
-                .findByCaregiver(caregiver)
+                .findByCaregiver(loggedInCaregiver)
                 .map(WorkApplicationDto::from)
                 .orElse(null);
 
-        return CaregiverMyWorkApplicationPageResponse.of(hasNewChat, workApplicationDto);
+        return CaregiverMyWorkApplicationPageResponse.of(hasNewChat, hasCareer, workApplicationDto);
     }
 
     @Transactional
