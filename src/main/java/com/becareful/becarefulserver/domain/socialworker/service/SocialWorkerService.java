@@ -83,7 +83,7 @@ public class SocialWorkerService {
 
         List<Recruitment> recruitments = recruitmentRepository.findAllByElderlyIn(institutionElderlys);
 
-        boolean hasNewChat = socialWorkerChatReadStatusRepository.existsUnreadChat(loggedInSocialWorker.getId());
+        boolean hasNewChat = socialWorkerChatReadStatusRepository.existsUnreadChat(loggedInSocialWorker);
 
         int institutionElderlyCount = institutionElderlys.size();
 

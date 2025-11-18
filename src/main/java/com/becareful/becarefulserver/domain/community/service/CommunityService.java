@@ -6,14 +6,11 @@ import com.becareful.becarefulserver.domain.association.domain.AssociationMember
 import com.becareful.becarefulserver.domain.association.dto.response.*;
 import com.becareful.becarefulserver.domain.association.repository.AssociationJoinApplicationRepository;
 import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
+import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.chat.service.*;
 import com.becareful.becarefulserver.domain.community.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.global.properties.CookieProperties;
-import com.becareful.becarefulserver.global.properties.JwtProperties;
 import com.becareful.becarefulserver.global.util.AuthUtil;
-import com.becareful.becarefulserver.global.util.JwtUtil;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,15 +20,12 @@ import org.springframework.transaction.annotation.*;
 @RequiredArgsConstructor
 public class CommunityService {
 
-    private final SocialWorkerChatService chatService;
     private final AuthUtil authUtil;
-    private final JwtUtil jwtUtil;
-    private final JwtProperties jwtProperties;
-    private final CookieProperties cookieProperties;
     private final AssociationJoinApplicationRepository associationMembershipRequestRepository;
     private final AssociationMemberRepository associationMemberRepository;
+    private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
 
-    public CommunityAccessResponse getCommunityAccess(HttpServletResponse httpServletResponse) {
+    public CommunityAccessResponse getCommunityAccess() {
         SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
         AssociationMember associationMember = socialWorker.getAssociationMember();
 
@@ -71,10 +65,10 @@ public class CommunityService {
 
     @Transactional(readOnly = true)
     public CommunityHomeBasicInfoResponse getCommunityHomeInfo() {
-        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
+        SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
+        Association association = socialWorker.getAssociationMember().getAssociation();
 
-        boolean hasNewChat = chatService.checkNewChat();
-        Association association = currentMember.getAssociation();
+        boolean hasNewChat = socialWorkerChatReadStatusRepository.existsUnreadChat(socialWorker);
         int associationMemberCount = associationMemberRepository.countByAssociation(association);
 
         AssociationMyResponse associationInfo = AssociationMyResponse.from(association, associationMemberCount);

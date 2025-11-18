@@ -234,12 +234,6 @@ public class SocialWorkerChatService {
         completedMatchingRepository.save(completedMatching);
     }
 
-    @Transactional(readOnly = true)
-    public boolean checkNewChat() {
-        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        return socialWorkerChatReadStatusRepository.existsUnreadChat(loggedInSocialWorker.getId());
-    }
-
     @Transactional
     public void updateReadStatus(SocialWorkerChatReadStatus chatReadStatus) {
         chatReadStatus.updateLastReadAt();

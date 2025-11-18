@@ -9,19 +9,15 @@ import org.springframework.data.repository.query.*;
 public interface SocialWorkerChatReadStatusRepository extends JpaRepository<SocialWorkerChatReadStatus, Long> {
 
     @Query(
-            value =
-                    """
-    SELECT EXISTS (
-        SELECT 1
-        FROM chat c
-        JOIN social_worker_chat_read_status r
-            ON r.chat_room_id = c.chat_room_id
-        WHERE r.social_worker_id = :socialWorkerId
-          AND c.create_date > r.last_read_at
-    )
-""",
-            nativeQuery = true)
-    boolean existsUnreadChat(@Param("socialWorkerId") Long socialWorkerId);
+            """
+    SELECT count(*) > 0
+      FROM Chat c
+      JOIN SocialWorkerChatReadStatus r
+        ON r.chatRoom = c.chatRoom
+     WHERE r.socialWorker = :socialWorker
+       AND c.createDate > r.lastReadAt
+    """)
+    boolean existsUnreadChat(SocialWorker socialWorker);
 
     List<SocialWorkerChatReadStatus> findAllBySocialWorker(SocialWorker socialWorker);
 
