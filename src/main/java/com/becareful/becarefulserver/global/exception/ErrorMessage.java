@@ -69,14 +69,12 @@ public class ErrorMessage {
             "지원검토 중인 지원에만 근무제안을 보낼 수 있습니다.";
     public static final String APPLICATION_CANNOT_POSTPONE_ALREADY_PENDING = "이미 보류 상태입니다.";
     public static final String APPLICATION_CANNOT_RESUME_NOT_PENDING = "이미 보류 상태가 아닙니다.";
+    public static final String APPLICATION_CANNOT_HIRE_NOT_PROPOSED = "근무 제안 상태의 지원 데이터만 채용완료 처리할 수 있습니다.";
+    public static final String APPLICATION_CANNOT_FAIL_ALREADY_HIRE_PROCESS_FINISHED =
+            "채용 과정이 확정된 지원 데이터는 채용불발 처리할 수 없습니다.";
 
-    public static final String MATCHING_NOT_EXISTS = "매칭 또는 지원 정보가 존재하지 않습니다.";
-    public static final String MATCHING_CANNOT_REJECT = "미지원 공고만 거절할 수 있습니다.";
-    public static final String MATCHING_CANNOT_PENDING_NON_ = "검토중인 공고만 보류할 수 있습니다.";
     public static final String MATCHING_ALREADY_PENDING = "이미 보류된 매칭입니다.";
     public static final String MATCHING_ALREADY_NOT_PENDING = "보류중이지 않은 매칭은 보류를 취소할 수 없습니다.";
-    public static final String MATCHING_CAREGIVER_DIFFERENT = "해당 요양보호사의 매칭 데이터가 아닙니다.";
-    public static final String MATCHING_SOCIAL_WORKER_DIFFERENT = "해당 사회복지사의 매칭 데이터가 아닙니다.";
 
     public static final String CONTRACT_NOT_EXISTS = "계약서가 존재하지 않습니다.";
     public static final String CONTRACT_CAREGIVER_NOT_EXISTS = "요양보호사가 존재하지 않아 계약서를 수정할 수 없습니다.";
