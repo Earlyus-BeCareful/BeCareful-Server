@@ -8,7 +8,6 @@ import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.vo.*;
 import com.becareful.becarefulserver.domain.chat.repository.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
-import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
 import com.becareful.becarefulserver.domain.matching.domain.service.RecruitmentDomainService;
 import com.becareful.becarefulserver.domain.matching.domain.vo.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
@@ -37,15 +36,12 @@ public class SocialWorkerMatchingService {
 
     private final AuthUtil authUtil;
     private final ElderlyDomainService elderlyDomainService;
-    private final MatchingDomainService matchingDomainService;
-    private final MatchingRepository matchingRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final ElderlyRepository elderlyRepository;
     private final WorkApplicationRepository workApplicationRepository;
     private final CareerRepository careerRepository;
     private final CaregiverRepository caregiverRepository;
     private final CareerDetailRepository careerDetailRepository;
-    private final ContractRepository contractRepository;
     private final SocialWorkerRepository socialWorkerRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
@@ -185,16 +181,15 @@ public class SocialWorkerMatchingService {
      */
     @Transactional
     public Long createRecruitment(RecruitmentCreateRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+
         Elderly elderly = elderlyRepository
                 .findById(request.elderlyId())
                 .orElseThrow((() -> new RecruitmentException(ELDERLY_NOT_EXISTS)));
+        elderlyDomainService.validateElderlyAndSocialWorkerInstitution(elderly, loggedInSocialWorker);
 
         Recruitment recruitment = Recruitment.create(request, elderly);
         recruitmentRepository.save(recruitment);
-
-        workApplicationRepository.findAllActiveWorkApplication().forEach(workApplication -> {
-            matchingDomainService.createMatching(recruitment, workApplication).ifPresent(matchingRepository::save);
-        });
 
         return recruitment.getId();
     }
@@ -296,8 +291,8 @@ public class SocialWorkerMatchingService {
                 .findById(recruitmentId)
                 .orElseThrow(() -> new DomainException(RECRUITMENT_NOT_EXISTS));
 
-        boolean isApplicantOrProcessingContractExists =
-                matchingRepository.existsByApplicantOrProcessingContract(recruitment);
+        boolean isApplicantOrProcessingContractExists = applicationRepository.existsByRecruitment(recruitment)
+                || chatRoomRepository.existsByRecruitment(recruitment);
 
         recruitmentDomainService.validateRecruitmentInstitution(recruitment, loggedInSocialWorker);
         recruitmentDomainService.validateRecruitmentUpdatable(recruitment, isApplicantOrProcessingContractExists);
@@ -311,11 +306,6 @@ public class SocialWorkerMatchingService {
                 request.workSalaryUnitType(),
                 request.workSalaryAmount(),
                 request.description());
-
-        matchingRepository.deleteAllByRecruitment(recruitment);
-        workApplicationRepository.findAllActiveWorkApplication().forEach(workApplication -> {
-            matchingDomainService.createMatching(recruitment, workApplication).ifPresent(matchingRepository::save);
-        });
     }
 
     /**
@@ -329,13 +319,12 @@ public class SocialWorkerMatchingService {
                 .findById(recruitmentId)
                 .orElseThrow(() -> new DomainException(RECRUITMENT_NOT_EXISTS));
 
-        boolean isApplicantOrProcessingContractExists =
-                matchingRepository.existsByApplicantOrProcessingContract(recruitment);
+        boolean isApplicantOrProcessingContractExists = applicationRepository.existsByRecruitment(recruitment)
+                || chatRoomRepository.existsByRecruitment(recruitment);
 
         recruitmentDomainService.validateRecruitmentInstitution(recruitment, socialWorker);
         recruitmentDomainService.validateRecruitmentDeletable(recruitment, isApplicantOrProcessingContractExists);
 
-        matchingRepository.deleteAllByRecruitment(recruitment);
         recruitmentRepository.delete(recruitment);
     }
 
@@ -345,22 +334,18 @@ public class SocialWorkerMatchingService {
 
         Recruitment recruitment = recruitmentRepository
                 .findById(recruitmentId)
-                .orElseThrow(
-                        // TODO: 예외처리
-                        // "공고가 존재하지 않습니다."
-                        );
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
 
-        Matching matching = matchingRepository
-                .findByCaregiverIdAndRecruitmentId(caregiverId, recruitmentId)
-                .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
+        Caregiver caregiver = caregiverRepository
+                .findById(caregiverId)
+                .orElseThrow(() -> new CaregiverException(CAREGIVER_NOT_EXISTS));
 
-        matching.propose();
+        applicationRepository
+                .findByCaregiverAndRecruitment(caregiver, recruitment)
+                .ifPresent(Application::propose);
 
         return initChatRoomAndChatReadStatuses(
-                recruitment,
-                matching.getWorkApplication().getCaregiver(),
-                socialworker.getNursingInstitution(),
-                workStartDate);
+                recruitment, caregiver, socialworker.getNursingInstitution(), workStartDate);
     }
 
     private long initChatRoomAndChatReadStatuses(
@@ -387,16 +372,26 @@ public class SocialWorkerMatchingService {
     }
 
     @Transactional
-    public void setMatchingPending(Long matchingId) {
-        Matching matching =
-                matchingRepository.findById(matchingId).orElseThrow(() -> new DomainException(MATCHING_NOT_EXISTS));
-        matching.setPending();
+    public void postponeApplicationDecision(Long applicationId) {
+        SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
+
+        Application application = applicationRepository
+                .findById(applicationId)
+                .orElseThrow(() -> new DomainException(APPLICATION_NOT_EXISTS));
+
+        recruitmentDomainService.validateRecruitmentInstitution(application.getRecruitment(), socialWorker);
+        application.postpone();
     }
 
     @Transactional
-    public void unsetMatchingPending(Long matchingId) {
-        Matching matching =
-                matchingRepository.findById(matchingId).orElseThrow(() -> new DomainException(MATCHING_NOT_EXISTS));
-        matching.unsetPending();
+    public void resumeApplicationDecision(Long applicationId) {
+        SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
+
+        Application application = applicationRepository
+                .findById(applicationId)
+                .orElseThrow(() -> new DomainException(APPLICATION_NOT_EXISTS));
+
+        recruitmentDomainService.validateRecruitmentInstitution(application.getRecruitment(), socialWorker);
+        application.resume();
     }
 }

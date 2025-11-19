@@ -129,19 +129,19 @@ public class SocialWorkerMatchingController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "3.5/7 매칭리스트(매칭 현황) & 3.6 지원리스트(지원 현황)", description = "매칭 보류하기")
-    @PutMapping("/{matchingId}/pending")
-    public ResponseEntity<Void> setPending(@Parameter Long matchingId) {
-        socialWorkerMatchingService.setMatchingPending(matchingId);
+    @Operation(summary = "3.6 지원리스트(지원 현황) - 매칭 보류")
+    @PatchMapping("/{applicationId}/pending")
+    public ResponseEntity<Void> setPending(@Parameter Long applicationId) {
+        socialWorkerMatchingService.postponeApplicationDecision(applicationId);
         return ResponseEntity.ok().build();
     }
 
     @Operation(
-            summary = "3.5/7 매칭리스트(매칭 현황) & 3.6 지원리스트(지원 현황)",
+            summary = "3.6 지원리스트(지원 현황) - 매칭 보류 취소",
             description = "매칭 보류 상태에서 [근무 제안하기] 버튼 클릭시 보류하기 취소 모달 - 보류 취소하기")
-    @PutMapping("/{matchingId}/pending/cancel")
-    public ResponseEntity<Void> unsetPending(@Parameter Long matchingId) {
-        socialWorkerMatchingService.unsetMatchingPending(matchingId);
+    @PatchMapping("/{applicationId}/pending/cancel")
+    public ResponseEntity<Void> unsetPending(@Parameter Long applicationId) {
+        socialWorkerMatchingService.resumeApplicationDecision(applicationId);
         return ResponseEntity.ok().build();
     }
 }

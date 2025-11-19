@@ -9,7 +9,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface ApplicationRepository extends JpaRepository<Application, Integer> {
+public interface ApplicationRepository extends JpaRepository<Application, Long> {
 
     @Query(
             """
@@ -36,4 +36,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     Optional<Application> findByCaregiverAndRecruitment(Caregiver caregiver, Recruitment recruitment);
 
     List<Application> findAllByRecruitment(Recruitment recruitment);
+
+    boolean existsByRecruitment(Recruitment recruitment);
 }

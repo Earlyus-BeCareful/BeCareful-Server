@@ -4,13 +4,10 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-import com.becareful.becarefulserver.domain.matching.domain.converter.MediationTypeSetConverter;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
 import com.becareful.becarefulserver.global.exception.exception.MatchingException;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.util.EnumSet;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,13 +38,6 @@ public class Matching extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private MatchingApplicationStatus applicationStatus;
-
-    private LocalDate applicationDate;
-
-    @Convert(converter = MediationTypeSetConverter.class)
-    private EnumSet<MediationType> mediationTypes;
-
-    private String mediationDescription;
 
     @Embedded
     private MatchingResultInfo matchingResultInfo;
@@ -132,14 +122,7 @@ public class Matching extends BaseEntity {
 
     private void validateCanPropose() {
         if (isPending) {
-            throw new MatchingException(MATCHING_CANNOT_PROPOSE_PENDING_MATCHING);
+            throw new MatchingException(APPLICATION_CANNOT_PROPOSE_WHILE_PENDING);
         }
-    }
-
-    private void validateMatchingApplicable() {
-        if (matchingStatus.equals(MatchingStatus.미지원) && applicationStatus.equals(MatchingApplicationStatus.미지원)) {
-            return;
-        }
-        throw new RecruitmentException(MATCHING_CANNOT_REJECT);
     }
 }

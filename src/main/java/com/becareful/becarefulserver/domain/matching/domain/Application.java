@@ -1,8 +1,12 @@
 package com.becareful.becarefulserver.domain.matching.domain;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
+
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.matching.domain.converter.MediationTypeSetConverter;
+import com.becareful.becarefulserver.global.exception.exception.DomainException;
+import com.becareful.becarefulserver.global.exception.exception.MatchingException;
 import jakarta.persistence.*;
 import java.util.EnumSet;
 import java.util.List;
@@ -77,5 +81,39 @@ public class Application extends BaseEntity {
                 .recruitment(recruitment)
                 .workApplication(workApplication)
                 .build();
+    }
+
+    /**
+     * Entity Method
+     */
+    public void propose() {
+        validateProposable();
+        this.applicationStatus = ApplicationStatus.근무제안;
+    }
+
+    public void postpone() {
+        if (isPending) {
+            throw new DomainException(APPLICATION_CANNOT_POSTPONE_ALREADY_PENDING);
+        }
+        this.isPending = true;
+    }
+
+    public void resume() {
+        if (!isPending) {
+            throw new DomainException(APPLICATION_CANNOT_RESUME_NOT_PENDING);
+        }
+        this.isPending = false;
+    }
+
+    private void validateProposable() {
+        if (isPending) {
+            throw new MatchingException(APPLICATION_CANNOT_PROPOSE_WHILE_PENDING);
+        }
+
+        if (applicationStatus.equals(ApplicationStatus.지원검토)) {
+            return;
+        }
+
+        throw new DomainException(APPLICATION_CANNOT_PROPOSE_NOT_REVIEWING_APPLICATION_STATUS);
     }
 }

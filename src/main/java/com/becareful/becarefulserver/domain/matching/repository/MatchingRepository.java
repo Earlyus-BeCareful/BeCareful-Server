@@ -29,8 +29,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     """)
     void deleteAllByApplicationAndMatchingStatus(WorkApplication application, MatchingStatus matchingStatus);
 
-    List<Matching> findAllByRecruitment(Recruitment recruitment);
-
     Optional<Matching> findByWorkApplicationAndRecruitment(WorkApplication workApplication, Recruitment recruitment);
 
     @Query(
@@ -61,10 +59,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
            AND m.matchingStatus <> '미지원'
     """)
     boolean existsByApplicantOrProcessingContract(Recruitment recruitment);
-
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("delete from Matching m where m.recruitment = :recruitment")
-    void deleteAllByRecruitment(Recruitment recruitment);
 
     List<Matching> findAllByMatchingStatusAndRecruitment(MatchingStatus matchingStatus, Recruitment recruitment);
 }
