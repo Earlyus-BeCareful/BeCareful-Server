@@ -10,7 +10,6 @@ import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
-import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ public class WorkApplicationService {
 
     private final AuthUtil authUtil;
     private final WorkApplicationRepository workApplicationRepository;
-    private final MatchingRepository matchingRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final CareerRepository careerRepository;
 

@@ -49,9 +49,6 @@ public class ChatRoomCreateTest extends IntegrationTest {
     private SocialWorkerMatchingService socialWorkerMatchingService;
 
     @Autowired
-    private MatchingRepository matchingRepository;
-
-    @Autowired
     private WorkApplicationRepository workApplicationRepository;
 
     @Test
@@ -67,8 +64,6 @@ public class ChatRoomCreateTest extends IntegrationTest {
         Elderly elderly = elderlyRepository.save(ElderlyFixture.create("김춘자"));
 
         Recruitment recruitment = recruitmentRepository.save(RecruitmentFixture.createRecruitment("테스트 공고", elderly));
-
-        matchingRepository.save(Matching.create(recruitment, workApplication));
 
         socialWorkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_1);
         socialWorkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_MANAGER);

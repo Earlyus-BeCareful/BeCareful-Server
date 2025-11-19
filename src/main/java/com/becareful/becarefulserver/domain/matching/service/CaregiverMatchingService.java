@@ -39,7 +39,7 @@ public class CaregiverMatchingService {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         return workApplicationRepository
                 .findByCaregiver(caregiver)
-                .map(workApplication -> recruitmentRepository.findAllByIsRecruiting(workApplication).stream()
+                .map(workApplication -> recruitmentRepository.findAllByIsRecruiting().stream()
                         .map(recruitment -> CaregiverRecruitmentResponse.of(workApplication, recruitment))
                         .toList())
                 .orElse(null);
