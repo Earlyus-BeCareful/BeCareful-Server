@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
                     name = "uk_application_resume_recruitment",
                     columnNames = {"work_application_id", "recruitment_id"})
         })
+@Entity
 public class Application extends BaseEntity {
 
     @Id

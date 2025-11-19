@@ -11,16 +11,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
     @Query(
             """
-    SELECT m FROM Matching m
-    JOIN m.recruitment r
-    JOIN r.elderly e
-    WHERE e.nursingInstitution = :nursingInstitution
-    AND m.matchingStatus = '합격'
-    """)
-    List<Matching> findAllByNursingInstitution(@Param("nursingInstitution") NursingInstitution nursingInstitution);
-
-    @Query(
-            """
     SELECT m
       FROM Matching m
       JOIN m.workApplication w
@@ -44,10 +34,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     Optional<Matching> findByWorkApplicationAndRecruitment(WorkApplication workApplication, Recruitment recruitment);
 
     @Query(
-            "SELECT m FROM Matching m WHERE m.workApplication.caregiver = :caregiver AND m.recruitment.id = :recruitmentId")
-    Optional<Matching> findByCaregiverAndRecruitmentId(Caregiver caregiver, Long recruitmentId);
-
-    @Query(
             """
                 SELECT m
                   FROM Matching m
@@ -61,22 +47,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
 
     List<Matching> findByWorkApplicationAndMatchingStatus(
             WorkApplication workApplication, MatchingStatus matchingStatus);
-
-    @Query(
-            """
-        SELECT m
-          FROM Matching m
-         WHERE m.workApplication.caregiver = :caregiver
-           AND m.applicationStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingApplicationStatus.지원
-           AND m.matchingStatus IN (:matchingStatus)
-           AND (
-                 (:isShouldBeRecruiting = TRUE AND m.recruitment.recruitmentStatus = com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중)
-                 OR
-                 (:isShouldBeRecruiting = FALSE AND m.recruitment.recruitmentStatus <> com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중)
-               )
-    """)
-    List<Matching> findAllAppliedByCaregiverAndMatchingStatusIn(
-            Caregiver caregiver, List<MatchingStatus> matchingStatus, boolean isShouldBeRecruiting);
 
     @Modifying
     @Query("DELETE FROM Matching m WHERE m.workApplication.caregiver = :caregiver AND m.matchingStatus <> :status")
@@ -95,8 +65,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from Matching m where m.recruitment = :recruitment")
     void deleteAllByRecruitment(Recruitment recruitment);
-
-    List<Matching> findAllByRecruitmentId(Long recruitmentId);
 
     List<Matching> findAllByMatchingStatusAndRecruitment(MatchingStatus matchingStatus, Recruitment recruitment);
 }

@@ -91,10 +91,6 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
         select r
           from Recruitment r
          where r.recruitmentStatus = com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중
-           and not exists (select m
-                             from Matching m
-                            where m.recruitment = r
-                              and m.workApplication = :workApplication)
     """)
     List<Recruitment> findAllByIsRecruiting(WorkApplication workApplication);
 

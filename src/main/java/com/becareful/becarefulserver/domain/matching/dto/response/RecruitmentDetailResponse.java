@@ -1,9 +1,10 @@
 package com.becareful.becarefulserver.domain.matching.dto.response;
 
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.RecruitmentDto;
+import com.becareful.becarefulserver.global.util.MatchingUtil;
 
 public record RecruitmentDetailResponse(
         RecruitmentDto recruitmentInfo,
@@ -12,12 +13,15 @@ public record RecruitmentDetailResponse(
         boolean isHourlySalaryTop,
         boolean hasNewChat) {
 
-    public static RecruitmentDetailResponse from(
-            Matching matching, boolean isHotRecruitment, boolean isHourlySalaryTop, boolean hasNewChat) {
-        Recruitment recruitment = matching.getRecruitment();
+    public static RecruitmentDetailResponse of(
+            WorkApplication workApplication,
+            Recruitment recruitment,
+            boolean isHotRecruitment,
+            boolean isHourlySalaryTop,
+            boolean hasNewChat) {
         return new RecruitmentDetailResponse(
                 RecruitmentDto.from(recruitment),
-                matching.getMatchingResultStatus(),
+                MatchingUtil.calculateMatchingRate(workApplication, recruitment),
                 isHotRecruitment,
                 isHourlySalaryTop,
                 hasNewChat);
