@@ -8,19 +8,15 @@ import org.springframework.data.repository.query.*;
 
 public interface CaregiverChatReadStatusRepository extends JpaRepository<CaregiverChatReadStatus, Long> {
     @Query(
-            value =
-                    """
-    SELECT EXISTS (
-        SELECT 1
-        FROM chat c
-        JOIN caregiver_chat_read_status r
-            ON r.chat_room_id = c.chat_room_id
-        WHERE r.caregiver_id = :caregiverId
-          AND c.create_date > r.last_read_at
-    )
-    """,
-            nativeQuery = true)
-    boolean existsUnreadChat(@Param("caregiverId") Long caregiverId);
+            """
+        SELECT count(*) > 0
+          FROM Chat c
+          JOIN CaregiverChatReadStatus r
+            ON r.chatRoom = c.chatRoom
+         WHERE r.caregiver = :caregiver
+           AND c.createDate > r.lastReadAt
+    """)
+    boolean existsUnreadChat(Caregiver caregiver);
 
     Optional<CaregiverChatReadStatus> findByChatRoom(ChatRoom chatRoom);
 

@@ -180,12 +180,6 @@ public class CaregiverChatService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public boolean checkNewChat() {
-        Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
-        return caregiverChatReadStatusRepository.existsUnreadChat(loggedInCaregiver.getId());
-    }
-
     // 채팅방 검증 메서드
     private void checkChatRoomIsActive(ChatRoom chatRoom) {
         if (chatRoom.getChatRoomActiveStatus() != ChatRoomActiveStatus.채팅가능) {

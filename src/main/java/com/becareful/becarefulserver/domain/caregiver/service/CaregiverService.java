@@ -47,7 +47,7 @@ public class CaregiverService {
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
-        boolean hasNewChat = caregiverChatReadStatusRepository.existsUnreadChat(caregiver.getId());
+        boolean hasNewChat = caregiverChatReadStatusRepository.existsUnreadChat(caregiver);
 
         Optional<WorkApplication> optionalWorkApplication = workApplicationRepository.findByCaregiver(caregiver);
 
