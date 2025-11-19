@@ -6,14 +6,15 @@ import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.dto.CareerDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.CaregiverDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.WorkApplicationDto;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MediationType;
+import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
+import com.becareful.becarefulserver.global.util.MatchingUtil;
 import java.util.List;
 
 public record MatchingCaregiverDetailResponse(
-        Long matchingId,
+        Long matchingId, // TODO : 필드 제거
         MatchingResultStatus matchingResultStatus,
         MatchingResultReasonType workLocationMatchingResultReason,
         MatchingResultReasonType workDaysMatchingResultReason,
@@ -25,29 +26,32 @@ public record MatchingCaregiverDetailResponse(
         String mediationDescription) {
 
     public static MatchingCaregiverDetailResponse of(
-            Matching matching, Career career, List<CareerDetail> careerDetails) {
-
-        WorkApplication workApplication = matching.getWorkApplication();
-        MatchingResultInfo socialWorkerMatchingResult = matching.getMatchingResultInfo();
+            WorkApplication workApplication,
+            Recruitment recruitment,
+            Career career,
+            List<CareerDetail> careerDetails,
+            List<MediationType> mediationTypes,
+            String mediationDescription) {
+        MatchingResultInfo matchingResultInfo = MatchingUtil.calculateMatchingRate(workApplication, recruitment);
         return new MatchingCaregiverDetailResponse(
-                matching.getId(),
-                matching.getMatchingResultStatus(),
-                socialWorkerMatchingResult.isWorkLocationMatched()
+                workApplication.getId(), // TODO : 필드 제거
+                MatchingUtil.calculateMatchingStatus(workApplication, recruitment),
+                matchingResultInfo.isWorkLocationMatched()
                         ? MatchingResultReasonType.MATCHED_ALL
                         : MatchingResultReasonType.NOT_MATCHED,
-                socialWorkerMatchingResult.getWorkDayMatchingRate() == 0
+                matchingResultInfo.getWorkDayMatchingRate() == 0
                         ? MatchingResultReasonType.NOT_MATCHED
-                        : socialWorkerMatchingResult.getWorkDayMatchingRate() < 1
+                        : matchingResultInfo.getWorkDayMatchingRate() < 1
                                 ? MatchingResultReasonType.MATCHED_PARTIALLY
                                 : MatchingResultReasonType.MATCHED_ALL,
-                socialWorkerMatchingResult.isWorkTimeMatched()
+                matchingResultInfo.isWorkTimeMatched()
                         ? MatchingResultReasonType.MATCHED_ALL
                         : MatchingResultReasonType.NOT_MATCHED,
                 CaregiverDto.from(workApplication.getCaregiver()),
                 WorkApplicationDto.from(workApplication),
                 career != null ? CareerDto.of(career, careerDetails) : null,
-                matching.getMediationTypes().stream().toList(),
-                matching.getMediationDescription());
+                mediationTypes,
+                mediationDescription);
     }
 
     private enum MatchingResultReasonType {

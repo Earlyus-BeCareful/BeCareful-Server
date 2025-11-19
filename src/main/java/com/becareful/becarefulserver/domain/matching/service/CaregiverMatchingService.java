@@ -113,16 +113,18 @@ public class CaregiverMatchingService {
 
     @Transactional(readOnly = true)
     public CaregiverAppliedMatchingDetailResponse getMyAppliedRecruitmentDetail(Long recruitmentId) {
+        // TODO : application id 받아서 찾기
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         Recruitment recruitment = recruitmentRepository
                 .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        WorkApplication workApplication = workApplicationRepository
-                .findByCaregiver(caregiver)
-                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
+
+        Application application = applicationRepository
+                .findByCaregiverAndRecruitment(caregiver, recruitment)
+                .orElseThrow(() -> new DomainException(APPLICATION_NOT_EXISTS));
 
         boolean hasNewChat = chatReadStatusRepository.existsUnreadChat(caregiver);
 
-        return CaregiverAppliedMatchingDetailResponse.of(workApplication, recruitment, false, false, hasNewChat);
+        return CaregiverAppliedMatchingDetailResponse.of(application, false, false, hasNewChat);
     }
 }

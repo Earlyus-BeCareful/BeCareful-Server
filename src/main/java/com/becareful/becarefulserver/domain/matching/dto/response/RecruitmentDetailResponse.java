@@ -21,7 +21,7 @@ public record RecruitmentDetailResponse(
             boolean hasNewChat) {
         return new RecruitmentDetailResponse(
                 RecruitmentDto.from(recruitment),
-                MatchingUtil.calculateMatchingRate(workApplication, recruitment),
+                MatchingUtil.calculateMatchingStatus(workApplication, recruitment),
                 isHotRecruitment,
                 isHourlySalaryTop,
                 hasNewChat);

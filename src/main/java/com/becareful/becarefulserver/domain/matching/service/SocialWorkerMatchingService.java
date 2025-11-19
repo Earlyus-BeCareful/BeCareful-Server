@@ -53,6 +53,7 @@ public class SocialWorkerMatchingService {
     private final RecruitmentDomainService recruitmentDomainService;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
+    private final ApplicationRepository applicationRepository;
 
     /***
      * 2025-09-24
@@ -130,15 +131,20 @@ public class SocialWorkerMatchingService {
                 .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
 
-        Matching matching = matchingRepository
-                .findByWorkApplicationAndRecruitment(workApplication, recruitment)
-                .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
+        Optional<Application> applicationOpt =
+                applicationRepository.findByCaregiverAndRecruitment(caregiver, recruitment);
+        List<MediationType> mediationTypes = applicationOpt
+                .map(application -> application.getMediationTypes().stream().toList())
+                .orElse(List.of());
+        String mediationDescription =
+                applicationOpt.map(Application::getMediationDescription).orElse("");
 
         Career career = careerRepository.findById(caregiverId).orElse(null);
 
         List<CareerDetail> careerDetails = careerDetailRepository.findAllByCareer(career);
 
-        return MatchingCaregiverDetailResponse.of(matching, career, careerDetails);
+        return MatchingCaregiverDetailResponse.of(
+                workApplication, recruitment, career, careerDetails, mediationTypes, mediationDescription);
     }
 
     /**
@@ -248,31 +254,34 @@ public class SocialWorkerMatchingService {
 
         recruitmentDomainService.validateRecruitmentInstitution(recruitment, loggedInSocialWorker);
 
-        List<Matching> matchings = matchingRepository.findAllByRecruitment(recruitment);
+        List<MatchingCaregiverSimpleResponse> matchedCaregivers =
+                workApplicationRepository.findAllActiveWorkApplication().stream()
+                        .filter(workApplication -> !MatchingUtil.calculateMatchingStatus(workApplication, recruitment)
+                                .equals(MatchingResultStatus.제외))
+                        .map(workApplication -> {
+                            String careerTitle = careerRepository
+                                    .findByCaregiver(workApplication.getCaregiver())
+                                    .map(Career::getTitle)
+                                    .orElse("경력서를 작성하지 않았습니다.");
+                            return MatchingCaregiverSimpleResponse.of(workApplication, recruitment, careerTitle);
+                        })
+                        .toList();
 
-        List<MatchingCaregiverSimpleResponse> unAppliedCaregivers = new ArrayList<>();
-        List<MatchingCaregiverSimpleResponse> appliedCaregivers = new ArrayList<>();
+        List<MatchingCaregiverSimpleResponse> appliedCaregivers =
+                applicationRepository.findAllByRecruitment(recruitment).stream()
+                        .map(Application::getWorkApplication)
+                        .filter(workApplication -> !MatchingUtil.calculateMatchingStatus(workApplication, recruitment)
+                                .equals(MatchingResultStatus.제외))
+                        .map(workApplication -> {
+                            String careerTitle = careerRepository
+                                    .findByCaregiver(workApplication.getCaregiver())
+                                    .map(Career::getTitle)
+                                    .orElse("경력서를 작성하지 않았습니다.");
+                            return MatchingCaregiverSimpleResponse.of(workApplication, recruitment, careerTitle);
+                        })
+                        .toList();
 
-        matchings.forEach(matching -> {
-            MatchingApplicationStatus applicationStatus = matching.getApplicationStatus();
-            Caregiver caregiver = matching.getWorkApplication().getCaregiver();
-            String careerTitle = careerRepository
-                    .findByCaregiver(caregiver)
-                    .map(Career::getTitle)
-                    .orElse("경력서를 작성하지 않았습니다.");
-
-            MatchedCaregiverResponse caregiverInfo = MatchedCaregiverResponse.of(caregiver, careerTitle);
-            MatchingResultStatus matchingResult = matching.getMatchingResultStatus();
-
-            var matchedCaregiverInfo = MatchingCaregiverSimpleResponse.of(caregiverInfo, matchingResult);
-
-            switch (applicationStatus) {
-                case 미지원 -> unAppliedCaregivers.add(matchedCaregiverInfo);
-                case 지원 -> appliedCaregivers.add(matchedCaregiverInfo);
-            }
-        });
-
-        return RecruitmentMatchingStatusResponse.of(recruitment, unAppliedCaregivers, appliedCaregivers);
+        return RecruitmentMatchingStatusResponse.of(recruitment, matchedCaregivers, appliedCaregivers);
     }
 
     /**

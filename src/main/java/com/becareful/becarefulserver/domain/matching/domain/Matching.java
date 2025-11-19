@@ -3,20 +3,14 @@ package com.becareful.becarefulserver.domain.matching.domain;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.matching.domain.converter.MediationTypeSetConverter;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
-import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
-import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
 import com.becareful.becarefulserver.global.exception.exception.MatchingException;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
 import jakarta.persistence.*;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.EnumSet;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -87,7 +81,6 @@ public class Matching extends BaseEntity {
                 .matchingStatus(MatchingStatus.미지원)
                 .recruitment(recruitment)
                 .workApplication(application)
-                .matchingResultInfo(calculateMatchingRate(recruitment, application))
                 .build();
     }
 
@@ -101,22 +94,6 @@ public class Matching extends BaseEntity {
     /**
      * Entity Method
      */
-    public void apply() {
-        validateMatchingApplicable();
-        this.matchingStatus = MatchingStatus.지원검토;
-        this.applicationStatus = MatchingApplicationStatus.지원;
-        this.applicationDate = LocalDate.now();
-    }
-
-    public void mediate(RecruitmentMediateRequest request) {
-        validateMatchingApplicable();
-        this.matchingStatus = MatchingStatus.지원검토;
-        this.applicationStatus = MatchingApplicationStatus.지원;
-        this.applicationDate = LocalDate.now();
-        this.mediationTypes = EnumSet.copyOf(request.mediationTypes());
-        this.mediationDescription = request.mediationDescription();
-    }
-
     public void propose() {
         validateCanPropose();
         this.matchingStatus = MatchingStatus.근무제안;
@@ -139,10 +116,6 @@ public class Matching extends BaseEntity {
 
     public void failedConfirm() {
         this.matchingStatus = MatchingStatus.채용불발;
-    }
-
-    public MatchingResultStatus getMatchingResultStatus() {
-        return matchingResultInfo.judgeMatchingResultStatus();
     }
 
     private void validateCanSetPending() {
@@ -168,48 +141,5 @@ public class Matching extends BaseEntity {
             return;
         }
         throw new RecruitmentException(MATCHING_CANNOT_REJECT);
-    }
-
-    public void validateCaregiver(Long caregiverId) {
-        if (workApplication.getCaregiver().getId().equals(caregiverId)) {
-            return;
-        }
-        throw new MatchingException(MATCHING_CAREGIVER_DIFFERENT);
-    }
-
-    /**
-     * @param recruitment       - 사회복지사가 등록한 공고
-     * @param workApplication   - 요양보호사가 등록한 지원서
-     * @return                  - MatchingInfo
-     */
-    private static MatchingResultInfo calculateMatchingRate(Recruitment recruitment, WorkApplication workApplication) {
-        boolean workLocationMatchingRate =
-                isWorkLocationMatched(recruitment.getResidentialLocation(), workApplication.getWorkLocations());
-        Double workDayMatchingRate = calculateDayMatchingRate(recruitment.getWorkDays(), workApplication.getWorkDays());
-        boolean workTimeMatchingRate = isWorkTimeMatched(recruitment.getWorkTimes(), workApplication.getWorkTimes());
-
-        return MatchingResultInfo.create(workLocationMatchingRate, workDayMatchingRate, workTimeMatchingRate);
-    }
-
-    private static boolean isWorkLocationMatched(Location residentialLocation, List<Location> workableLocations) {
-        for (Location location : workableLocations) {
-            if (location.matches(residentialLocation)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static Double calculateDayMatchingRate(EnumSet<DayOfWeek> recruitmentDays, EnumSet<DayOfWeek> applyDays) {
-        EnumSet<DayOfWeek> intersection = EnumSet.copyOf(recruitmentDays);
-        intersection.retainAll(applyDays);
-
-        return ((double) intersection.size() / recruitmentDays.size()) * 100;
-    }
-
-    private static boolean isWorkTimeMatched(EnumSet<WorkTime> recruitmentTimes, EnumSet<WorkTime> applyTimes) {
-        EnumSet<WorkTime> intersection = EnumSet.copyOf(recruitmentTimes);
-        intersection.retainAll(applyTimes);
-        return ((double) intersection.size() / recruitmentTimes.size()) * 100 == 100;
     }
 }

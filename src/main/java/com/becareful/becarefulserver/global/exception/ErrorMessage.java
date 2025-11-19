@@ -63,6 +63,8 @@ public class ErrorMessage {
     public static final String RECRUITMENT_NOT_DELETABLE_APPLICANTS_OR_PROCESSING_CONTRACT_EXISTS =
             "지원자가 있거나, 채팅이 진행중인 공고는 삭제할 수 없습니다.";
 
+    public static final String APPLICATION_NOT_EXISTS = "요양보호사 지원 정보가 존재하지 않습니다.";
+
     public static final String MATCHING_NOT_EXISTS = "매칭 또는 지원 정보가 존재하지 않습니다.";
     public static final String MATCHING_CANNOT_REJECT = "미지원 공고만 거절할 수 있습니다.";
     public static final String MATCHING_CANNOT_PENDING_NON_ = "검토중인 공고만 보류할 수 있습니다.";

@@ -22,7 +22,7 @@ public record CaregiverRecruitmentResponse(
                 };
         return new CaregiverRecruitmentResponse(
                 RecruitmentSimpleDto.from(recruitment),
-                MatchingUtil.calculateMatchingRate(workApplication, recruitment),
+                MatchingUtil.calculateMatchingStatus(workApplication, recruitment),
                 recruitmentStatus.getValue(),
                 // TODO : 매칭 필터 정보 추가
                 false,
