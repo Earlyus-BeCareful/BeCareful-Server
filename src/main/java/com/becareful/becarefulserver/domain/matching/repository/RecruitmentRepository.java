@@ -18,17 +18,12 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
         SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
                    r,
                    e,
-                   COUNT(m.id),
-                   COALESCE(
-                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토
-                                THEN 1
-                                ELSE 0
-                           END),
-                       0L)
+                   COUNT(a),
+                   COUNT(a)
                )
           FROM Recruitment r
           JOIN r.elderly e
-          LEFT JOIN Matching m ON m.recruitment = r
+          LEFT JOIN Application a ON a.recruitment = r
          WHERE r.elderly.nursingInstitution = :institution
            AND r.recruitmentStatus IN :recruitmentStatus
          GROUP BY r, e
@@ -36,22 +31,18 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
     Page<SocialWorkerRecruitmentResponse> findAllByInstitution(
             NursingInstitution institution, List<RecruitmentStatus> recruitmentStatus, Pageable pageable);
 
+    // TODO : 서비스 계층에서 자동 매칭 카운팅하도록 로직 수정
     @Query(
             """
         SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
                    r,
                    e,
-                   COUNT(m.id),
-                   COALESCE(
-                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토
-                                THEN 1
-                                ELSE 0
-                           END),
-                       0L)
+                   COUNT(a),
+                   COUNT(a)
                )
           FROM Recruitment r
           JOIN r.elderly e
-          LEFT JOIN Matching m ON m.recruitment = r
+          LEFT JOIN Application a ON a.recruitment = r
          WHERE r.elderly.nursingInstitution = :institution
            AND r.recruitmentStatus IN :recruitmentStatus
            AND (r.title LIKE %:keyword% OR r.elderly.name LIKE %:keyword%)
@@ -68,17 +59,12 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
         SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
                    r,
                    e,
-                   COUNT(m.id),
-                   COALESCE(
-                       SUM(CASE WHEN m.matchingStatus = com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.지원검토
-                                THEN 1
-                                ELSE 0
-                           END),
-                       0L)
+                   COUNT(a),
+                   COUNT(a)
                )
           FROM Recruitment r
           JOIN r.elderly e
-          LEFT JOIN Matching m ON m.recruitment = r
+          LEFT JOIN Application a ON a.recruitment = r
          WHERE r.elderly = :elderly
          GROUP BY r, e
     """)
