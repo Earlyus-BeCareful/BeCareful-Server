@@ -1,6 +1,5 @@
 package com.becareful.becarefulserver.domain.matching.repository;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus;
 import com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse;
@@ -92,7 +91,7 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
           from Recruitment r
          where r.recruitmentStatus = com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중
     """)
-    List<Recruitment> findAllByIsRecruiting(WorkApplication workApplication);
+    List<Recruitment> findAllByIsRecruiting();
 
     List<Recruitment> findAllByElderlyIn(List<Elderly> elderlys);
 }

@@ -16,20 +16,16 @@ import com.becareful.becarefulserver.domain.chat.domain.Contract;
 import com.becareful.becarefulserver.domain.chat.dto.request.ConfirmContractRequest;
 import com.becareful.becarefulserver.domain.chat.dto.request.ContractEditRequest;
 import com.becareful.becarefulserver.domain.chat.repository.ChatRepository;
-import com.becareful.becarefulserver.domain.chat.repository.ChatRoomRepository;
-import com.becareful.becarefulserver.domain.chat.service.CaregiverChatService;
 import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
+import com.becareful.becarefulserver.domain.matching.domain.Application;
+import com.becareful.becarefulserver.domain.matching.domain.ApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
-import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
-import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
-import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
-import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
+import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.matching.service.CaregiverMatchingService;
 import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
@@ -39,6 +35,7 @@ import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
 import java.time.*;
 import java.util.EnumSet;
 import java.util.List;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -60,9 +57,6 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
     private SocialWorkerMatchingService socialWorkerMatchingService;
 
     @Autowired
-    private MatchingRepository matchingRepository;
-
-    @Autowired
     private RecruitmentRepository recruitmentRepository;
 
     @Autowired
@@ -72,19 +66,16 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
     private SocialWorkerChatService socialWorkerChatService;
 
     @Autowired
-    private CaregiverChatService caregiverChatService;
-
-    @Autowired
     private CompletedMatchingRepository completedMatchingRepository;
 
     @Autowired
     private CaregiverMatchingService caregiverMatchingService;
 
     @Autowired
-    private ChatRoomRepository chatRoomRepository;
+    private ChatRepository chatRepository;
 
     @Autowired
-    private ChatRepository chatRepository;
+    private ApplicationRepository applicationRepository;
 
     @Test
     @WithCaregiver(phoneNumber = "01099990000")
@@ -128,15 +119,14 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
         Long recruitmentId = socialWorkerMatchingService.createRecruitment(recruitmentRequest);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow();
-        WorkApplication workApp =
+        WorkApplication workApplication =
                 workApplicationRepository.findByCaregiver(caregiver).orElseThrow();
-        Matching matching = matchingRepository
-                .findByWorkApplicationAndRecruitment(workApp, recruitment)
-                .orElseThrow();
 
         caregiverMatchingService.applyRecruitment(recruitmentId);
-        Matching applied = matchingRepository.findById(matching.getId()).orElseThrow();
-        assertThat(applied.isApplicationReviewing()).isTrue();
+        Application application = applicationRepository
+                .findByCaregiverAndRecruitment(caregiver, recruitment)
+                .orElseThrow();
+        Assertions.assertThat(application.getApplicationStatus()).isEqualTo(ApplicationStatus.지원검토);
 
         long chatRoomId =
                 socialWorkerMatchingService.proposeMatching(recruitmentId, caregiver.getId(), LocalDate.now());

@@ -1,6 +1,5 @@
 package com.becareful.becarefulserver.domain.caregiver.service;
 
-import static com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.미지원;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_WORK_APPLICATION_NOT_EXISTS;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
@@ -73,8 +72,6 @@ public class WorkApplicationService {
         WorkApplication application = workApplicationRepository
                 .findByCaregiver(caregiver)
                 .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
-
-        matchingRepository.deleteAllByApplicationAndMatchingStatus(application, 미지원);
 
         application.inactivate();
     }

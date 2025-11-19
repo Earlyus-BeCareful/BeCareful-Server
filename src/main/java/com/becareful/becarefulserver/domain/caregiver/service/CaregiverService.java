@@ -34,7 +34,6 @@ public class CaregiverService {
 
     private final CaregiverRepository caregiverRepository;
     private final WorkApplicationRepository workApplicationRepository;
-    private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final FileUtil fileUtil;
@@ -43,6 +42,8 @@ public class CaregiverService {
     private final S3Service s3Service;
     private final CareerDetailRepository careerDetailRepository;
     private final CareerRepository careerRepository;
+    private final ApplicationRepository applicationRepository;
+    private final RecruitmentRepository recruitmentRepository;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -52,17 +53,13 @@ public class CaregiverService {
         Optional<WorkApplication> optionalWorkApplication = workApplicationRepository.findByCaregiver(caregiver);
 
         int applicationCount = 0;
+        int recruitmentCount = recruitmentRepository.findAllByIsRecruiting().size();
         boolean isApplying = false;
         if (optionalWorkApplication.isPresent()) {
             WorkApplication workApplication = optionalWorkApplication.get();
-            applicationCount = matchingRepository
-                    .findByWorkApplicationAndMatchingStatus(workApplication, 지원검토)
-                    .size();
+            applicationCount = applicationRepository.countByWorkApplication(workApplication);
             isApplying = workApplication.isActive();
         }
-        Integer recruitmentCount = matchingRepository
-                .findAllByCaregiverAndApplicationStatus(caregiver, 미지원)
-                .size();
 
         List<CompletedMatching> myWork = completedMatchingRepository.findByCaregiver(caregiver);
 
@@ -198,7 +195,6 @@ public class CaregiverService {
          * 4. 어떤 상황에서 탈퇴가 가능하고, 탈퇴가 불가능한지
          */
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
-        matchingRepository.deleteAllByCaregiverAndStatusNot(loggedInCaregiver, 근무제안);
         caregiverRepository.delete(loggedInCaregiver);
         authUtil.logout(response);
     }

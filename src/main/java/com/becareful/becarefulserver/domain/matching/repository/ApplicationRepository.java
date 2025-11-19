@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.matching.repository;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.matching.domain.Application;
 import com.becareful.becarefulserver.domain.matching.domain.ApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
@@ -38,4 +39,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     List<Application> findAllByRecruitment(Recruitment recruitment);
 
     boolean existsByRecruitment(Recruitment recruitment);
+
+    Integer countByWorkApplication(WorkApplication workApplication);
 }
