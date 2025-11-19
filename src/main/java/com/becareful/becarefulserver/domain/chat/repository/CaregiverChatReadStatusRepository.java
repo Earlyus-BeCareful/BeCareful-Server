@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.*;
 public interface CaregiverChatReadStatusRepository extends JpaRepository<CaregiverChatReadStatus, Long> {
     @Query(
             """
-        SELECT count(*) > 0
+        SELECT count(c) > 0
           FROM Chat c
           JOIN CaregiverChatReadStatus r
             ON r.chatRoom = c.chatRoom
