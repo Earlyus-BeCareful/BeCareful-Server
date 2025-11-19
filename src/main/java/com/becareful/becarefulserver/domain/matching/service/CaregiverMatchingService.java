@@ -14,7 +14,6 @@ import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppli
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentDetailResponse;
 import com.becareful.becarefulserver.domain.matching.repository.ApplicationRepository;
-import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import com.becareful.becarefulserver.global.exception.exception.RecruitmentException;
@@ -31,7 +30,6 @@ public class CaregiverMatchingService {
 
     private final AuthUtil authUtil;
     private final WorkApplicationRepository workApplicationRepository;
-    private final MatchingRepository matchingRepository;
     private final CaregiverChatReadStatusRepository chatReadStatusRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final ApplicationRepository applicationRepository;

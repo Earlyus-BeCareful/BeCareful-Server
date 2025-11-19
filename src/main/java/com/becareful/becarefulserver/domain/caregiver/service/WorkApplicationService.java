@@ -11,9 +11,7 @@ import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
-import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
-import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class WorkApplicationService {
 
     private final AuthUtil authUtil;
-    private final MatchingDomainService matchingDomainService;
     private final WorkApplicationRepository workApplicationRepository;
     private final MatchingRepository matchingRepository;
-    private final RecruitmentRepository recruitmentRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final CareerRepository careerRepository;
 
@@ -54,12 +50,10 @@ public class WorkApplicationService {
                 .ifPresentOrElse(
                         application -> {
                             application.updateWorkApplication(request);
-                            matchingWith(application);
                         },
                         () -> {
                             WorkApplication application = WorkApplication.create(request, caregiver);
                             workApplicationRepository.save(application);
-                            matchingWith(application);
                         });
     }
 
@@ -71,7 +65,6 @@ public class WorkApplicationService {
                 .orElseThrow(() -> new CaregiverException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
 
         application.activate();
-        matchingWith(application);
     }
 
     @Transactional
@@ -84,12 +77,5 @@ public class WorkApplicationService {
         matchingRepository.deleteAllByApplicationAndMatchingStatus(application, 미지원);
 
         application.inactivate();
-    }
-
-    private void matchingWith(WorkApplication application) {
-        matchingRepository.deleteAllByApplicationAndMatchingStatus(application, 미지원);
-        recruitmentRepository.findAllByIsRecruiting(application).forEach(recruitment -> {
-            matchingDomainService.createMatching(recruitment, application).ifPresent(matchingRepository::save);
-        });
     }
 }
