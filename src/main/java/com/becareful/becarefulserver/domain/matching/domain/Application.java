@@ -6,7 +6,6 @@ import com.becareful.becarefulserver.domain.matching.domain.converter.MediationT
 import jakarta.persistence.*;
 import java.util.EnumSet;
 import java.util.List;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -66,7 +65,11 @@ public class Application extends BaseEntity {
                 .build();
     }
 
-    public static Application mediated(Recruitment recruitment, WorkApplication workApplication, List<MediationType> mediationTypes, String mediationDescription) {
+    public static Application mediated(
+            Recruitment recruitment,
+            WorkApplication workApplication,
+            List<MediationType> mediationTypes,
+            String mediationDescription) {
         return Application.builder()
                 .mediationTypes(EnumSet.copyOf(mediationTypes))
                 .mediationDescription(mediationDescription)

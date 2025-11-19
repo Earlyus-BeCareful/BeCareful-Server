@@ -7,6 +7,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
+import com.becareful.becarefulserver.domain.matching.domain.Application;
 import com.becareful.becarefulserver.domain.matching.domain.Matching;
 import com.becareful.becarefulserver.domain.matching.domain.MatchingStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
@@ -16,6 +17,7 @@ import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppli
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverAppliedRecruitmentsResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.CaregiverRecruitmentResponse;
 import com.becareful.becarefulserver.domain.matching.dto.response.RecruitmentDetailResponse;
+import com.becareful.becarefulserver.domain.matching.repository.ApplicationRepository;
 import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
 import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
 import com.becareful.becarefulserver.global.exception.exception.MatchingException;
@@ -36,6 +38,7 @@ public class CaregiverMatchingService {
     private final MatchingRepository matchingRepository;
     private final CaregiverChatReadStatusRepository chatReadStatusRepository;
     private final RecruitmentRepository recruitmentRepository;
+    private final ApplicationRepository applicationRepository;
 
     @Transactional(readOnly = true)
     public List<CaregiverRecruitmentResponse> getCaregiverMatchingRecruitmentList() {
@@ -47,23 +50,6 @@ public class CaregiverMatchingService {
                                 .map(CaregiverRecruitmentResponse::from)
                                 .toList())
                 .orElse(null);
-    }
-
-    @Transactional
-    public void applyRecruitment(Long recruitmentId) {
-        Caregiver caregiver = authUtil.getLoggedInCaregiver();
-        Recruitment recruitment = recruitmentRepository
-                .findById(recruitmentId)
-                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
-        WorkApplication workApplication = workApplicationRepository
-                .findByCaregiver(caregiver)
-                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
-
-        Matching matching = matchingRepository
-                .findByWorkApplicationAndRecruitment(workApplication, recruitment)
-                .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
-
-        matching.apply();
     }
 
     @Transactional(readOnly = true)
@@ -80,6 +66,26 @@ public class CaregiverMatchingService {
     }
 
     @Transactional
+    public void applyRecruitment(Long recruitmentId) {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        Recruitment recruitment = recruitmentRepository
+                .findById(recruitmentId)
+                .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
+        WorkApplication workApplication = workApplicationRepository
+                .findByCaregiver(caregiver)
+                .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
+
+        // TODO : Matching 삭제
+        Matching matching = matchingRepository
+                .findByWorkApplicationAndRecruitment(workApplication, recruitment)
+                .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
+        matching.apply();
+
+        Application application = Application.general(recruitment, workApplication);
+        applicationRepository.save(application);
+    }
+
+    @Transactional
     public void mediateMatching(Long recruitmentId, RecruitmentMediateRequest request) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
         Recruitment recruitment = recruitmentRepository
@@ -89,11 +95,15 @@ public class CaregiverMatchingService {
                 .findByCaregiver(caregiver)
                 .orElseThrow(() -> new RecruitmentException(CAREGIVER_WORK_APPLICATION_NOT_EXISTS));
 
+        // TODO : Matching 삭제
         Matching matching = matchingRepository
                 .findByWorkApplicationAndRecruitment(workApplication, recruitment)
                 .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
-
         matching.mediate(request);
+
+        Application application = Application.mediated(
+                recruitment, workApplication, request.mediationTypes(), request.mediationDescription());
+        applicationRepository.save(application);
     }
 
     @Transactional(readOnly = true)
