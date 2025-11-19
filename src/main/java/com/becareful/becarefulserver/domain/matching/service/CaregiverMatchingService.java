@@ -73,7 +73,7 @@ public class CaregiverMatchingService {
                 .findByCaregiverAndRecruitmentId(caregiver, recruitmentId)
                 .orElseThrow(() -> new MatchingException(MATCHING_NOT_EXISTS));
 
-        boolean hasNewChat = chatReadStatusRepository.existsUnreadChat(caregiver.getId());
+        boolean hasNewChat = chatReadStatusRepository.existsUnreadChat(caregiver);
 
         // TODO : recruit 매칭 적합도 및 태그 부여 판단
         return RecruitmentDetailResponse.from(matching, false, false, hasNewChat);
@@ -111,7 +111,7 @@ public class CaregiverMatchingService {
 
         List<Matching> matchings = matchingRepository.findAllAppliedByCaregiverAndMatchingStatusIn(
                 caregiver, matchingStatuses, isShouldBeRecruiting);
-        boolean hasNewChat = chatReadStatusRepository.existsUnreadChat(caregiver.getId());
+        boolean hasNewChat = chatReadStatusRepository.existsUnreadChat(caregiver);
         return CaregiverAppliedRecruitmentsResponse.of(matchings, hasNewChat);
     }
 
@@ -129,7 +129,7 @@ public class CaregiverMatchingService {
                 .findByWorkApplicationAndRecruitment(workApplication, recruitment)
                 .orElseThrow(() -> new RecruitmentException(MATCHING_NOT_EXISTS));
 
-        boolean hasNewChat = chatReadStatusRepository.existsUnreadChat(caregiver.getId());
+        boolean hasNewChat = chatReadStatusRepository.existsUnreadChat(caregiver);
 
         return CaregiverAppliedMatchingDetailResponse.of(matching, false, false, hasNewChat);
     }

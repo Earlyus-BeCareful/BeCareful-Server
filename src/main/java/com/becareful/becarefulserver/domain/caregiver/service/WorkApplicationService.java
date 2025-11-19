@@ -36,7 +36,7 @@ public class WorkApplicationService {
     public CaregiverMyWorkApplicationPageResponse getMyWorkApplicationPageInfo() {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
 
-        boolean hasNewChat = caregiverChatReadStatusRepository.existsUnreadChat(loggedInCaregiver.getId());
+        boolean hasNewChat = caregiverChatReadStatusRepository.existsUnreadChat(loggedInCaregiver);
         boolean hasCareer = careerRepository.existsByCaregiver(loggedInCaregiver);
         WorkApplicationDto workApplicationDto = workApplicationRepository
                 .findByCaregiver(loggedInCaregiver)
