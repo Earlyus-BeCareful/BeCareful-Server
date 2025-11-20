@@ -33,6 +33,7 @@ public class CaregiverChatController {
         return ResponseEntity.ok(response);
     }
 
+    //웹소켓 전송
     @Operation(summary = "요양보호사 텍스트 채팅 전송")
     @PostMapping("/send")
     public ResponseEntity<Void> createTextChat(@RequestBody @Valid CaregiverSendTextChatRequest request) {
@@ -40,6 +41,7 @@ public class CaregiverChatController {
         return ResponseEntity.ok().build();
     }
 
+    //웹소켓 전송
     @Operation(summary = "근무조건 동의하기 팝업-동의하기")
     @PostMapping("/accept")
     public ResponseEntity<Void> acceptContract(@RequestBody @Valid AcceptContractRequest request) {

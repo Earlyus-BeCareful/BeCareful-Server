@@ -36,6 +36,7 @@ public class SocialWorkerChatController {
         return ResponseEntity.ok(response);
     }
 
+    //웹소켓 전송
     @Operation(summary = "사회복지사 텍스트 채팅 전송")
     @PostMapping("/send")
     public ResponseEntity<Void> createTextChat(@RequestBody @Valid SocialWorkerSendTextChatRequest request) {
@@ -51,6 +52,7 @@ public class SocialWorkerChatController {
     }
 
     // 계약서 수정 내용 저장 - 직전 계약서 필요
+    //수정 메시지 웹소켓 전송
     @Operation(summary = "수정 계약서 생성")
     @PostMapping("/contract/edit")
     public ResponseEntity<Void> editContract(@RequestBody @Valid ContractEditRequest request) {
@@ -59,6 +61,7 @@ public class SocialWorkerChatController {
     }
 
     // TODO: 채용 확정
+    //확정 메시지 웹소켓 전송
     @Operation(summary = "계약서를 기반으로 매칭을 확정합니다.")
     @PostMapping("/confirm")
     public ResponseEntity<Void> confirmMatching(@RequestBody @Valid ConfirmContractRequest request) {
