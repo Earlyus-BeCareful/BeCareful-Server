@@ -187,4 +187,10 @@ public class CaregiverChatService {
             // "채팅방이 활성화되어있지 않아, 채팅을 전송할 수 없습니다."
         }
     }
+
+    public void sendTextChat(ChatSendRequest chatSendRequest) {
+    }
+
+    public void acceptContractChat(ChatSendRequest chatSendRequest) {
+    }
 }

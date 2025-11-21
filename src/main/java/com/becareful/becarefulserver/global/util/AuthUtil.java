@@ -5,6 +5,7 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
+import com.becareful.becarefulserver.domain.chat.domain.vo.ChatSenderType;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
@@ -36,6 +37,22 @@ public class AuthUtil {
         return socialworkerRepository
                 .findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new SocialWorkerException(SOCIALWORKER_NOT_EXISTS));
+    }
+
+    public ChatSenderType getLoggedInChatSenderType() {
+        String phoneNumber =
+                SecurityContextHolder.getContext().getAuthentication().getName();
+        Caregiver caregiver = caregiverRepository
+                .findByPhoneNumber(phoneNumber).orElse(null);
+
+        if (caregiver == null) {
+            socialworkerRepository
+                    .findByPhoneNumber(phoneNumber)
+                    .orElseThrow(() -> new SocialWorkerException(SOCIALWORKER_NOT_EXISTS));
+            return ChatSenderType.SOCIAL_WORKER;
+
+        }
+        return ChatSenderType.SOCIAL_WORKER;
     }
 
     public AssociationMember getLoggedInAssociationMember() {

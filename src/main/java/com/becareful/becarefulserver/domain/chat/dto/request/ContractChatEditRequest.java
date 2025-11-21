@@ -13,7 +13,6 @@ import java.time.LocalTime;
 import java.util.List;
 
 public record ContractChatEditRequest(
-        ChatSenderType senderType,
         ChatSendRequestType sendRequestType,
         @Size(min = 1) List<DayOfWeek> workDays,
         @NotNull LocalTime workStartTime,

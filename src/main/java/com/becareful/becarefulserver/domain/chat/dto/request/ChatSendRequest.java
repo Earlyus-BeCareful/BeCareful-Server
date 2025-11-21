@@ -4,6 +4,5 @@ import com.becareful.becarefulserver.domain.chat.domain.vo.ChatSendRequestType;
 import com.becareful.becarefulserver.domain.chat.domain.vo.ChatSenderType;
 
 public sealed interface ChatSendRequest permits AcceptContractChatRequest, ConfirmMatchingRequest, ContractChatEditRequest, TextChatSendRequest {
-    ChatSenderType senderType();
     ChatSendRequestType sendRequestType();
 }

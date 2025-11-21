@@ -13,9 +13,10 @@ import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
-import java.time.*;
+
 import java.util.*;
 import lombok.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 
@@ -32,6 +33,7 @@ public class SocialWorkerChatService {
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final ChatRepository chatRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Transactional(readOnly = true)
     public List<SocialWorkerChatRoomSummaryResponse> getChatList() {
@@ -259,5 +261,17 @@ public class SocialWorkerChatService {
             // TODO: 에러 메시지 반환
             // "채팅방이 활성화되어있지 않아, 채팅을 전송할 수 없습니다."
         }
+    }
+
+    public void sendTextChat(ChatSendRequest chatSendRequest) {
+
+
+        //구독자에세 전송
+    }
+
+    public void editContractChat(ChatSendRequest chatSendRequest) {
+    }
+
+    public void confirmContractChat(ChatSendRequest chatSendRequest) {
     }
 }
