@@ -203,10 +203,13 @@ public class SocialWorkerChatService {
                 .getCaregiver();
 
         // 나머지 매칭 실패 처리
-        applicationRepository.findAllByRecruitment(recruitment).forEach(Application::failed);
-        applicationRepository
-                .findByCaregiverAndRecruitment(caregiver, recruitment)
-                .ifPresent(Application::hire);
+        applicationRepository.findAllByRecruitment(recruitment).forEach(application -> {
+            if (application.getWorkApplication().getCaregiver().equals(caregiver)) {
+                application.hire();
+                return;
+            }
+            application.failed();
+        });
 
         List<ChatRoom> chatRooms =
                 chatRoomRepository.findAllByChatRoomActiveStatusAndRecruitment(ChatRoomActiveStatus.채팅가능, recruitment);

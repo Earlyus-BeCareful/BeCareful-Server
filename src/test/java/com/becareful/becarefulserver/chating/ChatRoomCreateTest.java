@@ -70,7 +70,7 @@ public class ChatRoomCreateTest extends IntegrationTest {
 
         // 2. 채팅방 생성 호출
         long chatRoomId =
-                socialWorkerMatchingService.proposeMatching(recruitment.getId(), caregiver.getId(), LocalDate.now());
+                socialWorkerMatchingService.proposeWork(recruitment.getId(), caregiver.getId(), LocalDate.now());
 
         // 3. ChatRoom 검증
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow();

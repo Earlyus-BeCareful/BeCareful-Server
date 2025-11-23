@@ -8,6 +8,7 @@ import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.vo.*;
 import com.becareful.becarefulserver.domain.chat.repository.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
+import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
 import com.becareful.becarefulserver.domain.matching.domain.service.RecruitmentDomainService;
 import com.becareful.becarefulserver.domain.matching.domain.vo.*;
 import com.becareful.becarefulserver.domain.matching.dto.*;
@@ -36,6 +37,7 @@ public class SocialWorkerMatchingService {
 
     private final AuthUtil authUtil;
     private final ElderlyDomainService elderlyDomainService;
+    private final MatchingDomainService matchingDomainService;
     private final RecruitmentRepository recruitmentRepository;
     private final ElderlyRepository elderlyRepository;
     private final WorkApplicationRepository workApplicationRepository;
@@ -139,8 +141,19 @@ public class SocialWorkerMatchingService {
 
         List<CareerDetail> careerDetails = careerDetailRepository.findAllByCareer(career);
 
+        MatchingResultInfo matchingResultInfo =
+                matchingDomainService.calculateMatchingResult(workApplication, recruitment);
+        MatchingResultStatus matchingResultStatus =
+                matchingDomainService.calculateMatchingStatus(workApplication, recruitment);
+
         return MatchingCaregiverDetailResponse.of(
-                workApplication, recruitment, career, careerDetails, mediationTypes, mediationDescription);
+                workApplication,
+                matchingResultStatus,
+                matchingResultInfo,
+                career,
+                careerDetails,
+                mediationTypes,
+                mediationDescription);
     }
 
     /**
@@ -251,28 +264,34 @@ public class SocialWorkerMatchingService {
 
         List<MatchingCaregiverSimpleResponse> matchedCaregivers =
                 workApplicationRepository.findAllActiveWorkApplication().stream()
-                        .filter(workApplication -> !MatchingUtil.calculateMatchingStatus(workApplication, recruitment)
+                        .filter(workApplication -> !matchingDomainService
+                                .calculateMatchingStatus(workApplication, recruitment)
                                 .equals(MatchingResultStatus.제외))
                         .map(workApplication -> {
                             String careerTitle = careerRepository
                                     .findByCaregiver(workApplication.getCaregiver())
                                     .map(Career::getTitle)
                                     .orElse("경력서를 작성하지 않았습니다.");
-                            return MatchingCaregiverSimpleResponse.of(workApplication, recruitment, careerTitle);
+                            MatchingResultStatus result =
+                                    matchingDomainService.calculateMatchingStatus(workApplication, recruitment);
+                            return MatchingCaregiverSimpleResponse.of(workApplication, result, careerTitle);
                         })
                         .toList();
 
         List<MatchingCaregiverSimpleResponse> appliedCaregivers =
                 applicationRepository.findAllByRecruitment(recruitment).stream()
                         .map(Application::getWorkApplication)
-                        .filter(workApplication -> !MatchingUtil.calculateMatchingStatus(workApplication, recruitment)
+                        .filter(workApplication -> !matchingDomainService
+                                .calculateMatchingStatus(workApplication, recruitment)
                                 .equals(MatchingResultStatus.제외))
                         .map(workApplication -> {
                             String careerTitle = careerRepository
                                     .findByCaregiver(workApplication.getCaregiver())
                                     .map(Career::getTitle)
                                     .orElse("경력서를 작성하지 않았습니다.");
-                            return MatchingCaregiverSimpleResponse.of(workApplication, recruitment, careerTitle);
+                            MatchingResultStatus result =
+                                    matchingDomainService.calculateMatchingStatus(workApplication, recruitment);
+                            return MatchingCaregiverSimpleResponse.of(workApplication, result, careerTitle);
                         })
                         .toList();
 
@@ -329,7 +348,7 @@ public class SocialWorkerMatchingService {
     }
 
     @Transactional
-    public long proposeMatching(Long recruitmentId, Long caregiverId, LocalDate workStartDate) {
+    public long proposeWork(Long recruitmentId, Long caregiverId, LocalDate workStartDate) {
         SocialWorker socialworker = authUtil.getLoggedInSocialWorker();
 
         Recruitment recruitment = recruitmentRepository

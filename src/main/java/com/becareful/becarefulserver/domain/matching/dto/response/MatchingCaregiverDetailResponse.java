@@ -7,10 +7,8 @@ import com.becareful.becarefulserver.domain.caregiver.dto.CareerDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.CaregiverDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.WorkApplicationDto;
 import com.becareful.becarefulserver.domain.matching.domain.MediationType;
-import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
-import com.becareful.becarefulserver.global.util.MatchingUtil;
 import java.util.List;
 
 public record MatchingCaregiverDetailResponse(
@@ -27,15 +25,15 @@ public record MatchingCaregiverDetailResponse(
 
     public static MatchingCaregiverDetailResponse of(
             WorkApplication workApplication,
-            Recruitment recruitment,
+            MatchingResultStatus matchingResultStatus,
+            MatchingResultInfo matchingResultInfo,
             Career career,
             List<CareerDetail> careerDetails,
             List<MediationType> mediationTypes,
             String mediationDescription) {
-        MatchingResultInfo matchingResultInfo = MatchingUtil.calculateMatchingRate(workApplication, recruitment);
         return new MatchingCaregiverDetailResponse(
-                workApplication.getId(), // TODO : 필드 제거
-                MatchingUtil.calculateMatchingStatus(workApplication, recruitment),
+                0L, // TODO : 필드 제거
+                matchingResultStatus,
                 matchingResultInfo.isWorkLocationMatched()
                         ? MatchingResultReasonType.MATCHED_ALL
                         : MatchingResultReasonType.NOT_MATCHED,

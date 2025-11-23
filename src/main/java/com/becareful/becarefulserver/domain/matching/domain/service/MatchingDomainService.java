@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.global.util;
+package com.becareful.becarefulserver.domain.matching.domain.service;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
@@ -11,12 +11,14 @@ import java.util.EnumSet;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
+@Component
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class MatchingUtil {
+public class MatchingDomainService {
 
-    public static MatchingResultStatus calculateMatchingStatus(WorkApplication application, Recruitment recruitment) {
-        MatchingResultInfo matchingResultInfo = calculateMatchingRate(application, recruitment);
+    public MatchingResultStatus calculateMatchingStatus(WorkApplication application, Recruitment recruitment) {
+        MatchingResultInfo matchingResultInfo = calculateMatchingResult(application, recruitment);
         if (!matchingResultInfo.isWorkLocationMatched()) {
             return MatchingResultStatus.제외;
         }
@@ -37,7 +39,7 @@ public class MatchingUtil {
      * @param workApplication   - 요양보호사가 등록한 지원서
      * @return                  - MatchingInfo
      */
-    public static MatchingResultInfo calculateMatchingRate(WorkApplication workApplication, Recruitment recruitment) {
+    public MatchingResultInfo calculateMatchingResult(WorkApplication workApplication, Recruitment recruitment) {
         boolean workLocationMatchingRate =
                 isWorkLocationMatched(recruitment.getResidentialLocation(), workApplication.getWorkLocations());
         Double workDayMatchingRate = calculateDayMatchingRate(recruitment.getWorkDays(), workApplication.getWorkDays());

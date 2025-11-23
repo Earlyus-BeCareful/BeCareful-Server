@@ -109,7 +109,7 @@ public class SocialWorkerMatchingController {
     @PostMapping("/recruitment/{recruitmentId}/caregiver/{caregiverId}/propose")
     public ResponseEntity<Long> proposeCaregiver(
             @PathVariable Long recruitmentId, @PathVariable Long caregiverId, @RequestParam LocalDate workStartDate) {
-        Long chatRoomId = socialWorkerMatchingService.proposeMatching(recruitmentId, caregiverId, workStartDate);
+        Long chatRoomId = socialWorkerMatchingService.proposeWork(recruitmentId, caregiverId, workStartDate);
         return ResponseEntity.ok(chatRoomId);
     }
 

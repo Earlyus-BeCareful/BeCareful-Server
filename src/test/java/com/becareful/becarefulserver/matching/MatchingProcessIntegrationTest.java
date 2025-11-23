@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.becareful.becarefulserver.common.IntegrationTest;
 import com.becareful.becarefulserver.common.WithCaregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationCreateOrUpdateRequest;
@@ -119,8 +118,6 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
         Long recruitmentId = socialWorkerMatchingService.createRecruitment(recruitmentRequest);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow();
-        WorkApplication workApplication =
-                workApplicationRepository.findByCaregiver(caregiver).orElseThrow();
 
         caregiverMatchingService.applyRecruitment(recruitmentId);
         Application application = applicationRepository
@@ -128,8 +125,8 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 .orElseThrow();
         Assertions.assertThat(application.getApplicationStatus()).isEqualTo(ApplicationStatus.지원검토);
 
-        long chatRoomId =
-                socialWorkerMatchingService.proposeMatching(recruitmentId, caregiver.getId(), LocalDate.now());
+        long chatRoomId = socialWorkerMatchingService.proposeWork(recruitmentId, caregiver.getId(), LocalDate.now());
+        Assertions.assertThat(application.getApplicationStatus()).isEqualTo(ApplicationStatus.근무제안);
 
         Contract firstContract =
                 (Contract) chatRepository.findLastChatWithContent(chatRoomId).orElseThrow();
