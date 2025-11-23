@@ -16,6 +16,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             """
         SELECT a
           FROM Application a
+          JOIN FETCH Recruitment r ON a.recruitment = r
+          JOIN FETCH WorkApplication w ON a.workApplication = w
          WHERE a.workApplication.caregiver = :caregiver
            AND a.applicationStatus IN :applicationStatuses
            AND (
