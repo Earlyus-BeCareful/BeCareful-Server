@@ -48,6 +48,10 @@ public class MatchingDomainService {
         return MatchingResultInfo.create(workLocationMatchingRate, workDayMatchingRate, workTimeMatchingRate);
     }
 
+    public boolean isMatched(WorkApplication workApplication, Recruitment recruitment) {
+        return !calculateMatchingStatus(workApplication, recruitment).equals(MatchingResultStatus.제외);
+    }
+
     private static boolean isWorkLocationMatched(Location residentialLocation, List<Location> workableLocations) {
         for (Location location : workableLocations) {
             if (location.matches(residentialLocation)) {

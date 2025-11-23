@@ -43,9 +43,7 @@ public class CaregiverMatchingService {
         return workApplicationRepository
                 .findByCaregiver(caregiver)
                 .map(workApplication -> recruitmentRepository.findAll().stream()
-                        .filter(recruitment -> !matchingDomainService
-                                .calculateMatchingStatus(workApplication, recruitment)
-                                .equals(MatchingResultStatus.제외))
+                        .filter(recruitment -> matchingDomainService.isMatched(workApplication, recruitment))
                         .map(recruitment -> CaregiverRecruitmentResponse.of(
                                 recruitment,
                                 matchingDomainService.calculateMatchingStatus(workApplication, recruitment)))

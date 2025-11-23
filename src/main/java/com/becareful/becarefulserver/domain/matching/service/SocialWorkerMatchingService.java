@@ -264,9 +264,7 @@ public class SocialWorkerMatchingService {
 
         List<MatchingCaregiverSimpleResponse> matchedCaregivers =
                 workApplicationRepository.findAllActiveWorkApplication().stream()
-                        .filter(workApplication -> !matchingDomainService
-                                .calculateMatchingStatus(workApplication, recruitment)
-                                .equals(MatchingResultStatus.제외))
+                        .filter(workApplication -> matchingDomainService.isMatched(workApplication, recruitment))
                         .map(workApplication -> {
                             String careerTitle = careerRepository
                                     .findByCaregiver(workApplication.getCaregiver())
@@ -281,9 +279,7 @@ public class SocialWorkerMatchingService {
         List<MatchingCaregiverSimpleResponse> appliedCaregivers =
                 applicationRepository.findAllByRecruitment(recruitment).stream()
                         .map(Application::getWorkApplication)
-                        .filter(workApplication -> !matchingDomainService
-                                .calculateMatchingStatus(workApplication, recruitment)
-                                .equals(MatchingResultStatus.제외))
+                        .filter(workApplication -> matchingDomainService.isMatched(workApplication, recruitment))
                         .map(workApplication -> {
                             String careerTitle = careerRepository
                                     .findByCaregiver(workApplication.getCaregiver())
