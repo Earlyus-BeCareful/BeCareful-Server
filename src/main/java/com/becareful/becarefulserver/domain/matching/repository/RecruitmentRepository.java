@@ -73,11 +73,11 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
     // TODO : QueryDSL 로 이전
     @Query(
             """
-        select r
+        select count(r)
           from Recruitment r
          where r.recruitmentStatus = com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중
     """)
-    List<Recruitment> findAllByIsRecruiting();
+    List<Recruitment> countByIsRecruiting();
 
     List<Recruitment> findAllByElderlyIn(List<Elderly> elderlys);
 }
