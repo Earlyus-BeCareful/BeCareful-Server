@@ -1,46 +1,31 @@
 package com.becareful.becarefulserver.matching;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
-import com.becareful.becarefulserver.common.IntegrationTest;
-import com.becareful.becarefulserver.common.WithCaregiver;
-import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationCreateOrUpdateRequest;
-import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
-import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
-import com.becareful.becarefulserver.domain.caregiver.service.WorkApplicationService;
-import com.becareful.becarefulserver.domain.chat.domain.Contract;
-import com.becareful.becarefulserver.domain.chat.dto.request.ConfirmContractRequest;
-import com.becareful.becarefulserver.domain.chat.dto.request.ContractEditRequest;
-import com.becareful.becarefulserver.domain.chat.repository.ChatRepository;
-import com.becareful.becarefulserver.domain.chat.repository.ChatRoomRepository;
-import com.becareful.becarefulserver.domain.chat.service.CaregiverChatService;
-import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService;
-import com.becareful.becarefulserver.domain.common.domain.CareType;
-import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
-import com.becareful.becarefulserver.domain.common.domain.Gender;
-import com.becareful.becarefulserver.domain.common.domain.vo.Location;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
-import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
-import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
-import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
-import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
-import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
-import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
-import com.becareful.becarefulserver.domain.matching.service.CaregiverMatchingService;
-import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
-import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
-import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
-import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
+import com.becareful.becarefulserver.common.*;
+import com.becareful.becarefulserver.domain.caregiver.domain.*;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.*;
+import com.becareful.becarefulserver.domain.caregiver.repository.*;
+import com.becareful.becarefulserver.domain.caregiver.service.*;
+import com.becareful.becarefulserver.domain.chat.domain.*;
+import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.chat.dto.request.*;
+import com.becareful.becarefulserver.domain.chat.repository.*;
+import com.becareful.becarefulserver.domain.chat.service.*;
+import com.becareful.becarefulserver.domain.common.domain.*;
+import com.becareful.becarefulserver.domain.common.domain.vo.*;
+import com.becareful.becarefulserver.domain.matching.domain.*;
+import com.becareful.becarefulserver.domain.matching.dto.request.*;
+import com.becareful.becarefulserver.domain.matching.repository.*;
+import com.becareful.becarefulserver.domain.matching.service.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
+import com.becareful.becarefulserver.domain.socialworker.repository.*;
+import com.becareful.becarefulserver.fixture.*;
 import java.time.*;
-import java.util.EnumSet;
-import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.*;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.*;
 
 public class MatchingProcessIntegrationTest extends IntegrationTest {
 
@@ -145,8 +130,8 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 (Contract) chatRepository.findLastChatWithContent(chatRoomId).orElseThrow();
         assertThat(firstContract.getWorkSalaryAmount()).isEqualTo(10000);
 
-        ContractEditRequest editRequest = new ContractEditRequest(
-                chatRoomId,
+        EditContractChatRequest editRequest = new EditContractChatRequest(
+                ChatSendRequestType.EDIT_CONTRACT,
                 List.of(DayOfWeek.MONDAY),
                 LocalTime.of(10, 0),
                 LocalTime.of(13, 0),
@@ -155,16 +140,17 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 LocalDate.now(),
                 List.of(CareType.식사보조));
 
-        socialWorkerChatService.editContract(editRequest);
+        socialWorkerChatService.editContractChat(chatRoomId, editRequest);
         Contract edited = contractRepository
                 .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
                 .orElseThrow();
 
         assertThat(edited.getWorkSalaryAmount()).isEqualTo(12000);
 
-        ConfirmContractRequest confirmRequest = new ConfirmContractRequest(chatRoomId, edited.getId());
+        ConfirmContractChatRequest confirmRequest =
+                new ConfirmContractChatRequest(ChatSendRequestType.CONFIRM_MATCHING, edited.getId());
 
-        socialWorkerChatService.createCompletedMatching(confirmRequest);
+        socialWorkerChatService.confirmContractChat(chatRoomId, confirmRequest);
         assertThat(completedMatchingRepository.existsCompletedMatchingByContract(edited))
                 .isTrue();
     }
