@@ -42,15 +42,13 @@ public class AuthUtil {
     public ChatSenderType getLoggedInChatSenderType() {
         String phoneNumber =
                 SecurityContextHolder.getContext().getAuthentication().getName();
-        Caregiver caregiver = caregiverRepository
-                .findByPhoneNumber(phoneNumber).orElse(null);
+        Caregiver caregiver = caregiverRepository.findByPhoneNumber(phoneNumber).orElse(null);
 
         if (caregiver == null) {
             socialworkerRepository
                     .findByPhoneNumber(phoneNumber)
                     .orElseThrow(() -> new SocialWorkerException(SOCIALWORKER_NOT_EXISTS));
             return ChatSenderType.SOCIAL_WORKER;
-
         }
         return ChatSenderType.SOCIAL_WORKER;
     }

@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.chat.service;
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.chat.dto.*;
 import com.becareful.becarefulserver.domain.chat.dto.request.*;
 import com.becareful.becarefulserver.domain.chat.dto.response.*;
 import com.becareful.becarefulserver.domain.chat.repository.*;
@@ -14,6 +15,7 @@ import com.becareful.becarefulserver.global.util.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
+import org.springframework.messaging.simp.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 
@@ -27,6 +29,7 @@ public class CaregiverChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional(readOnly = true)
     public List<CaregiverChatRoomSummaryResponse> getChatRoomList() {
@@ -111,14 +114,14 @@ public class CaregiverChatService {
         updateReadStatus(chatRoom);
 
         List<Chat> chatList = chatRepository.findAllChatWithContent(chatRoomId);
-        List<ChatResponseDto> chatResponseDtoList = chatList.stream()
+        List<ChatHistoryResponseDto> chatResponseDtoList = chatList.stream()
                 .map(chat -> {
                     if (chat instanceof TextChat textChat) {
                         String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(textChat.getCreateDate());
-                        return TextChatResponseDto.from(textChat, lastSendTime);
+                        return TextChatHistoryResponseDto.from(textChat, lastSendTime);
                     } else if (chat instanceof Contract contract) {
                         String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(contract.getCreateDate());
-                        return (ChatResponseDto) ContractChatResponseDto.from(contract, lastSendTime);
+                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract, lastSendTime);
                     } else {
                         // TODO: 예외처리
                         // "허용되지 않는 메시지 타입입니다."
@@ -141,45 +144,6 @@ public class CaregiverChatService {
         readStatus.updateLastReadAt();
     }
 
-    @Transactional
-    public void createTextChat(CaregiverSendTextChatRequest request) {
-
-        ChatRoom chatRoom = chatRoomRepository
-                .findById(request.chatRoomId())
-                .orElseThrow(
-                        // TODO: 채팅방 존재하지 않을 경우 에러메시지 반환
-                        );
-
-        checkChatRoomIsActive(chatRoom);
-
-        TextChat textChat = TextChat.create(chatRoom, ChatSenderType.CAREGIVER, request.text());
-        chatRepository.save(textChat);
-    }
-
-    @Transactional
-    public void acceptContract(AcceptContractRequest request) {
-        ChatRoom chatRoom = chatRoomRepository
-                .findById(request.chatRoomId())
-                .orElseThrow(
-                        // TODO: 예외처리
-                        );
-
-        checkChatRoomIsActive(chatRoom);
-
-        long lastContractId = contractRepository
-                .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoom.getId())
-                .orElseThrow(
-                        // TODO: 예외처리
-                        // "근무조건에 동의할 계약서가 없습니다."
-                        )
-                .getId();
-
-        if (request.lastContractId() != lastContractId) {
-            // TODO:예외처리
-            // "가장 최신의 근무조건만 동의 가능합니다."
-        }
-    }
-
     // 채팅방 검증 메서드
     private void checkChatRoomIsActive(ChatRoom chatRoom) {
         if (chatRoom.getChatRoomActiveStatus() != ChatRoomActiveStatus.채팅가능) {
@@ -188,9 +152,59 @@ public class CaregiverChatService {
         }
     }
 
-    public void sendTextChat(ChatSendRequest chatSendRequest) {
+    public void sendTextChat(Long chatRoomId, SendTextChatRequest chatSendRequest) {
+        ChatRoom chatRoom = chatRoomRepository
+                .findById(chatRoomId)
+                .orElseThrow(
+                        // TODO: 채팅방 존재하지 않을 경우 에러메시지 반환
+                        );
+
+        checkChatRoomIsActive(chatRoom);
+
+        TextChat textChat = TextChat.create(chatRoom, ChatSenderType.CAREGIVER, chatSendRequest.text());
+        chatRepository.save(textChat);
+
+        TextChatResponse response = TextChatResponse.from(textChat);
+
+        messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
-    public void acceptContractChat(ChatSendRequest chatSendRequest) {
+    public void acceptContractChat(long chatRoomId, AcceptContractChatRequest request) {
+        ChatRoom chatRoom = chatRoomRepository
+                .findById(chatRoomId)
+                .orElseThrow(
+                        // TODO: 예외처리
+                        );
+
+        checkChatRoomIsActive(chatRoom);
+
+        long lastContractId = contractRepository
+                .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
+                .orElseThrow(
+                        // TODO: 예외처리
+                        // "근무조건에 동의할 계약서가 없습니다."
+                        )
+                .getId();
+
+        Contract lastContract = contractRepository
+                .findById(lastContractId)
+                .orElseThrow(
+                        // TODO: 예외처리
+
+                        );
+
+        if (request.lastContractChatId() != lastContractId) {
+            // TODO:예외처리
+            // "가장 최신의 근무조건만 동의 가능합니다."
+        }
+
+        Contract contract = Contract.accept(chatRoom, lastContract);
+
+        contractRepository.save(contract);
+
+        ContractChatHistoryResponseDto response = ContractChatHistoryResponseDto.from(
+                contract, contract.getCreateDate().toString());
+
+        messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 }

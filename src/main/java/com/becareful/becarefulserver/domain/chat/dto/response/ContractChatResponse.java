@@ -7,7 +7,7 @@ import java.time.*;
 import java.util.*;
 
 public record ContractChatResponse(
-        ChatType chatType,
+        ChatReceiveType chatType,
         long chatId,
         ChatSenderType senderType,
         String sentTime,
@@ -20,7 +20,7 @@ public record ContractChatResponse(
         implements ChatResponse {
     public static ContractChatResponse from(Contract contract, String formattedTimeAgo) {
         return new ContractChatResponse(
-                ChatType.CONTRACT,
+                ChatReceiveType.CONTRACT,
                 contract.getId(),
                 contract.getSenderType(),
                 formattedTimeAgo,

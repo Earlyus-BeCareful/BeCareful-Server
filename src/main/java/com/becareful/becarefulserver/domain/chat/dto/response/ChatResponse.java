@@ -7,5 +7,5 @@ public sealed interface ChatResponse
                 ContractChatResponse,
                 ChatRoomContractStatusUpdatedChatResponse,
                 ChatRoomActiveStatusUpdatedChatResponse {
-    ChatType chatType();
+    ChatReceiveType chatType();
 }

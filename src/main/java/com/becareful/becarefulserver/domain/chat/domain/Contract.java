@@ -14,6 +14,7 @@ import lombok.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("CONTRACT")
+@PrimaryKeyJoinColumn(name = "chat_id")
 public class Contract extends Chat {
 
     @Convert(converter = DayOfWeekSetConverter.class)
@@ -80,6 +81,19 @@ public class Contract extends Chat {
                 .workSalaryUnitType(workSalaryUnitType)
                 .workSalaryAmount(workSalaryAmount)
                 .careTypes(careTypes)
+                .build();
+    }
+
+    public static Contract accept(ChatRoom chatRoom, Contract contract) {
+        return Contract.builder()
+                .chatRoom(chatRoom)
+                .workDays(contract.getWorkDays())
+                .workStartTime(contract.getWorkStartTime())
+                .workEndTime(contract.getWorkEndTime())
+                .workStartDate(contract.getWorkStartDate())
+                .workSalaryUnitType(contract.getWorkSalaryUnitType())
+                .workSalaryAmount(contract.getWorkSalaryAmount())
+                .careTypes(contract.getCareTypes())
                 .build();
     }
 }

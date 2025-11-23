@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.chat.domain.vo;
 
-public enum ChatType {
+public enum ChatReceiveType {
     CONTRACT,
     TEXT,
     CHATROOM_CONTRACT_STATUS_UPDATED,

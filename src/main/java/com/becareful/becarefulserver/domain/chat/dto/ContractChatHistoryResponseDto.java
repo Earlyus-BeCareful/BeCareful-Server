@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain.chat.dto.response;
+package com.becareful.becarefulserver.domain.chat.dto;
 
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.vo.*;
@@ -8,7 +8,7 @@ import java.util.*;
 
 public record ContractChatHistoryResponseDto(
         long chatId,
-        ChatType chatType,
+        ChatReceiveType chatType,
         ChatSenderType senderType,
         String sentTime,
         EnumSet<CareType> careTypes,
@@ -21,7 +21,7 @@ public record ContractChatHistoryResponseDto(
     public static ContractChatHistoryResponseDto from(Contract contract, String formattedTimeAgo) {
         return new ContractChatHistoryResponseDto(
                 contract.getId(),
-                ChatType.CONTRACT,
+                ChatReceiveType.CONTRACT,
                 contract.getSenderType(),
                 formattedTimeAgo,
                 contract.getCareTypes(),

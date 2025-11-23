@@ -1,11 +1,11 @@
-package com.becareful.becarefulserver.domain.chat.dto.response;
+package com.becareful.becarefulserver.domain.chat.dto;
 
 import com.becareful.becarefulserver.domain.chat.domain.vo.*;
 
 public sealed interface ChatHistoryResponseDto permits TextChatHistoryResponseDto, ContractChatHistoryResponseDto {
     long chatId();
 
-    ChatType chatType();
+    ChatReceiveType chatType();
 
     ChatSenderType senderType();
 

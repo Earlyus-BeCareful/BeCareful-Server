@@ -12,7 +12,8 @@ import lombok.*;
 @DiscriminatorColumn(name = "chat_type")
 public class Chat extends BaseEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "chat_id")
     private Long id;
 
     @JoinColumn(name = "chat_room_id")
