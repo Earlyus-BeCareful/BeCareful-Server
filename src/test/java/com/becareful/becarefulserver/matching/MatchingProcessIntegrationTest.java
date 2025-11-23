@@ -12,8 +12,6 @@ import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverReposi
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.service.WorkApplicationService;
 import com.becareful.becarefulserver.domain.chat.domain.Contract;
-import com.becareful.becarefulserver.domain.chat.dto.request.ConfirmContractRequest;
-import com.becareful.becarefulserver.domain.chat.dto.request.ContractEditRequest;
 import com.becareful.becarefulserver.domain.chat.repository.ChatRepository;
 import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
@@ -31,6 +29,8 @@ import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
+import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.chat.dto.request.*;
 import java.time.*;
 import java.util.EnumSet;
 import java.util.List;
@@ -132,8 +132,8 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 (Contract) chatRepository.findLastChatWithContent(chatRoomId).orElseThrow();
         assertThat(firstContract.getWorkSalaryAmount()).isEqualTo(10000);
 
-        ContractEditRequest editRequest = new ContractEditRequest(
-                chatRoomId,
+        EditContractChatRequest editRequest = new EditContractChatRequest(
+                ChatSendRequestType.EDIT_CONTRACT,
                 List.of(DayOfWeek.MONDAY),
                 LocalTime.of(10, 0),
                 LocalTime.of(13, 0),
@@ -142,16 +142,17 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 LocalDate.now(),
                 List.of(CareType.식사보조));
 
-        socialWorkerChatService.editContract(editRequest);
+        socialWorkerChatService.editContractChat(chatRoomId, editRequest);
         Contract edited = contractRepository
                 .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
                 .orElseThrow();
 
         assertThat(edited.getWorkSalaryAmount()).isEqualTo(12000);
 
-        ConfirmContractRequest confirmRequest = new ConfirmContractRequest(chatRoomId, edited.getId());
+        ConfirmContractChatRequest confirmRequest =
+                new ConfirmContractChatRequest(ChatSendRequestType.CONFIRM_MATCHING, edited.getId());
 
-        socialWorkerChatService.createCompletedMatching(confirmRequest);
+        socialWorkerChatService.confirmContractChat(chatRoomId, confirmRequest);
         assertThat(completedMatchingRepository.existsCompletedMatchingByContract(edited))
                 .isTrue();
     }

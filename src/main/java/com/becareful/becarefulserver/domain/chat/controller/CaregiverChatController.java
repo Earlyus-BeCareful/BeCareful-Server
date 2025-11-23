@@ -1,14 +1,12 @@
 package com.becareful.becarefulserver.domain.chat.controller;
 
-import com.becareful.becarefulserver.domain.chat.dto.request.*;
 import com.becareful.becarefulserver.domain.chat.dto.response.*;
-import com.becareful.becarefulserver.domain.chat.service.CaregiverChatService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import com.becareful.becarefulserver.domain.chat.service.*;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.tags.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,19 +29,5 @@ public class CaregiverChatController {
     public ResponseEntity<CaregiverChatRoomDetailResponse> getChatRoomData(@RequestParam Long chatRoomId) {
         var response = caregiverChatService.getChatRoomDetail(chatRoomId);
         return ResponseEntity.ok(response);
-    }
-
-    @Operation(summary = "요양보호사 텍스트 채팅 전송")
-    @PostMapping("/send")
-    public ResponseEntity<Void> createTextChat(@RequestBody @Valid CaregiverSendTextChatRequest request) {
-        caregiverChatService.createTextChat(request);
-        return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "근무조건 동의하기 팝업-동의하기")
-    @PostMapping("/accept")
-    public ResponseEntity<Void> acceptContract(@RequestBody @Valid AcceptContractRequest request) {
-        caregiverChatService.acceptContract(request);
-        return ResponseEntity.ok().build();
     }
 }

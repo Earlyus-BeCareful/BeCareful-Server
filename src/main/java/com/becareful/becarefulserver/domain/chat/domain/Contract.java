@@ -14,6 +14,7 @@ import lombok.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("CONTRACT")
+@PrimaryKeyJoinColumn(name = "chat_id")
 public class Contract extends Chat {
 
     @Convert(converter = DayOfWeekSetConverter.class)
@@ -32,6 +33,7 @@ public class Contract extends Chat {
     @Builder
     private Contract(
             ChatRoom chatRoom,
+            ChatSenderType chatSenderType,
             EnumSet<DayOfWeek> workDays,
             LocalTime workStartTime,
             LocalTime workEndTime,
@@ -39,7 +41,7 @@ public class Contract extends Chat {
             WorkSalaryUnitType workSalaryUnitType,
             int workSalaryAmount,
             EnumSet<CareType> careTypes) {
-        super(chatRoom, ChatSenderType.SOCIAL_WORKER);
+        super(chatRoom, chatSenderType);
         this.workDays = workDays;
         this.workStartTime = workStartTime;
         this.workEndTime = workEndTime;
@@ -52,6 +54,7 @@ public class Contract extends Chat {
     public static Contract create(ChatRoom chatRoom, Recruitment recruitment, LocalDate workStartDate) {
         return Contract.builder()
                 .chatRoom(chatRoom)
+                .chatSenderType(ChatSenderType.SOCIAL_WORKER)
                 .workDays(recruitment.getWorkDays())
                 .workStartTime(recruitment.getWorkStartTime())
                 .workEndTime(recruitment.getWorkEndTime())
@@ -73,6 +76,7 @@ public class Contract extends Chat {
             EnumSet<CareType> careTypes) {
         return Contract.builder()
                 .chatRoom(chatRoom)
+                .chatSenderType(ChatSenderType.SOCIAL_WORKER)
                 .workDays(workDays)
                 .workStartTime(workStartTime)
                 .workEndTime(workEndTime)
@@ -80,6 +84,20 @@ public class Contract extends Chat {
                 .workSalaryUnitType(workSalaryUnitType)
                 .workSalaryAmount(workSalaryAmount)
                 .careTypes(careTypes)
+                .build();
+    }
+
+    public static Contract accept(ChatRoom chatRoom, Contract contract) {
+        return Contract.builder()
+                .chatRoom(chatRoom)
+                .chatSenderType(ChatSenderType.CAREGIVER)
+                .workDays(contract.getWorkDays())
+                .workStartTime(contract.getWorkStartTime())
+                .workEndTime(contract.getWorkEndTime())
+                .workStartDate(contract.getWorkStartDate())
+                .workSalaryUnitType(contract.getWorkSalaryUnitType())
+                .workSalaryAmount(contract.getWorkSalaryAmount())
+                .careTypes(contract.getCareTypes())
                 .build();
     }
 }

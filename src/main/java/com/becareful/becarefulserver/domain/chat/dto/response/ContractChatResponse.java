@@ -1,12 +1,13 @@
 package com.becareful.becarefulserver.domain.chat.dto.response;
 
 import com.becareful.becarefulserver.domain.chat.domain.*;
-import com.becareful.becarefulserver.domain.chat.domain.vo.ChatSenderType;
+import com.becareful.becarefulserver.domain.chat.domain.vo.*;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import java.time.*;
 import java.util.*;
 
-public record ContractChatResponseDto(
+public record ContractChatResponse(
+        ChatReceiveType chatType,
         long chatId,
         ChatSenderType senderType,
         String sentTime,
@@ -16,9 +17,10 @@ public record ContractChatResponseDto(
         LocalTime workEndTime,
         Integer workSalaryAmount,
         LocalDate workStartDate)
-        implements ChatResponseDto {
-    public static ContractChatResponseDto from(Contract contract, String formattedTimeAgo) {
-        return new ContractChatResponseDto(
+        implements ChatResponse {
+    public static ContractChatResponse from(Contract contract, String formattedTimeAgo) {
+        return new ContractChatResponse(
+                ChatReceiveType.CONTRACT,
                 contract.getId(),
                 contract.getSenderType(),
                 formattedTimeAgo,

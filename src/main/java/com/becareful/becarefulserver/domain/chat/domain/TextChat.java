@@ -8,6 +8,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("TEXT")
+@PrimaryKeyJoinColumn(name = "chat_id")
 public class TextChat extends Chat {
 
     private String text;
