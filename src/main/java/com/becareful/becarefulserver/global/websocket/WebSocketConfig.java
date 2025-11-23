@@ -9,8 +9,8 @@ import org.springframework.web.socket.config.annotation.*;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-    private PrincipalAssignChannelInterceptor principalAssignChannelInterceptor;
-    private JwtHandshakeInterceptor jwtHandshakeInterceptor;
+    private final PrincipalAssignChannelInterceptor principalAssignChannelInterceptor;
+    private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -29,6 +29,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new PrincipalAssignChannelInterceptor());
+        registration.interceptors(principalAssignChannelInterceptor);
     }
 }

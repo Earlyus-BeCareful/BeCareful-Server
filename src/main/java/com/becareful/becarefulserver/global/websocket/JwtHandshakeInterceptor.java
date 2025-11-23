@@ -2,22 +2,21 @@ package com.becareful.becarefulserver.global.websocket;
 
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.domain.vo.*;
-import com.becareful.becarefulserver.domain.socialworker.repository.*;
 import com.becareful.becarefulserver.global.util.*;
 import jakarta.servlet.http.*;
 import java.util.*;
 import lombok.*;
 import org.springframework.http.server.*;
+import org.springframework.stereotype.*;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.server.*;
 import org.springframework.web.util.*;
 
+@Component
 @RequiredArgsConstructor
 public class JwtHandshakeInterceptor implements HandshakeInterceptor {
     private final JwtUtil jwtUtil;
-    private final AuthUtil authUtil;
     private final CaregiverRepository caregiverRepository;
-    private final SocialWorkerRepository socialworkerRepository;
 
     @Override
     public boolean beforeHandshake(

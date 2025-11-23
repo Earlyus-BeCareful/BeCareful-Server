@@ -31,8 +31,9 @@ public class ChatWebSocketController {
             case SEND_TEXT -> {
                 if (senderType == ChatSenderType.SOCIAL_WORKER) {
                     socialWorkerChatService.sendTextChat(chatRoomId, (SendTextChatRequest) chatSendRequest);
+                } else {
+                    caregiverChatService.sendTextChat(chatRoomId, (SendTextChatRequest) chatSendRequest);
                 }
-                caregiverChatService.sendTextChat(chatRoomId, (SendTextChatRequest) chatSendRequest);
             }
             case EDIT_CONTRACT -> {
                 if (senderType != ChatSenderType.SOCIAL_WORKER) {

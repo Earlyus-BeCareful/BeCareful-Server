@@ -202,6 +202,8 @@ public class CaregiverChatService {
 
         contractRepository.save(contract);
 
+        chatRoom.acceptContract();
+
         ContractChatHistoryResponseDto response = ContractChatHistoryResponseDto.from(
                 contract, contract.getCreateDate().toString());
 
