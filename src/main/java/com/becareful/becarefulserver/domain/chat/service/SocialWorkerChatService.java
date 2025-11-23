@@ -223,6 +223,8 @@ public class SocialWorkerChatService {
         // TODO: 매칭완료 생성메서드에서 contract 파라미터 삭제
         CompletedMatching completedMatching = new CompletedMatching(caregiver, contract, recruitment);
         completedMatchingRepository.save(completedMatching);
+
+        recruitment.complete();
     }
 
     @Transactional
