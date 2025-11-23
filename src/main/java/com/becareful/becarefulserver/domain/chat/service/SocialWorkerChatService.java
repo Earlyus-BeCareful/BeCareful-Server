@@ -27,12 +27,12 @@ public class SocialWorkerChatService {
 
     private final AuthUtil authUtil;
     private final ContractRepository contractRepository;
-    private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final ChatRepository chatRepository;
+    private final ApplicationRepository applicationRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional(readOnly = true)
@@ -236,21 +236,14 @@ public class SocialWorkerChatService {
                         )
                 .getCaregiver();
 
-        Matching winnerMatching = matchingRepository
-                .findByCaregiverIdAndRecruitmentId(caregiver.getId(), recruitment.getId())
-                .orElseThrow(
-                        // TODO: 예외처리
-                        );
-
-        List<Matching> matchings =
-                matchingRepository.findAllByMatchingStatusAndRecruitment(MatchingStatus.근무제안, recruitment);
-
         // 나머지 매칭 실패 처리
-        for (Matching m : matchings) {
-            if (m.getId().equals(winnerMatching.getId())) continue;
-
-            m.failedConfirm();
-        }
+        applicationRepository.findAllByRecruitment(recruitment).forEach(application -> {
+            if (application.getWorkApplication().getCaregiver().equals(caregiver)) {
+                application.hire();
+                return;
+            }
+            application.failed();
+        });
 
         List<ChatRoom> chatRooms =
                 chatRoomRepository.findAllByChatRoomActiveStatusAndRecruitment(ChatRoomActiveStatus.채팅가능, recruitment);
@@ -261,10 +254,11 @@ public class SocialWorkerChatService {
             room.otherMatchingConfirmed();
         }
 
-        winnerMatching.confirm();
-
+        // TODO: 매칭완료 생성메서드에서 contract 파라미터 삭제
         CompletedMatching completedMatching = new CompletedMatching(caregiver, contract, recruitment);
         completedMatchingRepository.save(completedMatching);
+
+        recruitment.complete();
 
         // TODO: 매칭
 

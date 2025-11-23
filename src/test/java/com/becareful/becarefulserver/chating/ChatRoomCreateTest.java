@@ -49,9 +49,6 @@ public class ChatRoomCreateTest extends IntegrationTest {
     private SocialWorkerMatchingService socialWorkerMatchingService;
 
     @Autowired
-    private MatchingRepository matchingRepository;
-
-    @Autowired
     private WorkApplicationRepository workApplicationRepository;
 
     @Test
@@ -68,14 +65,12 @@ public class ChatRoomCreateTest extends IntegrationTest {
 
         Recruitment recruitment = recruitmentRepository.save(RecruitmentFixture.createRecruitment("테스트 공고", elderly));
 
-        matchingRepository.save(Matching.create(recruitment, workApplication));
-
         socialWorkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_1);
         socialWorkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_MANAGER);
 
         // 2. 채팅방 생성 호출
         long chatRoomId =
-                socialWorkerMatchingService.proposeMatching(recruitment.getId(), caregiver.getId(), LocalDate.now());
+                socialWorkerMatchingService.proposeWork(recruitment.getId(), caregiver.getId(), LocalDate.now());
 
         // 3. ChatRoom 검증
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow();
