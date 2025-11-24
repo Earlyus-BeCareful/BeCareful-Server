@@ -10,7 +10,7 @@ public record CaregiverHomeResponse(
         String name,
         boolean hasNewChat,
         Integer applicationCount,
-        Integer recruitmentCount,
+        Long recruitmentCount,
         List<WorkScheduleResponse> workScheduleList,
         boolean isWorking,
         boolean isApplying) {
@@ -18,7 +18,7 @@ public record CaregiverHomeResponse(
             Caregiver caregiver,
             boolean isNewChat,
             Integer applicationCount,
-            Integer recruitmentCount,
+            Long recruitmentCount,
             boolean isWorking,
             boolean isApplying,
             List<WorkScheduleResponse> workScheduleList) {

@@ -73,7 +73,7 @@ public class CaregiverService {
                 .toList();
 
         return CaregiverHomeResponse.of(
-                caregiver, hasNewChat, recruitmentCount, applicationCount, isWorking, isApplying, workSchedules);
+                caregiver, hasNewChat, applicationCount, recruitmentCount, isWorking, isApplying, workSchedules);
     }
 
     public CaregiverMyPageHomeResponse getCaregiverMyPageHomeData() {
