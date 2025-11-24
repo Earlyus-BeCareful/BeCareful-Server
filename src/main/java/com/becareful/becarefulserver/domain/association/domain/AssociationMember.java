@@ -9,7 +9,6 @@ import com.becareful.becarefulserver.domain.community.domain.vo.CommunityAgreeme
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerProfileUpdateRequest;
 import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import jakarta.persistence.*;

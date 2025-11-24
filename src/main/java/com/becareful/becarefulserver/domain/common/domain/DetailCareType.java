@@ -20,14 +20,15 @@ public enum DetailCareType {
     기저귀케어(배변보조, "기저귀 케어 필요"),
     유치도뇨(배변보조, "유치도뇨/방광루/장루 관리"),
     가사보조(일상생활, "청소, 빨래 보조"),
-    목욕보조(일상생활, "목욕 보조"),
     운동보조(일상생활, "산책, 간단한 운동"),
     정서지원(일상생활, "말벗 등 정서지원"),
     인지자극(일상생활, "인지자극 활동"),
     병원동행(질병보조, "병원 동행"),
     복약지도(질병보조, "복약지도"),
     인지치료(질병보조, "인지치료"),
-    재활(질병보조, "재활프로그램");
+    재활(질병보조, "재활프로그램"),
+    가정목욕(목욕보조, "가정 전신목욕"),
+    차량목욕(목욕보조, "차량 방문목욕");
 
     private final CareType careType;
     private final String displayName;
@@ -51,6 +52,6 @@ public enum DetailCareType {
         return Arrays.stream(DetailCareType.values())
                 .filter(item -> item.displayName.equals(value))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Unknown value: " + value));
+                .orElseThrow(() -> new IllegalArgumentException("[DetailCareType] Failed to convert enum : Unknown value: " + value));
     }
 }

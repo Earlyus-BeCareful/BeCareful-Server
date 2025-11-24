@@ -4,7 +4,7 @@ import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
+import com.becareful.becarefulserver.domain.socialworker.domain.CareLevel;
 import java.time.LocalDate;
 import java.util.EnumSet;
 

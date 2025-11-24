@@ -6,7 +6,7 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingIn
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
 import java.time.LocalDate;

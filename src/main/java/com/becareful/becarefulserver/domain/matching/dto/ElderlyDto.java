@@ -2,7 +2,7 @@ package com.becareful.becarefulserver.domain.matching.dto;
 
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
+import com.becareful.becarefulserver.domain.socialworker.domain.CareLevel;
 import java.time.LocalDate;
 import java.util.List;
 

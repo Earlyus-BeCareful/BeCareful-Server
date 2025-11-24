@@ -20,7 +20,7 @@ import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepos
 import com.becareful.becarefulserver.domain.matching.service.CaregiverMatchingService;
 import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
+import com.becareful.becarefulserver.domain.socialworker.domain.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.fixture.ElderlyFixture;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
