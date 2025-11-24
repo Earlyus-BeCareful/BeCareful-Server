@@ -52,6 +52,7 @@ public enum DetailCareType {
         return Arrays.stream(DetailCareType.values())
                 .filter(item -> item.displayName.equals(value))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("[DetailCareType] Failed to convert enum : Unknown value: " + value));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "[DetailCareType] Failed to convert enum : Unknown value: " + value));
     }
 }

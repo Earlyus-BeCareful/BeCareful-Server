@@ -4,8 +4,8 @@ import static com.becareful.becarefulserver.domain.community.domain.BoardType.*;
 import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import com.becareful.becarefulserver.domain.association.dto.*;
 import com.becareful.becarefulserver.domain.association.dto.request.*;
 import com.becareful.becarefulserver.domain.association.dto.response.*;

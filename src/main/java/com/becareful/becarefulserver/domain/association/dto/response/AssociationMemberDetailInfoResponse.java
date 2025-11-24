@@ -1,10 +1,10 @@
 package com.becareful.becarefulserver.domain.association.dto.response;
 
 import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
+import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
-import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import java.time.LocalDate;
 import java.util.EnumSet;
 

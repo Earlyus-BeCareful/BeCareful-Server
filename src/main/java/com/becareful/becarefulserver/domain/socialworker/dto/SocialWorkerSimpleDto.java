@@ -1,9 +1,9 @@
 package com.becareful.becarefulserver.domain.socialworker.dto;
 
+import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 
 public record SocialWorkerSimpleDto(
         String name,

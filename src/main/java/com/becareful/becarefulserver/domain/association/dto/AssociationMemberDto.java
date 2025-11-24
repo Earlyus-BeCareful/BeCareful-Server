@@ -1,9 +1,9 @@
 package com.becareful.becarefulserver.domain.association.dto;
 
 import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
+import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import com.becareful.becarefulserver.domain.community.domain.vo.CommunityAgreement;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
-import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 
 public record AssociationMemberDto(
         Long memberId,
