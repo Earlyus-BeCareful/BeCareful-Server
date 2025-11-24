@@ -51,7 +51,7 @@ public class CaregiverService {
 
         Optional<WorkApplication> optionalWorkApplication = workApplicationRepository.findByCaregiver(caregiver);
 
-        int applicationCount = 0;
+        Long applicationCount = 0L;
         Long recruitmentCount = recruitmentRepository.countByIsRecruiting();
         boolean isApplying = false;
         if (optionalWorkApplication.isPresent()) {
