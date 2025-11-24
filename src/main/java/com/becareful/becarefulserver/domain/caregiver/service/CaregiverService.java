@@ -51,8 +51,8 @@ public class CaregiverService {
 
         Optional<WorkApplication> optionalWorkApplication = workApplicationRepository.findByCaregiver(caregiver);
 
-        int applicationCount = 0;
-        int recruitmentCount = recruitmentRepository.countByIsRecruiting().size();
+        Long applicationCount = 0L;
+        Long recruitmentCount = recruitmentRepository.countByIsRecruiting();
         boolean isApplying = false;
         if (optionalWorkApplication.isPresent()) {
             WorkApplication workApplication = optionalWorkApplication.get();
@@ -73,7 +73,7 @@ public class CaregiverService {
                 .toList();
 
         return CaregiverHomeResponse.of(
-                caregiver, hasNewChat, recruitmentCount, applicationCount, isWorking, isApplying, workSchedules);
+                caregiver, hasNewChat, applicationCount, recruitmentCount, isWorking, isApplying, workSchedules);
     }
 
     public CaregiverMyPageHomeResponse getCaregiverMyPageHomeData() {

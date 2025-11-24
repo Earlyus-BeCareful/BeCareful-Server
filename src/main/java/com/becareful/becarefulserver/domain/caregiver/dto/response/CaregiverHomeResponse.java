@@ -9,16 +9,16 @@ import lombok.Builder;
 public record CaregiverHomeResponse(
         String name,
         boolean hasNewChat,
-        Integer applicationCount,
-        Integer recruitmentCount,
+        Long applicationCount,
+        Long recruitmentCount,
         List<WorkScheduleResponse> workScheduleList,
         boolean isWorking,
         boolean isApplying) {
     public static CaregiverHomeResponse of(
             Caregiver caregiver,
             boolean isNewChat,
-            Integer applicationCount,
-            Integer recruitmentCount,
+            Long applicationCount,
+            Long recruitmentCount,
             boolean isWorking,
             boolean isApplying,
             List<WorkScheduleResponse> workScheduleList) {
