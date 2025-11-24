@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain.socialworker.domain.vo;
+package com.becareful.becarefulserver.domain.socialworker.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

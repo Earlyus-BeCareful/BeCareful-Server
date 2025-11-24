@@ -1,10 +1,10 @@
 package com.becareful.becarefulserver.domain.association.dto;
 
 import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
+import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 
 public record JoinApplicationSimpleDto(
         Long joinApplicationId,

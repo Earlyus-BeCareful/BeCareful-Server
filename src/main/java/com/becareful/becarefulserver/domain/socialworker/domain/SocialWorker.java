@@ -1,11 +1,11 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
 import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
+import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerProfileUpdateRequest;
 import jakarta.persistence.*;
 import java.time.LocalDate;
