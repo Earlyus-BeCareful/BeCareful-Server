@@ -77,7 +77,7 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
           from Recruitment r
          where r.recruitmentStatus = com.becareful.becarefulserver.domain.matching.domain.RecruitmentStatus.모집중
     """)
-    List<Recruitment> countByIsRecruiting();
+    Integer countByIsRecruiting();
 
     List<Recruitment> findAllByElderlyIn(List<Elderly> elderlys);
 }
