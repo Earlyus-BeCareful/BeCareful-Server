@@ -7,19 +7,8 @@ import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicatio
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
+
 import java.time.DayOfWeek;
 import java.util.EnumSet;
 import java.util.List;
@@ -59,7 +48,7 @@ public class WorkApplication extends BaseEntity {
     private boolean isActive;
 
     @JoinColumn(name = "caregiver_id", nullable = false)
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Caregiver caregiver;
 
     @Builder(access = AccessLevel.PRIVATE)

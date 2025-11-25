@@ -6,10 +6,29 @@ import jakarta.persistence.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = """
+    UPDATE caregiver
+       SET name = null,
+           phone_number = null,
+           gender = null,
+           street_address = null,
+           detail_address = null,
+           birth_date = null,
+           profile_image_url = null,
+           caregiver_certificate_number = null,
+           social_worker_certificate_number = null,
+           nursing_care_certificate_number = null,
+           is_deleted = true,
+           delete_date = now()
+     WHERE caregiver_id = ?
+""")
+@SQLRestriction("is_deleted = false")
 public class Caregiver extends BaseEntity {
 
     @Id
@@ -33,6 +52,10 @@ public class Caregiver extends BaseEntity {
 
     @Embedded
     private CaregiverInfo caregiverInfo;
+
+    private boolean isDeleted;
+
+    private LocalDateTime deleteDate;
 
     private boolean isAgreedToTerms;
 
@@ -60,6 +83,7 @@ public class Caregiver extends BaseEntity {
         this.address = address;
         this.caregiverInfo = caregiverInfo;
         this.isAgreedToTerms = isAgreedToTerms;
+        this.isDeleted = false;
         this.isAgreedToCollectPersonalInfo = isAgreedToCollectPersonalInfo;
         this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
     }

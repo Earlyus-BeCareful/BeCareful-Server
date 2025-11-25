@@ -186,13 +186,6 @@ public class CaregiverService {
 
     @Transactional
     public void deleteCaregiver() {
-        /**
-         * 회원 탈퇴에 대한 명확한 기획이 필요함.
-         * 1. hard delete / soft delete
-         * 2. soft delete 라면 어떤 데이터를 마스킹할 것인지
-         * 3. 요양보호사와 연괸된 데이터 중 어떤 것을 남기고 어떤 것을 삭제할 지
-         * 4. 어떤 상황에서 탈퇴가 가능하고, 탈퇴가 불가능한지
-         */
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         caregiverRepository.delete(loggedInCaregiver);
     }

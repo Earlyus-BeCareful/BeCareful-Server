@@ -46,7 +46,7 @@ public class Application extends BaseEntity {
     private Recruitment recruitment;
 
     @JoinColumn(name = "work_application_id", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private WorkApplication workApplication;
 
     @Builder(access = AccessLevel.PRIVATE)
