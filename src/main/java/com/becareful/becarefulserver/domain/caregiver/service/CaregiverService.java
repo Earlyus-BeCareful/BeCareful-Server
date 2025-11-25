@@ -185,7 +185,7 @@ public class CaregiverService {
     }
 
     @Transactional
-    public void deleteCaregiver(HttpServletResponse response) {
+    public void deleteCaregiver() {
         /**
          * 회원 탈퇴에 대한 명확한 기획이 필요함.
          * 1. hard delete / soft delete
@@ -195,7 +195,6 @@ public class CaregiverService {
          */
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         caregiverRepository.delete(loggedInCaregiver);
-        authUtil.logout(response);
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {

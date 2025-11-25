@@ -51,8 +51,9 @@ public class CaregiverController {
     // TODO : 특별한 상황이 아니면 url 에 동사는 사용하지 않음. delete caregiver 의미로 회원 탈퇴는 충분하므로 DELETE /caregiver 만 사용
     @Operation(summary = "요양보호사 탈퇴")
     @DeleteMapping("/leave")
-    public ResponseEntity<Void> deleteCaregiver(HttpServletResponse httpServletResponse) {
-        caregiverService.deleteCaregiver(httpServletResponse);
+    public ResponseEntity<Void> deleteCaregiver(HttpServletResponse response) {
+        caregiverService.deleteCaregiver();
+        authUtil.logout(response);
         return ResponseEntity.noContent().build();
     }
 
