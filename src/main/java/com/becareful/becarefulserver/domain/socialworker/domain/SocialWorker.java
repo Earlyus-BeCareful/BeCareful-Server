@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.ASSOCIATION_MEMBER_ALREADY_LEAVED;
+
 import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
@@ -7,14 +9,32 @@ import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerProfileUpdateRequest;
+import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(
+        sql =
+                """
+    UPDATE social_worker
+       SET is_deleted = true,
+           delete_date = now(),
+           name = null,
+           nickname = null,
+           birthday = null,
+           gender = null,
+           phone_number = null
+     WHERE social_worker_id = ?
+""")
+@SQLRestriction("is_deleted = false")
 public class SocialWorker extends BaseEntity {
 
     @Id
@@ -35,6 +55,10 @@ public class SocialWorker extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private InstitutionRank institutionRank;
+
+    private boolean isDeleted;
+
+    private LocalDateTime deleteDate;
 
     private boolean isAgreedToTerms;
 
@@ -68,6 +92,7 @@ public class SocialWorker extends BaseEntity {
         this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.institutionRank = institutionRank;
+        this.isDeleted = false;
         this.isAgreedToTerms = isAgreedToTerms;
         this.nursingInstitution = nursingInstitution;
         this.isAgreedToCollectPersonalInfo = isAgreedToCollectPersonalInfo;
@@ -147,6 +172,10 @@ public class SocialWorker extends BaseEntity {
     }
 
     public void leaveAssociation() {
+        if (this.associationMember == null) {
+            throw new DomainException(ASSOCIATION_MEMBER_ALREADY_LEAVED);
+        }
+        this.associationMember.leaveAssociation();
         this.associationMember = null;
     }
 }

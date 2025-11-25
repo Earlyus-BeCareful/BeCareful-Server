@@ -57,7 +57,7 @@ public class IntegrationTest {
                 "nickname",
                 LocalDate.of(2000, 5, 9),
                 Gender.FEMALE,
-                "010-1234-5678",
+                "01012345678",
                 InstitutionRank.SOCIAL_WORKER,
                 true,
                 institution);

@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
-import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import com.becareful.becarefulserver.domain.association.dto.AssociationMemberDto;
 import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
 import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatReadStatusRepository;
@@ -144,28 +143,14 @@ public class SocialWorkerService {
     }
 
     @Transactional
-    public void deleteSocialWorker(HttpServletResponse response) {
+    public void deleteSocialWorker() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        AssociationMember associationMember = loggedInSocialWorker.getAssociationMember();
 
-        if (associationMember != null) {
-            AssociationRank rank = associationMember.getAssociationRank();
-            Association association = associationMember.getAssociation();
-
-            if (rank == AssociationRank.CHAIRMAN) {
-                throw new AssociationException(ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST);
-            }
-
-            if (rank == AssociationRank.EXECUTIVE
-                    & associationMemberRepository.countByAssociationAndAssociationRank(
-                                    association, AssociationRank.EXECUTIVE)
-                            == 1) {
-                throw new AssociationException(ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST);
-            }
+        if (loggedInSocialWorker.getAssociationMember() != null) {
+            throw new SocialWorkerException(SOCIAL_WORKER_NOT_DELETABLE_HAS_ASSOCIATION);
         }
 
         socialworkerRepository.delete(loggedInSocialWorker);
-        authUtil.logout(response);
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
@@ -173,18 +158,18 @@ public class SocialWorkerService {
             return;
         }
 
-        throw new SocialWorkerException(SOCIALWORKER_REQUIRED_AGREEMENT);
+        throw new SocialWorkerException(SOCIAL_WORKER_REQUIRED_AGREEMENT);
     }
 
     private void validateNicknameNotDuplicated(String nickName) {
         if (socialworkerRepository.existsByNickname(nickName)) {
-            throw new SocialWorkerException(SOCIAlWORKER_ALREADY_EXISTS_NICKNAME);
+            throw new SocialWorkerException(SOCIAL_WORKER_NICKNAME_DUPLICATED);
         }
     }
 
     private void validatePhoneNumberNotDuplicated(String phoneNumber) {
         if (socialworkerRepository.existsByPhoneNumber(phoneNumber)) {
-            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
+            throw new SocialWorkerException(SOCIAL_WORKER_PHONE_NUMBER_DUPLICATED);
         }
     }
 
