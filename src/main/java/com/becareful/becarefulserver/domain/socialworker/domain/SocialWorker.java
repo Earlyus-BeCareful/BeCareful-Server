@@ -12,6 +12,7 @@ import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorke
 import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -25,7 +26,7 @@ import org.hibernate.annotations.SQLRestriction;
                 """
     UPDATE social_worker
        SET is_deleted = true,
-           deleted_at = now(),
+           delete_date = now(),
            name = null,
            nickname = null,
            birthday = null,
@@ -57,7 +58,7 @@ public class SocialWorker extends BaseEntity {
 
     private boolean isDeleted;
 
-    private boolean deleteDate;
+    private LocalDateTime deleteDate;
 
     private boolean isAgreedToTerms;
 

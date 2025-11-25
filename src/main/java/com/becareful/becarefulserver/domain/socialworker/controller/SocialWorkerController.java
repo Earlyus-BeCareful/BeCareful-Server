@@ -92,8 +92,9 @@ public class SocialWorkerController {
     // TODO : 탈퇴 url DELETE /social-worker 로 수정
     @Operation(summary = "탈퇴")
     @DeleteMapping("/leave")
-    public ResponseEntity<Void> deleteSocialWorker(HttpServletResponse httpServletResponse) {
-        socialWorkerService.deleteSocialWorker(httpServletResponse);
+    public ResponseEntity<Void> deleteSocialWorker(HttpServletResponse response) {
+        socialWorkerService.deleteSocialWorker();
+        authUtil.logout(response);
         return ResponseEntity.ok().build();
     }
 }

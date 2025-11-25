@@ -143,7 +143,7 @@ public class SocialWorkerService {
     }
 
     @Transactional
-    public void deleteSocialWorker(HttpServletResponse response) {
+    public void deleteSocialWorker() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
 
         if (loggedInSocialWorker.getAssociationMember() != null) {
@@ -151,7 +151,6 @@ public class SocialWorkerService {
         }
 
         socialworkerRepository.delete(loggedInSocialWorker);
-        authUtil.logout(response);
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
