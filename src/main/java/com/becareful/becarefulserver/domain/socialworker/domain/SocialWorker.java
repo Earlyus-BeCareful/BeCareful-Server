@@ -14,10 +14,26 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(
+        sql =
+                """
+    UPDATE social_worker
+       SET is_deleted = true,
+           deleted_at = now(),
+           name = null,
+           nickname = null,
+           birthday = null,
+           gender = null,
+           phone_number = null
+     WHERE social_worker_id = ?
+""")
+@SQLRestriction("is_deleted = false")
 public class SocialWorker extends BaseEntity {
 
     @Id
@@ -38,6 +54,10 @@ public class SocialWorker extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private InstitutionRank institutionRank;
+
+    private boolean isDeleted;
+
+    private boolean deleteDate;
 
     private boolean isAgreedToTerms;
 
@@ -71,6 +91,7 @@ public class SocialWorker extends BaseEntity {
         this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.institutionRank = institutionRank;
+        this.isDeleted = false;
         this.isAgreedToTerms = isAgreedToTerms;
         this.nursingInstitution = nursingInstitution;
         this.isAgreedToCollectPersonalInfo = isAgreedToCollectPersonalInfo;
