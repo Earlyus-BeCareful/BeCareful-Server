@@ -117,11 +117,9 @@ public class CaregiverChatService {
         List<ChatHistoryResponseDto> chatResponseDtoList = chatList.stream()
                 .map(chat -> {
                     if (chat instanceof TextChat textChat) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(textChat.getCreateDate());
-                        return TextChatHistoryResponseDto.from(textChat, lastSendTime);
+                        return TextChatHistoryResponseDto.from(textChat);
                     } else if (chat instanceof Contract contract) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(contract.getCreateDate());
-                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract, lastSendTime);
+                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract);
                     } else {
                         // TODO: 예외처리
                         // "허용되지 않는 메시지 타입입니다."
@@ -204,8 +202,7 @@ public class CaregiverChatService {
 
         chatRoom.acceptContract();
 
-        ContractChatHistoryResponseDto response = ContractChatHistoryResponseDto.from(
-                contract, contract.getCreateDate().toString());
+        ContractChatHistoryResponseDto response = ContractChatHistoryResponseDto.from(contract);
 
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }

@@ -130,11 +130,9 @@ public class SocialWorkerChatService {
         List<ChatHistoryResponseDto> chatResponseDtoList = chatList.stream()
                 .map(chat -> {
                     if (chat instanceof TextChat textChat) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(textChat.getCreateDate());
-                        return TextChatHistoryResponseDto.from(textChat, lastSendTime);
+                        return TextChatHistoryResponseDto.from(textChat);
                     } else if (chat instanceof Contract contract) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(contract.getCreateDate());
-                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract, lastSendTime);
+                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract);
                     } else {
                         // TODO: 예외처리
                         // "허용되지 않는 메시지 타입입니다."
