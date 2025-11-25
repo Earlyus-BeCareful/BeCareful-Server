@@ -9,7 +9,7 @@ public record TextChatHistoryResponseDto(
         long chatId,
         ChatReceiveType chatType,
         ChatSenderType senderType,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime sentTime,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime sentTime,
         String text)
         implements ChatHistoryResponseDto {
     public static TextChatHistoryResponseDto from(TextChat textChat) {
