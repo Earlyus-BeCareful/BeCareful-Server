@@ -8,7 +8,6 @@ import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import jakarta.persistence.*;
-
 import java.time.DayOfWeek;
 import java.util.EnumSet;
 import java.util.List;

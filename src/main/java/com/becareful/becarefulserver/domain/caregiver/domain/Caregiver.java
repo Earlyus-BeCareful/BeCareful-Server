@@ -12,7 +12,9 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = """
+@SQLDelete(
+        sql =
+                """
     UPDATE caregiver
        SET name = null,
            phone_number = null,

@@ -89,8 +89,8 @@ public class CaregiverController {
 
     @Operation(summary = "경력서 등록/수정")
     @PutMapping("/career")
-    public ResponseEntity<Void> updateCareer(@Valid @RequestBody CareerUpdateRequest request) {
-        careerService.updateCareer(request);
+    public ResponseEntity<Void> createOrUpdateCareer(@Valid @RequestBody CareerCreateOrUpdateRequest request) {
+        careerService.createOrUpdateCareer(request);
         return ResponseEntity.ok().build();
     }
 
