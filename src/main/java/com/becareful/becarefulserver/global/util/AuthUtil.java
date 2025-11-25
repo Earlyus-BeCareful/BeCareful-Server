@@ -34,7 +34,7 @@ public class AuthUtil {
                 SecurityContextHolder.getContext().getAuthentication().getName();
         return socialworkerRepository
                 .findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new SocialWorkerException(SOCIALWORKER_NOT_EXISTS));
+                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
     }
 
     public AssociationMember getLoggedInAssociationMember() {
@@ -42,7 +42,7 @@ public class AuthUtil {
                 SecurityContextHolder.getContext().getAuthentication().getName();
         SocialWorker socialWorker = socialworkerRepository
                 .findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new SocialWorkerException(SOCIALWORKER_NOT_EXISTS));
+                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
 
         if (socialWorker.getAssociationMember() == null) {
             throw new SocialWorkerException(ASSOCIATION_MEMBER_NOT_EXISTS);

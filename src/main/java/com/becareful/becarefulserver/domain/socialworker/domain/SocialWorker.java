@@ -1,5 +1,7 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.ASSOCIATION_MEMBER_ALREADY_LEAVED;
+
 import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
@@ -12,8 +14,6 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
 import lombok.*;
-
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.ASSOCIATION_MEMBER_ALREADY_LEAVED;
 
 @Entity
 @Getter

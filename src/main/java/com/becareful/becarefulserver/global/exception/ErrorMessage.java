@@ -19,14 +19,14 @@ public class ErrorMessage {
     public static final String TOKEN_NOT_CONTAINED = "요청에 토큰이 포함되지 않았습니다.";
     public static final String INVALID_REFRESH_TOKEN = "리프레시 토큰이 유효하지 않습니다.";
 
-    public static final String SOCIALWORKER_REQUIRED_AGREEMENT = "필수 약관에 동의해야 합니다.";
-    public static final String SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER = "이미 가입된 전화번호 입니다.";
-    public static final String SOCIAlWORKER_ALREADY_EXISTS_NICKNAME = "이미 존재하는 닉네임 입니다.";
-    public static final String SOCIALWORKER_NOT_EXISTS = "해당하는 사회복지사가 없습니다.";
-    public static final String NURSING_INSTITUTION_REQUIRE_CODE = "기관코드는 필수입니다.";
-    public static final String SOCIAL_WORKER_NOT_EXISTS = "존재하지 않는 회원번호입니다.";
+    public static final String SOCIAL_WORKER_NOT_EXISTS = "해당하는 사회복지사가 없습니다.";
+    public static final String SOCIAL_WORKER_PHONE_NUMBER_DUPLICATED = "이미 가입된 전화번호 입니다.";
+    public static final String SOCIAL_WORKER_NICKNAME_DUPLICATED = "이미 존재하는 닉네임 입니다.";
+    public static final String SOCIAL_WORKER_REQUIRED_AGREEMENT = "필수 약관에 동의해야 합니다.";
+    public static final String SOCIAL_WORKER_NOT_DELETABLE_HAS_ASSOCIATION = "커뮤니티(협회)를 먼저 탈퇴해야 합니다.";
 
     public static final String NURSING_INSTITUTION_ALREADY_EXISTS = "이미 등록된 기관입니다.";
+    public static final String NURSING_INSTITUTION_REQUIRED_CODE = "기관코드는 필수입니다.";
     public static final String NURSING_INSTITUTION_NOT_FOUND = "해당 ID의 요양 기관을 찾을 수 없습니다.";
     public static final String NURSING_INSTITUTION_FAILED_TO_UPLOAD_PROFILE_IMAGE =
             "요양 기관 프로필 이미지를 업로드하는 중 문제가 발생했습니다.";
@@ -72,9 +72,6 @@ public class ErrorMessage {
     public static final String APPLICATION_CANNOT_HIRE_NOT_PROPOSED = "근무 제안 상태의 지원 데이터만 채용완료 처리할 수 있습니다.";
     public static final String APPLICATION_CANNOT_FAIL_ALREADY_HIRE_PROCESS_FINISHED =
             "채용 과정이 확정된 지원 데이터는 채용불발 처리할 수 없습니다.";
-
-    public static final String MATCHING_ALREADY_PENDING = "이미 보류된 매칭입니다.";
-    public static final String MATCHING_ALREADY_NOT_PENDING = "보류중이지 않은 매칭은 보류를 취소할 수 없습니다.";
 
     public static final String CONTRACT_NOT_EXISTS = "계약서가 존재하지 않습니다.";
     public static final String CONTRACT_CAREGIVER_NOT_EXISTS = "요양보호사가 존재하지 않아 계약서를 수정할 수 없습니다.";
