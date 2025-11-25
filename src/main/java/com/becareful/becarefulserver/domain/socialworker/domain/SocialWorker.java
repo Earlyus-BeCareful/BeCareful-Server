@@ -7,10 +7,13 @@ import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerProfileUpdateRequest;
+import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
 import lombok.*;
+
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.ASSOCIATION_MEMBER_ALREADY_LEAVED;
 
 @Entity
 @Getter
@@ -147,6 +150,10 @@ public class SocialWorker extends BaseEntity {
     }
 
     public void leaveAssociation() {
+        if (this.associationMember == null) {
+            throw new DomainException(ASSOCIATION_MEMBER_ALREADY_LEAVED);
+        }
+        this.associationMember.leaveAssociation();
         this.associationMember = null;
     }
 }

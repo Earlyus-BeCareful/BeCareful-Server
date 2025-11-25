@@ -37,6 +37,8 @@ public class AssociationMember extends BaseEntity {
 
     private String phoneNumber;
 
+    private Boolean isLeaved;
+
     @Enumerated(EnumType.STRING)
     private InstitutionRank institutionRank;
 
@@ -71,6 +73,7 @@ public class AssociationMember extends BaseEntity {
         this.birthday = birthday;
         this.gender = gender;
         this.phoneNumber = phoneNumber;
+        this.isLeaved = false;
         this.institutionRank = institutionRank;
         this.association = association;
         this.associationRank = associationRank;
@@ -148,6 +151,10 @@ public class AssociationMember extends BaseEntity {
      * */
     public void updateAssociationRank(AssociationRank rank) {
         this.associationRank = rank;
+    }
+
+    public void leaveAssociation() {
+        this.isLeaved = true;
     }
 
     /**

@@ -82,6 +82,7 @@ public class ErrorMessage {
     public static final String USER_CREATE_INVALID_GENDER_CODE = "유효하지 않은 성별 번호입니다.";
 
     public static final String ASSOCIATION_MEMBER_NOT_EXISTS = "협회 회원이 존재하지 않습니다.";
+    public static final String ASSOCIATION_MEMBER_ALREADY_LEAVED = "이미 탈퇴한 협회 회원입니다.";
 
     public static final String COMMUNITY_REQUIRED_AGREEMENT_NOT_AGREED = "커뮤니티 관련 필수 동의 항목에 동의하지 않았습니다.";
 
@@ -106,7 +107,4 @@ public class ErrorMessage {
     public static final String POST_MEDIA_FILE_SIZE_EXCEEDED = "파일은 1개당 최대 10MB까지 업로드할 수 있습니다.";
     public static final String POST_MEDIA_TOTAL_FILE_SIZE_EXCEEDED = "파일은 한 게시글당 최대 30MB까지 업로드할 수 있습니다.";
     public static final String POST_MEDIA_UNSUPPORTED_FILE_TYPE = "지원하지 않는 파일 타입입니다.";
-
-    public static final String CAREGIVER_CHAT_READ_STATUS_NOT_EXISTS = "요양보호사의 마지막 채팅방 입장 시간 기록이 없습니다.";
-    public static final String SOCIAL_WORKER_CHAT_READ_STATUS_NOT_EXISTS = "사회복지사의 마지막 채팅방 입장 시간 기록이 없습니다.";
 }
