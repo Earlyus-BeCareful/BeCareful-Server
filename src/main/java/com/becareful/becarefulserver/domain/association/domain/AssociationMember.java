@@ -37,7 +37,7 @@ public class AssociationMember extends BaseEntity {
 
     private String phoneNumber;
 
-    private Boolean isLeaved;
+    private boolean isLeaved;
 
     @Enumerated(EnumType.STRING)
     private InstitutionRank institutionRank;
