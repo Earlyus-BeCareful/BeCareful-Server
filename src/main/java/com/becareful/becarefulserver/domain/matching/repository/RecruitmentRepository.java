@@ -37,13 +37,6 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
             String keyword,
             Pageable pageable);
 
-    @Query("""
-        SELECT r
-          FROM Recruitment r
-         WHERE r.elderly = :elderly
-    """)
-    List<SocialWorkerRecruitmentResponse> getRecruitmentsByElderly(Elderly elderly);
-
     List<Recruitment> findAllByElderly(Elderly elderly);
 
     // TODO : QueryDSL 로 이전
