@@ -66,6 +66,7 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
 
     @Autowired
     private CaregiverRepository caregiverRepository;
+
     @Autowired
     private WorkApplicationRepository workApplicationRepository;
 
@@ -122,7 +123,8 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
             WaitingMatchingElderlySearchRequest request = new WaitingMatchingElderlySearchRequest("박");
 
             // when
-            Page<ElderlySimpleDto> waitingElderlys = socialWorkerMatchingService.searchWaitingElderlys(pageable, request);
+            Page<ElderlySimpleDto> waitingElderlys =
+                    socialWorkerMatchingService.searchWaitingElderlys(pageable, request);
 
             // then
             List<String> elderlyNames = waitingElderlys.getContent().stream()
@@ -131,7 +133,6 @@ public class SocialWorkerMatchingTest extends IntegrationTest {
 
             Assertions.assertThat(elderlyNames).containsExactly("박요양");
         }
-
     }
 
     @Nested
