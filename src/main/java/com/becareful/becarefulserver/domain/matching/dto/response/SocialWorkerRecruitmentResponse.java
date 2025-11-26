@@ -17,7 +17,7 @@ public record SocialWorkerRecruitmentResponse(
         long applyCount) {
 
     // RecruitmentRepository 에서 프로젝션에 사용
-    public static SocialWorkerRecruitmentResponse of(Recruitment recruitment, long matchingCount, long applyCount) {
+    public static SocialWorkerRecruitmentResponse of(Recruitment recruitment, long applyCount, long matchingCount) {
         return new SocialWorkerRecruitmentResponse(
                 RecruitmentSimpleDto.from(recruitment),
                 ElderlySimpleDto.from(recruitment.getElderly()),
