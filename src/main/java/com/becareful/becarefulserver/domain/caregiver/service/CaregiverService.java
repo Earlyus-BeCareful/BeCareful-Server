@@ -17,33 +17,32 @@ import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.service.*;
 import com.becareful.becarefulserver.global.util.*;
-import jakarta.servlet.http.*;
 import java.io.*;
 import java.time.*;
 import java.util.*;
-import lombok.*;
-import org.springframework.stereotype.*;
-import org.springframework.transaction.annotation.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CaregiverService {
 
     private final CaregiverRepository caregiverRepository;
     private final WorkApplicationRepository workApplicationRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
-    private final FileUtil fileUtil;
-    private final AuthUtil authUtil;
-    private final S3Util s3Util;
-    private final S3Service s3Service;
     private final CareerDetailRepository careerDetailRepository;
     private final CareerRepository careerRepository;
     private final ApplicationRepository applicationRepository;
     private final RecruitmentRepository recruitmentRepository;
+    private final FileUtil fileUtil;
+    private final AuthUtil authUtil;
+    private final S3Util s3Util;
+    private final S3Service s3Service;
 
+    @Transactional(readOnly = true)
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
@@ -76,6 +75,7 @@ public class CaregiverService {
                 caregiver, hasNewChat, applicationCount, recruitmentCount, isWorking, isApplying, workSchedules);
     }
 
+    @Transactional(readOnly = true)
     public CaregiverMyPageHomeResponse getCaregiverMyPageHomeData() {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         Career career = careerRepository.findByCaregiver(loggedInCaregiver).orElse(null);
@@ -187,7 +187,20 @@ public class CaregiverService {
     @Transactional
     public void deleteCaregiver() {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
+        deleteCaregiverData(loggedInCaregiver);
         caregiverRepository.delete(loggedInCaregiver);
+    }
+
+    private void deleteCaregiverData(Caregiver caregiver) {
+        careerRepository.findByCaregiver(caregiver).ifPresent(career -> {
+            careerDetailRepository.deleteAllByCareer(career);
+            careerRepository.delete(career);
+        });
+        workApplicationRepository.findByCaregiver(caregiver).ifPresent(workApplication -> {
+            applicationRepository.deleteByWorkApplication(workApplication);
+            workApplicationRepository.delete(workApplication);
+        });
+        completedMatchingRepository.deleteByCaregiver(caregiver);
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
