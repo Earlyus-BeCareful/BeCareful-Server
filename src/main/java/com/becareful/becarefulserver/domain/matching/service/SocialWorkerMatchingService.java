@@ -94,12 +94,14 @@ public class SocialWorkerMatchingService {
                     default -> throw new RecruitmentException("매칭 상태 필터가 잘못되었습니다 : " + elderlyMatchingStatusFilter);
                 };
 
+        List<WorkApplication> workApplications = workApplicationRepository.findAllActiveWorkApplication();
+
         return recruitmentRepository
                 .findAllByInstitutionAndRecruitmentStatusIn(
                         socialworker.getNursingInstitution(), recruitmentStatus, pageable)
                 .map(recruitment -> {
                     long applicationCount = applicationRepository.countByRecruitment(recruitment);
-                    long matchingCount = workApplicationRepository.findAllActiveWorkApplication().stream()
+                    long matchingCount = workApplications.stream()
                             .filter(workApplication -> matchingDomainService.isMatched(workApplication, recruitment))
                             .count();
 
@@ -121,12 +123,14 @@ public class SocialWorkerMatchingService {
                     default -> throw new RecruitmentException("매칭 상태 필터가 잘못되었습니다 : " + elderlyMatchingStatusFilter);
                 };
 
+        List<WorkApplication> workApplications = workApplicationRepository.findAllActiveWorkApplication();
+
         return recruitmentRepository
                 .searchByInstitutionAndElderlyNameOrRecruitmentTitle(
                         socialworker.getNursingInstitution(), recruitmentStatus, request.keyword(), pageable)
                 .map(recruitment -> {
                     long applicationCount = applicationRepository.countByRecruitment(recruitment);
-                    long matchingCount = workApplicationRepository.findAllActiveWorkApplication().stream()
+                    long matchingCount = workApplications.stream()
                             .filter(workApplication -> matchingDomainService.isMatched(workApplication, recruitment))
                             .count();
 
