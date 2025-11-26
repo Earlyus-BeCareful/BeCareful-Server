@@ -3,8 +3,8 @@ package com.becareful.becarefulserver.matching.caregiver;
 import com.becareful.becarefulserver.common.IntegrationTest;
 import com.becareful.becarefulserver.common.WithCaregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.CareerType;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerDetailUpdateRequest;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.service.CareerService;
 import com.becareful.becarefulserver.domain.caregiver.service.CaregiverService;
 import java.util.List;
@@ -40,7 +40,8 @@ public class CaregiverTest extends IntegrationTest {
         @WithCaregiver(phoneNumber = "01099990000")
         void 신입_경력서를_반환한다() {
             // given
-            careerService.updateCareer(new CareerUpdateRequest("경력서 제목", CareerType.신입, "잘 부탁드립니다.", List.of()));
+            careerService.createOrUpdateCareer(
+                    new CareerCreateOrUpdateRequest("경력서 제목", CareerType.신입, "잘 부탁드립니다.", List.of()));
 
             // when
             var response = caregiverService.getCaregiverMyPageHomeData();
@@ -58,7 +59,7 @@ public class CaregiverTest extends IntegrationTest {
         @WithCaregiver(phoneNumber = "01099990000")
         void 경력_경력서를_반환한다() {
             // given
-            careerService.updateCareer(new CareerUpdateRequest(
+            careerService.createOrUpdateCareer(new CareerCreateOrUpdateRequest(
                     "경력서 제목",
                     CareerType.경력,
                     "잘 부탁드립니다.",
