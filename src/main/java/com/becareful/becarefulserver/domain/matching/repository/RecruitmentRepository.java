@@ -15,40 +15,23 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
 
     @Query(
             """
-        SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
-                   r,
-                   e,
-                   COUNT(a),
-                   COUNT(a)
-               )
+        SELECT r
           FROM Recruitment r
-          JOIN r.elderly e
-          LEFT JOIN Application a ON a.recruitment = r
          WHERE r.elderly.nursingInstitution = :institution
            AND r.recruitmentStatus IN :recruitmentStatus
-         GROUP BY r, e
     """)
-    Page<SocialWorkerRecruitmentResponse> findAllByInstitution(
+    Page<Recruitment> findAllByInstitutionAndRecruitmentStatusIn(
             NursingInstitution institution, List<RecruitmentStatus> recruitmentStatus, Pageable pageable);
 
-    // TODO : 서비스 계층에서 자동 매칭 카운팅하도록 로직 수정
     @Query(
             """
-        SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
-                   r,
-                   e,
-                   COUNT(a),
-                   COUNT(a)
-               )
+        SELECT r
           FROM Recruitment r
-          JOIN r.elderly e
-          LEFT JOIN Application a ON a.recruitment = r
          WHERE r.elderly.nursingInstitution = :institution
            AND r.recruitmentStatus IN :recruitmentStatus
            AND (r.title LIKE %:keyword% OR r.elderly.name LIKE %:keyword%)
-         GROUP BY r, e
     """)
-    Page<SocialWorkerRecruitmentResponse> searchByInstitutionAndElderlyNameOrRecruitmentTitle(
+    Page<Recruitment> searchByInstitutionAndElderlyNameOrRecruitmentTitle(
             NursingInstitution institution,
             List<RecruitmentStatus> recruitmentStatus,
             String keyword,
