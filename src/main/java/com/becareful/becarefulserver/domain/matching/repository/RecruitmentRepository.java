@@ -37,21 +37,14 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
             String keyword,
             Pageable pageable);
 
-    @Query(
-            """
-        SELECT new com.becareful.becarefulserver.domain.matching.dto.response.SocialWorkerRecruitmentResponse(
-                   r,
-                   e,
-                   COUNT(a),
-                   COUNT(a)
-               )
+    @Query("""
+        SELECT r
           FROM Recruitment r
-          JOIN r.elderly e
-          LEFT JOIN Application a ON a.recruitment = r
          WHERE r.elderly = :elderly
-         GROUP BY r, e
     """)
-    List<SocialWorkerRecruitmentResponse> getRecruitmentResponsesByElderly(Elderly elderly);
+    List<SocialWorkerRecruitmentResponse> getRecruitmentsByElderly(Elderly elderly);
+
+    List<Recruitment> findAllByElderly(Elderly elderly);
 
     // TODO : QueryDSL 로 이전
     @Query(

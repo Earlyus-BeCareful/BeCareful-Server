@@ -3,8 +3,10 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.common.dto.request.*;
 import com.becareful.becarefulserver.domain.common.dto.response.*;
+import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
 import com.becareful.becarefulserver.domain.matching.dto.*;
 import com.becareful.becarefulserver.domain.matching.dto.response.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
@@ -39,6 +41,9 @@ public class ElderlyService {
     private final AuthUtil authUtil;
     private final S3Util s3Util;
     private final S3Service s3Service;
+    private final ApplicationRepository applicationRepository;
+    private final WorkApplicationRepository workApplicationRepository;
+    private final MatchingDomainService matchingDomainService;
 
     @Transactional
     public Long saveElderly(ElderlyCreateRequest request) {
@@ -157,8 +162,16 @@ public class ElderlyService {
 
         elderlyDomainService.validateElderlyAndSocialWorkerInstitution(elderly, socialworker);
 
-        List<SocialWorkerRecruitmentResponse> responses =
-                recruitmentRepository.getRecruitmentResponsesByElderly(elderly);
+        List<SocialWorkerRecruitmentResponse> responses = recruitmentRepository.findAllByElderly(elderly).stream()
+                .map(recruitment -> {
+                    long applicationCount = applicationRepository.countByRecruitment(recruitment);
+                    long matchingCount = workApplicationRepository.findAllActiveWorkApplication().stream()
+                            .filter(workApplication -> matchingDomainService.isMatched(workApplication, recruitment))
+                            .count();
+
+                    return SocialWorkerRecruitmentResponse.of(recruitment, applicationCount, matchingCount);
+                })
+                .toList();
 
         return ElderlyDetailResponse.of(elderly, responses);
     }
