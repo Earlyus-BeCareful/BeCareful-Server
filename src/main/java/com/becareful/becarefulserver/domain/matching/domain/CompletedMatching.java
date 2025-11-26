@@ -20,7 +20,7 @@ public class CompletedMatching {
     private String note;
 
     @JoinColumn(name = "caregiver_id")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Caregiver caregiver;
 
     @JoinColumn(name = "contract_id")

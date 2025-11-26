@@ -25,7 +25,7 @@ public class Career extends BaseEntity {
     private CareerType careerType;
 
     @JoinColumn(name = "caregiver_id")
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToOne(fetch = FetchType.LAZY)
     private Caregiver caregiver;
 
     @Builder(access = AccessLevel.PRIVATE)

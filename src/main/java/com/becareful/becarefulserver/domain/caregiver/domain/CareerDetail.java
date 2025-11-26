@@ -22,7 +22,7 @@ public class CareerDetail extends BaseEntity {
     private String workYear;
 
     @JoinColumn(name = "career_id")
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Career career;
 
     @Builder(access = AccessLevel.PRIVATE)

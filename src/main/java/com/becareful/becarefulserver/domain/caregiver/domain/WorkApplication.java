@@ -47,7 +47,7 @@ public class WorkApplication extends BaseEntity {
     private boolean isActive;
 
     @JoinColumn(name = "caregiver_id", nullable = false)
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToOne(fetch = FetchType.LAZY)
     private Caregiver caregiver;
 
     @Builder(access = AccessLevel.PRIVATE)
