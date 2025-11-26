@@ -81,13 +81,11 @@ public class ChatRoomCreateTest extends IntegrationTest {
 
         // 6. 최초 계약(Contract) 검증
         Contract contract = contractRepository
-                .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
+                .findTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
                 .orElseThrow();
 
         assertThat(contract.getChatRoom()).isEqualTo(chatRoom);
         assertThat(contract.getChatRoom().getRecruitment()).isEqualTo(recruitment);
-
-        System.out.println(contract.getCreateDate());
 
         // 4. Caregiver 읽음 상태 검증
         CaregiverChatReadStatus caregiverStatus = caregiverChatReadStatusRepository

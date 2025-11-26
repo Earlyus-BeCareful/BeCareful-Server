@@ -177,7 +177,7 @@ public class CaregiverChatService {
         checkChatRoomIsActive(chatRoom);
 
         long lastContractId = contractRepository
-                .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
+                .findTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
                 .orElseThrow(
                         // TODO: 예외처리
                         // "근무조건에 동의할 계약서가 없습니다."

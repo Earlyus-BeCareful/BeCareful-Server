@@ -144,7 +144,7 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
 
         socialWorkerChatService.editContractChat(chatRoomId, editRequest);
         Contract edited = contractRepository
-                .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
+                .findTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
                 .orElseThrow();
 
         assertThat(edited.getWorkSalaryAmount()).isEqualTo(12000);
