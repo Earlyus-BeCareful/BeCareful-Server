@@ -45,4 +45,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     Long countByWorkApplication(WorkApplication workApplication);
 
     void deleteByWorkApplication(WorkApplication workApplication);
+
+    Long countByRecruitment(Recruitment recruitment);
 }

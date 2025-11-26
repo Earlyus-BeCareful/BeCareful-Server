@@ -94,8 +94,19 @@ public class SocialWorkerMatchingService {
                     default -> throw new RecruitmentException("매칭 상태 필터가 잘못되었습니다 : " + elderlyMatchingStatusFilter);
                 };
 
-        return recruitmentRepository.findAllByInstitution(
-                socialworker.getNursingInstitution(), recruitmentStatus, pageable);
+        List<WorkApplication> workApplications = workApplicationRepository.findAllActiveWorkApplication();
+
+        return recruitmentRepository
+                .findAllByInstitutionAndRecruitmentStatusIn(
+                        socialworker.getNursingInstitution(), recruitmentStatus, pageable)
+                .map(recruitment -> {
+                    long applicationCount = applicationRepository.countByRecruitment(recruitment);
+                    long matchingCount = workApplications.stream()
+                            .filter(workApplication -> matchingDomainService.isMatched(workApplication, recruitment))
+                            .count();
+
+                    return SocialWorkerRecruitmentResponse.of(recruitment, applicationCount, matchingCount);
+                });
     }
 
     @Transactional(readOnly = true)
@@ -112,8 +123,19 @@ public class SocialWorkerMatchingService {
                     default -> throw new RecruitmentException("매칭 상태 필터가 잘못되었습니다 : " + elderlyMatchingStatusFilter);
                 };
 
-        return recruitmentRepository.searchByInstitutionAndElderlyNameOrRecruitmentTitle(
-                socialworker.getNursingInstitution(), recruitmentStatus, request.keyword(), pageable);
+        List<WorkApplication> workApplications = workApplicationRepository.findAllActiveWorkApplication();
+
+        return recruitmentRepository
+                .searchByInstitutionAndElderlyNameOrRecruitmentTitle(
+                        socialworker.getNursingInstitution(), recruitmentStatus, request.keyword(), pageable)
+                .map(recruitment -> {
+                    long applicationCount = applicationRepository.countByRecruitment(recruitment);
+                    long matchingCount = workApplications.stream()
+                            .filter(workApplication -> matchingDomainService.isMatched(workApplication, recruitment))
+                            .count();
+
+                    return SocialWorkerRecruitmentResponse.of(recruitment, applicationCount, matchingCount);
+                });
     }
 
     public MatchingCaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
