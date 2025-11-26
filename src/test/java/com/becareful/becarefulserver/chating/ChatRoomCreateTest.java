@@ -49,10 +49,10 @@ public class ChatRoomCreateTest extends IntegrationTest {
     private SocialWorkerMatchingService socialWorkerMatchingService;
 
     @Autowired
-    private MatchingRepository matchingRepository;
+    private WorkApplicationRepository workApplicationRepository;
 
     @Autowired
-    private WorkApplicationRepository workApplicationRepository;
+    private ChatRepository chatRepository;
 
     @Test
     @WithCaregiver(phoneNumber = "01099990000")
@@ -68,18 +68,24 @@ public class ChatRoomCreateTest extends IntegrationTest {
 
         Recruitment recruitment = recruitmentRepository.save(RecruitmentFixture.createRecruitment("테스트 공고", elderly));
 
-        matchingRepository.save(Matching.create(recruitment, workApplication));
-
         socialWorkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_1);
         socialWorkerRepository.save(SocialWorkerFixture.SOCIAL_WORKER_MANAGER);
 
         // 2. 채팅방 생성 호출
         long chatRoomId =
-                socialWorkerMatchingService.proposeMatching(recruitment.getId(), caregiver.getId(), LocalDate.now());
+                socialWorkerMatchingService.proposeWork(recruitment.getId(), caregiver.getId(), LocalDate.now());
 
         // 3. ChatRoom 검증
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow();
         assertThat(chatRoom.getRecruitment()).isEqualTo(recruitment);
+
+        // 6. 최초 계약(Contract) 검증
+        Contract contract = contractRepository
+                .findTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
+                .orElseThrow();
+
+        assertThat(contract.getChatRoom()).isEqualTo(chatRoom);
+        assertThat(contract.getChatRoom().getRecruitment()).isEqualTo(recruitment);
 
         // 4. Caregiver 읽음 상태 검증
         CaregiverChatReadStatus caregiverStatus = caregiverChatReadStatusRepository
@@ -87,18 +93,17 @@ public class ChatRoomCreateTest extends IntegrationTest {
                 .orElseThrow();
         assertThat(caregiverStatus.getChatRoom()).isEqualTo(chatRoom);
 
+        assertThat(caregiverStatus.getLastReadAt()).isEqualTo(LocalDateTime.MIN);
+
+        // 쿼리 정상 실행 되는지만 확인. 이상적으론 isEqualsTo(1)로 테스트 해야함.
+        assertThat(chatRepository.countByChatRoomAndCreateDateAfter(chatRoom, caregiverStatus.getLastReadAt()))
+                .isEqualTo(0);
+
         // 5. SocialWorker 읽음 상태 검증
         List<SocialWorker> socialWorkers = socialWorkerRepository.findAllByNursingInstitution(NURSING_INSTITUTION);
         for (SocialWorker sw : socialWorkers) {
             assertThat(socialWorkerChatReadStatusRepository.findBySocialWorkerAndChatRoom(sw, chatRoom))
                     .isPresent();
         }
-
-        // 6. 최초 계약(Contract) 검증
-        Contract contract = contractRepository
-                .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
-                .orElseThrow();
-        assertThat(contract.getChatRoom()).isEqualTo(chatRoom);
-        assertThat(contract.getChatRoom().getRecruitment()).isEqualTo(recruitment);
     }
 }

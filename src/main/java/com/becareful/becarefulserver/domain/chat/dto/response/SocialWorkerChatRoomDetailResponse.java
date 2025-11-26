@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.chat.dto.response;
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.chat.dto.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
 import java.util.*;
@@ -10,22 +11,24 @@ import java.util.*;
 public record SocialWorkerChatRoomDetailResponse(
         String caregiverName,
         String caregiverProfileImageUrl,
+        String caregiverPhoneNumber,
         String elderlyName,
         String elderlyProfileImageUrl,
         ChatRoomActiveStatus chatRoomStatus,
         ChatRoomContractStatus chatRoomContractStatus,
         long recruitmentId,
-        List<ChatResponseDto> chatList) {
+        List<ChatHistoryResponseDto> chatList) {
 
     public static SocialWorkerChatRoomDetailResponse of(
             Recruitment recruitment,
             Caregiver caregiver,
             Elderly elderly,
             ChatRoom chatRoom,
-            List<ChatResponseDto> chatList) {
+            List<ChatHistoryResponseDto> chatList) {
         return new SocialWorkerChatRoomDetailResponse(
                 caregiver.getName(),
                 caregiver.getProfileImageUrl(),
+                caregiver.getPhoneNumber(),
                 elderly.getName(),
                 elderly.getProfileImageUrl(),
                 chatRoom.getChatRoomActiveStatus(),

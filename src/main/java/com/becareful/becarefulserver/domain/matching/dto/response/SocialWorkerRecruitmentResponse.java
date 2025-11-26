@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.matching.dto.response;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.dto.ElderlySimpleDto;
 import com.becareful.becarefulserver.domain.matching.dto.RecruitmentSimpleDto;
-import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
 import lombok.Getter;
 
 public record SocialWorkerRecruitmentResponse(
@@ -18,11 +17,10 @@ public record SocialWorkerRecruitmentResponse(
         long applyCount) {
 
     // RecruitmentRepository 에서 프로젝션에 사용
-    public SocialWorkerRecruitmentResponse(
-            Recruitment recruitment, Elderly elderly, long matchingCount, long applyCount) {
-        this(
+    public static SocialWorkerRecruitmentResponse of(Recruitment recruitment, long applyCount, long matchingCount) {
+        return new SocialWorkerRecruitmentResponse(
                 RecruitmentSimpleDto.from(recruitment),
-                ElderlySimpleDto.from(elderly),
+                ElderlySimpleDto.from(recruitment.getElderly()),
                 switch (recruitment.getRecruitmentStatus()) {
                     case 모집중 -> SocialWorkerRecruitmentStatus.매칭중.value;
                     case 조율중 -> SocialWorkerRecruitmentStatus.조율중.value;

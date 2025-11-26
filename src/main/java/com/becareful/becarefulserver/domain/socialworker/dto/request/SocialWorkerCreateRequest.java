@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record SocialWorkerCreateRequest(
-        Long nursingInstitutionId,
+        @NotNull Long nursingInstitutionId,
         @NotBlank String realName,
         @NotBlank String nickName,
         @NotBlank String birthYymmdd,

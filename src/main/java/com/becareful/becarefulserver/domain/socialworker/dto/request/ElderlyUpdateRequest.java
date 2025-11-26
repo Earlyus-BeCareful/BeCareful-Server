@@ -3,7 +3,7 @@ package com.becareful.becarefulserver.domain.socialworker.dto.request;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
+import com.becareful.becarefulserver.domain.socialworker.domain.CareLevel;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

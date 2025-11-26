@@ -9,7 +9,6 @@ import com.becareful.becarefulserver.domain.community.domain.vo.CommunityAgreeme
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerProfileUpdateRequest;
 import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import jakarta.persistence.*;
@@ -37,6 +36,8 @@ public class AssociationMember extends BaseEntity {
     private Gender gender;
 
     private String phoneNumber;
+
+    private boolean isLeaved;
 
     @Enumerated(EnumType.STRING)
     private InstitutionRank institutionRank;
@@ -72,6 +73,7 @@ public class AssociationMember extends BaseEntity {
         this.birthday = birthday;
         this.gender = gender;
         this.phoneNumber = phoneNumber;
+        this.isLeaved = false;
         this.institutionRank = institutionRank;
         this.association = association;
         this.associationRank = associationRank;
@@ -149,6 +151,10 @@ public class AssociationMember extends BaseEntity {
      * */
     public void updateAssociationRank(AssociationRank rank) {
         this.associationRank = rank;
+    }
+
+    public void leaveAssociation() {
+        this.isLeaved = true;
     }
 
     /**

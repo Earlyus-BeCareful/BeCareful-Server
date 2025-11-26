@@ -1,27 +1,30 @@
-package com.becareful.becarefulserver.domain.chat.dto.response;
+package com.becareful.becarefulserver.domain.chat.dto;
 
 import com.becareful.becarefulserver.domain.chat.domain.*;
-import com.becareful.becarefulserver.domain.chat.domain.vo.ChatSenderType;
+import com.becareful.becarefulserver.domain.chat.domain.vo.*;
 import com.becareful.becarefulserver.domain.common.domain.*;
+import com.fasterxml.jackson.annotation.*;
 import java.time.*;
 import java.util.*;
 
-public record ContractChatResponseDto(
+public record ContractChatHistoryResponseDto(
         long chatId,
+        ChatReceiveType chatType,
         ChatSenderType senderType,
-        String sentTime,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime sentTime,
         EnumSet<CareType> careTypes,
         EnumSet<DayOfWeek> workDays,
         LocalTime workStartTime,
         LocalTime workEndTime,
         Integer workSalaryAmount,
         LocalDate workStartDate)
-        implements ChatResponseDto {
-    public static ContractChatResponseDto from(Contract contract, String formattedTimeAgo) {
-        return new ContractChatResponseDto(
+        implements ChatHistoryResponseDto {
+    public static ContractChatHistoryResponseDto from(Contract contract) {
+        return new ContractChatHistoryResponseDto(
                 contract.getId(),
+                ChatReceiveType.CONTRACT,
                 contract.getSenderType(),
-                formattedTimeAgo,
+                contract.getCreateDate(),
                 contract.getCareTypes(),
                 contract.getWorkDays(),
                 contract.getWorkStartTime(),

@@ -3,6 +3,7 @@ package com.becareful.becarefulserver.domain.chat.service;
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.chat.dto.*;
 import com.becareful.becarefulserver.domain.chat.dto.request.*;
 import com.becareful.becarefulserver.domain.chat.dto.response.*;
 import com.becareful.becarefulserver.domain.chat.repository.*;
@@ -14,6 +15,7 @@ import com.becareful.becarefulserver.global.util.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
+import org.springframework.messaging.simp.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 
@@ -27,6 +29,7 @@ public class CaregiverChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional(readOnly = true)
     public List<CaregiverChatRoomSummaryResponse> getChatRoomList() {
@@ -111,14 +114,12 @@ public class CaregiverChatService {
         updateReadStatus(chatRoom);
 
         List<Chat> chatList = chatRepository.findAllChatWithContent(chatRoomId);
-        List<ChatResponseDto> chatResponseDtoList = chatList.stream()
+        List<ChatHistoryResponseDto> chatResponseDtoList = chatList.stream()
                 .map(chat -> {
                     if (chat instanceof TextChat textChat) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(textChat.getCreateDate());
-                        return TextChatResponseDto.from(textChat, lastSendTime);
+                        return TextChatHistoryResponseDto.from(textChat);
                     } else if (chat instanceof Contract contract) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(contract.getCreateDate());
-                        return (ChatResponseDto) ContractChatResponseDto.from(contract, lastSendTime);
+                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract);
                     } else {
                         // TODO: 예외처리
                         // "허용되지 않는 메시지 타입입니다."
@@ -141,25 +142,34 @@ public class CaregiverChatService {
         readStatus.updateLastReadAt();
     }
 
-    @Transactional
-    public void createTextChat(CaregiverSendTextChatRequest request) {
+    // 채팅방 검증 메서드
+    private void checkChatRoomIsActive(ChatRoom chatRoom) {
+        if (chatRoom.getChatRoomActiveStatus() != ChatRoomActiveStatus.채팅가능) {
+            // TODO: 에러 메시지 반환
+            // "채팅방이 활성화되어있지 않아, 채팅을 전송할 수 없습니다."
+        }
+    }
 
+    public void sendTextChat(Long chatRoomId, SendTextChatRequest chatSendRequest) {
         ChatRoom chatRoom = chatRoomRepository
-                .findById(request.chatRoomId())
+                .findById(chatRoomId)
                 .orElseThrow(
                         // TODO: 채팅방 존재하지 않을 경우 에러메시지 반환
                         );
 
         checkChatRoomIsActive(chatRoom);
 
-        TextChat textChat = TextChat.create(chatRoom, ChatSenderType.CAREGIVER, request.text());
+        TextChat textChat = TextChat.create(chatRoom, ChatSenderType.CAREGIVER, chatSendRequest.text());
         chatRepository.save(textChat);
+
+        TextChatResponse response = TextChatResponse.from(textChat);
+
+        messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
-    @Transactional
-    public void acceptContract(AcceptContractRequest request) {
+    public void acceptContractChat(long chatRoomId, AcceptContractChatRequest request) {
         ChatRoom chatRoom = chatRoomRepository
-                .findById(request.chatRoomId())
+                .findById(chatRoomId)
                 .orElseThrow(
                         // TODO: 예외처리
                         );
@@ -167,30 +177,33 @@ public class CaregiverChatService {
         checkChatRoomIsActive(chatRoom);
 
         long lastContractId = contractRepository
-                .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoom.getId())
+                .findTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
                 .orElseThrow(
                         // TODO: 예외처리
                         // "근무조건에 동의할 계약서가 없습니다."
                         )
                 .getId();
 
-        if (request.lastContractId() != lastContractId) {
+        Contract lastContract = contractRepository
+                .findById(lastContractId)
+                .orElseThrow(
+                        // TODO: 예외처리
+
+                        );
+
+        if (request.lastContractChatId() != lastContractId) {
             // TODO:예외처리
             // "가장 최신의 근무조건만 동의 가능합니다."
         }
-    }
 
-    @Transactional(readOnly = true)
-    public boolean checkNewChat() {
-        Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
-        return caregiverChatReadStatusRepository.existsUnreadChat(loggedInCaregiver.getId());
-    }
+        Contract contract = Contract.accept(chatRoom, lastContract);
 
-    // 채팅방 검증 메서드
-    private void checkChatRoomIsActive(ChatRoom chatRoom) {
-        if (chatRoom.getChatRoomActiveStatus() != ChatRoomActiveStatus.채팅가능) {
-            // TODO: 에러 메시지 반환
-            // "채팅방이 활성화되어있지 않아, 채팅을 전송할 수 없습니다."
-        }
+        contractRepository.save(contract);
+
+        chatRoom.acceptContract();
+
+        ContractChatHistoryResponseDto response = ContractChatHistoryResponseDto.from(contract);
+
+        messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 }
