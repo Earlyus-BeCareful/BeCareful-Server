@@ -195,6 +195,17 @@ public class CaregiverServiceTest extends IntegrationTest {
                 .getResultList();
         Assertions.assertThat(applications).isEmpty();
 
+        List<Career> careers = em.createNativeQuery(
+                        """
+                            SELECT *
+                              FROM career c
+                             WHERE c.caregiver_id = ?
+                         """,
+                        Career.class)
+                .setParameter(1, caregiver.getId())
+                .getResultList();
+        Assertions.assertThat(careers).isEmpty();
+
         Assertions.assertThat(completedMatchingRepository.findByCaregiver(deletedCaregiver))
                 .isEmpty();
 
