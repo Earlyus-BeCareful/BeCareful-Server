@@ -5,7 +5,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
 import com.becareful.becarefulserver.domain.caregiver.domain.CareerType;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.dto.CareerDto;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerUpdateRequest;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerDetailRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.global.util.AuthUtil;
@@ -35,7 +35,7 @@ public class CareerService {
     }
 
     @Transactional
-    public void updateCareer(CareerUpdateRequest request) {
+    public void createOrUpdateCareer(CareerCreateOrUpdateRequest request) {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         careerRepository
                 .findByCaregiver(loggedInCaregiver)
@@ -44,7 +44,7 @@ public class CareerService {
                         () -> createCareerAndCareerDetail(request, loggedInCaregiver));
     }
 
-    private void createCareerAndCareerDetail(CareerUpdateRequest request, Caregiver caregiver) {
+    private void createCareerAndCareerDetail(CareerCreateOrUpdateRequest request, Caregiver caregiver) {
         Career career = Career.create(request.title(), request.careerType(), request.introduce(), caregiver);
         careerRepository.save(career);
 
@@ -57,7 +57,7 @@ public class CareerService {
         }
     }
 
-    private void updateCareerAndCareerDetail(CareerUpdateRequest request, Career career) {
+    private void updateCareerAndCareerDetail(CareerCreateOrUpdateRequest request, Career career) {
         career.updateCareer(request.title(), request.careerType(), request.introduce());
 
         careerDetailRepository.deleteAllByCareer(career);
