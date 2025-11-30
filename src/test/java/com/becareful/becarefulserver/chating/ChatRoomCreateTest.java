@@ -93,11 +93,10 @@ public class ChatRoomCreateTest extends IntegrationTest {
                 .orElseThrow();
         assertThat(caregiverStatus.getChatRoom()).isEqualTo(chatRoom);
 
-        assertThat(caregiverStatus.getLastReadAt()).isEqualTo(LocalDateTime.MIN);
+        assertThat(caregiverStatus.getLastReadAt()).isEqualTo(LocalDateTime.of(1000, 1, 1, 0, 0));
 
-        // 쿼리 정상 실행 되는지만 확인. 이상적으론 isEqualsTo(1)로 테스트 해야함.
         assertThat(chatRepository.countByChatRoomAndCreateDateAfter(chatRoom, caregiverStatus.getLastReadAt()))
-                .isEqualTo(0);
+                .isEqualTo(1);
 
         // 5. SocialWorker 읽음 상태 검증
         List<SocialWorker> socialWorkers = socialWorkerRepository.findAllByNursingInstitution(NURSING_INSTITUTION);

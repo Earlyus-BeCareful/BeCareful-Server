@@ -32,7 +32,7 @@ public class CaregiverChatReadStatus extends BaseEntity {
     private CaregiverChatReadStatus(Caregiver caregiver, ChatRoom chatRoom) {
         this.caregiver = caregiver;
         this.chatRoom = chatRoom;
-        this.lastReadAt = LocalDateTime.MIN;
+        this.lastReadAt = LocalDateTime.of(1000, 1, 1, 0, 0);
     }
 
     public static CaregiverChatReadStatus create(Caregiver caregiver, ChatRoom chatRoom) {
