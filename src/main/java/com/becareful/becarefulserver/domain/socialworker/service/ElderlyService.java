@@ -52,7 +52,7 @@ public class ElderlyService {
 
         String profileImageUrl;
         if (request.profileImageTempKey().equals("default")) {
-            profileImageUrl = CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
+            profileImageUrl = ELDERLY_DEFAULT_PROFILE_IMAGE_URL;
         } else {
             profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
         }
