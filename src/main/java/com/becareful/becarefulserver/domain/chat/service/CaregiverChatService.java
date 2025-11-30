@@ -69,7 +69,7 @@ public class CaregiverChatService {
             CaregiverChatReadStatus readStatus, Chat lastChat, ChatRoom chatRoom) {
 
         // 1) 첫 방문
-        if (readStatus.getLastReadAt().equals(LocalDateTime.MIN)) {
+        if (readStatus.getLastReadAt().equals(LocalDateTime.of(1000, 1, 1, 0, 0))) {
             return "기관에서 근무 제안이 왔습니다. 대화를 시작해보세요.";
         }
 
