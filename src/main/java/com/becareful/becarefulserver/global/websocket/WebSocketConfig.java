@@ -16,9 +16,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws/chat")
                 .addInterceptors(jwtHandshakeInterceptor)
-                .setAllowedOrigins("*")
-                .withSockJS();
-        // SockJS를 안 쓰면 .withSockJS() 지워도 됨
+                .setAllowedOrigins(
+                        "https://becareful.vercel.app",
+                        "https://www.carebridges.kr",
+                        "https://localhost:5173",
+                        "https://localhost:3000")
+                .setAllowedOriginPatterns("https://be-careful-client-*.vercel.app");
     }
 
     @Override
