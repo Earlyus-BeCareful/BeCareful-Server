@@ -166,6 +166,7 @@ public class SocialWorkerChatService {
         }
     }
 
+    @Transactional
     public void sendTextChat(Long chatRoomId, SendTextChatRequest chatSendRequest) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -184,6 +185,7 @@ public class SocialWorkerChatService {
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
+    @Transactional
     public void editContractChat(Long chatRoomId, EditContractChatRequest request) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -210,6 +212,7 @@ public class SocialWorkerChatService {
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
+    @Transactional
     public void confirmContractChat(Long chatRoomId, ConfirmContractChatRequest request) {
 
         // TODO: 채팅방이 이 사회복지사가 접근 가능한 채팅방이 맞는지 검증 필요
