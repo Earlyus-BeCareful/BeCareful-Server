@@ -150,6 +150,7 @@ public class CaregiverChatService {
         }
     }
 
+    @Transactional
     public void sendTextChat(Long chatRoomId, SendTextChatRequest chatSendRequest) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -167,6 +168,7 @@ public class CaregiverChatService {
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
+    @Transactional
     public void acceptContractChat(long chatRoomId, AcceptContractChatRequest request) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
