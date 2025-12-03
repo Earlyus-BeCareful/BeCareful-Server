@@ -3,7 +3,6 @@ package com.becareful.becarefulserver.domain.chat.dto.request;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.chat.domain.vo.ChatSendRequestType;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.DayOfWeek;
@@ -11,7 +10,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-@JsonTypeName("EDIT_CONTRACT")
 public record EditContractChatRequest(
         ChatSendRequestType sendRequestType,
         @Size(min = 1) List<DayOfWeek> workDays,
