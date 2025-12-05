@@ -7,5 +7,5 @@ public class SecurityConstant {
     public static List<String> passFilterStaticUrl = List.of("/favicon.ico");
 
     public static List<String> passFilterDynamicUrl =
-            List.of("/sms", "/auth", "/swagger-ui", "/v3/api-docs", "/oauth2", "/login", "/test", "/ws");
+            List.of("/sms", "/auth", "/swagger-ui", "/v3/api-docs", "/oauth2", "/login", "/test");
 }
