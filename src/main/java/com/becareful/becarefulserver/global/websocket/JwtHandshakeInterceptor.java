@@ -6,6 +6,7 @@ import com.becareful.becarefulserver.global.util.*;
 import jakarta.servlet.http.*;
 import java.util.*;
 import lombok.*;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.server.*;
 import org.springframework.stereotype.*;
 import org.springframework.web.socket.*;
@@ -20,10 +21,10 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
     @Override
     public boolean beforeHandshake(
-            ServerHttpRequest request,
-            ServerHttpResponse response,
-            WebSocketHandler wsHandler,
-            Map<String, Object> attributes) {
+            @NotNull ServerHttpRequest request,
+            @NotNull ServerHttpResponse response,
+            @NotNull WebSocketHandler wsHandler,
+            @NotNull Map<String, Object> attributes) {
         if (request instanceof ServletServerHttpRequest serverHttpRequest) {
             HttpServletRequest httpServletRequest = serverHttpRequest.getServletRequest();
 
@@ -35,13 +36,9 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
             String phoneNumber = jwtUtil.getPhoneNumber(cookie.getValue());
 
-            ChatSenderType type;
-
-            if (caregiverRepository.existsByPhoneNumber(phoneNumber)) {
-                type = ChatSenderType.CAREGIVER;
-            } else {
-                type = ChatSenderType.SOCIAL_WORKER;
-            }
+            ChatSenderType type = caregiverRepository.existsByPhoneNumber(phoneNumber)
+                    ? ChatSenderType.CAREGIVER
+                    : ChatSenderType.SOCIAL_WORKER;
 
             attributes.put("PRINCIPAL", new ChatPrincipal(type));
         }
@@ -50,5 +47,8 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
     @Override
     public void afterHandshake(
-            ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {}
+            @NotNull ServerHttpRequest request,
+            @NotNull ServerHttpResponse response,
+            @NotNull WebSocketHandler wsHandler,
+            Exception exception) {}
 }
