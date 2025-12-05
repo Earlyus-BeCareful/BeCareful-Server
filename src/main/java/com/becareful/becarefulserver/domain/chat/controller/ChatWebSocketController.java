@@ -7,6 +7,8 @@ import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService
 import com.becareful.becarefulserver.global.websocket.ChatPrincipal;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Controller;
 @Controller
 @RequiredArgsConstructor
 public class ChatWebSocketController {
+    private static final Logger log = LoggerFactory.getLogger(ChatWebSocketController.class);
     private final SocialWorkerChatService socialWorkerChatService;
     private final CaregiverChatService caregiverChatService;
 
@@ -22,6 +25,7 @@ public class ChatWebSocketController {
             @DestinationVariable Long chatRoomId, ChatSendRequest chatSendRequest, Principal principal) {
 
         if (!(principal instanceof ChatPrincipal p)) {
+            log.error("Principal toString: {}", principal.toString());
             throw new IllegalStateException("WebSocket principal is not ChatPrincipal");
         }
 

@@ -80,7 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 response.addCookie(newAccessTokenCookie);
             } else if (accessToken == null && refreshToken == null) {
-                logger.info("URI: {}", request.getRequestURI()); // 어떤 요청에서 에러가 발생한건지 확인
+                log.info("URI: {}", request.getRequestURI()); // 어떤 요청에서 에러가 발생한건지 확인
                 throw new AuthException(ErrorMessage.TOKEN_NOT_CONTAINED);
             } else {
                 throw new AuthException(INVALID_REFRESH_TOKEN);
