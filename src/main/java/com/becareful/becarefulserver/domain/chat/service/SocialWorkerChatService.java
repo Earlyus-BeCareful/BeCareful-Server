@@ -27,12 +27,12 @@ public class SocialWorkerChatService {
 
     private final AuthUtil authUtil;
     private final ContractRepository contractRepository;
-    private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final ChatRepository chatRepository;
+    private final ApplicationRepository applicationRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional(readOnly = true)
@@ -130,11 +130,9 @@ public class SocialWorkerChatService {
         List<ChatHistoryResponseDto> chatResponseDtoList = chatList.stream()
                 .map(chat -> {
                     if (chat instanceof TextChat textChat) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(textChat.getCreateDate());
-                        return TextChatHistoryResponseDto.from(textChat, lastSendTime);
+                        return TextChatHistoryResponseDto.from(textChat);
                     } else if (chat instanceof Contract contract) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(contract.getCreateDate());
-                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract, lastSendTime);
+                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract);
                     } else {
                         // TODO: 예외처리
                         // "허용되지 않는 메시지 타입입니다."
@@ -168,6 +166,7 @@ public class SocialWorkerChatService {
         }
     }
 
+    @Transactional
     public void sendTextChat(Long chatRoomId, SendTextChatRequest chatSendRequest) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -186,6 +185,7 @@ public class SocialWorkerChatService {
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
+    @Transactional
     public void editContractChat(Long chatRoomId, EditContractChatRequest request) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -212,6 +212,7 @@ public class SocialWorkerChatService {
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
+    @Transactional
     public void confirmContractChat(Long chatRoomId, ConfirmContractChatRequest request) {
 
         // TODO: 채팅방이 이 사회복지사가 접근 가능한 채팅방이 맞는지 검증 필요
@@ -236,21 +237,14 @@ public class SocialWorkerChatService {
                         )
                 .getCaregiver();
 
-        Matching winnerMatching = matchingRepository
-                .findByCaregiverIdAndRecruitmentId(caregiver.getId(), recruitment.getId())
-                .orElseThrow(
-                        // TODO: 예외처리
-                        );
-
-        List<Matching> matchings =
-                matchingRepository.findAllByMatchingStatusAndRecruitment(MatchingStatus.근무제안, recruitment);
-
         // 나머지 매칭 실패 처리
-        for (Matching m : matchings) {
-            if (m.getId().equals(winnerMatching.getId())) continue;
-
-            m.failedConfirm();
-        }
+        applicationRepository.findAllByRecruitment(recruitment).forEach(application -> {
+            if (application.getWorkApplication().getCaregiver().equals(caregiver)) {
+                application.hire();
+                return;
+            }
+            application.failed();
+        });
 
         List<ChatRoom> chatRooms =
                 chatRoomRepository.findAllByChatRoomActiveStatusAndRecruitment(ChatRoomActiveStatus.채팅가능, recruitment);
@@ -261,10 +255,11 @@ public class SocialWorkerChatService {
             room.otherMatchingConfirmed();
         }
 
-        winnerMatching.confirm();
-
+        // TODO: 매칭완료 생성메서드에서 contract 파라미터 삭제
         CompletedMatching completedMatching = new CompletedMatching(caregiver, contract, recruitment);
         completedMatchingRepository.save(completedMatching);
+
+        recruitment.complete();
 
         // TODO: 매칭
 

@@ -23,7 +23,7 @@ public class CompletedMatching {
     @ManyToOne(fetch = FetchType.LAZY)
     private Caregiver caregiver;
 
-    @JoinColumn(name = "contract_id")
+    @JoinColumn(name = "chat_id")
     @OneToOne(fetch = FetchType.LAZY)
     private Contract contract;
 

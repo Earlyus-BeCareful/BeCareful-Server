@@ -45,7 +45,7 @@ public class NursingInstitutionController {
     @GetMapping("/for-guest/check/already-register") // TODO : url 수정 : /exist
     public ResponseEntity<Boolean> checkAlreadyRegister(@RequestParam String nursingInstitutionCode) {
         if (nursingInstitutionCode == null || nursingInstitutionCode.isBlank()) {
-            throw new NursingInstitutionException(NURSING_INSTITUTION_REQUIRE_CODE);
+            throw new NursingInstitutionException(NURSING_INSTITUTION_REQUIRED_CODE);
         }
         Boolean isRegister = nursingInstitutionService.existsByNameAndCode(nursingInstitutionCode);
         return ResponseEntity.ok(isRegister);

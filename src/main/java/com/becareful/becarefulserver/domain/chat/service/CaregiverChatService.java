@@ -69,7 +69,7 @@ public class CaregiverChatService {
             CaregiverChatReadStatus readStatus, Chat lastChat, ChatRoom chatRoom) {
 
         // 1) 첫 방문
-        if (readStatus.getLastReadAt().equals(LocalDateTime.MIN)) {
+        if (readStatus.getLastReadAt().equals(LocalDateTime.of(1000, 1, 1, 0, 0))) {
             return "기관에서 근무 제안이 왔습니다. 대화를 시작해보세요.";
         }
 
@@ -117,11 +117,9 @@ public class CaregiverChatService {
         List<ChatHistoryResponseDto> chatResponseDtoList = chatList.stream()
                 .map(chat -> {
                     if (chat instanceof TextChat textChat) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(textChat.getCreateDate());
-                        return TextChatHistoryResponseDto.from(textChat, lastSendTime);
+                        return TextChatHistoryResponseDto.from(textChat);
                     } else if (chat instanceof Contract contract) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(contract.getCreateDate());
-                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract, lastSendTime);
+                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract);
                     } else {
                         // TODO: 예외처리
                         // "허용되지 않는 메시지 타입입니다."
@@ -152,6 +150,7 @@ public class CaregiverChatService {
         }
     }
 
+    @Transactional
     public void sendTextChat(Long chatRoomId, SendTextChatRequest chatSendRequest) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -169,6 +168,7 @@ public class CaregiverChatService {
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
+    @Transactional
     public void acceptContractChat(long chatRoomId, AcceptContractChatRequest request) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -179,7 +179,7 @@ public class CaregiverChatService {
         checkChatRoomIsActive(chatRoom);
 
         long lastContractId = contractRepository
-                .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
+                .findTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
                 .orElseThrow(
                         // TODO: 예외처리
                         // "근무조건에 동의할 계약서가 없습니다."
@@ -204,8 +204,7 @@ public class CaregiverChatService {
 
         chatRoom.acceptContract();
 
-        ContractChatHistoryResponseDto response = ContractChatHistoryResponseDto.from(
-                contract, contract.getCreateDate().toString());
+        ContractChatHistoryResponseDto response = ContractChatHistoryResponseDto.from(contract);
 
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }

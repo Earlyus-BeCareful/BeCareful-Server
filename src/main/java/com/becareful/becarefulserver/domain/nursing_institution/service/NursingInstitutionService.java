@@ -41,7 +41,7 @@ public class NursingInstitutionService {
     @Transactional(readOnly = true)
     public Boolean existsByNameAndCode(String nursingInstitutionCode) {
         if (nursingInstitutionCode == null) {
-            throw new NursingInstitutionException(NURSING_INSTITUTION_REQUIRE_CODE);
+            throw new NursingInstitutionException(NURSING_INSTITUTION_REQUIRED_CODE);
         }
         return nursingInstitutionRepository.existsByCode(nursingInstitutionCode);
     }

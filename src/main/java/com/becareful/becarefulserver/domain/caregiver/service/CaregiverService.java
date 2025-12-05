@@ -1,6 +1,5 @@
 package com.becareful.becarefulserver.domain.caregiver.service;
 
-import static com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.*;
 import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.*;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
@@ -18,32 +17,32 @@ import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.service.*;
 import com.becareful.becarefulserver.global.util.*;
-import jakarta.servlet.http.*;
 import java.io.*;
 import java.time.*;
 import java.util.*;
-import lombok.*;
-import org.springframework.stereotype.*;
-import org.springframework.transaction.annotation.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CaregiverService {
 
     private final CaregiverRepository caregiverRepository;
     private final WorkApplicationRepository workApplicationRepository;
-    private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
+    private final CareerDetailRepository careerDetailRepository;
+    private final CareerRepository careerRepository;
+    private final ApplicationRepository applicationRepository;
+    private final RecruitmentRepository recruitmentRepository;
     private final FileUtil fileUtil;
     private final AuthUtil authUtil;
     private final S3Util s3Util;
     private final S3Service s3Service;
-    private final CareerDetailRepository careerDetailRepository;
-    private final CareerRepository careerRepository;
 
+    @Transactional(readOnly = true)
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
@@ -51,18 +50,14 @@ public class CaregiverService {
 
         Optional<WorkApplication> optionalWorkApplication = workApplicationRepository.findByCaregiver(caregiver);
 
-        int applicationCount = 0;
+        Long applicationCount = 0L;
+        Long recruitmentCount = recruitmentRepository.countByIsRecruiting();
         boolean isApplying = false;
         if (optionalWorkApplication.isPresent()) {
             WorkApplication workApplication = optionalWorkApplication.get();
-            applicationCount = matchingRepository
-                    .findByWorkApplicationAndMatchingStatus(workApplication, 지원검토)
-                    .size();
+            applicationCount = applicationRepository.countByWorkApplication(workApplication);
             isApplying = workApplication.isActive();
         }
-        Integer recruitmentCount = matchingRepository
-                .findAllByCaregiverAndApplicationStatus(caregiver, 미지원)
-                .size();
 
         List<CompletedMatching> myWork = completedMatchingRepository.findByCaregiver(caregiver);
 
@@ -77,9 +72,10 @@ public class CaregiverService {
                 .toList();
 
         return CaregiverHomeResponse.of(
-                caregiver, hasNewChat, recruitmentCount, applicationCount, isWorking, isApplying, workSchedules);
+                caregiver, hasNewChat, applicationCount, recruitmentCount, isWorking, isApplying, workSchedules);
     }
 
+    @Transactional(readOnly = true)
     public CaregiverMyPageHomeResponse getCaregiverMyPageHomeData() {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         Career career = careerRepository.findByCaregiver(loggedInCaregiver).orElse(null);
@@ -189,18 +185,22 @@ public class CaregiverService {
     }
 
     @Transactional
-    public void deleteCaregiver(HttpServletResponse response) {
-        /**
-         * 회원 탈퇴에 대한 명확한 기획이 필요함.
-         * 1. hard delete / soft delete
-         * 2. soft delete 라면 어떤 데이터를 마스킹할 것인지
-         * 3. 요양보호사와 연괸된 데이터 중 어떤 것을 남기고 어떤 것을 삭제할 지
-         * 4. 어떤 상황에서 탈퇴가 가능하고, 탈퇴가 불가능한지
-         */
+    public void deleteCaregiver() {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
-        matchingRepository.deleteAllByCaregiverAndStatusNot(loggedInCaregiver, 근무제안);
+        deleteCaregiverData(loggedInCaregiver);
         caregiverRepository.delete(loggedInCaregiver);
-        authUtil.logout(response);
+    }
+
+    private void deleteCaregiverData(Caregiver caregiver) {
+        careerRepository.findByCaregiver(caregiver).ifPresent(career -> {
+            careerDetailRepository.deleteAllByCareer(career);
+            careerRepository.delete(career);
+        });
+        workApplicationRepository.findByCaregiver(caregiver).ifPresent(workApplication -> {
+            applicationRepository.deleteByWorkApplication(workApplication);
+            workApplicationRepository.delete(workApplication);
+        });
+        completedMatchingRepository.deleteByCaregiver(caregiver);
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {

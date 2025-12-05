@@ -16,8 +16,8 @@ import com.becareful.becarefulserver.domain.matching.dto.request.CaregiverApplie
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
 import com.becareful.becarefulserver.domain.matching.service.CaregiverMatchingService;
 import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
+import com.becareful.becarefulserver.domain.socialworker.domain.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
 import java.time.DayOfWeek;
@@ -122,8 +122,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
             Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
 
             caregiverMatchingService.applyRecruitment(recruitmentId1);
-            socialWorkerMatchingService.proposeMatching(recruitmentId1, caregiver.getId(), LocalDate.of(2025, 11, 14));
-            socialWorkerMatchingService.proposeMatching(recruitmentId2, caregiver.getId(), LocalDate.of(2025, 11, 14));
+            socialWorkerMatchingService.proposeWork(recruitmentId1, caregiver.getId(), LocalDate.of(2025, 11, 14));
+            socialWorkerMatchingService.proposeWork(recruitmentId2, caregiver.getId(), LocalDate.of(2025, 11, 14));
 
             // when
             var response = caregiverMatchingService
@@ -165,8 +165,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
             Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
 
             caregiverMatchingService.applyRecruitment(recruitmentId1);
-            socialWorkerMatchingService.proposeMatching(recruitmentId1, caregiver.getId(), LocalDate.of(2025, 11, 14));
-            socialWorkerMatchingService.proposeMatching(recruitmentId2, caregiver.getId(), LocalDate.of(2025, 11, 14));
+            socialWorkerMatchingService.proposeWork(recruitmentId1, caregiver.getId(), LocalDate.of(2025, 11, 14));
+            socialWorkerMatchingService.proposeWork(recruitmentId2, caregiver.getId(), LocalDate.of(2025, 11, 14));
             socialWorkerMatchingService.closeRecruitment(recruitmentId1);
 
             // when
@@ -213,8 +213,8 @@ public class CaregiverMatchingTest extends IntegrationTest {
             Long recruitmentId2 = socialWorkerMatchingService.createRecruitment(matchedRecruitmentCreateRequest);
 
             caregiverMatchingService.applyRecruitment(recruitmentId1);
-            socialWorkerMatchingService.proposeMatching(recruitmentId1, caregiver.getId(), LocalDate.of(2025, 11, 14));
-            socialWorkerMatchingService.proposeMatching(recruitmentId2, caregiver.getId(), LocalDate.of(2025, 11, 14));
+            socialWorkerMatchingService.proposeWork(recruitmentId1, caregiver.getId(), LocalDate.of(2025, 11, 14));
+            socialWorkerMatchingService.proposeWork(recruitmentId2, caregiver.getId(), LocalDate.of(2025, 11, 14));
             socialWorkerMatchingService.closeRecruitment(recruitmentId1);
 
             // when

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
-public record CareerUpdateRequest(
+public record CareerCreateOrUpdateRequest(
         @NotBlank String title,
         @NotNull CareerType careerType,
         String introduce,
