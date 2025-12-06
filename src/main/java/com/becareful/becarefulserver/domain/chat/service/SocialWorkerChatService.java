@@ -16,6 +16,7 @@ import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
 import java.util.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.*;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class SocialWorkerChatService {
 
     private final AuthUtil authUtil;
@@ -168,6 +170,7 @@ public class SocialWorkerChatService {
 
     @Transactional
     public void sendTextChat(Long chatRoomId, SendTextChatRequest chatSendRequest) {
+        log.info("채팅전송 시도");
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
                 .orElseThrow(
@@ -179,7 +182,7 @@ public class SocialWorkerChatService {
         TextChat textChat = TextChat.create(chatRoom, ChatSenderType.SOCIAL_WORKER, chatSendRequest.text());
         chatRepository.save(textChat);
 
-        // 구독자에세 전송
+        // 구독자에게 전송
         TextChatResponse response = TextChatResponse.from(textChat);
 
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);

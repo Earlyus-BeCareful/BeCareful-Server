@@ -2,7 +2,6 @@ package com.becareful.becarefulserver.global.security;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.INVALID_REFRESH_TOKEN;
 
-import com.becareful.becarefulserver.domain.auth.handler.CustomSuccessHandler;
 import com.becareful.becarefulserver.global.constant.SecurityConstant;
 import com.becareful.becarefulserver.global.exception.ErrorMessage;
 import com.becareful.becarefulserver.global.exception.exception.AuthException;
@@ -19,8 +18,6 @@ import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,7 +31,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final JwtProperties jwtProperties;
     private final CookieProperties cookieProperties;
-    private static final Logger logger = LoggerFactory.getLogger(CustomSuccessHandler.class);
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -46,6 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
             throws ServletException, IOException {
+        log.info("URI: {}", request.getRequestURI()); // TODO: 에러 원인 확인용. 삭제 예정
 
         String accessToken = null;
         String refreshToken = null;
@@ -64,7 +61,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // AccessToken이 만료되었는지 확인
         if (accessToken == null || !jwtUtil.isValid(accessToken)) {
-
             // 리프레시 토큰이 존재하고 유효할 때만 재발급 시도
             if (refreshToken != null && jwtUtil.isValid(refreshToken)) {
                 // 액세스 토큰이 만료되었으면 리프레시 토큰을 사용하여 새 토큰 발급
@@ -80,7 +76,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 response.addCookie(newAccessTokenCookie);
             } else if (accessToken == null && refreshToken == null) {
-                log.info("URI: {}", request.getRequestURI()); // 어떤 요청에서 에러가 발생한건지 확인
                 throw new AuthException(ErrorMessage.TOKEN_NOT_CONTAINED);
             } else {
                 throw new AuthException(INVALID_REFRESH_TOKEN);

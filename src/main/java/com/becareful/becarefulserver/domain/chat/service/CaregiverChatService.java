@@ -15,6 +15,7 @@ import com.becareful.becarefulserver.global.util.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.*;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class CaregiverChatService {
 
     private final AuthUtil authUtil;
@@ -152,6 +154,8 @@ public class CaregiverChatService {
 
     @Transactional
     public void sendTextChat(Long chatRoomId, SendTextChatRequest chatSendRequest) {
+        log.info("채팅전송 시도");
+
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
                 .orElseThrow(
