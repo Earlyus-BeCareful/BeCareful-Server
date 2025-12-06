@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.caregiver.controller;
 
 import com.becareful.becarefulserver.domain.caregiver.dto.CareerDto;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.*;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.CaregiverMyMarketingInfoReceivingAgreementUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.service.*;
 import com.becareful.becarefulserver.domain.common.dto.request.*;
@@ -120,6 +121,14 @@ public class CaregiverController {
     public ResponseEntity<CaregiverMySettingResponse> getCaregiverMySetting() {
         var response = caregiverService.getCaregiverMySetting();
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "요양보호사 마케팅 수신 정보 동의 여부 수정")
+    @PatchMapping("/my/marketing-info-receiving-agreement")
+    public ResponseEntity<Void> updateMyMarketingInfoReceivingAgreement(
+            @Valid @RequestBody CaregiverMyMarketingInfoReceivingAgreementUpdateRequest request) {
+        caregiverService.updateCaregiverMyMarketingInfoReceivingAgreement(request);
+        return ResponseEntity.ok().build();
     }
 
     // TODO : url 에 list 는 적지 않도록 삭제

@@ -17,6 +17,7 @@ import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.service.*;
 import com.becareful.becarefulserver.global.util.*;
+import jakarta.validation.Valid;
 import java.io.*;
 import java.time.*;
 import java.util.*;
@@ -195,6 +196,13 @@ public class CaregiverService {
     public CaregiverMySettingResponse getCaregiverMySetting() {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         return CaregiverMySettingResponse.from(loggedInCaregiver);
+    }
+
+    @Transactional
+    public void updateCaregiverMyMarketingInfoReceivingAgreement(
+            @Valid CaregiverMyMarketingInfoReceivingAgreementUpdateRequest request) {
+        Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
+        loggedInCaregiver.updateMarketingInfoReceivingAgreement(request.isAgreedToReceiveMarketingInfo());
     }
 
     private void deleteCaregiverData(Caregiver caregiver) {
