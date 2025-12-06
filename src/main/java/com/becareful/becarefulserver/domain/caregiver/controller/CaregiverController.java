@@ -115,6 +115,13 @@ public class CaregiverController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "요양보호사 설정 화면 정보 조회")
+    @PutMapping("/my/setting")
+    public ResponseEntity<CaregiverMySettingResponse> getCaregiverMySetting() {
+        var response = caregiverService.getCaregiverMySetting();
+        return ResponseEntity.ok(response);
+    }
+
     // TODO : url 에 list 는 적지 않도록 삭제
     @Operation(summary = "확정된 일자리의 리스트가 반환됩니다.")
     @GetMapping("/my/completed-matching-list")

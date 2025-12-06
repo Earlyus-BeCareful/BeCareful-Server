@@ -172,7 +172,7 @@ public class CaregiverService {
                 request.socialWorkerCertificate(),
                 request.nursingCareCertificate());
 
-        caregiver.updateInfo(request.phoneNumber(), profileImageUrl, caregiverInfo, request.address());
+        caregiver.updateInfo(profileImageUrl, caregiverInfo, request.address());
 
         if (request.profileImageTempKey() != null
                 && !request.profileImageTempKey().equals("default")) {
@@ -189,6 +189,12 @@ public class CaregiverService {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         deleteCaregiverData(loggedInCaregiver);
         caregiverRepository.delete(loggedInCaregiver);
+    }
+
+    @Transactional(readOnly = true)
+    public CaregiverMySettingResponse getCaregiverMySetting() {
+        Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
+        return CaregiverMySettingResponse.from(loggedInCaregiver);
     }
 
     private void deleteCaregiverData(Caregiver caregiver) {

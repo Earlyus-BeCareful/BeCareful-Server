@@ -125,8 +125,7 @@ public class Caregiver extends BaseEntity {
         return LocalDate.now().getYear() - this.birthDate.getYear() + 1;
     }
 
-    public void updateInfo(String phoneNumber, String profileImageUrl, CaregiverInfo caregiverInfo, Address address) {
-        this.phoneNumber = phoneNumber;
+    public void updateInfo(String profileImageUrl, CaregiverInfo caregiverInfo, Address address) {
         this.profileImageUrl = profileImageUrl;
         this.caregiverInfo = caregiverInfo;
         this.address = address;
