@@ -168,6 +168,7 @@ public class SocialWorkerChatService {
         }
     }
 
+    @Transactional
     public void sendTextChat(Long chatRoomId, SendTextChatRequest chatSendRequest) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -186,6 +187,7 @@ public class SocialWorkerChatService {
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
+    @Transactional
     public void editContractChat(Long chatRoomId, EditContractChatRequest request) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -193,6 +195,8 @@ public class SocialWorkerChatService {
                         // TODO: 예외처리
                         // "채팅방이 존재하지 않습니다."
                         );
+
+        checkChatRoomIsActive(chatRoom);
 
         Contract contract = Contract.edit(
                 chatRoom,
@@ -212,6 +216,7 @@ public class SocialWorkerChatService {
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
+    @Transactional
     public void confirmContractChat(Long chatRoomId, ConfirmContractChatRequest request) {
 
         // TODO: 채팅방이 이 사회복지사가 접근 가능한 채팅방이 맞는지 검증 필요
@@ -255,18 +260,21 @@ public class SocialWorkerChatService {
         List<ChatRoom> chatRooms =
                 chatRoomRepository.findAllByChatRoomActiveStatusAndRecruitment(ChatRoomActiveStatus.채팅가능, recruitment);
 
+        ChatRoomActiveStatusUpdatedChatResponse activeResponse =
+                ChatRoomActiveStatusUpdatedChatResponse.of(ChatRoomActiveStatus.타매칭채용완료);
+
         for (ChatRoom room : chatRooms) {
             if (room.getId().equals(chatRoom.getId())) continue;
 
             room.otherMatchingConfirmed();
+
+            messagingTemplate.convertAndSend("/topic/chat-room/" + room.getId(), activeResponse);
         }
 
         winnerMatching.confirm();
 
         CompletedMatching completedMatching = new CompletedMatching(caregiver, contract, recruitment);
         completedMatchingRepository.save(completedMatching);
-
-        // TODO: 매칭
 
         // 웹소켓 연결
         ChatRoomContractStatusUpdatedChatResponse response =

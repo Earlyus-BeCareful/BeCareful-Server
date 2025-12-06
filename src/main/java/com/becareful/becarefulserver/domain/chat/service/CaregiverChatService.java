@@ -204,8 +204,8 @@ public class CaregiverChatService {
 
         chatRoom.acceptContract();
 
-        ContractChatResponse contractChatResponse = ContractChatResponse.from
-                (contract, contract.getCreateDate().toString());
+        ContractChatResponse contractChatResponse =
+                ContractChatResponse.from(contract, contract.getCreateDate().toString());
 
         ChatRoomContractStatusUpdatedChatResponse contractStatusUpdateResponse =
                 ChatRoomContractStatusUpdatedChatResponse.of(ChatRoomContractStatus.근무조건동의);
