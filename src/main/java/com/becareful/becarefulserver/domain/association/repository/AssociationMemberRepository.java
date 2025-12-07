@@ -2,7 +2,7 @@ package com.becareful.becarefulserver.domain.association.repository;
 
 import com.becareful.becarefulserver.domain.association.domain.Association;
 import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
+import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;

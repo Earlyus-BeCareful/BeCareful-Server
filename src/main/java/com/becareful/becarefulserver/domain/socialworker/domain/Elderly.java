@@ -9,7 +9,6 @@ import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.converter.DetailCareTypeConverter;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.EnumSet;

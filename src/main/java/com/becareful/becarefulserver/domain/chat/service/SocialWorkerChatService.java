@@ -16,6 +16,7 @@ import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
 import java.util.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
@@ -23,16 +24,17 @@ import org.springframework.transaction.annotation.*;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class SocialWorkerChatService {
 
     private final AuthUtil authUtil;
     private final ContractRepository contractRepository;
-    private final MatchingRepository matchingRepository;
     private final CompletedMatchingRepository completedMatchingRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final CaregiverChatReadStatusRepository caregiverChatReadStatusRepository;
     private final ChatRepository chatRepository;
+    private final ApplicationRepository applicationRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional(readOnly = true)
@@ -170,6 +172,7 @@ public class SocialWorkerChatService {
 
     @Transactional
     public void sendTextChat(Long chatRoomId, SendTextChatRequest chatSendRequest) {
+        log.info("채팅전송 시도");
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
                 .orElseThrow(
@@ -181,7 +184,7 @@ public class SocialWorkerChatService {
         TextChat textChat = TextChat.create(chatRoom, ChatSenderType.SOCIAL_WORKER, chatSendRequest.text());
         chatRepository.save(textChat);
 
-        // 구독자에세 전송
+        // 구독자에게 전송
         TextChatResponse response = TextChatResponse.from(textChat);
 
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
@@ -241,21 +244,14 @@ public class SocialWorkerChatService {
                         )
                 .getCaregiver();
 
-        Matching winnerMatching = matchingRepository
-                .findByCaregiverIdAndRecruitmentId(caregiver.getId(), recruitment.getId())
-                .orElseThrow(
-                        // TODO: 예외처리
-                        );
-
-        List<Matching> matchings =
-                matchingRepository.findAllByMatchingStatusAndRecruitment(MatchingStatus.근무제안, recruitment);
-
         // 나머지 매칭 실패 처리
-        for (Matching m : matchings) {
-            if (m.getId().equals(winnerMatching.getId())) continue;
-
-            m.failedConfirm();
-        }
+        applicationRepository.findAllByRecruitment(recruitment).forEach(application -> {
+            if (application.getWorkApplication().getCaregiver().equals(caregiver)) {
+                application.hire();
+                return;
+            }
+            application.failed();
+        });
 
         List<ChatRoom> chatRooms =
                 chatRoomRepository.findAllByChatRoomActiveStatusAndRecruitment(ChatRoomActiveStatus.채팅가능, recruitment);
@@ -271,10 +267,13 @@ public class SocialWorkerChatService {
             messagingTemplate.convertAndSend("/topic/chat-room/" + room.getId(), activeResponse);
         }
 
-        winnerMatching.confirm();
-
+        // TODO: 매칭완료 생성메서드에서 contract 파라미터 삭제
         CompletedMatching completedMatching = new CompletedMatching(caregiver, contract, recruitment);
         completedMatchingRepository.save(completedMatching);
+
+        recruitment.complete();
+
+        // TODO: 매칭
 
         // 웹소켓 연결
         ChatRoomContractStatusUpdatedChatResponse response =

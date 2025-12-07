@@ -12,4 +12,6 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     Iterable<ChatRoom> findAllByChatRoomActiveStatusAndRecruitmentId(
             ChatRoomActiveStatus chatRoomActiveStatus, Long recruitmentId);
+
+    boolean existsByRecruitment(Recruitment recruitment);
 }

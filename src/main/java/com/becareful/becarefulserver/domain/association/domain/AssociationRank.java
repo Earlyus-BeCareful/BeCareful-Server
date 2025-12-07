@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.domain.socialworker.domain.vo;
+package com.becareful.becarefulserver.domain.association.domain;
 
 public enum AssociationRank {
     CHAIRMAN(100),
