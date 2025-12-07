@@ -155,11 +155,11 @@ public class SocialWorkerService {
 
         boolean isLastMember = isLastSocialWorkerInInstitution(loggedInSocialWorker);
 
-        socialworkerRepository.delete(loggedInSocialWorker);
-
         if (isLastMember) {
             updateChatRoomsAsAllSocialWorkerLeft(loggedInSocialWorker);
         }
+
+        socialworkerRepository.delete(loggedInSocialWorker);
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
