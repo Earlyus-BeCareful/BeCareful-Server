@@ -193,8 +193,8 @@ public class CaregiverService {
     public void deleteCaregiver() {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         deleteCaregiverData(loggedInCaregiver);
-        caregiverRepository.delete(loggedInCaregiver);
         updateChatRoomsAsCaregiverLeft(loggedInCaregiver);
+        caregiverRepository.delete(loggedInCaregiver);
     }
 
     private void deleteCaregiverData(Caregiver caregiver) {
