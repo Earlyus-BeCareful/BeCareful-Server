@@ -132,11 +132,9 @@ public class SocialWorkerChatService {
         List<ChatHistoryResponseDto> chatResponseDtoList = chatList.stream()
                 .map(chat -> {
                     if (chat instanceof TextChat textChat) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(textChat.getCreateDate());
-                        return TextChatHistoryResponseDto.from(textChat, lastSendTime);
+                        return TextChatHistoryResponseDto.from(textChat);
                     } else if (chat instanceof Contract contract) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(contract.getCreateDate());
-                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract, lastSendTime);
+                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract);
                     } else {
                         // TODO: 예외처리
                         // "허용되지 않는 메시지 타입입니다."
@@ -213,8 +211,7 @@ public class SocialWorkerChatService {
 
         contractRepository.save(contract);
 
-        ContractChatResponse response =
-                ContractChatResponse.from(contract, contract.getCreateDate().toString());
+        ContractChatResponse response = ContractChatResponse.from(contract);
 
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
@@ -253,32 +250,36 @@ public class SocialWorkerChatService {
             application.failed();
         });
 
-        List<ChatRoom> chatRooms =
-                chatRoomRepository.findAllByChatRoomActiveStatusAndRecruitment(ChatRoomActiveStatus.채팅가능, recruitment);
-
-        ChatRoomActiveStatusUpdatedChatResponse activeResponse =
-                ChatRoomActiveStatusUpdatedChatResponse.of(ChatRoomActiveStatus.타매칭채용완료);
-
-        for (ChatRoom room : chatRooms) {
-            if (room.getId().equals(chatRoom.getId())) continue;
-
-            room.otherMatchingConfirmed();
-
-            messagingTemplate.convertAndSend("/topic/chat-room/" + room.getId(), activeResponse);
-        }
-
         // TODO: 매칭완료 생성메서드에서 contract 파라미터 삭제
         CompletedMatching completedMatching = new CompletedMatching(caregiver, contract, recruitment);
         completedMatchingRepository.save(completedMatching);
 
         recruitment.complete();
+        chatRoom.confirmContract();
+        sendMatchingCompletedMessage(chatRoomId);
 
-        // TODO: 매칭
+        updateChatRoomsAsOtherMatchingConfirmed(recruitment, chatRoomId);
+    }
 
-        // 웹소켓 연결
+    private void sendMatchingCompletedMessage(Long chatRoomId) {
+
         ChatRoomContractStatusUpdatedChatResponse response =
                 ChatRoomContractStatusUpdatedChatResponse.of(ChatRoomContractStatus.채용완료);
 
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
+    }
+
+    @Transactional
+    private void updateChatRoomsAsOtherMatchingConfirmed(Recruitment recruitment, Long winnerChatRoomId) {
+        ChatRoomActiveStatusUpdatedChatResponse chatResponse =
+                ChatRoomActiveStatusUpdatedChatResponse.of(ChatRoomActiveStatus.타매칭채용완료);
+
+        chatRoomRepository
+                .findAllByChatRoomActiveStatusAndRecruitment(ChatRoomActiveStatus.채팅가능, recruitment)
+                .forEach(chatRoom -> {
+                    if (chatRoom.getId().equals(winnerChatRoomId)) return;
+                    chatRoom.otherMatchingConfirmed();
+                    messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoom.getId(), chatResponse);
+                });
     }
 }

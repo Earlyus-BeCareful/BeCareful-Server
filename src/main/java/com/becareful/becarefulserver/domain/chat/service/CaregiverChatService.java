@@ -208,12 +208,10 @@ public class CaregiverChatService {
 
         chatRoom.acceptContract();
 
-        ContractChatHistoryResponseDto response = ContractChatHistoryResponseDto.from(contract);
         ChatRoomContractStatusUpdatedChatResponse contractStatusUpdateResponse =
                 ChatRoomContractStatusUpdatedChatResponse.of(ChatRoomContractStatus.근무조건동의);
 
-        ContractChatResponse contractChatResponse =
-                ContractChatResponse.from(contract, contract.getCreateDate().toString());
+        ContractChatResponse contractChatResponse = ContractChatResponse.from(contract);
 
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, contractStatusUpdateResponse);
 

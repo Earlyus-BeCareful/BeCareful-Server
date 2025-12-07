@@ -16,7 +16,6 @@ import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.common.dto.request.*;
 import com.becareful.becarefulserver.domain.common.dto.response.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
-import static com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.service.*;
@@ -25,6 +24,7 @@ import java.io.*;
 import java.time.*;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.*;
@@ -45,6 +45,7 @@ public class CaregiverService {
     private final AuthUtil authUtil;
     private final S3Util s3Util;
     private final S3Service s3Service;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional(readOnly = true)
     public CaregiverHomeResponse getHomeData() {
@@ -193,17 +194,7 @@ public class CaregiverService {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         deleteCaregiverData(loggedInCaregiver);
         caregiverRepository.delete(loggedInCaregiver);
-        //authUtil.logout(response);
-        ChatRoomActiveStatusUpdatedChatResponse chatResponse = ChatRoomActiveStatusUpdatedChatResponse.of(ChatRoomActiveStatus.요양보호사탈퇴);
-
-        List<CaregiverChatReadStatus> chatReadStatuses = caregiverChatReadStatusRepository.findAllByCaregiver(loggedInCaregiver);
-
-        chatReadStatuses.forEach(chatReadStatus -> {
-            ChatRoom chatRoom = chatReadStatus.getChatRoom();
-            chatRoom.caregiverLeave();
-            messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoom.getId(), chatResponse);
-        });
-
+        updateChatRoomsAsCaregiverLeft(loggedInCaregiver);
     }
 
     private void deleteCaregiverData(Caregiver caregiver) {
@@ -218,11 +209,23 @@ public class CaregiverService {
         completedMatchingRepository.deleteByCaregiver(caregiver);
     }
 
+    private void updateChatRoomsAsCaregiverLeft(Caregiver caregiver) {
+        ChatRoomActiveStatusUpdatedChatResponse chatResponse =
+                ChatRoomActiveStatusUpdatedChatResponse.of(ChatRoomActiveStatus.요양보호사탈퇴);
+
+        caregiverChatReadStatusRepository.findAllByCaregiver(caregiver).stream()
+                .map(CaregiverChatReadStatus::getChatRoom)
+                .filter(chatRoom -> chatRoom.getChatRoomActiveStatus() == ChatRoomActiveStatus.채팅가능)
+                .forEach(chatRoom -> {
+                    chatRoom.caregiverLeave();
+                    messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoom.getId(), chatResponse);
+                });
+    }
+
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
         if (isAgreedToTerms && isAgreedToCollectPersonalInfo) {
             return;
         }
-
         throw new CaregiverException(CAREGIVER_REQUIRED_AGREEMENT);
     }
 
