@@ -6,6 +6,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.chat.dto.response.ChatRoomActiveStatusUpdatedChatResponse;
 import com.becareful.becarefulserver.domain.chat.repository.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
@@ -27,6 +28,7 @@ import java.util.*;
 import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 
@@ -52,6 +54,7 @@ public class SocialWorkerMatchingService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
     private final ApplicationRepository applicationRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     /***
      * 2025-09-24
@@ -265,9 +268,19 @@ public class SocialWorkerMatchingService {
         recruitment.close();
 
         // 매칭마다 chatRoom 조회 후 상태 변경
+        notifyChatRoomsRecruitmentClosed(recruitmentId);
+    }
+
+    private void notifyChatRoomsRecruitmentClosed(Long recruitmentId) {
+        ChatRoomActiveStatusUpdatedChatResponse chatResponse =
+                ChatRoomActiveStatusUpdatedChatResponse.of(ChatRoomActiveStatus.공고마감);
+
         chatRoomRepository
                 .findAllByChatRoomActiveStatusAndRecruitmentId(ChatRoomActiveStatus.채팅가능, recruitmentId)
-                .forEach(ChatRoom::recruitmentClosed);
+                .forEach(chatRoom -> {
+                    chatRoom.recruitmentClosed();
+                    messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoom.getId(), chatResponse);
+                });
     }
 
     /**

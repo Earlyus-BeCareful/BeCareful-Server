@@ -208,8 +208,13 @@ public class CaregiverChatService {
 
         chatRoom.acceptContract();
 
-        ContractChatHistoryResponseDto response = ContractChatHistoryResponseDto.from(contract);
+        ChatRoomContractStatusUpdatedChatResponse contractStatusUpdateResponse =
+                ChatRoomContractStatusUpdatedChatResponse.of(ChatRoomContractStatus.근무조건동의);
 
-        messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
+        ContractChatResponse contractChatResponse = ContractChatResponse.from(contract);
+
+        messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, contractStatusUpdateResponse);
+
+        messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, contractChatResponse);
     }
 }
