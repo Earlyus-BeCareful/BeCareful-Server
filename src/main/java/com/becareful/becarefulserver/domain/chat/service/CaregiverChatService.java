@@ -152,6 +152,7 @@ public class CaregiverChatService {
         }
     }
 
+    @Transactional
     public void sendTextChat(Long chatRoomId, SendTextChatRequest chatSendRequest) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -169,6 +170,7 @@ public class CaregiverChatService {
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
+    @Transactional
     public void acceptContractChat(long chatRoomId, AcceptContractChatRequest request) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -204,11 +206,11 @@ public class CaregiverChatService {
 
         chatRoom.acceptContract();
 
-        ContractChatResponse contractChatResponse =
-                ContractChatResponse.from(contract, contract.getCreateDate().toString());
-
         ChatRoomContractStatusUpdatedChatResponse contractStatusUpdateResponse =
                 ChatRoomContractStatusUpdatedChatResponse.of(ChatRoomContractStatus.근무조건동의);
+
+        ContractChatResponse contractChatResponse =
+                ContractChatResponse.from(contract, contract.getCreateDate().toString());
 
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, contractStatusUpdateResponse);
 

@@ -1,20 +1,22 @@
 package com.becareful.becarefulserver.domain.caregiver.service;
 
-import static com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.*;
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.*;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
-
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.caregiver.domain.vo.*;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.*;
 import com.becareful.becarefulserver.domain.caregiver.dto.response.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
+import com.becareful.becarefulserver.domain.chat.domain.*;
+import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.chat.dto.response.*;
 import com.becareful.becarefulserver.domain.chat.repository.*;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.common.dto.request.*;
 import com.becareful.becarefulserver.domain.common.dto.response.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
+import static com.becareful.becarefulserver.domain.matching.domain.MatchingStatus.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.*;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.service.*;
 import com.becareful.becarefulserver.global.util.*;
@@ -43,6 +45,7 @@ public class CaregiverService {
     private final S3Service s3Service;
     private final CareerDetailRepository careerDetailRepository;
     private final CareerRepository careerRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
@@ -199,8 +202,19 @@ public class CaregiverService {
          */
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         matchingRepository.deleteAllByCaregiverAndStatusNot(loggedInCaregiver, 근무제안);
+        ChatRoomActiveStatusUpdatedChatResponse chatResponse = ChatRoomActiveStatusUpdatedChatResponse.of(ChatRoomActiveStatus.요양보호사탈퇴);
+
+        List<CaregiverChatReadStatus> chatReadStatuses = caregiverChatReadStatusRepository.findAllByCaregiver(loggedInCaregiver);
+
+        chatReadStatuses.forEach(chatReadStatus -> {
+           ChatRoom chatRoom = chatReadStatus.getChatRoom();
+           chatRoom.caregiverLeave();
+        });
+
         caregiverRepository.delete(loggedInCaregiver);
         authUtil.logout(response);
+
+        messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
