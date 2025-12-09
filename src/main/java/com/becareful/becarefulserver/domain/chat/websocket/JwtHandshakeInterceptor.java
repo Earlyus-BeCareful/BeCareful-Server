@@ -1,7 +1,9 @@
 package com.becareful.becarefulserver.domain.chat.websocket;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.global.util.*;
 import jakarta.servlet.http.*;
@@ -43,17 +45,17 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
             ChatSenderType type;
             Long userId;
-            if (caregiverRepository.existsByPhoneNumber(phoneNumber)) {
+            Optional<Caregiver> caregiverOpt = caregiverRepository.findByPhoneNumber(phoneNumber);
+            if (caregiverOpt.isPresent()) {
                 type = ChatSenderType.CAREGIVER;
-                userId =
-                        caregiverRepository.findByPhoneNumber(phoneNumber).get().getId();
-            } else if (socialWorkerRepository.existsByPhoneNumber(phoneNumber)) {
-                type = ChatSenderType.SOCIAL_WORKER;
-                userId = socialWorkerRepository
+                userId = caregiverOpt.get().getId();
+            } else {
+                SocialWorker socialworker = socialWorkerRepository
                         .findByPhoneNumber(phoneNumber)
-                        .get()
-                        .getId();
-            } else throw new HandshakeFailureException("웹소켓 handShake 인터셉터 실패. 전화번호와 일치하는 사용자가 없음.");
+                        .orElseThrow(() -> new HandshakeFailureException("웹소켓 handShake 인터셉터 실패. 전화번호와 일치하는 사용자가 없음."));
+                type = ChatSenderType.SOCIAL_WORKER;
+                userId = socialworker.getId();
+            }
 
             attributes.put("principal", new ChatPrincipal(type, userId));
             log.info("웹소켓 handShake 인터셉터 통과");

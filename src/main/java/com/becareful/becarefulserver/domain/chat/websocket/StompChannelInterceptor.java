@@ -31,8 +31,6 @@ public class StompChannelInterceptor implements ChannelInterceptor {
                 handleEnter(accessor);
             } else if (StompCommand.UNSUBSCRIBE.equals(command)) {
                 handleLeave(accessor);
-            } else if (StompCommand.DISCONNECT.equals(command)) {
-                handleDisconnect(accessor);
             }
         } catch (Exception e) {
             log.error("StompChannelInterceptor 처리 중 예외", e);
@@ -134,39 +132,6 @@ public class StompChannelInterceptor implements ChannelInterceptor {
         // 해당 세션의 room 제거 (UNSUBSCRIBE가 마지막 구독이라면)
         sessionStore.removeSession(sessionId);
         // user->session은 세션이 완전히 끊길 때만 삭제하도록 유지(Disconnect에서 제거)
-    }
-
-    private void handleDisconnect(StompHeaderAccessor accessor) {
-        ChatPrincipal principal = (ChatPrincipal) accessor.getUser();
-        String sessionId = accessor.getSessionId();
-
-        log.info(
-                "DISCONNECT(pre-send): sessionId={}, user={}",
-                sessionId,
-                principal == null ? null : principal.userId());
-
-        if (principal == null) {
-            // 세션 매핑만 정리
-            Long rm = sessionStore.getRoomBySession(sessionId);
-            if (rm != null) sessionStore.removeSession(sessionId);
-            return;
-        }
-
-        Long roomId = sessionStore.getRoomBySession(sessionId);
-        if (roomId == null) {
-            log.info("DISCONNECT: session에 매핑된 room 없음, sessionId={}", sessionId);
-            sessionStore.removeSession(sessionId);
-            sessionStore.removeUser(principal.userId());
-            return;
-        }
-
-        // DISCONNECT 이벤트 발행
-        eventPublisher.publishEvent(
-                new ChatEvent(roomId, principal.userId(), principal.senderType(), ChatEvent.ChatEventType.DISCONNECT));
-
-        // 매핑 정리
-        sessionStore.removeSession(sessionId);
-        sessionStore.removeUser(principal.userId());
     }
 
     private Long extractRoomId(String destination) {
