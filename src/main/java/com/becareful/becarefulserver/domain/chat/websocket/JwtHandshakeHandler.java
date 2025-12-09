@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.global.websocket;
+package com.becareful.becarefulserver.domain.chat.websocket;
 
 import java.security.Principal;
 import java.util.Map;

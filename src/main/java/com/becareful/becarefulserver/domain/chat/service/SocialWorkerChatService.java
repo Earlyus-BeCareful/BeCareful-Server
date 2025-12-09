@@ -104,9 +104,11 @@ public class SocialWorkerChatService {
     @Transactional
     public SocialWorkerChatRoomDetailResponse getChatRoomDetailData(Long chatRoomId) {
         SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
-        SocialWorkerChatReadStatus chatReadStatus =
-                socialWorkerChatReadStatusRepository.findByChatRoomIdAndSocialWorkerId(
-                        chatRoomId, socialWorker.getId());
+        SocialWorkerChatReadStatus chatReadStatus = socialWorkerChatReadStatusRepository
+                .findByChatRoomIdAndSocialWorkerId(chatRoomId, socialWorker.getId())
+                .orElseThrow(
+                        // TODO: 예외처리
+                        );
 
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -281,5 +283,16 @@ public class SocialWorkerChatService {
                     chatRoom.otherMatchingConfirmed();
                     messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoom.getId(), chatResponse);
                 });
+    }
+
+    @Transactional
+    public void leaveRoom(Long socialWorkerId, Long roomId) {
+        log.info("SocialWorkerChatService:leaveRoom 실행");
+        SocialWorkerChatReadStatus readStatus = socialWorkerChatReadStatusRepository
+                .findByChatRoomIdAndSocialWorkerId(roomId, socialWorkerId)
+                .orElseThrow(
+                        // TODO: 예외처리
+                        );
+        readStatus.updateLastReadAt();
     }
 }

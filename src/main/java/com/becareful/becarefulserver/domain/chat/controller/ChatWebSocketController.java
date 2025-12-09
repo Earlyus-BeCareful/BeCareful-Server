@@ -4,7 +4,7 @@ import com.becareful.becarefulserver.domain.chat.domain.vo.ChatSenderType;
 import com.becareful.becarefulserver.domain.chat.dto.request.*;
 import com.becareful.becarefulserver.domain.chat.service.CaregiverChatService;
 import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService;
-import com.becareful.becarefulserver.global.websocket.ChatPrincipal;
+import com.becareful.becarefulserver.domain.chat.websocket.ChatPrincipal;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

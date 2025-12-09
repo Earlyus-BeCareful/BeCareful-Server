@@ -217,4 +217,15 @@ public class CaregiverChatService {
 
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, contractChatResponse);
     }
+
+    @Transactional
+    public void leaveRoom(Long roomId) {
+        log.info("CaregiverChatService:leaveRoom 실행");
+        CaregiverChatReadStatus readStatus = caregiverChatReadStatusRepository
+                .findByChatRoomId(roomId)
+                .orElseThrow(
+                        // TODO: 에러처리
+                        );
+        readStatus.updateLastReadAt();
+    }
 }

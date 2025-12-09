@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.global.websocket;
+package com.becareful.becarefulserver.domain.chat.websocket;
 
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.domain.vo.*;
@@ -42,13 +42,20 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             String phoneNumber = jwtUtil.getPhoneNumber(cookie.getValue());
 
             ChatSenderType type;
+            Long userId;
             if (caregiverRepository.existsByPhoneNumber(phoneNumber)) {
                 type = ChatSenderType.CAREGIVER;
+                userId =
+                        caregiverRepository.findByPhoneNumber(phoneNumber).get().getId();
             } else if (socialWorkerRepository.existsByPhoneNumber(phoneNumber)) {
                 type = ChatSenderType.SOCIAL_WORKER;
+                userId = socialWorkerRepository
+                        .findByPhoneNumber(phoneNumber)
+                        .get()
+                        .getId();
             } else throw new HandshakeFailureException("웹소켓 handShake 인터셉터 실패. 전화번호와 일치하는 사용자가 없음.");
 
-            attributes.put("principal", new ChatPrincipal(type));
+            attributes.put("principal", new ChatPrincipal(type, userId));
             log.info("웹소켓 handShake 인터셉터 통과");
         }
         return true;

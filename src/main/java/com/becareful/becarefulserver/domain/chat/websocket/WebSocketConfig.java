@@ -1,4 +1,4 @@
-package com.becareful.becarefulserver.global.websocket;
+package com.becareful.becarefulserver.domain.chat.websocket;
 
 import lombok.*;
 import org.springframework.context.annotation.*;
@@ -11,6 +11,7 @@ import org.springframework.web.socket.config.annotation.*;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
     private final JwtHandshakeHandler jwtHandshakeHandler;
+    private final StompChannelInterceptor stompChannelInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -23,6 +24,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         "https://localhost:5173",
                         "https://localhost:3000",
                         "https://be-careful-client-*.vercel.app");
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(stompChannelInterceptor);
     }
 
     @Override
