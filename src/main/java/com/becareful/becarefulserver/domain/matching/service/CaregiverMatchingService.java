@@ -5,7 +5,6 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
-import com.becareful.becarefulserver.domain.chat.repository.CaregiverChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
@@ -32,7 +31,6 @@ public class CaregiverMatchingService {
 
     private final AuthUtil authUtil;
     private final WorkApplicationRepository workApplicationRepository;
-    private final CaregiverChatReadStatusRepository chatReadStatusRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final ApplicationRepository applicationRepository;
     private final MatchingDomainService matchingDomainService;
