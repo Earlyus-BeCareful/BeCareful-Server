@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.chat.dto.response;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.vo.*;
 import com.becareful.becarefulserver.domain.common.domain.*;
@@ -12,10 +13,16 @@ public record ContractChatResponse(
         long chatId,
         ChatSenderType senderType,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime sentTime,
+        String elderlyName,
+        int elderlyAge,
+        Gender elderlyGender,
+        String caregiverName,
+        String caregiverPhoneNumber,
         EnumSet<CareType> careTypes,
         EnumSet<DayOfWeek> workDays,
         LocalTime workStartTime,
         LocalTime workEndTime,
+        WorkSalaryUnitType workSalaryUnitType,
         Integer workSalaryAmount,
         LocalDate workStartDate)
         implements ChatResponse {
@@ -25,10 +32,16 @@ public record ContractChatResponse(
                 contract.getId(),
                 contract.getSenderType(),
                 contract.getCreateDate(),
+                contract.getElderlyName(),
+                contract.getElderlyAge(),
+                contract.getElderlyGender(),
+                contract.getCaregiverName(),
+                contract.getCaregiverPhoneNumber(),
                 contract.getCareTypes(),
                 contract.getWorkDays(),
                 contract.getWorkStartTime(),
                 contract.getWorkEndTime(),
+                contract.getWorkSalaryUnitType(),
                 contract.getWorkSalaryAmount(),
                 contract.getWorkStartDate());
     }
