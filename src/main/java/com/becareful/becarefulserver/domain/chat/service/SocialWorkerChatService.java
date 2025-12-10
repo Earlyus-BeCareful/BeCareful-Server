@@ -295,4 +295,10 @@ public class SocialWorkerChatService {
                         );
         readStatus.updateLastReadAt();
     }
+
+    @Transactional(readOnly = true)
+    public boolean hasNewChat() {
+        SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
+        return socialWorkerChatReadStatusRepository.existsUnreadChat(socialWorker);
+    }
 }

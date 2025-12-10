@@ -87,12 +87,10 @@ public class SocialWorkerService {
 
         List<Recruitment> recruitments = recruitmentRepository.findAllByElderlyIn(institutionElderlys);
 
-        boolean hasNewChat = socialWorkerChatReadStatusRepository.existsUnreadChat(loggedInSocialWorker);
-
         int institutionElderlyCount = institutionElderlys.size();
 
         return SocialWorkerHomeResponse.of(
-                loggedInSocialWorker, institutionSocialWorkers, recruitments, institutionElderlyCount, hasNewChat);
+                loggedInSocialWorker, institutionSocialWorkers, recruitments, institutionElderlyCount);
     }
 
     @Transactional(readOnly = true)

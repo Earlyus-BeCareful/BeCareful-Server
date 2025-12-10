@@ -61,12 +61,10 @@ public class CaregiverMatchingService {
                 .findById(recruitmentId)
                 .orElseThrow(() -> new RecruitmentException(RECRUITMENT_NOT_EXISTS));
 
-        boolean hasNewChat = chatReadStatusRepository.existsUnreadChat(caregiver);
-
         MatchingResultStatus result = matchingDomainService.calculateMatchingStatus(workApplication, recruitment);
 
         // TODO : recruitment 태그 부여 판단
-        return RecruitmentDetailResponse.of(recruitment, result, false, false, hasNewChat);
+        return RecruitmentDetailResponse.of(recruitment, result, false, false);
     }
 
     @Transactional
@@ -122,8 +120,7 @@ public class CaregiverMatchingService {
                             return CaregiverRecruitmentResponse.of(recruitment, result);
                         })
                         .toList();
-        boolean hasNewChat = chatReadStatusRepository.existsUnreadChat(caregiver);
-        return CaregiverAppliedRecruitmentsResponse.of(recruitments, hasNewChat);
+        return CaregiverAppliedRecruitmentsResponse.of(recruitments);
     }
 
     @Transactional(readOnly = true)
@@ -141,8 +138,6 @@ public class CaregiverMatchingService {
         MatchingResultStatus result =
                 matchingDomainService.calculateMatchingStatus(application.getWorkApplication(), recruitment);
 
-        boolean hasNewChat = chatReadStatusRepository.existsUnreadChat(caregiver);
-
-        return CaregiverAppliedMatchingDetailResponse.of(application, result, false, false, hasNewChat);
+        return CaregiverAppliedMatchingDetailResponse.of(application, result, false, false);
     }
 }

@@ -30,4 +30,11 @@ public class CaregiverChatController {
         var response = caregiverChatService.getChatRoomDetail(chatRoomId);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "요양보호사 미열람채팅 알림")
+    @GetMapping("/has-new-chat")
+    public ResponseEntity<Boolean> hasNewChat() {
+        boolean response = caregiverChatService.hasNewChat();
+        return ResponseEntity.ok(response);
+    }
 }

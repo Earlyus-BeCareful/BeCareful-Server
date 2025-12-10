@@ -8,20 +8,14 @@ public record RecruitmentDetailResponse(
         RecruitmentDto recruitmentInfo,
         MatchingResultStatus matchingResultStatus,
         boolean isHotRecruitment,
-        boolean isHourlySalaryTop,
-        boolean hasNewChat) {
+        boolean isHourlySalaryTop) {
 
     public static RecruitmentDetailResponse of(
             Recruitment recruitment,
             MatchingResultStatus matchingResultStatus,
             boolean isHotRecruitment,
-            boolean isHourlySalaryTop,
-            boolean hasNewChat) {
+            boolean isHourlySalaryTop) {
         return new RecruitmentDetailResponse(
-                RecruitmentDto.from(recruitment),
-                matchingResultStatus,
-                isHotRecruitment,
-                isHourlySalaryTop,
-                hasNewChat);
+                RecruitmentDto.from(recruitment), matchingResultStatus, isHotRecruitment, isHourlySalaryTop);
     }
 }
