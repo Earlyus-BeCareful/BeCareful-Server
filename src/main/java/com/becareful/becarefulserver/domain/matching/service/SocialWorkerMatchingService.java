@@ -415,7 +415,8 @@ public class SocialWorkerMatchingService {
         socialWorkerChatReadStatusRepository.saveAll(socialWorkerChatReadStatuses);
 
         // 최초 계약서채팅 생성
-        Contract contract = Contract.create(newChatRoom, recruitment, workStartDate);
+        Contract contract =
+                Contract.create(newChatRoom, recruitment.getElderly(), caregiver, recruitment, workStartDate);
         chatRepository.save(contract);
 
         return newChatRoom.getId();

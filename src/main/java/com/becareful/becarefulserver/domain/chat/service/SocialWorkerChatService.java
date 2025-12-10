@@ -201,8 +201,18 @@ public class SocialWorkerChatService {
 
         checkChatRoomIsActive(chatRoom);
 
+        Elderly elderly = chatRoom.getRecruitment().getElderly();
+        Caregiver caregiver = caregiverChatReadStatusRepository
+                .findByChatRoomId(chatRoomId)
+                .orElseThrow(
+                        // TODO: 예외처리
+                        )
+                .getCaregiver();
+
         Contract contract = Contract.edit(
                 chatRoom,
+                elderly,
+                caregiver,
                 EnumSet.copyOf(request.workDays()),
                 request.workStartTime(),
                 request.workEndTime(),
