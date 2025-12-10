@@ -228,4 +228,10 @@ public class CaregiverChatService {
                         );
         readStatus.updateLastReadAt();
     }
+
+    @Transactional(readOnly = true)
+    public boolean hasNewChat() {
+        Caregiver caregiver = authUtil.getLoggedInCaregiver();
+        return caregiverChatReadStatusRepository.existsUnreadChat(caregiver);
+    }
 }

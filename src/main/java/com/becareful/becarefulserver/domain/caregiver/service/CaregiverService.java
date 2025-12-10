@@ -51,8 +51,6 @@ public class CaregiverService {
     public CaregiverHomeResponse getHomeData() {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
-        boolean hasNewChat = caregiverChatReadStatusRepository.existsUnreadChat(caregiver);
-
         Optional<WorkApplication> optionalWorkApplication = workApplicationRepository.findByCaregiver(caregiver);
 
         Long applicationCount = 0L;
@@ -77,7 +75,7 @@ public class CaregiverService {
                 .toList();
 
         return CaregiverHomeResponse.of(
-                caregiver, hasNewChat, applicationCount, recruitmentCount, isWorking, isApplying, workSchedules);
+                caregiver, applicationCount, recruitmentCount, isWorking, isApplying, workSchedules);
     }
 
     @Transactional(readOnly = true)

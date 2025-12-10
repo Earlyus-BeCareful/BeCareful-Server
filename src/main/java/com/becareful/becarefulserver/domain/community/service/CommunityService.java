@@ -75,10 +75,9 @@ public class CommunityService {
 
         Association association = socialWorker.getAssociationMember().getAssociation();
 
-        boolean hasNewChat = socialWorkerChatReadStatusRepository.existsUnreadChat(socialWorker);
         int associationMemberCount = associationMemberRepository.countByAssociation(association);
 
         AssociationMyResponse associationInfo = AssociationMyResponse.from(association, associationMemberCount);
-        return CommunityHomeBasicInfoResponse.of(hasNewChat, associationInfo);
+        return CommunityHomeBasicInfoResponse.of(associationInfo);
     }
 }
