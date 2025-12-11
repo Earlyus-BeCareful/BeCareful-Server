@@ -224,4 +224,17 @@ public class SocialWorkerService {
 
         return LocalDate.of(year, month, day);
     }
+
+    @Transactional(readOnly = true)
+    public SocialWorkerMySettingResponse getSocialWorkerMySetting() {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        return SocialWorkerMySettingResponse.from(loggedInSocialWorker);
+    }
+
+    @Transactional
+    public void updateSocialWorkerMyMarketingInfoReceivingAgreement(
+            SocialWorkerMyMarketingInfoReceivingAgreementUpdateRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+        loggedInSocialWorker.updateMarketingInfoReceivingAgreement(request.isAgreedToReceiveMarketingInfo());
+    }
 }

@@ -178,4 +178,8 @@ public class SocialWorker extends BaseEntity {
         this.associationMember.leaveAssociation();
         this.associationMember = null;
     }
+
+    public void updateMarketingInfoReceivingAgreement(boolean isAgreedToReceiveMarketingInfo) {
+        this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
+    }
 }
