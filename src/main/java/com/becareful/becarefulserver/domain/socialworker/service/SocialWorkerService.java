@@ -233,7 +233,7 @@ public class SocialWorkerService {
 
     @Transactional
     public void updateSocialWorkerMyMarketingInfoReceivingAgreement(
-            @Valid SocialWorkerMyMarketingInfoReceivingAgreementUpdateRequest request) {
+            SocialWorkerMyMarketingInfoReceivingAgreementUpdateRequest request) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         loggedInSocialWorker.updateMarketingInfoReceivingAgreement(request.isAgreedToReceiveMarketingInfo());
     }
