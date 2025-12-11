@@ -5,6 +5,7 @@ import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
+import com.becareful.becarefulserver.domain.chat.repository.ChatRoomRepository;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
@@ -34,6 +35,7 @@ public class CaregiverMatchingService {
     private final RecruitmentRepository recruitmentRepository;
     private final ApplicationRepository applicationRepository;
     private final MatchingDomainService matchingDomainService;
+    private final ChatRoomRepository chatRoomRepository;
 
     @Transactional(readOnly = true)
     public List<CaregiverRecruitmentResponse> getCaregiverMatchingRecruitmentList() {
@@ -136,6 +138,8 @@ public class CaregiverMatchingService {
         MatchingResultStatus result =
                 matchingDomainService.calculateMatchingStatus(application.getWorkApplication(), recruitment);
 
-        return CaregiverAppliedMatchingDetailResponse.of(application, result, false, false);
+        Long chatRoomId = chatRoomRepository.findByRecruitmentAndCaregiver(recruitmentId, caregiver.getId());
+
+        return CaregiverAppliedMatchingDetailResponse.of(application, chatRoomId, result, false, false);
     }
 }
