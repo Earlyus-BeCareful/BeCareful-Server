@@ -7,6 +7,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
+import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.request.CaregiverAppliedStatusFilter;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentMediateRequest;
@@ -44,7 +45,8 @@ public class CaregiverMatchingService {
                         .filter(recruitment -> matchingDomainService.isMatched(workApplication, recruitment))
                         .map(recruitment -> CaregiverRecruitmentResponse.of(
                                 recruitment,
-                                matchingDomainService.calculateMatchingStatus(workApplication, recruitment)))
+                                matchingDomainService.calculateMatchingStatus(workApplication, recruitment),
+                                matchingDomainService.calculateMatchingResult(workApplication, recruitment)))
                         .toList())
                 .orElse(null);
     }
@@ -115,7 +117,9 @@ public class CaregiverMatchingService {
                             Recruitment recruitment = application.getRecruitment();
                             MatchingResultStatus result = matchingDomainService.calculateMatchingStatus(
                                     application.getWorkApplication(), recruitment);
-                            return CaregiverRecruitmentResponse.of(recruitment, result);
+                            MatchingResultInfo matchingResultInfo = matchingDomainService.calculateMatchingResult(
+                                    application.getWorkApplication(), recruitment);
+                            return CaregiverRecruitmentResponse.of(recruitment, result, matchingResultInfo);
                         })
                         .toList();
         return CaregiverAppliedRecruitmentsResponse.of(recruitments);

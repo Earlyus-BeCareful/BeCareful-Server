@@ -1,6 +1,7 @@
 package com.becareful.becarefulserver.domain.matching.dto.response;
 
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
+import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultInfo;
 import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import com.becareful.becarefulserver.domain.matching.dto.RecruitmentSimpleDto;
 import lombok.Getter;
@@ -9,10 +10,10 @@ public record CaregiverRecruitmentResponse(
         RecruitmentSimpleDto recruitmentInfo,
         MatchingResultStatus matchingResultStatus,
         String recruitmentStatus,
-        boolean isHotRecruitment,
-        boolean isHourlySalaryTop) {
+        boolean isTimeMatched) {
 
-    public static CaregiverRecruitmentResponse of(Recruitment recruitment, MatchingResultStatus matchingResultStatus) {
+    public static CaregiverRecruitmentResponse of(
+            Recruitment recruitment, MatchingResultStatus matchingResultStatus, MatchingResultInfo matchingResultInfo) {
         CaregiverRecruitmentStatus recruitmentStatus =
                 switch (recruitment.getRecruitmentStatus()) {
                     case 모집중, 조율중 -> CaregiverRecruitmentStatus.모집중;
@@ -22,9 +23,7 @@ public record CaregiverRecruitmentResponse(
                 RecruitmentSimpleDto.from(recruitment),
                 matchingResultStatus,
                 recruitmentStatus.getValue(),
-                // TODO : 매칭 필터 정보 추가
-                false,
-                false);
+                matchingResultInfo.getWorkDayMatchingRate() > 0 && matchingResultInfo.isWorkTimeMatched());
     }
 
     @Getter
