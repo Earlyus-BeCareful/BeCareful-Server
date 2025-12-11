@@ -8,23 +8,20 @@ import lombok.Builder;
 @Builder(access = AccessLevel.PRIVATE)
 public record CaregiverHomeResponse(
         String name,
-        boolean hasNewChat,
-        Integer applicationCount,
-        Integer recruitmentCount,
+        Long applicationCount,
+        Long recruitmentCount,
         List<WorkScheduleResponse> workScheduleList,
         boolean isWorking,
         boolean isApplying) {
     public static CaregiverHomeResponse of(
             Caregiver caregiver,
-            boolean isNewChat,
-            Integer applicationCount,
-            Integer recruitmentCount,
+            Long applicationCount,
+            Long recruitmentCount,
             boolean isWorking,
             boolean isApplying,
             List<WorkScheduleResponse> workScheduleList) {
         return CaregiverHomeResponse.builder()
                 .name(caregiver.getName())
-                .hasNewChat(isNewChat)
                 .applicationCount(applicationCount)
                 .recruitmentCount(recruitmentCount)
                 .workScheduleList(workScheduleList)

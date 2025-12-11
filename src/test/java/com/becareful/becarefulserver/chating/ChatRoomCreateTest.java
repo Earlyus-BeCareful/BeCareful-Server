@@ -51,6 +51,9 @@ public class ChatRoomCreateTest extends IntegrationTest {
     @Autowired
     private WorkApplicationRepository workApplicationRepository;
 
+    @Autowired
+    private ChatRepository chatRepository;
+
     @Test
     @WithCaregiver(phoneNumber = "01099990000")
     void 채팅방_생성_및_읽음상태_계약_검증() {
@@ -76,11 +79,24 @@ public class ChatRoomCreateTest extends IntegrationTest {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow();
         assertThat(chatRoom.getRecruitment()).isEqualTo(recruitment);
 
+        // 6. 최초 계약(Contract) 검증
+        Contract contract = contractRepository
+                .findTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
+                .orElseThrow();
+
+        assertThat(contract.getChatRoom()).isEqualTo(chatRoom);
+        assertThat(contract.getChatRoom().getRecruitment()).isEqualTo(recruitment);
+
         // 4. Caregiver 읽음 상태 검증
         CaregiverChatReadStatus caregiverStatus = caregiverChatReadStatusRepository
                 .findByCaregiverAndChatRoom(caregiver, chatRoom)
                 .orElseThrow();
         assertThat(caregiverStatus.getChatRoom()).isEqualTo(chatRoom);
+
+        assertThat(caregiverStatus.getLastReadAt()).isEqualTo(LocalDateTime.of(1000, 1, 1, 0, 0));
+
+        assertThat(chatRepository.countByChatRoomAndCreateDateAfter(chatRoom, caregiverStatus.getLastReadAt()))
+                .isEqualTo(1);
 
         // 5. SocialWorker 읽음 상태 검증
         List<SocialWorker> socialWorkers = socialWorkerRepository.findAllByNursingInstitution(NURSING_INSTITUTION);
@@ -88,12 +104,5 @@ public class ChatRoomCreateTest extends IntegrationTest {
             assertThat(socialWorkerChatReadStatusRepository.findBySocialWorkerAndChatRoom(sw, chatRoom))
                     .isPresent();
         }
-
-        // 6. 최초 계약(Contract) 검증
-        Contract contract = contractRepository
-                .findDistinctTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
-                .orElseThrow();
-        assertThat(contract.getChatRoom()).isEqualTo(chatRoom);
-        assertThat(contract.getChatRoom().getRecruitment()).isEqualTo(recruitment);
     }
 }

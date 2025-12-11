@@ -16,6 +16,7 @@ import com.becareful.becarefulserver.global.exception.exception.*;
 import com.becareful.becarefulserver.global.util.*;
 import java.util.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.*;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class SocialWorkerChatService {
 
     private final AuthUtil authUtil;
@@ -102,9 +104,11 @@ public class SocialWorkerChatService {
     @Transactional
     public SocialWorkerChatRoomDetailResponse getChatRoomDetailData(Long chatRoomId) {
         SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
-        SocialWorkerChatReadStatus chatReadStatus =
-                socialWorkerChatReadStatusRepository.findByChatRoomIdAndSocialWorkerId(
-                        chatRoomId, socialWorker.getId());
+        SocialWorkerChatReadStatus chatReadStatus = socialWorkerChatReadStatusRepository
+                .findByChatRoomIdAndSocialWorkerId(chatRoomId, socialWorker.getId())
+                .orElseThrow(
+                        // TODO: 예외처리
+                        );
 
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -130,11 +134,9 @@ public class SocialWorkerChatService {
         List<ChatHistoryResponseDto> chatResponseDtoList = chatList.stream()
                 .map(chat -> {
                     if (chat instanceof TextChat textChat) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(textChat.getCreateDate());
-                        return TextChatHistoryResponseDto.from(textChat, lastSendTime);
+                        return TextChatHistoryResponseDto.from(textChat);
                     } else if (chat instanceof Contract contract) {
-                        String lastSendTime = ChatUtil.convertChatRoomListLastSendTimeFormat(contract.getCreateDate());
-                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract, lastSendTime);
+                        return (ChatHistoryResponseDto) ContractChatHistoryResponseDto.from(contract);
                     } else {
                         // TODO: 예외처리
                         // "허용되지 않는 메시지 타입입니다."
@@ -168,7 +170,9 @@ public class SocialWorkerChatService {
         }
     }
 
+    @Transactional
     public void sendTextChat(Long chatRoomId, SendTextChatRequest chatSendRequest) {
+        log.info("채팅전송 시도");
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
                 .orElseThrow(
@@ -180,12 +184,13 @@ public class SocialWorkerChatService {
         TextChat textChat = TextChat.create(chatRoom, ChatSenderType.SOCIAL_WORKER, chatSendRequest.text());
         chatRepository.save(textChat);
 
-        // 구독자에세 전송
+        // 구독자에게 전송
         TextChatResponse response = TextChatResponse.from(textChat);
 
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
+    @Transactional
     public void editContractChat(Long chatRoomId, EditContractChatRequest request) {
         ChatRoom chatRoom = chatRoomRepository
                 .findById(chatRoomId)
@@ -194,8 +199,20 @@ public class SocialWorkerChatService {
                         // "채팅방이 존재하지 않습니다."
                         );
 
+        checkChatRoomIsActive(chatRoom);
+
+        Elderly elderly = chatRoom.getRecruitment().getElderly();
+        Caregiver caregiver = caregiverChatReadStatusRepository
+                .findByChatRoomId(chatRoomId)
+                .orElseThrow(
+                        // TODO: 예외처리
+                        )
+                .getCaregiver();
+
         Contract contract = Contract.edit(
                 chatRoom,
+                elderly,
+                caregiver,
                 EnumSet.copyOf(request.workDays()),
                 request.workStartTime(),
                 request.workEndTime(),
@@ -206,12 +223,12 @@ public class SocialWorkerChatService {
 
         contractRepository.save(contract);
 
-        ContractChatResponse response =
-                ContractChatResponse.from(contract, contract.getCreateDate().toString());
+        ContractChatResponse response = ContractChatResponse.from(contract);
 
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
     }
 
+    @Transactional
     public void confirmContractChat(Long chatRoomId, ConfirmContractChatRequest request) {
 
         // TODO: 채팅방이 이 사회복지사가 접근 가능한 채팅방이 맞는지 검증 필요
@@ -245,27 +262,53 @@ public class SocialWorkerChatService {
             application.failed();
         });
 
-        List<ChatRoom> chatRooms =
-                chatRoomRepository.findAllByChatRoomActiveStatusAndRecruitment(ChatRoomActiveStatus.채팅가능, recruitment);
-
-        for (ChatRoom room : chatRooms) {
-            if (room.getId().equals(chatRoom.getId())) continue;
-
-            room.otherMatchingConfirmed();
-        }
-
         // TODO: 매칭완료 생성메서드에서 contract 파라미터 삭제
         CompletedMatching completedMatching = new CompletedMatching(caregiver, contract, recruitment);
         completedMatchingRepository.save(completedMatching);
 
         recruitment.complete();
+        chatRoom.confirmContract();
+        sendMatchingCompletedMessage(chatRoomId);
 
-        // TODO: 매칭
+        updateChatRoomsAsOtherMatchingConfirmed(recruitment, chatRoomId);
+    }
 
-        // 웹소켓 연결
+    private void sendMatchingCompletedMessage(Long chatRoomId) {
+
         ChatRoomContractStatusUpdatedChatResponse response =
                 ChatRoomContractStatusUpdatedChatResponse.of(ChatRoomContractStatus.채용완료);
 
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomId, response);
+    }
+
+    @Transactional
+    private void updateChatRoomsAsOtherMatchingConfirmed(Recruitment recruitment, Long winnerChatRoomId) {
+        ChatRoomActiveStatusUpdatedChatResponse chatResponse =
+                ChatRoomActiveStatusUpdatedChatResponse.of(ChatRoomActiveStatus.타매칭채용완료);
+
+        chatRoomRepository
+                .findAllByChatRoomActiveStatusAndRecruitment(ChatRoomActiveStatus.채팅가능, recruitment)
+                .forEach(chatRoom -> {
+                    if (chatRoom.getId().equals(winnerChatRoomId)) return;
+                    chatRoom.otherMatchingConfirmed();
+                    messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoom.getId(), chatResponse);
+                });
+    }
+
+    @Transactional
+    public void leaveRoom(Long socialWorkerId, Long roomId) {
+        log.info("SocialWorkerChatService:leaveRoom 실행");
+        SocialWorkerChatReadStatus readStatus = socialWorkerChatReadStatusRepository
+                .findByChatRoomIdAndSocialWorkerId(roomId, socialWorkerId)
+                .orElseThrow(
+                        // TODO: 예외처리
+                        );
+        readStatus.updateLastReadAt();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean hasNewChat() {
+        SocialWorker socialWorker = authUtil.getLoggedInSocialWorker();
+        return socialWorkerChatReadStatusRepository.existsUnreadChat(socialWorker);
     }
 }

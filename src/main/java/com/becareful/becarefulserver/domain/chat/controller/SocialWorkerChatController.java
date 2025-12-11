@@ -37,4 +37,11 @@ public class SocialWorkerChatController {
         var response = socialWorkerChatService.getContractDetail(contractId);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "사회복지사 미열람채팅 알림")
+    @GetMapping("/has-new-chat")
+    public ResponseEntity<Boolean> hasNewChat() {
+        boolean response = socialWorkerChatService.hasNewChat();
+        return ResponseEntity.ok(response);
+    }
 }

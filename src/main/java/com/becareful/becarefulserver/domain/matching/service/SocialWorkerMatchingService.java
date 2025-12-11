@@ -6,6 +6,7 @@ import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.caregiver.repository.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.chat.dto.response.ChatRoomActiveStatusUpdatedChatResponse;
 import com.becareful.becarefulserver.domain.chat.repository.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.service.MatchingDomainService;
@@ -27,6 +28,7 @@ import java.util.*;
 import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 
@@ -52,6 +54,7 @@ public class SocialWorkerMatchingService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRepository chatRepository;
     private final ApplicationRepository applicationRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     /***
      * 2025-09-24
@@ -94,8 +97,19 @@ public class SocialWorkerMatchingService {
                     default -> throw new RecruitmentException("매칭 상태 필터가 잘못되었습니다 : " + elderlyMatchingStatusFilter);
                 };
 
-        return recruitmentRepository.findAllByInstitution(
-                socialworker.getNursingInstitution(), recruitmentStatus, pageable);
+        List<WorkApplication> workApplications = workApplicationRepository.findAllActiveWorkApplication();
+
+        return recruitmentRepository
+                .findAllByInstitutionAndRecruitmentStatusIn(
+                        socialworker.getNursingInstitution(), recruitmentStatus, pageable)
+                .map(recruitment -> {
+                    long applicationCount = applicationRepository.countByRecruitment(recruitment);
+                    long matchingCount = workApplications.stream()
+                            .filter(workApplication -> matchingDomainService.isMatched(workApplication, recruitment))
+                            .count();
+
+                    return SocialWorkerRecruitmentResponse.of(recruitment, applicationCount, matchingCount);
+                });
     }
 
     @Transactional(readOnly = true)
@@ -112,8 +126,19 @@ public class SocialWorkerMatchingService {
                     default -> throw new RecruitmentException("매칭 상태 필터가 잘못되었습니다 : " + elderlyMatchingStatusFilter);
                 };
 
-        return recruitmentRepository.searchByInstitutionAndElderlyNameOrRecruitmentTitle(
-                socialworker.getNursingInstitution(), recruitmentStatus, request.keyword(), pageable);
+        List<WorkApplication> workApplications = workApplicationRepository.findAllActiveWorkApplication();
+
+        return recruitmentRepository
+                .searchByInstitutionAndElderlyNameOrRecruitmentTitle(
+                        socialworker.getNursingInstitution(), recruitmentStatus, request.keyword(), pageable)
+                .map(recruitment -> {
+                    long applicationCount = applicationRepository.countByRecruitment(recruitment);
+                    long matchingCount = workApplications.stream()
+                            .filter(workApplication -> matchingDomainService.isMatched(workApplication, recruitment))
+                            .count();
+
+                    return SocialWorkerRecruitmentResponse.of(recruitment, applicationCount, matchingCount);
+                });
     }
 
     public MatchingCaregiverDetailResponse getCaregiverDetailInfo(Long recruitmentId, Long caregiverId) {
@@ -243,9 +268,19 @@ public class SocialWorkerMatchingService {
         recruitment.close();
 
         // 매칭마다 chatRoom 조회 후 상태 변경
+        notifyChatRoomsRecruitmentClosed(recruitmentId);
+    }
+
+    private void notifyChatRoomsRecruitmentClosed(Long recruitmentId) {
+        ChatRoomActiveStatusUpdatedChatResponse chatResponse =
+                ChatRoomActiveStatusUpdatedChatResponse.of(ChatRoomActiveStatus.공고마감);
+
         chatRoomRepository
                 .findAllByChatRoomActiveStatusAndRecruitmentId(ChatRoomActiveStatus.채팅가능, recruitmentId)
-                .forEach(ChatRoom::recruitmentClosed);
+                .forEach(chatRoom -> {
+                    chatRoom.recruitmentClosed();
+                    messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoom.getId(), chatResponse);
+                });
     }
 
     /**
@@ -380,7 +415,8 @@ public class SocialWorkerMatchingService {
         socialWorkerChatReadStatusRepository.saveAll(socialWorkerChatReadStatuses);
 
         // 최초 계약서채팅 생성
-        Contract contract = Contract.create(newChatRoom, recruitment, workStartDate);
+        Contract contract =
+                Contract.create(newChatRoom, recruitment.getElderly(), caregiver, recruitment, workStartDate);
         chatRepository.save(contract);
 
         return newChatRoom.getId();

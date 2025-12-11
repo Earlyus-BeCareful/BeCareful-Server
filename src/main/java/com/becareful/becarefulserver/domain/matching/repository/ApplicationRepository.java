@@ -42,5 +42,9 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     boolean existsByRecruitment(Recruitment recruitment);
 
-    Integer countByWorkApplication(WorkApplication workApplication);
+    Long countByWorkApplication(WorkApplication workApplication);
+
+    void deleteByWorkApplication(WorkApplication workApplication);
+
+    Long countByRecruitment(Recruitment recruitment);
 }

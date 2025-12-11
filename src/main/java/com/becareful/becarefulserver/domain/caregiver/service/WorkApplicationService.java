@@ -29,14 +29,13 @@ public class WorkApplicationService {
     public CaregiverMyWorkApplicationPageResponse getMyWorkApplicationPageInfo() {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
 
-        boolean hasNewChat = caregiverChatReadStatusRepository.existsUnreadChat(loggedInCaregiver);
         boolean hasCareer = careerRepository.existsByCaregiver(loggedInCaregiver);
         WorkApplicationDto workApplicationDto = workApplicationRepository
                 .findByCaregiver(loggedInCaregiver)
                 .map(WorkApplicationDto::from)
                 .orElse(null);
 
-        return CaregiverMyWorkApplicationPageResponse.of(hasNewChat, hasCareer, workApplicationDto);
+        return CaregiverMyWorkApplicationPageResponse.of(hasCareer, workApplicationDto);
     }
 
     @Transactional

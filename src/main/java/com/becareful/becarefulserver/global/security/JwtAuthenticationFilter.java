@@ -42,6 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
             throws ServletException, IOException {
+        log.info("URI: {}", request.getRequestURI()); // TODO: 에러 원인 확인용. 삭제 예정
 
         String accessToken = null;
         String refreshToken = null;
@@ -60,7 +61,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // AccessToken이 만료되었는지 확인
         if (accessToken == null || !jwtUtil.isValid(accessToken)) {
-
             // 리프레시 토큰이 존재하고 유효할 때만 재발급 시도
             if (refreshToken != null && jwtUtil.isValid(refreshToken)) {
                 // 액세스 토큰이 만료되었으면 리프레시 토큰을 사용하여 새 토큰 발급
