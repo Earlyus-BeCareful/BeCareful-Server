@@ -67,6 +67,21 @@ public class SocialWorkerController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "사회복지사 설정 화면 정보 조회")
+    @GetMapping("/my/setting")
+    public ResponseEntity<SocialWorkerMySettingResponse> getCaregiverMySetting() {
+        var response = socialWorkerService.getSocialWorkerMySetting();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "사회복지사 마케팅 수신 정보 동의 여부 수정")
+    @PatchMapping("/my/marketing-info-receiving-agreement")
+    public ResponseEntity<Void> updateMyMarketingInfoReceivingAgreement(
+            @Valid @RequestBody SocialWorkerMyMarketingInfoReceivingAgreementUpdateRequest request) {
+        socialWorkerService.updateSocialWorkerMyMarketingInfoReceivingAgreement(request);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "5.1.3 사회복지사 협회 상세 정보 조회", description = "사회복지사 마이페이지에서 협회 가입 상세 정보를 조회합니다.")
     @GetMapping("/my/association")
     public ResponseEntity<AssociationMemberDto> getSocialWorkerAssociationDetail() {
