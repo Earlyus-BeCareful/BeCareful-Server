@@ -69,7 +69,7 @@ public class SocialWorkerController {
 
     @Operation(summary = "사회복지사 설정 화면 정보 조회")
     @GetMapping("/my/setting")
-    public ResponseEntity<SocialWorkerMySettingResponse> getCaregiverMySetting() {
+    public ResponseEntity<SocialWorkerMySettingResponse> getSocialWorkerMySetting() {
         var response = socialWorkerService.getSocialWorkerMySetting();
         return ResponseEntity.ok(response);
     }
