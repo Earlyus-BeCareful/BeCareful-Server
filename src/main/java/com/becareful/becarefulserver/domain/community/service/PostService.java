@@ -2,27 +2,21 @@ package com.becareful.becarefulserver.domain.community.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.association.domain.Association;
-import com.becareful.becarefulserver.domain.community.domain.BoardType;
-import com.becareful.becarefulserver.domain.community.domain.Post;
-import com.becareful.becarefulserver.domain.community.domain.PostBoard;
-import com.becareful.becarefulserver.domain.community.domain.PostMedia;
-import com.becareful.becarefulserver.domain.community.dto.MediaInfoDto;
-import com.becareful.becarefulserver.domain.community.dto.PostSimpleDto;
-import com.becareful.becarefulserver.domain.community.dto.request.PostCreateOrUpdateRequest;
-import com.becareful.becarefulserver.domain.community.dto.response.PostDetailResponse;
-import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
-import com.becareful.becarefulserver.domain.community.repository.PostRepository;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.global.exception.exception.PostBoardException;
-import com.becareful.becarefulserver.global.exception.exception.PostException;
-import com.becareful.becarefulserver.global.util.AuthUtil;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.community.domain.*;
+import com.becareful.becarefulserver.domain.community.dto.*;
+import com.becareful.becarefulserver.domain.community.dto.request.*;
+import com.becareful.becarefulserver.domain.community.dto.response.*;
+import com.becareful.becarefulserver.domain.community.repository.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
+import com.becareful.becarefulserver.global.service.*;
+import com.becareful.becarefulserver.global.util.*;
+import java.util.*;
+import lombok.*;
+import lombok.extern.slf4j.*;
+import org.springframework.data.domain.*;
+import org.springframework.stereotype.*;
+import org.springframework.transaction.annotation.*;
 
 @Slf4j
 @Service
@@ -32,16 +26,19 @@ public class PostService {
     private final AuthUtil authUtil;
     private final PostRepository postRepository;
     private final PostBoardRepository postBoardRepository;
+    private final S3Service s3Service;
+    private final S3Util s3Util;
 
     private static final int MAX_IMAGE_COUNT = 100;
     private static final int MAX_VIDEO_COUNT = 3;
     private static final int MAX_FILE_COUNT = 5;
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     private static final long MAX_TOTAL_FILE_SIZE = 30 * 1024 * 1024; // 30MB
+    private final PostMediaRepository postMediaRepository;
 
     @Transactional
-    public Long createPost(String boardType, PostCreateOrUpdateRequest request) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+    public Long createPost(String boardType, PostCreateRequest request) {
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
         PostBoard postBoard = postBoardRepository
@@ -57,28 +54,27 @@ public class PostService {
                 request.originalUrl(),
                 postBoard,
                 currentMember);
-
         // 이미지 처리
-        if (request.imageList() != null) {
+        if (request.imageList() != null && !request.imageList().isEmpty()) {
             validateImageCount(request.imageList().size());
             for (MediaInfoDto imageInfo : request.imageList()) {
+                String imageUrl = s3Util.getPermanentUrlFromTempKey(imageInfo.tempKey());
                 PostMedia imageMedia =
-                        PostMedia.createImage(imageInfo.fileName(), imageInfo.mediaUrl(), imageInfo.fileSize(), post);
+                        PostMedia.createImage(imageInfo.fileName(), imageUrl, imageInfo.fileSize(), post);
                 post.addMedia(imageMedia);
+                s3Service.moveTempFileToPermanent(imageInfo.tempKey());
             }
         }
 
         // 비디오 처리
-        if (request.videoList() != null) {
+        if (request.videoList() != null && !request.videoList().isEmpty()) {
             validateVideoCount(request.videoList().size());
             for (MediaInfoDto videoInfo : request.videoList()) {
-                PostMedia videoMedia = PostMedia.createVideo(
-                        videoInfo.fileName(),
-                        videoInfo.mediaUrl(),
-                        videoInfo.fileSize(),
-                        videoInfo.videoDuration(),
-                        post);
+                String videoUrl = s3Util.getPermanentUrlFromTempKey(videoInfo.tempKey());
+                PostMedia videoMedia =
+                        PostMedia.createVideo(videoInfo.fileName(), videoUrl, videoInfo.fileSize(), post);
                 post.addMedia(videoMedia);
+                s3Service.moveTempFileToPermanent(videoInfo.tempKey());
             }
         }
 
@@ -86,19 +82,19 @@ public class PostService {
         if (request.fileList() != null && !request.fileList().isEmpty()) {
             validateFileList(request.fileList());
             for (MediaInfoDto fileInfo : request.fileList()) {
-                PostMedia fileMedia =
-                        PostMedia.createFile(fileInfo.fileName(), fileInfo.mediaUrl(), fileInfo.fileSize(), post);
+                String fileUrl = s3Util.getPermanentUrlFromTempKey(fileInfo.tempKey());
+                PostMedia fileMedia = PostMedia.createFile(fileInfo.fileName(), fileUrl, fileInfo.fileSize(), post);
                 post.addMedia(fileMedia);
+                s3Service.moveTempFileToPermanent(fileInfo.tempKey());
             }
         }
-
         postRepository.save(post);
         return post.getId();
     }
 
     @Transactional
-    public void updatePost(String boardType, Long postId, PostCreateOrUpdateRequest request) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+    public void updatePost(String boardType, Long postId, PostUpdateRequest request) {
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
         PostBoard postBoard = postBoardRepository
@@ -109,29 +105,37 @@ public class PostService {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostException(POST_NOT_FOUND));
         post.validateAuthor(currentMember);
 
-        // 기존 미디어 삭제
-        post.getMediaList().clear();
+        validatePostMediaUpdate(
+                post, request.deleteMediaIdList(), request.imageList(), request.videoList(), request.fileList());
 
-        // 새로운 미디어 추가
-        if (request.imageList() != null) {
-            validateImageCount(request.imageList().size());
-            for (MediaInfoDto imageInfo : request.imageList()) {
-                PostMedia imageMedia =
-                        PostMedia.createImage(imageInfo.fileName(), imageInfo.mediaUrl(), imageInfo.fileSize(), post);
-                post.addMedia(imageMedia);
+        // 미디어 삭제
+        if (request.imageList() != null && !request.imageList().isEmpty()) {
+            for (Long mediaId : request.deleteMediaIdList()) {
+                postMediaRepository.deleteById(mediaId);
             }
         }
 
-        if (request.videoList() != null) {
+        // 새로운 미디어 추가
+        if (request.imageList() != null && !request.imageList().isEmpty()) {
+            validateImageCount(request.imageList().size());
+            //
+            for (MediaInfoDto imageInfo : request.imageList()) {
+                String imageUrl = s3Util.getPermanentUrlFromTempKey(imageInfo.tempKey());
+                PostMedia imageMedia =
+                        PostMedia.createImage(imageInfo.fileName(), imageUrl, imageInfo.fileSize(), post);
+                post.addMedia(imageMedia);
+                s3Service.moveTempFileToPermanent(imageInfo.tempKey());
+            }
+        }
+
+        if (request.videoList() != null && !request.videoList().isEmpty()) {
             validateVideoCount(request.videoList().size());
             for (MediaInfoDto videoInfo : request.videoList()) {
-                PostMedia videoMedia = PostMedia.createVideo(
-                        videoInfo.fileName(),
-                        videoInfo.mediaUrl(),
-                        videoInfo.fileSize(),
-                        videoInfo.videoDuration(),
-                        post);
+                String videoUrl = s3Util.getPermanentUrlFromTempKey(videoInfo.tempKey());
+                PostMedia videoMedia =
+                        PostMedia.createVideo(videoInfo.fileName(), videoUrl, videoInfo.fileSize(), post);
                 post.addMedia(videoMedia);
+                s3Service.moveTempFileToPermanent(videoInfo.tempKey());
             }
         }
 
@@ -139,9 +143,10 @@ public class PostService {
         if (request.fileList() != null && !request.fileList().isEmpty()) {
             validateFileList(request.fileList());
             for (MediaInfoDto fileInfo : request.fileList()) {
-                PostMedia fileMedia =
-                        PostMedia.createFile(fileInfo.fileName(), fileInfo.mediaUrl(), fileInfo.fileSize(), post);
+                String fileUrl = s3Util.getPermanentUrlFromTempKey(fileInfo.tempKey());
+                PostMedia fileMedia = PostMedia.createFile(fileInfo.fileName(), fileUrl, fileInfo.fileSize(), post);
                 post.addMedia(fileMedia);
+                s3Service.moveTempFileToPermanent(fileInfo.tempKey());
             }
         }
 
@@ -150,7 +155,7 @@ public class PostService {
 
     @Transactional
     public void deletePost(String boardType, Long postId) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
         PostBoard postBoard = postBoardRepository
@@ -166,7 +171,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<PostSimpleDto> getPosts(String boardType, Pageable pageable) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
         Association association = currentMember.getAssociation();
 
@@ -184,7 +189,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<PostSimpleDto> getImportantPosts(Pageable pageable) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         Association association = currentMember.getAssociation();
 
         return postRepository.findAllImportantPosts(association, pageable).stream()
@@ -195,7 +200,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostDetailResponse getPost(String boardType, Long postId) {
-        SocialWorker currentMember = authUtil.getLoggedInSocialWorker();
+        AssociationMember currentMember = authUtil.getLoggedInAssociationMember();
         BoardType type = BoardType.fromUrlBoardType(boardType);
 
         PostBoard postBoard = postBoardRepository
@@ -225,6 +230,44 @@ public class PostService {
         if (count > MAX_VIDEO_COUNT) {
             throw new PostException(POST_MEDIA_VIDEO_COUNT_EXCEEDED);
         }
+    }
+
+    private void validatePostMediaUpdate(
+            Post post,
+            List<Long> deleteMediaIdList,
+            List<MediaInfoDto> imageList,
+            List<MediaInfoDto> videoList,
+            List<MediaInfoDto> fileList) {
+        List<PostMedia> postMediaList = postMediaRepository.findAllByPost(post);
+        postMediaList = postMediaList.stream()
+                .filter(media -> !deleteMediaIdList.contains(media.getId()))
+                .toList();
+
+        int imageCount = 0;
+        int videoCount = 0;
+        List<MediaInfoDto> fileListForValidation = new ArrayList<>();
+
+        for (PostMedia postMedia : postMediaList) {
+            switch (postMedia.getFileType()) {
+                case IMAGE -> imageCount++;
+                case VIDEO -> videoCount++;
+                case FILE -> fileListForValidation.add(new MediaInfoDto(null, null, null, postMedia.getFileSize()));
+            }
+        }
+
+        if (imageList != null) {
+            imageCount += imageList.size();
+        }
+        if (videoList != null) {
+            videoCount += videoList.size();
+        }
+        if (fileList != null) {
+            fileListForValidation.addAll(fileList);
+        }
+
+        validateImageCount(imageCount);
+        validateVideoCount(videoCount);
+        validateFileList(fileListForValidation);
     }
 
     private void validateFileList(List<MediaInfoDto> fileList) {

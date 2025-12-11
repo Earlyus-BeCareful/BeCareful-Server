@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CareerRepository extends JpaRepository<Career, Long> {
 
     Optional<Career> findByCaregiver(Caregiver caregiver);
+
+    boolean existsByCaregiver(Caregiver caregiver);
 }

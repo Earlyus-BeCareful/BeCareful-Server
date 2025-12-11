@@ -1,22 +1,36 @@
 package com.becareful.becarefulserver.domain.caregiver.domain;
 
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
-
-import com.becareful.becarefulserver.domain.caregiver.domain.vo.Address;
-import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
-import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
-import com.becareful.becarefulserver.domain.common.domain.Gender;
+import com.becareful.becarefulserver.domain.caregiver.domain.vo.*;
+import com.becareful.becarefulserver.domain.common.domain.*;
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.util.List;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.time.*;
+import java.util.*;
+import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(
+        sql =
+                """
+    UPDATE caregiver
+       SET name = null,
+           phone_number = null,
+           gender = null,
+           street_address = null,
+           detail_address = null,
+           birth_date = null,
+           profile_image_url = null,
+           caregiver_certificate_number = null,
+           social_worker_certificate_number = null,
+           nursing_care_certificate_number = null,
+           is_deleted = true,
+           delete_date = now()
+     WHERE caregiver_id = ?
+""")
+@SQLRestriction("is_deleted = false")
 public class Caregiver extends BaseEntity {
 
     @Id
@@ -40,6 +54,10 @@ public class Caregiver extends BaseEntity {
 
     @Embedded
     private CaregiverInfo caregiverInfo;
+
+    private boolean isDeleted;
+
+    private LocalDateTime deleteDate;
 
     private boolean isAgreedToTerms;
 
@@ -67,6 +85,7 @@ public class Caregiver extends BaseEntity {
         this.address = address;
         this.caregiverInfo = caregiverInfo;
         this.isAgreedToTerms = isAgreedToTerms;
+        this.isDeleted = false;
         this.isAgreedToCollectPersonalInfo = isAgreedToCollectPersonalInfo;
         this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
     }
@@ -86,10 +105,7 @@ public class Caregiver extends BaseEntity {
                 .birthDate(birthDate)
                 .gender(gender)
                 .phoneNumber(phoneNumber)
-                .profileImageUrl(
-                        profileImageUrl == null || profileImageUrl.isBlank()
-                                ? CAREGIVER_DEFAULT_PROFILE_IMAGE_URL
-                                : profileImageUrl)
+                .profileImageUrl(profileImageUrl)
                 .address(new Address(streetAddress, detailAddress))
                 .caregiverInfo(caregiverInfo)
                 .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
@@ -101,10 +117,6 @@ public class Caregiver extends BaseEntity {
     /***
      * Entity Method
      * */
-    public void updateProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
-    }
-
     public List<String> getCertificateNames() {
         return this.getCaregiverInfo().getCertificateNames();
     }
@@ -113,8 +125,10 @@ public class Caregiver extends BaseEntity {
         return LocalDate.now().getYear() - this.birthDate.getYear() + 1;
     }
 
-    public void updateInfo(String phoneNumber, CaregiverInfo caregiverInfo) {
+    public void updateInfo(String phoneNumber, String profileImageUrl, CaregiverInfo caregiverInfo, Address address) {
         this.phoneNumber = phoneNumber;
+        this.profileImageUrl = profileImageUrl;
         this.caregiverInfo = caregiverInfo;
+        this.address = address;
     }
 }

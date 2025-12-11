@@ -1,20 +1,40 @@
 package com.becareful.becarefulserver.domain.socialworker.domain;
 
-import com.becareful.becarefulserver.domain.association.domain.Association;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.ASSOCIATION_MEMBER_ALREADY_LEAVED;
+
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
+import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.SocialWorkerProfileUpdateRequest;
+import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(
+        sql =
+                """
+    UPDATE social_worker
+       SET is_deleted = true,
+           delete_date = now(),
+           name = null,
+           nickname = null,
+           birthday = null,
+           gender = null,
+           phone_number = null
+     WHERE social_worker_id = ?
+""")
+@SQLRestriction("is_deleted = false")
 public class SocialWorker extends BaseEntity {
 
     @Id
@@ -26,20 +46,19 @@ public class SocialWorker extends BaseEntity {
 
     private String nickname;
 
-    private LocalDate birthday; // YYYYMMDD
+    private LocalDate birthday;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
     private String phoneNumber;
 
-    private String password;
-
     @Enumerated(EnumType.STRING)
     private InstitutionRank institutionRank;
 
-    @Enumerated(EnumType.STRING)
-    private AssociationRank associationRank;
+    private boolean isDeleted;
+
+    private LocalDateTime deleteDate;
 
     private boolean isAgreedToTerms;
 
@@ -51,10 +70,9 @@ public class SocialWorker extends BaseEntity {
     @JoinColumn(name = "nursing_institution_id")
     private NursingInstitution nursingInstitution;
 
-    @Setter(AccessLevel.PUBLIC)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "association_id")
-    private Association association;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "association_member_id")
+    private AssociationMember associationMember;
 
     @Builder(access = AccessLevel.PRIVATE)
     private SocialWorker(
@@ -65,7 +83,6 @@ public class SocialWorker extends BaseEntity {
             Gender gender,
             String phoneNumber,
             InstitutionRank institutionRank,
-            AssociationRank associationRank,
             boolean isAgreedToTerms,
             boolean isAgreedToCollectPersonalInfo,
             boolean isAgreedToReceiveMarketingInfo) {
@@ -75,7 +92,7 @@ public class SocialWorker extends BaseEntity {
         this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.institutionRank = institutionRank;
-        this.associationRank = associationRank;
+        this.isDeleted = false;
         this.isAgreedToTerms = isAgreedToTerms;
         this.nursingInstitution = nursingInstitution;
         this.isAgreedToCollectPersonalInfo = isAgreedToCollectPersonalInfo;
@@ -97,6 +114,13 @@ public class SocialWorker extends BaseEntity {
         return genderCode;
     }
 
+    public AssociationRank getAssociationRank() {
+        if (this.associationMember == null) {
+            return AssociationRank.NONE;
+        }
+        return this.associationMember.getAssociationRank();
+    }
+
     /**
      * update method
      * */
@@ -107,7 +131,6 @@ public class SocialWorker extends BaseEntity {
             Gender gender,
             String phoneNumber,
             InstitutionRank institutionRank,
-            AssociationRank associationRank,
             boolean isAgreedToReceiveMarketingInfo,
             NursingInstitution nursingInstitution) {
         return SocialWorker.builder()
@@ -117,22 +140,11 @@ public class SocialWorker extends BaseEntity {
                 .gender(gender)
                 .phoneNumber(phoneNumber)
                 .institutionRank(institutionRank)
-                .associationRank(associationRank)
                 .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
                 .isAgreedToTerms(true)
                 .isAgreedToCollectPersonalInfo(true)
                 .nursingInstitution(nursingInstitution)
                 .build();
-    }
-
-    public void joinAssociation(Association association, AssociationRank rank) {
-        this.association = association;
-        this.associationRank = rank;
-    }
-
-    public void leaveAssociation() {
-        this.association = null;
-        this.associationRank = AssociationRank.NONE;
     }
 
     public void update(
@@ -144,15 +156,26 @@ public class SocialWorker extends BaseEntity {
         this.nickname = request.nickName();
         this.birthday = birthday;
         this.gender = gender;
-        this.phoneNumber = request.phoneNumber();
         this.nursingInstitution = nursingInstitution;
         this.institutionRank = request.institutionRank();
         this.isAgreedToReceiveMarketingInfo = request.isAgreedToReceiveMarketingInfo();
         this.isAgreedToTerms = request.isAgreedToTerms();
         this.isAgreedToCollectPersonalInfo = request.isAgreedToCollectPersonalInfo();
+
+        if (this.associationMember != null) {
+            this.associationMember.update(request, birthday, gender, nursingInstitution);
+        }
     }
 
-    public void updateAssociationRank(AssociationRank rank) {
-        this.associationRank = rank;
+    public void joinAssociation(AssociationMember member) {
+        this.associationMember = member;
+    }
+
+    public void leaveAssociation() {
+        if (this.associationMember == null) {
+            throw new DomainException(ASSOCIATION_MEMBER_ALREADY_LEAVED);
+        }
+        this.associationMember.leaveAssociation();
+        this.associationMember = null;
     }
 }

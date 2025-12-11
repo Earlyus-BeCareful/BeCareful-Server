@@ -1,17 +1,17 @@
 package com.becareful.becarefulserver.global.util;
 
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.CAREGIVER_NOT_EXISTS;
-import static com.becareful.becarefulserver.global.exception.ErrorMessage.SOCIALWORKER_NOT_EXISTS;
+import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
-import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
-import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
-import com.becareful.becarefulserver.global.exception.exception.CaregiverException;
-import com.becareful.becarefulserver.global.exception.exception.SocialWorkerException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
+import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.caregiver.domain.*;
+import com.becareful.becarefulserver.domain.caregiver.repository.*;
+import com.becareful.becarefulserver.domain.socialworker.domain.*;
+import com.becareful.becarefulserver.domain.socialworker.repository.*;
+import com.becareful.becarefulserver.global.exception.exception.*;
+import jakarta.servlet.http.*;
+import lombok.*;
+import org.springframework.security.core.context.*;
+import org.springframework.stereotype.*;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +19,7 @@ public class AuthUtil {
 
     private final CaregiverRepository caregiverRepository;
     private final SocialWorkerRepository socialworkerRepository;
+    private final CookieUtil cookieUtil;
 
     public Caregiver getLoggedInCaregiver() {
         String phoneNumber =
@@ -33,6 +34,26 @@ public class AuthUtil {
                 SecurityContextHolder.getContext().getAuthentication().getName();
         return socialworkerRepository
                 .findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new SocialWorkerException(SOCIALWORKER_NOT_EXISTS));
+                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+    }
+
+    public AssociationMember getLoggedInAssociationMember() {
+        String phoneNumber =
+                SecurityContextHolder.getContext().getAuthentication().getName();
+        SocialWorker socialWorker = socialworkerRepository
+                .findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new SocialWorkerException(SOCIAL_WORKER_NOT_EXISTS));
+
+        if (socialWorker.getAssociationMember() == null) {
+            throw new SocialWorkerException(ASSOCIATION_MEMBER_NOT_EXISTS);
+        }
+
+        return socialWorker.getAssociationMember();
+    }
+
+    public void logout(HttpServletResponse response) {
+        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
+        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
+        SecurityContextHolder.clearContext();
     }
 }

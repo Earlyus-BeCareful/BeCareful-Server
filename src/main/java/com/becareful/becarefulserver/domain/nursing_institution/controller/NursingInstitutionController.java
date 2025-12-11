@@ -2,6 +2,8 @@ package com.becareful.becarefulserver.domain.nursing_institution.controller;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.common.dto.request.*;
+import com.becareful.becarefulserver.domain.common.dto.response.*;
 import com.becareful.becarefulserver.domain.nursing_institution.dto.InstitutionSimpleDto;
 import com.becareful.becarefulserver.domain.nursing_institution.dto.request.*;
 import com.becareful.becarefulserver.domain.nursing_institution.dto.response.*;
@@ -41,20 +43,35 @@ public class NursingInstitutionController {
 
     @Operation(summary = "요양 기관 등록 전: 기관 검색 (대표,센터장 전용)", description = "기관 등록 과정에서 기관이 서비스에 이미 등록되어있는지 확인하는 API")
     @GetMapping("/for-guest/check/already-register") // TODO : url 수정 : /exist
-    public ResponseEntity<Boolean> checkAlreadyRegister(@RequestParam(required = true) String nursingInstitutionCode) {
+    public ResponseEntity<Boolean> checkAlreadyRegister(@RequestParam String nursingInstitutionCode) {
         if (nursingInstitutionCode == null || nursingInstitutionCode.isBlank()) {
-            throw new NursingInstitutionException(NURSING_INSTITUTION_REQUIRE_CODE);
+            throw new NursingInstitutionException(NURSING_INSTITUTION_REQUIRED_CODE);
         }
         Boolean isRegister = nursingInstitutionService.existsByNameAndCode(nursingInstitutionCode);
         return ResponseEntity.ok(isRegister);
     }
 
-    @Operation(summary = "요양 기관 프로필 사진 업로드(대표,센터장 전용)", description = "요양기관 프로필 이미지 저장 API.")
+    @Deprecated
+    @Operation(summary = "(구버전.삭제예정)요양 기관 프로필 사진 업로드(대표,센터장 전용)", description = "요양기관 프로필 이미지 저장 API.")
     @PostMapping(value = "/upload-profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<NursingInstitutionProfileUploadResponse> uploadProfileImg(
             @RequestPart MultipartFile file, @RequestPart String institutionName) {
 
         var response = nursingInstitutionService.uploadProfileImage(file, institutionName);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "이미지 업로드 (신버전): 요양기관 프로필 이미지 업로드용 Presigned URL 발급",
+            description =
+                    """
+    프론트엔드에서 사용자가 로컬 파일을 선택할 때마다 이 API를 호출해 Presigned URL을 발급받습니다.
+    발급받은 URL로 S3에 이미지를 직접 업로드합니다.
+    이후 기관 등록 또는 정보 수정 시, S3에 업로드한 파일의 tempKey를 백엔드로 전달해야 합니다.
+    """)
+    @PostMapping("/profile-img/presigned-url")
+    public ResponseEntity<PresignedUrlResponse> createPresignedUrl(ProfileImagePresignedUrlRequest request) {
+        PresignedUrlResponse response = nursingInstitutionService.getPresignedUrl(request);
         return ResponseEntity.ok(response);
     }
 

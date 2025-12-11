@@ -5,38 +5,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.becareful.becarefulserver.common.IntegrationTest;
 import com.becareful.becarefulserver.common.WithCaregiver;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.caregiver.domain.WorkApplication;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkSalaryUnitType;
 import com.becareful.becarefulserver.domain.caregiver.domain.WorkTime;
-import com.becareful.becarefulserver.domain.caregiver.domain.vo.CaregiverInfo;
 import com.becareful.becarefulserver.domain.caregiver.dto.request.WorkApplicationCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.repository.CaregiverRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.WorkApplicationRepository;
 import com.becareful.becarefulserver.domain.caregiver.service.WorkApplicationService;
-import com.becareful.becarefulserver.domain.chat.dto.request.ContractEditRequest;
-import com.becareful.becarefulserver.domain.chat.service.CaregiverChatService;
+import com.becareful.becarefulserver.domain.chat.domain.Contract;
+import com.becareful.becarefulserver.domain.chat.domain.vo.*;
+import com.becareful.becarefulserver.domain.chat.dto.request.*;
+import com.becareful.becarefulserver.domain.chat.repository.ChatRepository;
 import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService;
 import com.becareful.becarefulserver.domain.common.domain.CareType;
 import com.becareful.becarefulserver.domain.common.domain.DetailCareType;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
-import com.becareful.becarefulserver.domain.matching.domain.Contract;
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
+import com.becareful.becarefulserver.domain.matching.domain.Application;
+import com.becareful.becarefulserver.domain.matching.domain.ApplicationStatus;
 import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import com.becareful.becarefulserver.domain.matching.dto.request.RecruitmentCreateRequest;
-import com.becareful.becarefulserver.domain.matching.repository.CompletedMatchingRepository;
-import com.becareful.becarefulserver.domain.matching.repository.ContractRepository;
-import com.becareful.becarefulserver.domain.matching.repository.MatchingRepository;
-import com.becareful.becarefulserver.domain.matching.repository.RecruitmentRepository;
+import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.matching.service.CaregiverMatchingService;
 import com.becareful.becarefulserver.domain.matching.service.SocialWorkerMatchingService;
+import com.becareful.becarefulserver.domain.socialworker.domain.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.domain.Elderly;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import com.becareful.becarefulserver.domain.socialworker.repository.ElderlyRepository;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
 import java.time.*;
 import java.util.EnumSet;
 import java.util.List;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -58,9 +56,6 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
     private SocialWorkerMatchingService socialWorkerMatchingService;
 
     @Autowired
-    private MatchingRepository matchingRepository;
-
-    @Autowired
     private RecruitmentRepository recruitmentRepository;
 
     @Autowired
@@ -70,27 +65,22 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
     private SocialWorkerChatService socialWorkerChatService;
 
     @Autowired
-    private CaregiverChatService caregiverChatService;
-
-    @Autowired
     private CompletedMatchingRepository completedMatchingRepository;
 
     @Autowired
     private CaregiverMatchingService caregiverMatchingService;
 
+    @Autowired
+    private ChatRepository chatRepository;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
+
     @Test
     @WithCaregiver(phoneNumber = "01099990000")
     void 매칭_과정_전체_플로우() {
-        Caregiver caregiver = caregiverRepository.save(Caregiver.create(
-                "caregiver",
-                LocalDate.of(1990, 1, 1),
-                Gender.FEMALE,
-                "01099990000",
-                null,
-                "서울시",
-                "상세주소",
-                new CaregiverInfo(false, false, null, null, null),
-                true));
+        Caregiver caregiver =
+                caregiverRepository.findByPhoneNumber("01099990000").orElseThrow();
 
         WorkApplicationCreateOrUpdateRequest workRequest = new WorkApplicationCreateOrUpdateRequest(
                 List.of(Location.of("서울시", "종로구", "청운동")),
@@ -128,26 +118,22 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
         Long recruitmentId = socialWorkerMatchingService.createRecruitment(recruitmentRequest);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow();
-        WorkApplication workApp =
-                workApplicationRepository.findByCaregiver(caregiver).orElseThrow();
-        Matching matching = matchingRepository
-                .findByWorkApplicationAndRecruitment(workApp, recruitment)
-                .orElseThrow();
 
         caregiverMatchingService.applyRecruitment(recruitmentId);
-        Matching applied = matchingRepository
-                .findByIdWithRecruitmentAndWorkApplicationAndCaregiver(matching.getId())
+        Application application = applicationRepository
+                .findByCaregiverAndRecruitment(caregiver, recruitment)
                 .orElseThrow();
-        assertThat(applied.isApplicationReviewing()).isTrue();
+        Assertions.assertThat(application.getApplicationStatus()).isEqualTo(ApplicationStatus.지원검토);
 
-        socialWorkerMatchingService.propose(applied.getId(), LocalDate.now());
-        Contract firstContract = contractRepository
-                .findTop1ByMatchingOrderByCreateDateDesc(matching)
-                .orElseThrow();
+        long chatRoomId = socialWorkerMatchingService.proposeWork(recruitmentId, caregiver.getId(), LocalDate.now());
+        Assertions.assertThat(application.getApplicationStatus()).isEqualTo(ApplicationStatus.근무제안);
+
+        Contract firstContract =
+                (Contract) chatRepository.findLastChatWithContent(chatRoomId).orElseThrow();
         assertThat(firstContract.getWorkSalaryAmount()).isEqualTo(10000);
 
-        ContractEditRequest editRequest = new ContractEditRequest(
-                matching.getId(),
+        EditContractChatRequest editRequest = new EditContractChatRequest(
+                ChatSendRequestType.EDIT_CONTRACT,
                 List.of(DayOfWeek.MONDAY),
                 LocalTime.of(10, 0),
                 LocalTime.of(13, 0),
@@ -155,12 +141,18 @@ public class MatchingProcessIntegrationTest extends IntegrationTest {
                 12000,
                 LocalDate.now(),
                 List.of(CareType.식사보조));
-        socialWorkerChatService.editContract(editRequest);
-        List<Contract> contracts = contractRepository.findByMatchingOrderByCreateDateAsc(matching);
-        Contract edited = contracts.get(contracts.size() - 1);
+
+        socialWorkerChatService.editContractChat(chatRoomId, editRequest);
+        Contract edited = contractRepository
+                .findTopByChatRoomIdOrderByCreateDateDesc(chatRoomId)
+                .orElseThrow();
+
         assertThat(edited.getWorkSalaryAmount()).isEqualTo(12000);
 
-        caregiverChatService.createCompletedMatching(edited.getId());
+        ConfirmContractChatRequest confirmRequest =
+                new ConfirmContractChatRequest(ChatSendRequestType.CONFIRM_MATCHING, edited.getId());
+
+        socialWorkerChatService.confirmContractChat(chatRoomId, confirmRequest);
         assertThat(completedMatchingRepository.existsCompletedMatchingByContract(edited))
                 .isTrue();
     }

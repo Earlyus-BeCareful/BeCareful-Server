@@ -1,15 +1,16 @@
 package com.becareful.becarefulserver.domain.matching.dto.response;
 
-import com.becareful.becarefulserver.domain.matching.domain.Matching;
+import com.becareful.becarefulserver.domain.matching.domain.Application;
+import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultStatus;
 import java.time.LocalDate;
 
 public record CaregiverAppliedMatchingDetailResponse(
         RecruitmentDetailResponse recruitmentDetailInfo, LocalDate applyDate) {
 
     public static CaregiverAppliedMatchingDetailResponse of(
-            Matching matching, boolean isHotRecruitment, boolean isHourlySalaryTop, boolean hasNewChat) {
+            Application application, MatchingResultStatus result, boolean isHotRecruitment, boolean isHourlySalaryTop) {
         return new CaregiverAppliedMatchingDetailResponse(
-                RecruitmentDetailResponse.from(matching, isHotRecruitment, isHourlySalaryTop, hasNewChat),
-                matching.getApplicationDate());
+                RecruitmentDetailResponse.of(application.getRecruitment(), result, isHotRecruitment, isHourlySalaryTop),
+                application.getCreateDate().toLocalDate());
     }
 }

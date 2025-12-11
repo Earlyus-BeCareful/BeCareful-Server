@@ -9,7 +9,6 @@ import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.common.domain.vo.Location;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.socialworker.domain.converter.DetailCareTypeConverter;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.CareLevel;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.EnumSet;
@@ -110,10 +109,7 @@ public class Elderly extends BaseEntity {
                 .gender(gender)
                 .residentialLocation(residentialLocation)
                 .detailAddress(detailAddress)
-                .profileImageUrl(
-                        profileImageUrl == null || profileImageUrl.isBlank()
-                                ? ELDERLY_DEFAULT_PROFILE_IMAGE_URL
-                                : profileImageUrl)
+                .profileImageUrl(profileImageUrl)
                 .institution(institution)
                 .careLevel(careLevel)
                 .healthCondition(healthCondition)
@@ -123,6 +119,7 @@ public class Elderly extends BaseEntity {
                 .build();
     }
 
+    // TODO: 삭제
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = (profileImageUrl == null || profileImageUrl.isBlank())
                 ? ELDERLY_DEFAULT_PROFILE_IMAGE_URL
@@ -164,7 +161,7 @@ public class Elderly extends BaseEntity {
         this.residentialLocation = residentialLocation;
         this.detailAddress = detailAddress;
         this.healthCondition = healthCondition;
-        updateProfileImageUrl(profileImageUrl);
+        this.profileImageUrl = profileImageUrl;
         this.detailCareTypes = EnumSet.copyOf(detailCareTypes);
     }
 }

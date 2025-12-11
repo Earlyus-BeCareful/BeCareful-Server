@@ -1,17 +1,12 @@
 package com.becareful.becarefulserver.domain.chat.controller;
 
-import com.becareful.becarefulserver.domain.chat.dto.request.ContractEditRequest;
-import com.becareful.becarefulserver.domain.chat.dto.response.ChatRoomDetailResponse;
-import com.becareful.becarefulserver.domain.chat.dto.response.ContractDetailResponse;
-import com.becareful.becarefulserver.domain.chat.dto.response.SocialWorkerChatroomResponse;
-import com.becareful.becarefulserver.domain.chat.service.SocialWorkerChatService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import java.net.URI;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import com.becareful.becarefulserver.domain.chat.dto.response.*;
+import com.becareful.becarefulserver.domain.chat.service.*;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.tags.*;
+import java.util.*;
+import lombok.*;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,15 +19,15 @@ public class SocialWorkerChatController {
 
     @Operation(summary = "사회복지사 채팅 목록")
     @GetMapping("/list")
-    public ResponseEntity<List<SocialWorkerChatroomResponse>> getChatInfoList() {
+    public ResponseEntity<List<SocialWorkerChatRoomSummaryResponse>> getChatInfoList() {
         var response = socialWorkerChatService.getChatList();
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "사회복지사 채팅 데이터 조회", description = "채팅방 데이터 (어르신 정보, 계약서 리스트) 반환")
     @GetMapping
-    public ResponseEntity<ChatRoomDetailResponse> getChatRoomData(@RequestParam(name = "matchingId") Long matchingId) {
-        var response = socialWorkerChatService.getChatRoomDetailData(matchingId);
+    public ResponseEntity<SocialWorkerChatRoomDetailResponse> getChatRoomData(@RequestParam Long chatRoomId) {
+        var response = socialWorkerChatService.getChatRoomDetailData(chatRoomId);
         return ResponseEntity.ok(response);
     }
 
@@ -43,11 +38,10 @@ public class SocialWorkerChatController {
         return ResponseEntity.ok(response);
     }
 
-    // 계약서 수정 내용 저장 - 직전 계약서 필요
-    @Operation(summary = "수정 계약서 생성")
-    @PostMapping("/contract/edit")
-    public ResponseEntity<Void> editContract(@RequestBody @Valid ContractEditRequest request) {
-        Long contractId = socialWorkerChatService.editContract(request);
-        return ResponseEntity.created(URI.create("/contract/" + contractId)).build();
+    @Operation(summary = "사회복지사 미열람채팅 알림")
+    @GetMapping("/has-new-chat")
+    public ResponseEntity<Boolean> hasNewChat() {
+        boolean response = socialWorkerChatService.hasNewChat();
+        return ResponseEntity.ok(response);
     }
 }

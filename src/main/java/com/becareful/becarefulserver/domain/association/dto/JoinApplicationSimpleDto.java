@@ -1,10 +1,10 @@
 package com.becareful.becarefulserver.domain.association.dto;
 
 import com.becareful.becarefulserver.domain.association.domain.AssociationJoinApplication;
+import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingInstitution;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 
 public record JoinApplicationSimpleDto(
         Long joinApplicationId,
@@ -13,13 +13,13 @@ public record JoinApplicationSimpleDto(
         String institutionName,
         InstitutionRank institutionRank,
         String institutionImageUrl) {
-    public static JoinApplicationSimpleDto of(AssociationJoinApplication application) {
+    public static JoinApplicationSimpleDto from(AssociationJoinApplication application) {
         SocialWorker socialWorker = application.getSocialWorker();
         NursingInstitution institution = socialWorker.getNursingInstitution();
         return new JoinApplicationSimpleDto(
                 application.getId(),
                 socialWorker.getName(),
-                socialWorker.getAssociationRank(),
+                application.getAssociationRank(),
                 institution.getName(),
                 socialWorker.getInstitutionRank(),
                 institution.getProfileImageUrl());

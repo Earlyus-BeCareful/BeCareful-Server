@@ -3,30 +3,30 @@ package com.becareful.becarefulserver.domain.socialworker.service;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
+import com.becareful.becarefulserver.domain.association.dto.AssociationMemberDto;
+import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
+import com.becareful.becarefulserver.domain.chat.domain.SocialWorkerChatReadStatus;
+import com.becareful.becarefulserver.domain.chat.domain.vo.ChatRoomActiveStatus;
+import com.becareful.becarefulserver.domain.chat.dto.response.ChatRoomActiveStatusUpdatedChatResponse;
 import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.common.domain.*;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
-import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
 import com.becareful.becarefulserver.domain.nursing_institution.repository.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.*;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
 import com.becareful.becarefulserver.domain.socialworker.dto.*;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
-import com.becareful.becarefulserver.global.properties.*;
 import com.becareful.becarefulserver.global.util.*;
 import jakarta.servlet.http.*;
 import jakarta.validation.*;
 import java.time.*;
 import java.util.*;
 import lombok.*;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.*;
-import org.springframework.security.core.context.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
 
@@ -40,12 +40,12 @@ public class SocialWorkerService {
     private final ElderlyRepository elderlyRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final AuthUtil authUtil;
-    private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
-    private final JwtProperties jwtProperties;
+    private final AssociationMemberRepository associationMemberRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
-    public Long createSocialWorker(SocialWorkerCreateRequest request, HttpServletResponse httpServletResponse) {
+    public Long createSocialWorker(SocialWorkerCreateRequest request) {
         validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
 
         NursingInstitution nursingInstitution = nursingInstitutionRepository
@@ -65,14 +65,10 @@ public class SocialWorkerService {
                 gender,
                 request.phoneNumber(),
                 request.institutionRank(),
-                AssociationRank.NONE,
                 request.isAgreedToReceiveMarketingInfo(),
                 nursingInstitution);
 
         socialworkerRepository.save(socialWorker);
-
-        updateJwtAndSecurityContext(
-                httpServletResponse, request.phoneNumber(), request.institutionRank(), AssociationRank.NONE);
 
         return socialWorker.getId();
     }
@@ -91,12 +87,10 @@ public class SocialWorkerService {
 
         List<Recruitment> recruitments = recruitmentRepository.findAllByElderlyIn(institutionElderlys);
 
-        boolean hasNewChat = socialWorkerChatReadStatusRepository.existsUnreadContract(loggedInSocialWorker);
-
         int institutionElderlyCount = institutionElderlys.size();
 
         return SocialWorkerHomeResponse.of(
-                loggedInSocialWorker, institutionSocialWorkers, recruitments, institutionElderlyCount, hasNewChat);
+                loggedInSocialWorker, institutionSocialWorkers, recruitments, institutionElderlyCount);
     }
 
     @Transactional(readOnly = true)
@@ -117,7 +111,7 @@ public class SocialWorkerService {
     }
 
     @Transactional
-    public void updateMyProfile(@Valid SocialWorkerProfileUpdateRequest request, HttpServletResponse response) {
+    public void updateSocialWorkerProfile(@Valid SocialWorkerProfileUpdateRequest request) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
 
         validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
@@ -127,64 +121,43 @@ public class SocialWorkerService {
                 .findById(request.nursingInstitutionId())
                 .orElseThrow(() -> new NursingInstitutionException(NURSING_INSTITUTION_NOT_FOUND));
 
-        boolean isInstitutionRankChanged =
-                !Objects.equals(loggedInSocialWorker.getInstitutionRank(), request.institutionRank());
-        boolean isPhoneNumberChanged = !Objects.equals(loggedInSocialWorker.getPhoneNumber(), request.phoneNumber());
         boolean isNicknameChanged = !Objects.equals(request.nickName(), loggedInSocialWorker.getNickname());
 
         if (isNicknameChanged) {
             validateNicknameNotDuplicated(request.nickName());
         }
 
-        if (isPhoneNumberChanged) {
-            validatePhoneNumberNotDuplicated(request.phoneNumber());
-        }
-
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
         Gender gender = Gender.fromGenderCode(request.genderCode());
-
-        if (isInstitutionRankChanged || isPhoneNumberChanged) {
-            updateJwtAndSecurityContext(
-                    response,
-                    request.phoneNumber(),
-                    request.institutionRank(),
-                    loggedInSocialWorker.getAssociationRank());
-        }
 
         loggedInSocialWorker.update(request, birthDate, gender, institution);
     }
 
-    public void logout(HttpServletResponse response) {
-        // AccessToken 쿠키 삭제
-        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
-        // RefreshToken 쿠키 삭제
-        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
-        // SecurityContext 초기화
-        SecurityContextHolder.clearContext();
+    @Transactional(readOnly = true)
+    public AssociationMemberDto getSocialWorkerMyAssociationDetail() {
+        AssociationMember loggedInAssociationMember = authUtil.getLoggedInAssociationMember();
+        return AssociationMemberDto.from(loggedInAssociationMember);
     }
 
     @Transactional
-    public void deleteSocialWorker(HttpServletResponse response) {
+    public void updateSocialWorkerMyAssociationDetail(SocialWorkerMyAssociationDetailUpdateRequest request) {
+        AssociationMember loggedInAssociationMember = authUtil.getLoggedInAssociationMember();
+        loggedInAssociationMember.updateAgreement(request.isAgreedToReceiveMarketingInfo());
+    }
+
+    @Transactional
+    public void deleteSocialWorker() {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
-        AssociationRank rank = loggedInSocialWorker.getAssociationRank();
-        Association association = loggedInSocialWorker.getAssociation();
 
-        if (rank == AssociationRank.CHAIRMAN) {
-            throw new AssociationException(ASSOCIATION_CHAIRMAN_SELECT_SUCCESSOR_FIRST);
-        }
+        validateDeletableSocialWorker(loggedInSocialWorker);
 
-        if (rank == AssociationRank.EXECUTIVE
-                & socialworkerRepository.countByAssociationAndAssociationRank(association, AssociationRank.EXECUTIVE)
-                        == 1) {
-            throw new AssociationException(ASSOCIATION_EXECUTIVE_SELECT_SUCCESSOR_FIRST);
+        boolean isLastMember = isLastSocialWorkerInInstitution(loggedInSocialWorker);
+
+        if (isLastMember) {
+            updateChatRoomsAsAllSocialWorkerLeft(loggedInSocialWorker);
         }
 
         socialworkerRepository.delete(loggedInSocialWorker);
-
-        response.addCookie(cookieUtil.deleteCookie("AccessToken"));
-        response.addCookie(cookieUtil.deleteCookie("RefreshToken"));
-
-        SecurityContextHolder.clearContext();
     }
 
     private void validateEssentialAgreement(boolean isAgreedToTerms, boolean isAgreedToCollectPersonalInfo) {
@@ -192,19 +165,42 @@ public class SocialWorkerService {
             return;
         }
 
-        throw new SocialWorkerException(SOCIALWORKER_REQUIRED_AGREEMENT);
+        throw new SocialWorkerException(SOCIAL_WORKER_REQUIRED_AGREEMENT);
     }
 
     private void validateNicknameNotDuplicated(String nickName) {
         if (socialworkerRepository.existsByNickname(nickName)) {
-            throw new SocialWorkerException(SOCIAlWORKER_ALREADY_EXISTS_NICKNAME);
+            throw new SocialWorkerException(SOCIAL_WORKER_NICKNAME_DUPLICATED);
         }
     }
 
     private void validatePhoneNumberNotDuplicated(String phoneNumber) {
         if (socialworkerRepository.existsByPhoneNumber(phoneNumber)) {
-            throw new SocialWorkerException(SOCIALWORKER_ALREADY_EXISTS_PHONENUMBER);
+            throw new SocialWorkerException(SOCIAL_WORKER_PHONE_NUMBER_DUPLICATED);
         }
+    }
+
+    private void validateDeletableSocialWorker(SocialWorker socialWorker) {
+        if (socialWorker.getAssociationMember() != null) {
+            throw new SocialWorkerException(SOCIAL_WORKER_NOT_DELETABLE_HAS_ASSOCIATION);
+        }
+    }
+
+    private boolean isLastSocialWorkerInInstitution(SocialWorker socialWorker) {
+        return socialworkerRepository.countByNursingInstitution(socialWorker.getNursingInstitution()) == 1;
+    }
+
+    private void updateChatRoomsAsAllSocialWorkerLeft(SocialWorker socialWorker) {
+        ChatRoomActiveStatusUpdatedChatResponse chatResponse =
+                ChatRoomActiveStatusUpdatedChatResponse.of(ChatRoomActiveStatus.사회복지사전원탈퇴);
+
+        socialWorkerChatReadStatusRepository.findAllBySocialWorker(socialWorker).stream()
+                .map(SocialWorkerChatReadStatus::getChatRoom)
+                .filter(chatRoom -> chatRoom.getChatRoomActiveStatus() == ChatRoomActiveStatus.채팅가능)
+                .forEach(chatRoom -> {
+                    chatRoom.allSocialWorkerLeave();
+                    messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoom.getId(), chatResponse);
+                });
     }
 
     private LocalDate parseBirthDate(String yymmdd, int genderCode) {
@@ -227,26 +223,5 @@ public class SocialWorkerService {
         int day = Integer.parseInt(yymmdd.substring(4, 6));
 
         return LocalDate.of(year, month, day);
-    }
-
-    private void updateJwtAndSecurityContext(
-            HttpServletResponse response,
-            String phoneNumber,
-            InstitutionRank institutionRankParam,
-            AssociationRank associationRankParam) {
-        String institutionRank = institutionRankParam.toString();
-        String associationRank = associationRankParam.toString();
-        String accessToken = jwtUtil.createAccessToken(phoneNumber, institutionRank, associationRank);
-        String refreshToken = jwtUtil.createRefreshToken(phoneNumber);
-
-        response.addCookie(cookieUtil.createCookie("AccessToken", accessToken, jwtProperties.getAccessTokenExpiry()));
-        response.addCookie(
-                cookieUtil.createCookie("RefreshToken", refreshToken, jwtProperties.getRefreshTokenExpiry()));
-
-        List<GrantedAuthority> authorities =
-                List.of((GrantedAuthority) () -> institutionRank, (GrantedAuthority) () -> associationRank);
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(phoneNumber, null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 }

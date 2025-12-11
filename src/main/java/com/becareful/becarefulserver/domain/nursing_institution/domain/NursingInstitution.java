@@ -1,10 +1,8 @@
 package com.becareful.becarefulserver.domain.nursing_institution.domain;
 
-import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.*;
-
 import com.becareful.becarefulserver.domain.common.domain.*;
-import com.becareful.becarefulserver.domain.nursing_institution.domain.converter.FacilityTypeConverter;
-import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.FacilityType;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.converter.*;
+import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.*;
 import com.becareful.becarefulserver.domain.nursing_institution.dto.request.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.converter.*;
 import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
@@ -80,14 +78,11 @@ public class NursingInstitution extends BaseEntity {
                                 : EnumSet.copyOf(facilityTypeList))
                 .institutionPhoneNumber(institutionPhoneNumber)
                 .address(new Address(streetAddress, detailAddress))
-                .profileImageUrl(
-                        profileImageUrl == null || profileImageUrl.isBlank()
-                                ? INSTITUTION_DEFAULT_PROFILE_IMAGE_URL
-                                : profileImageUrl)
+                .profileImageUrl(profileImageUrl)
                 .build();
     }
 
-    public void updateNursingInstitutionInfo(UpdateNursingInstitutionInfoRequest request) {
+    public void updateNursingInstitutionInfo(UpdateNursingInstitutionInfoRequest request, String profileImageUrl) {
         EnumSet<FacilityType> facilityTypes =
                 request.facilityTypeList() == null || request.facilityTypeList().isEmpty()
                         ? EnumSet.noneOf(FacilityType.class)
@@ -98,10 +93,6 @@ public class NursingInstitution extends BaseEntity {
         this.openYear = request.openYear();
         this.facilityTypes = facilityTypes;
         this.institutionPhoneNumber = request.phoneNumber();
-        this.profileImageUrl = request.profileImageUrl();
-    }
-
-    public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }
 }

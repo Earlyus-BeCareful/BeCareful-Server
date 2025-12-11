@@ -4,9 +4,8 @@ import com.becareful.becarefulserver.domain.caregiver.domain.Career;
 import com.becareful.becarefulserver.domain.caregiver.domain.CareerDetail;
 import com.becareful.becarefulserver.domain.caregiver.domain.CareerType;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
-import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerUpdateRequest;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerDetailResponse;
-import com.becareful.becarefulserver.domain.caregiver.dto.response.CareerResponse;
+import com.becareful.becarefulserver.domain.caregiver.dto.CareerDto;
+import com.becareful.becarefulserver.domain.caregiver.dto.request.CareerCreateOrUpdateRequest;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerDetailRepository;
 import com.becareful.becarefulserver.domain.caregiver.repository.CareerRepository;
 import com.becareful.becarefulserver.global.util.AuthUtil;
@@ -24,23 +23,19 @@ public class CareerService {
     private final CareerDetailRepository careerDetailRepository;
     private final AuthUtil authUtil;
 
-    public CareerResponse getCareer() {
+    public CareerDto getCareer() {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         return careerRepository
                 .findByCaregiver(loggedInCaregiver)
                 .map(career -> {
-                    List<CareerDetailResponse> careerDetailResponses =
-                            careerDetailRepository.findAllByCareer(career).stream()
-                                    .map(CareerDetailResponse::from)
-                                    .toList();
-
-                    return CareerResponse.of(career, careerDetailResponses);
+                    List<CareerDetail> careerDetails = careerDetailRepository.findAllByCareer(career);
+                    return CareerDto.of(career, careerDetails);
                 })
-                .orElseGet(CareerResponse::empty);
+                .orElseGet(CareerDto::empty);
     }
 
     @Transactional
-    public void updateCareer(CareerUpdateRequest request) {
+    public void createOrUpdateCareer(CareerCreateOrUpdateRequest request) {
         Caregiver loggedInCaregiver = authUtil.getLoggedInCaregiver();
         careerRepository
                 .findByCaregiver(loggedInCaregiver)
@@ -49,7 +44,7 @@ public class CareerService {
                         () -> createCareerAndCareerDetail(request, loggedInCaregiver));
     }
 
-    private void createCareerAndCareerDetail(CareerUpdateRequest request, Caregiver caregiver) {
+    private void createCareerAndCareerDetail(CareerCreateOrUpdateRequest request, Caregiver caregiver) {
         Career career = Career.create(request.title(), request.careerType(), request.introduce(), caregiver);
         careerRepository.save(career);
 
@@ -62,7 +57,7 @@ public class CareerService {
         }
     }
 
-    private void updateCareerAndCareerDetail(CareerUpdateRequest request, Career career) {
+    private void updateCareerAndCareerDetail(CareerCreateOrUpdateRequest request, Career career) {
         career.updateCareer(request.title(), request.careerType(), request.introduce());
 
         careerDetailRepository.deleteAllByCareer(career);

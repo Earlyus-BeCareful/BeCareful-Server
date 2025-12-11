@@ -61,6 +61,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage()));
     }
 
+    @ExceptionHandler(CaregiverException.class)
+    public ResponseEntity<ErrorResponse> handleCaregiverException(CaregiverException e) {
+        log.info("CaregiverException: {}", e.getMessage());
+        return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(ElderlyException.class)
+    public ResponseEntity<ErrorResponse> handleElderlyException(ElderlyException e) {
+        log.info("ElderlyException: {}", e.getMessage());
+        return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(NursingInstitutionException.class)
+    public ResponseEntity<ErrorResponse> handleNursingInstitutionException(NursingInstitutionException e) {
+        log.info("NursingInstitutionException: {}", e.getMessage());
+        return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage()));
+    }
+
     @ExceptionHandler(ContractException.class)
     public ResponseEntity<ErrorResponse> contractException(ContractException e) {
         log.info("ContractException: {}", e.getMessage());

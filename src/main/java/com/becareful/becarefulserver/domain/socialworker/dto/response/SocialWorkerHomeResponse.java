@@ -18,15 +18,13 @@ public record SocialWorkerHomeResponse(
         SocialWorkerSimpleDto socialWorkerInfo,
         InstitutionInfo institutionInfo,
         RecruitmentStatistics recruitmentStatistics,
-        List<MatchingProcessingElderlyInfo> matchingProcessingElderlys,
-        boolean hasNewChat) {
+        List<MatchingProcessingElderlyInfo> matchingProcessingElderlys) {
 
     public static SocialWorkerHomeResponse of(
             SocialWorker loggedInSocialWorker,
             List<SocialWorkerSimpleDto> socialWorkerList,
             List<Recruitment> recruitments,
-            Integer elderlyCount,
-            boolean hasNewChat) {
+            Integer elderlyCount) {
 
         List<MatchingProcessingElderlyInfo> matchingProcessingElderlyInfos = recruitments.stream()
                 .filter(r -> r.getRecruitmentStatus().isRecruiting())
@@ -45,7 +43,6 @@ public record SocialWorkerHomeResponse(
                         socialWorkerList))
                 .recruitmentStatistics(RecruitmentStatistics.from(recruitments))
                 .matchingProcessingElderlys(matchingProcessingElderlyInfos)
-                .hasNewChat(hasNewChat)
                 .build();
     }
 

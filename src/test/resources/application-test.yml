@@ -65,3 +65,10 @@ login:
 cookie:
   secure: false
   samesite: Lax
+
+aws:
+  s3:
+    bucket: aaa
+    base-url: aaa
+    access-key: aaa
+    secret-key: aaa

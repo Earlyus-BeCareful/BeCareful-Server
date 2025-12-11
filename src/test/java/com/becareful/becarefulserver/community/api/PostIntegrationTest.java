@@ -6,18 +6,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.becareful.becarefulserver.common.IntegrationTest;
 import com.becareful.becarefulserver.common.WithSocialWorker;
 import com.becareful.becarefulserver.domain.association.domain.Association;
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
+import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
+import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
 import com.becareful.becarefulserver.domain.association.repository.AssociationRepository;
 import com.becareful.becarefulserver.domain.common.domain.Gender;
 import com.becareful.becarefulserver.domain.community.domain.BoardType;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.domain.PostBoard;
-import com.becareful.becarefulserver.domain.community.dto.request.PostCreateOrUpdateRequest;
+import com.becareful.becarefulserver.domain.community.dto.request.*;
 import com.becareful.becarefulserver.domain.community.repository.PostBoardRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
 import com.becareful.becarefulserver.domain.community.service.PostService;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.vo.InstitutionRank;
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.AssociationRank;
 import com.becareful.becarefulserver.domain.socialworker.repository.SocialWorkerRepository;
 import com.becareful.becarefulserver.fixture.NursingInstitutionFixture;
 import com.becareful.becarefulserver.global.exception.exception.PostBoardException;
@@ -42,20 +44,25 @@ public class PostIntegrationTest extends IntegrationTest {
     @Autowired
     private AssociationRepository associationRepository;
 
-    private SocialWorker createMember(String phone, AssociationRank rank) {
-        SocialWorker member = SocialWorker.create(
+    @Autowired
+    private AssociationMemberRepository associationMemberRepository;
+
+    private AssociationMember createMember(String phone, AssociationRank rank) {
+        SocialWorker socialWorker = SocialWorker.create(
                 "name",
                 "nick",
                 LocalDate.now(),
                 Gender.FEMALE,
                 phone,
                 InstitutionRank.SOCIAL_WORKER,
-                rank,
                 true,
                 NursingInstitutionFixture.NURSING_INSTITUTION);
         Association association = associationRepository.findAll().get(0);
-        member.joinAssociation(association, rank);
-        return socialWorkerRepository.save(member);
+        AssociationMember member = AssociationMember.create(socialWorker, association, rank, true, true, true);
+        socialWorker.joinAssociation(member);
+        associationMemberRepository.save(member);
+        socialWorkerRepository.save(socialWorker);
+        return member;
     }
 
     private PostBoard createBoard() {
@@ -71,8 +78,7 @@ public class PostIntegrationTest extends IntegrationTest {
         createMember("01010000000", AssociationRank.MEMBER);
         createBoard();
 
-        PostCreateOrUpdateRequest request =
-                new PostCreateOrUpdateRequest("title", "content", false, null, null, null, null);
+        PostCreateRequest request = new PostCreateRequest("title", "content", false, null, null, null, null);
 
         Long postId = postService.createPost("association-notice", request);
 
@@ -85,8 +91,7 @@ public class PostIntegrationTest extends IntegrationTest {
         createMember("01020000000", AssociationRank.NONE);
         createBoard();
 
-        PostCreateOrUpdateRequest request =
-                new PostCreateOrUpdateRequest("title", "content", false, null, null, null, null);
+        PostCreateRequest request = new PostCreateRequest("title", "content", false, null, null, null, null);
 
         assertThatThrownBy(() -> postService.createPost("association-notice", request))
                 .isInstanceOf(PostBoardException.class);
@@ -98,14 +103,13 @@ public class PostIntegrationTest extends IntegrationTest {
         createMember("01030000000", AssociationRank.MEMBER);
         createBoard();
 
-        PostCreateOrUpdateRequest request =
-                new PostCreateOrUpdateRequest("title", "content", false, null, null, null, null);
+        PostCreateRequest request = new PostCreateRequest("title", "content", false, null, null, null, null);
         Long postId = postService.createPost("association-notice", request);
 
         postService.updatePost(
                 "association-notice",
                 postId,
-                new PostCreateOrUpdateRequest("title2", "content2", false, null, null, null, null));
+                new PostUpdateRequest("title2", "content2", null, false, null, null, null, null));
 
         Post post = postRepository.findById(postId).get();
         assertThat(post.getTitle()).isEqualTo("title2");

@@ -1,6 +1,6 @@
 package com.becareful.becarefulserver.domain.association.dto.request;
 
-import com.becareful.becarefulserver.domain.socialworker.domain.vo.*;
+import com.becareful.becarefulserver.domain.association.domain.AssociationRank;
 import jakarta.validation.constraints.*;
 
 public record UpdateAssociationChairmanRequest(

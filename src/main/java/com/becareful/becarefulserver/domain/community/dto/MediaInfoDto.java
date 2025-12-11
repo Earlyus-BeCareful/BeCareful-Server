@@ -1,10 +1,9 @@
 package com.becareful.becarefulserver.domain.community.dto;
 
-import com.becareful.becarefulserver.domain.community.domain.FileType;
-import org.springframework.web.multipart.MultipartFile;
+import com.becareful.becarefulserver.domain.community.domain.*;
 
-public record MediaInfoDto(String fileName, String mediaUrl, FileType fileType, Long fileSize, Integer videoDuration) {
-    public static MediaInfoDto of(String mediaUrl, MultipartFile file, FileType fileType, Integer videoDuration) {
-        return new MediaInfoDto(file.getOriginalFilename(), mediaUrl, fileType, file.getSize(), videoDuration);
+public record MediaInfoDto(String fileName, String tempKey, FileType fileType, Long fileSize) {
+    public static MediaInfoDto of(String fileName, String tempKey, FileType fileType, Long fileSize) {
+        return new MediaInfoDto(fileName, tempKey, fileType, fileSize);
     }
 }

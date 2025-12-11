@@ -2,7 +2,6 @@ package com.becareful.becarefulserver.domain.chat.domain;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.common.domain.*;
-import com.becareful.becarefulserver.domain.matching.domain.*;
 import jakarta.persistence.*;
 import java.time.*;
 import lombok.*;
@@ -24,22 +23,22 @@ public class CaregiverChatReadStatus extends BaseEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Caregiver caregiver;
 
-    @JoinColumn(name = "matching_id")
+    @JoinColumn(name = "chat_room_id")
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Matching matching;
+    private ChatRoom chatRoom;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private CaregiverChatReadStatus(Caregiver caregiver, Matching matching) {
+    private CaregiverChatReadStatus(Caregiver caregiver, ChatRoom chatRoom) {
         this.caregiver = caregiver;
-        this.matching = matching;
-        this.lastReadAt = LocalDateTime.now();
+        this.chatRoom = chatRoom;
+        this.lastReadAt = LocalDateTime.of(1000, 1, 1, 0, 0);
     }
 
-    public static CaregiverChatReadStatus create(Caregiver caregiver, Matching matching) {
+    public static CaregiverChatReadStatus create(Caregiver caregiver, ChatRoom chatRoom) {
         return CaregiverChatReadStatus.builder()
                 .caregiver(caregiver)
-                .matching(matching)
+                .chatRoom(chatRoom)
                 .build();
     }
 
