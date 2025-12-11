@@ -35,7 +35,7 @@ public class WorkApplicationService {
                 .map(WorkApplicationDto::from)
                 .orElse(null);
 
-        return CaregiverMyWorkApplicationPageResponse.of(hasCareer, workApplicationDto);
+        return CaregiverMyWorkApplicationPageResponse.of(loggedInCaregiver.getName(), hasCareer, workApplicationDto);
     }
 
     @Transactional
