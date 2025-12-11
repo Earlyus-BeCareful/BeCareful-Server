@@ -131,7 +131,7 @@ public class Caregiver extends BaseEntity {
         this.address = address;
     }
 
-    public void updateMarketingInfoReceivingAgreement(boolean agreedToReceiveMarketingInfo) {
-        this.isAgreedToReceiveMarketingInfo = agreedToReceiveMarketingInfo;
+    public void updateMarketingInfoReceivingAgreement(boolean isAgreedToReceiveMarketingInfo) {
+        this.isAgreedToReceiveMarketingInfo = isAgreedToReceiveMarketingInfo;
     }
 }
