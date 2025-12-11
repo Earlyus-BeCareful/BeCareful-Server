@@ -117,7 +117,7 @@ public class CaregiverController {
     }
 
     @Operation(summary = "요양보호사 설정 화면 정보 조회")
-    @PutMapping("/my/setting")
+    @GetMapping("/my/setting")
     public ResponseEntity<CaregiverMySettingResponse> getCaregiverMySetting() {
         var response = caregiverService.getCaregiverMySetting();
         return ResponseEntity.ok(response);
