@@ -11,7 +11,4 @@ public record SocialWorkerProfileUpdateRequest(
         @NotNull int genderCode,
         @NotBlank String phoneNumber,
         @NotNull Long nursingInstitutionId,
-        @NotNull InstitutionRank institutionRank,
-        @NotNull boolean isAgreedToTerms,
-        @NotNull boolean isAgreedToCollectPersonalInfo,
-        @NotNull boolean isAgreedToReceiveMarketingInfo) {}
+        @NotNull InstitutionRank institutionRank) {}

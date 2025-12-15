@@ -53,6 +53,8 @@ public class SocialWorker extends BaseEntity {
 
     private String phoneNumber;
 
+    private String profileImageUrl;
+
     @Enumerated(EnumType.STRING)
     private InstitutionRank institutionRank;
 
@@ -158,9 +160,6 @@ public class SocialWorker extends BaseEntity {
         this.gender = gender;
         this.nursingInstitution = nursingInstitution;
         this.institutionRank = request.institutionRank();
-        this.isAgreedToReceiveMarketingInfo = request.isAgreedToReceiveMarketingInfo();
-        this.isAgreedToTerms = request.isAgreedToTerms();
-        this.isAgreedToCollectPersonalInfo = request.isAgreedToCollectPersonalInfo();
 
         if (this.associationMember != null) {
             this.associationMember.update(request, birthday, gender, nursingInstitution);
