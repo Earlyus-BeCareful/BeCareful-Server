@@ -59,6 +59,7 @@ public class IntegrationTest {
                 Gender.FEMALE,
                 "01012345678",
                 InstitutionRank.SOCIAL_WORKER,
+                "default",
                 true,
                 institution);
         SocialWorkerFixture.SOCIAL_WORKER_MANAGER = SocialWorker.create(
@@ -68,6 +69,7 @@ public class IntegrationTest {
                 Gender.FEMALE,
                 "01099990000",
                 InstitutionRank.SOCIAL_WORKER,
+                "default",
                 true,
                 institution);
 
