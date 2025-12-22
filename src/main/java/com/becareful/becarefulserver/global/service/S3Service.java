@@ -38,7 +38,8 @@ public class S3Service {
         "association-profile-image",
         "nursing-institution-profile-image",
         "elderly-profile-image",
-        "caregiver-profile-image"
+        "caregiver-profile-image",
+        "social-worker-profile-image"
     };
 
     /**
