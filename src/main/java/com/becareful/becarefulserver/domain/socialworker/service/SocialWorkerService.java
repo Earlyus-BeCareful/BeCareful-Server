@@ -85,7 +85,7 @@ public class SocialWorkerService {
             try {
                 s3Service.moveTempFileToPermanent(request.profileImageTempKey()); // 에러발생시 db롤백
             } catch (Exception e) {
-                throw new ElderlyException(SOCIAL_WORKER_FAILED_TO_MOVE_PROFILE_IMAGE);
+                throw new SocialWorkerException(SOCIAL_WORKER_FAILED_TO_MOVE_PROFILE_IMAGE);
             }
         }
 
@@ -163,7 +163,7 @@ public class SocialWorkerService {
             try {
                 s3Service.moveTempFileToPermanent(request.profileImageTempKey()); // 에러발생시 db롤백
             } catch (Exception e) {
-                throw new ElderlyException(SOCIAL_WORKER_FAILED_TO_MOVE_PROFILE_IMAGE);
+                throw new SocialWorkerException(SOCIAL_WORKER_FAILED_TO_MOVE_PROFILE_IMAGE);
             }
         }
     }
