@@ -24,6 +24,7 @@ public class ErrorMessage {
     public static final String SOCIAL_WORKER_NICKNAME_DUPLICATED = "이미 존재하는 닉네임 입니다.";
     public static final String SOCIAL_WORKER_REQUIRED_AGREEMENT = "필수 약관에 동의해야 합니다.";
     public static final String SOCIAL_WORKER_NOT_DELETABLE_HAS_ASSOCIATION = "커뮤니티(협회)를 먼저 탈퇴해야 합니다.";
+    public static final String SOCIAL_WORKER_FAILED_TO_MOVE_PROFILE_IMAGE = "사회복지사 프로필 이미지를 업로드 하는 중 문제가 발생했습니다.";
 
     public static final String NURSING_INSTITUTION_ALREADY_EXISTS = "이미 등록된 기관입니다.";
     public static final String NURSING_INSTITUTION_REQUIRED_CODE = "기관코드는 필수입니다.";

@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
@@ -60,6 +61,13 @@ public class SocialWorkerService {
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
         Gender gender = Gender.fromGenderCode(request.genderCode());
 
+        String profileImageUrl;
+        if (request.profileImageTempKey().equals("default")) {
+            profileImageUrl = CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
+        } else {
+            profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
+        }
+
         SocialWorker socialWorker = SocialWorker.create(
                 request.realName(),
                 request.nickName(),
@@ -67,10 +75,19 @@ public class SocialWorkerService {
                 gender,
                 request.phoneNumber(),
                 request.institutionRank(),
+                profileImageUrl,
                 request.isAgreedToReceiveMarketingInfo(),
                 nursingInstitution);
 
         socialworkerRepository.save(socialWorker);
+
+        if (!request.profileImageTempKey().equals("default")) {
+            try {
+                s3Service.moveTempFileToPermanent(request.profileImageTempKey()); // 에러발생시 db롤백
+            } catch (Exception e) {
+                throw new ElderlyException(SOCIAL_WORKER_FAILED_TO_MOVE_PROFILE_IMAGE);
+            }
+        }
 
         return socialWorker.getId();
     }
@@ -130,7 +147,25 @@ public class SocialWorkerService {
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
         Gender gender = Gender.fromGenderCode(request.genderCode());
 
-        loggedInSocialWorker.update(request, birthDate, gender, institution);
+        String profileImageUrl;
+        if (request.profileImageTempKey() == null) {
+            profileImageUrl = loggedInSocialWorker.getProfileImageUrl();
+        } else if (request.profileImageTempKey().equals("default")) {
+            profileImageUrl = CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
+        } else {
+            profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
+        }
+
+        loggedInSocialWorker.update(request, birthDate, gender, profileImageUrl, institution);
+
+        if (request.profileImageTempKey() != null
+                && !request.profileImageTempKey().equals("default")) {
+            try {
+                s3Service.moveTempFileToPermanent(request.profileImageTempKey()); // 에러발생시 db롤백
+            } catch (Exception e) {
+                throw new ElderlyException(SOCIAL_WORKER_FAILED_TO_MOVE_PROFILE_IMAGE);
+            }
+        }
     }
 
     @Transactional(readOnly = true)

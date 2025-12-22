@@ -11,4 +11,5 @@ public record SocialWorkerProfileUpdateRequest(
         @NotNull int genderCode,
         @NotBlank String phoneNumber,
         @NotNull Long nursingInstitutionId,
-        @NotNull InstitutionRank institutionRank) {}
+        @NotNull InstitutionRank institutionRank,
+        String profileImageTempKey) {}

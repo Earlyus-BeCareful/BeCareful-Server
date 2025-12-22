@@ -11,7 +11,7 @@ public record SocialWorkerDto(
         String birthday,
         Integer genderCode,
         String phoneNumber,
-        String socialWorkerProfileImageUrl,
+        String profileImageUrl,
         InstitutionSimpleDto institutionInfo,
         InstitutionRank institutionRank) {
 

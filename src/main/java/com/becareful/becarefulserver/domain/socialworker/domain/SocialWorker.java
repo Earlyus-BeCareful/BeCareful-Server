@@ -85,6 +85,7 @@ public class SocialWorker extends BaseEntity {
             Gender gender,
             String phoneNumber,
             InstitutionRank institutionRank,
+            String profileImageUrl,
             boolean isAgreedToTerms,
             boolean isAgreedToCollectPersonalInfo,
             boolean isAgreedToReceiveMarketingInfo) {
@@ -94,6 +95,7 @@ public class SocialWorker extends BaseEntity {
         this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.institutionRank = institutionRank;
+        this.profileImageUrl = profileImageUrl;
         this.isDeleted = false;
         this.isAgreedToTerms = isAgreedToTerms;
         this.nursingInstitution = nursingInstitution;
@@ -133,6 +135,7 @@ public class SocialWorker extends BaseEntity {
             Gender gender,
             String phoneNumber,
             InstitutionRank institutionRank,
+            String profileImageUrl,
             boolean isAgreedToReceiveMarketingInfo,
             NursingInstitution nursingInstitution) {
         return SocialWorker.builder()
@@ -142,6 +145,7 @@ public class SocialWorker extends BaseEntity {
                 .gender(gender)
                 .phoneNumber(phoneNumber)
                 .institutionRank(institutionRank)
+                .profileImageUrl(profileImageUrl)
                 .isAgreedToReceiveMarketingInfo(isAgreedToReceiveMarketingInfo)
                 .isAgreedToTerms(true)
                 .isAgreedToCollectPersonalInfo(true)
@@ -153,11 +157,13 @@ public class SocialWorker extends BaseEntity {
             SocialWorkerProfileUpdateRequest request,
             LocalDate birthday,
             Gender gender,
+            String profileImageUrl,
             NursingInstitution nursingInstitution) {
         this.name = request.realName();
         this.nickname = request.nickName();
         this.birthday = birthday;
         this.gender = gender;
+        this.profileImageUrl = profileImageUrl;
         this.nursingInstitution = nursingInstitution;
         this.institutionRank = request.institutionRank();
 
