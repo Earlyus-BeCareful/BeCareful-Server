@@ -1,6 +1,8 @@
 package com.becareful.becarefulserver.domain.socialworker.controller;
 
 import com.becareful.becarefulserver.domain.association.dto.AssociationMemberDto;
+import com.becareful.becarefulserver.domain.common.dto.request.ProfileImagePresignedUrlRequest;
+import com.becareful.becarefulserver.domain.common.dto.response.PresignedUrlResponse;
 import com.becareful.becarefulserver.domain.socialworker.dto.SocialWorkerDto;
 import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
@@ -102,6 +104,14 @@ public class SocialWorkerController {
     public ResponseEntity<Void> logout(HttpServletResponse httpServletResponse) {
         authUtil.logout(httpServletResponse);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "사회복지사 프로필 이미지 업로드")
+    @PostMapping("/profile-img/presigned-url")
+    public ResponseEntity<PresignedUrlResponse> createPresignedUrl(
+            @Valid @RequestBody ProfileImagePresignedUrlRequest request) {
+        var response = socialWorkerService.getPresignedUrl(request);
+        return ResponseEntity.ok(response);
     }
 
     // TODO : 탈퇴 url DELETE /social-worker 로 수정

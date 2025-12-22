@@ -38,8 +38,10 @@ public class S3Service {
         "association-profile-image",
         "nursing-institution-profile-image",
         "elderly-profile-image",
-        "caregiver-profile-image"
+        "caregiver-profile-image",
+        "social-worker-profile-image"
     };
+    private final SocialWorkerRepository socialWorkerRepository;
 
     /**
      * Presigned URL 생성 (temp 폴더에 저장)
@@ -165,6 +167,7 @@ public class S3Service {
         urls.addAll(caregiverRepository.findAllProfileImageUrls());
         urls.addAll(nursingInstitutionRepository.findAllProfileImageUrls());
         urls.addAll(associationRepository.findAllProfileImageUrls());
+        urls.addAll(socialWorkerRepository.findAllProfileImageUrls());
 
         return urls;
     }

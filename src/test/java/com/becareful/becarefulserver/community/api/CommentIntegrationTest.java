@@ -58,6 +58,7 @@ public class CommentIntegrationTest extends IntegrationTest {
                 Gender.FEMALE,
                 phone,
                 InstitutionRank.SOCIAL_WORKER,
+                "default",
                 true,
                 NursingInstitutionFixture.NURSING_INSTITUTION);
         Association association = associationRepository.findAll().get(0);

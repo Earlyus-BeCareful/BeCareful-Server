@@ -12,6 +12,7 @@ public record SocialWorkerCreateRequest(
         @NotNull int genderCode,
         @NotBlank String phoneNumber,
         @NotNull InstitutionRank institutionRank,
+        String profileImageTempKey,
         boolean isAgreedToTerms,
         boolean isAgreedToCollectPersonalInfo,
         boolean isAgreedToReceiveMarketingInfo) {}

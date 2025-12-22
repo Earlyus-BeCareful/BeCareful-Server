@@ -11,11 +11,9 @@ public record SocialWorkerDto(
         String birthday,
         Integer genderCode,
         String phoneNumber,
+        String profileImageUrl,
         InstitutionSimpleDto institutionInfo,
-        InstitutionRank institutionRank,
-        boolean isAgreedToTerms,
-        boolean isAgreedToCollectPersonalInfo,
-        boolean isAgreedToReceiveMarketingInfo) {
+        InstitutionRank institutionRank) {
 
     public static SocialWorkerDto from(SocialWorker socialWorker) {
         String birthday = socialWorker.getBirthday().format(DateTimeFormatter.ofPattern("yyMMdd"));
@@ -25,10 +23,8 @@ public record SocialWorkerDto(
                 birthday,
                 socialWorker.getGenderCode(),
                 socialWorker.getPhoneNumber(),
+                socialWorker.getProfileImageUrl(),
                 InstitutionSimpleDto.from(socialWorker.getNursingInstitution()),
-                socialWorker.getInstitutionRank(),
-                socialWorker.isAgreedToTerms(),
-                socialWorker.isAgreedToCollectPersonalInfo(),
-                socialWorker.isAgreedToReceiveMarketingInfo());
+                socialWorker.getInstitutionRank());
     }
 }

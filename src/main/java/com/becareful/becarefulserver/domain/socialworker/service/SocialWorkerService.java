@@ -1,15 +1,17 @@
 package com.becareful.becarefulserver.domain.socialworker.service;
 
+import static com.becareful.becarefulserver.global.constant.StaticResourceConstant.CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
 import com.becareful.becarefulserver.domain.association.domain.*;
 import com.becareful.becarefulserver.domain.association.dto.AssociationMemberDto;
-import com.becareful.becarefulserver.domain.association.repository.AssociationMemberRepository;
 import com.becareful.becarefulserver.domain.chat.domain.SocialWorkerChatReadStatus;
 import com.becareful.becarefulserver.domain.chat.domain.vo.ChatRoomActiveStatus;
 import com.becareful.becarefulserver.domain.chat.dto.response.ChatRoomActiveStatusUpdatedChatResponse;
 import com.becareful.becarefulserver.domain.chat.repository.SocialWorkerChatReadStatusRepository;
 import com.becareful.becarefulserver.domain.common.domain.*;
+import com.becareful.becarefulserver.domain.common.dto.request.ProfileImagePresignedUrlRequest;
+import com.becareful.becarefulserver.domain.common.dto.response.PresignedUrlResponse;
 import com.becareful.becarefulserver.domain.matching.domain.*;
 import com.becareful.becarefulserver.domain.matching.repository.*;
 import com.becareful.becarefulserver.domain.nursing_institution.domain.*;
@@ -20,6 +22,7 @@ import com.becareful.becarefulserver.domain.socialworker.dto.request.*;
 import com.becareful.becarefulserver.domain.socialworker.dto.response.*;
 import com.becareful.becarefulserver.domain.socialworker.repository.*;
 import com.becareful.becarefulserver.global.exception.exception.*;
+import com.becareful.becarefulserver.global.service.S3Service;
 import com.becareful.becarefulserver.global.util.*;
 import jakarta.servlet.http.*;
 import jakarta.validation.*;
@@ -40,9 +43,9 @@ public class SocialWorkerService {
     private final ElderlyRepository elderlyRepository;
     private final SocialWorkerChatReadStatusRepository socialWorkerChatReadStatusRepository;
     private final AuthUtil authUtil;
-    private final CookieUtil cookieUtil;
-    private final AssociationMemberRepository associationMemberRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final S3Util s3Util;
+    private final S3Service s3Service;
 
     @Transactional
     public Long createSocialWorker(SocialWorkerCreateRequest request) {
@@ -58,6 +61,13 @@ public class SocialWorkerService {
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
         Gender gender = Gender.fromGenderCode(request.genderCode());
 
+        String profileImageUrl;
+        if (request.profileImageTempKey().equals("default")) {
+            profileImageUrl = CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
+        } else {
+            profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
+        }
+
         SocialWorker socialWorker = SocialWorker.create(
                 request.realName(),
                 request.nickName(),
@@ -65,10 +75,19 @@ public class SocialWorkerService {
                 gender,
                 request.phoneNumber(),
                 request.institutionRank(),
+                profileImageUrl,
                 request.isAgreedToReceiveMarketingInfo(),
                 nursingInstitution);
 
         socialworkerRepository.save(socialWorker);
+
+        if (!request.profileImageTempKey().equals("default")) {
+            try {
+                s3Service.moveTempFileToPermanent(request.profileImageTempKey()); // 에러발생시 db롤백
+            } catch (Exception e) {
+                throw new SocialWorkerException(SOCIAL_WORKER_FAILED_TO_MOVE_PROFILE_IMAGE);
+            }
+        }
 
         return socialWorker.getId();
     }
@@ -114,8 +133,6 @@ public class SocialWorkerService {
     public void updateSocialWorkerProfile(@Valid SocialWorkerProfileUpdateRequest request) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
 
-        validateEssentialAgreement(request.isAgreedToTerms(), request.isAgreedToCollectPersonalInfo());
-
         // 기관ID로 기관 찾기
         NursingInstitution institution = nursingInstitutionRepository
                 .findById(request.nursingInstitutionId())
@@ -130,7 +147,25 @@ public class SocialWorkerService {
         LocalDate birthDate = parseBirthDate(request.birthYymmdd(), request.genderCode());
         Gender gender = Gender.fromGenderCode(request.genderCode());
 
-        loggedInSocialWorker.update(request, birthDate, gender, institution);
+        String profileImageUrl;
+        if (request.profileImageTempKey() == null) {
+            profileImageUrl = loggedInSocialWorker.getProfileImageUrl();
+        } else if (request.profileImageTempKey().equals("default")) {
+            profileImageUrl = CAREGIVER_DEFAULT_PROFILE_IMAGE_URL;
+        } else {
+            profileImageUrl = s3Util.getPermanentUrlFromTempKey(request.profileImageTempKey());
+        }
+
+        loggedInSocialWorker.update(request, birthDate, gender, profileImageUrl, institution);
+
+        if (request.profileImageTempKey() != null
+                && !request.profileImageTempKey().equals("default")) {
+            try {
+                s3Service.moveTempFileToPermanent(request.profileImageTempKey()); // 에러발생시 db롤백
+            } catch (Exception e) {
+                throw new SocialWorkerException(SOCIAL_WORKER_FAILED_TO_MOVE_PROFILE_IMAGE);
+            }
+        }
     }
 
     @Transactional(readOnly = true)
@@ -236,5 +271,10 @@ public class SocialWorkerService {
             SocialWorkerMyMarketingInfoReceivingAgreementUpdateRequest request) {
         SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
         loggedInSocialWorker.updateMarketingInfoReceivingAgreement(request.isAgreedToReceiveMarketingInfo());
+    }
+
+    public PresignedUrlResponse getPresignedUrl(ProfileImagePresignedUrlRequest request) {
+        String newFileName = s3Util.generateImageFileNameWithSource(request.fileName());
+        return s3Service.createPresignedUrl("social-worker-profile-image", newFileName, request.contentType());
     }
 }

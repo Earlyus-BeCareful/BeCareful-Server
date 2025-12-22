@@ -12,6 +12,4 @@ public record SocialWorkerProfileUpdateRequest(
         @NotBlank String phoneNumber,
         @NotNull Long nursingInstitutionId,
         @NotNull InstitutionRank institutionRank,
-        @NotNull boolean isAgreedToTerms,
-        @NotNull boolean isAgreedToCollectPersonalInfo,
-        @NotNull boolean isAgreedToReceiveMarketingInfo) {}
+        String profileImageTempKey) {}
