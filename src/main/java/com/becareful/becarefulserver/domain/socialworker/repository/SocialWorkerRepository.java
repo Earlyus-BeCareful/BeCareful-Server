@@ -4,8 +4,6 @@ import com.becareful.becarefulserver.domain.nursing_institution.domain.NursingIn
 import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
