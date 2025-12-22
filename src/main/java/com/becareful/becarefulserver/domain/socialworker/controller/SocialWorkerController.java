@@ -108,7 +108,8 @@ public class SocialWorkerController {
 
     @Operation(summary = "사회복지사 프로필 이미지 업로드")
     @PostMapping("/profile-img/presigned-url")
-    public ResponseEntity<PresignedUrlResponse> createPresignedUrl(ProfileImagePresignedUrlRequest request) {
+    public ResponseEntity<PresignedUrlResponse> createPresignedUrl(
+            @Valid @RequestBody ProfileImagePresignedUrlRequest request) {
         var response = socialWorkerService.getPresignedUrl(request);
         return ResponseEntity.ok(response);
     }
