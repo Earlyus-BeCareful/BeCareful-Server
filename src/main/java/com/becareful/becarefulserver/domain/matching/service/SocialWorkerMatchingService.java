@@ -414,15 +414,14 @@ public class SocialWorkerMatchingService {
         // SocialWorker 상태 생성
         List<SocialWorkerChatReadStatus> statuses =
                 socialWorkerRepository.findAllByNursingInstitution(institution).stream()
-                        .filter(sw -> !sw.getId().equals(loggedInSocialWorker.getId()))
-                        .map(sw -> SocialWorkerChatReadStatus.create(sw, newChatRoom))
+                        .map(sw -> {
+                            if (sw.getId().equals(loggedInSocialWorker.getId())) {
+                                return SocialWorkerChatReadStatus.createWhoProposeApplication(sw, newChatRoom);
+                            }
+                            return SocialWorkerChatReadStatus.create(sw, newChatRoom);
+                        })
                         .toList();
-
         socialWorkerChatReadStatusRepository.saveAll(statuses);
-
-        // 근무 제안한 사회복지사는 자동 read 처리
-        socialWorkerChatReadStatusRepository.save(
-                SocialWorkerChatReadStatus.createWhoProposeApplication(loggedInSocialWorker, newChatRoom));
 
         // 최초 계약서채팅 생성
         Contract contract =

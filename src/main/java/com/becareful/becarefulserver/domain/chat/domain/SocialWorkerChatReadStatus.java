@@ -33,7 +33,6 @@ public class SocialWorkerChatReadStatus extends BaseEntity {
         this.socialWorker = socialWorker;
         this.chatRoom = chatRoom;
         this.lastReadAt = lastReadAt;
-        ;
     }
 
     public static SocialWorkerChatReadStatus create(SocialWorker socialWorker, ChatRoom chatRoom) {
