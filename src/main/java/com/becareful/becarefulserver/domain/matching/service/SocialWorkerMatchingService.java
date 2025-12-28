@@ -395,11 +395,15 @@ public class SocialWorkerMatchingService {
                 .ifPresent(Application::propose);
 
         return initChatRoomAndChatReadStatuses(
-                recruitment, caregiver, socialworker.getNursingInstitution(), workStartDate);
+                recruitment, caregiver, socialworker, socialworker.getNursingInstitution(), workStartDate);
     }
 
     private long initChatRoomAndChatReadStatuses(
-            Recruitment recruitment, Caregiver caregiver, NursingInstitution institution, LocalDate workStartDate) {
+            Recruitment recruitment,
+            Caregiver caregiver,
+            SocialWorker loggedInSocialWorker,
+            NursingInstitution institution,
+            LocalDate workStartDate) {
         ChatRoom newChatRoom = ChatRoom.create(recruitment);
         chatRoomRepository.save(newChatRoom);
 
@@ -408,11 +412,17 @@ public class SocialWorkerMatchingService {
         caregiverChatReadStatusRepository.save(caregiverChatReadStatus);
 
         // SocialWorker 상태 생성
-        List<SocialWorker> socialWorkers = socialWorkerRepository.findAllByNursingInstitution(institution);
-        List<SocialWorkerChatReadStatus> socialWorkerChatReadStatuses = socialWorkers.stream()
-                .map(s -> SocialWorkerChatReadStatus.create(s, newChatRoom))
-                .toList();
-        socialWorkerChatReadStatusRepository.saveAll(socialWorkerChatReadStatuses);
+        List<SocialWorkerChatReadStatus> statuses =
+                socialWorkerRepository.findAllByNursingInstitution(institution).stream()
+                        .filter(sw -> !sw.getId().equals(loggedInSocialWorker.getId()))
+                        .map(sw -> SocialWorkerChatReadStatus.create(sw, newChatRoom))
+                        .toList();
+
+        socialWorkerChatReadStatusRepository.saveAll(statuses);
+
+        // 근무 제안한 사회복지사는 자동 read 처리
+        socialWorkerChatReadStatusRepository.save(
+                SocialWorkerChatReadStatus.createWhoProposeApplication(loggedInSocialWorker, newChatRoom));
 
         // 최초 계약서채팅 생성
         Contract contract =
