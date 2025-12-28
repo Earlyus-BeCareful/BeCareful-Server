@@ -29,17 +29,25 @@ public class SocialWorkerChatReadStatus extends BaseEntity {
     private ChatRoom chatRoom;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private SocialWorkerChatReadStatus(SocialWorker socialWorker, ChatRoom chatRoom) {
+    private SocialWorkerChatReadStatus(SocialWorker socialWorker, ChatRoom chatRoom, LocalDateTime lastReadAt) {
         this.socialWorker = socialWorker;
         this.chatRoom = chatRoom;
-        this.lastReadAt = LocalDateTime.of(1000, 1, 1, 0, 0);
-        ;
+        this.lastReadAt = lastReadAt;
     }
 
     public static SocialWorkerChatReadStatus create(SocialWorker socialWorker, ChatRoom chatRoom) {
         return SocialWorkerChatReadStatus.builder()
                 .socialWorker(socialWorker)
                 .chatRoom(chatRoom)
+                .lastReadAt(LocalDateTime.of(1000, 1, 1, 0, 0))
+                .build();
+    }
+
+    public static SocialWorkerChatReadStatus createWhoProposeApplication(SocialWorker socialWorker, ChatRoom chatRoom) {
+        return SocialWorkerChatReadStatus.builder()
+                .socialWorker(socialWorker)
+                .chatRoom(chatRoom)
+                .lastReadAt(LocalDateTime.now())
                 .build();
     }
 
