@@ -1,9 +1,11 @@
 package com.becareful.becarefulserver.domain.report.domain;
 
+import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.chat.domain.ChatRoom;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
 import com.becareful.becarefulserver.domain.community.domain.Comment;
 import com.becareful.becarefulserver.domain.community.domain.Post;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -37,4 +39,12 @@ public class Report extends BaseEntity {
     @JoinColumn(name = "reported_chat_room_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private ChatRoom chatRoom;
+
+    @JoinColumn(name = "reporter_caregiver_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Caregiver caregiver;
+
+    @JoinColumn(name = "reporter_social_worker_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private SocialWorker socialWorker;
 }
