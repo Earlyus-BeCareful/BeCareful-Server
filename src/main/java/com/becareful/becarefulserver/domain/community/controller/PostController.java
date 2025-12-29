@@ -71,7 +71,7 @@ public class PostController {
             @PathVariable Long postId,
             @Valid @RequestBody ReportCreateRequest request) {
         reportService.reportPost(boardType, postId, request);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "모든 게시판의 필독 게시글 모아보기", description = "읽기 권한이 없는 게시판의 필독 게시글은 조회되지 않습니다.")
