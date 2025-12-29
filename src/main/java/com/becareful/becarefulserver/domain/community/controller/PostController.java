@@ -66,7 +66,7 @@ public class PostController {
 
     @Operation(summary = "게시글 신고")
     @PostMapping("/board/{boardType}/post/{postId}/report")
-    public ResponseEntity<Void> deletePost(
+    public ResponseEntity<Void> reportPost(
             @PathVariable String boardType,
             @PathVariable Long postId,
             @Valid @RequestBody ReportCreateRequest request) {
