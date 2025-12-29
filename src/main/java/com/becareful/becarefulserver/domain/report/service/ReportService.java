@@ -6,6 +6,7 @@ import com.becareful.becarefulserver.domain.association.domain.AssociationMember
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.chat.domain.ChatRoom;
 import com.becareful.becarefulserver.domain.chat.repository.ChatRoomRepository;
+import com.becareful.becarefulserver.domain.community.domain.Comment;
 import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.repository.CommentRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
@@ -67,6 +68,20 @@ public class ReportService {
         // TODO : Post 접근 권한 검증
 
         Report report = Report.post(request.reportType(), request.description(), associationMember, post);
+
+        reportRepository.save(report);
+    }
+
+    @Transactional
+    public void reportComment(String boardType, Long postId, Long commentId, ReportCreateRequest request) {
+        AssociationMember associationMember = authUtil.getLoggedInAssociationMember();
+
+        Comment comment =
+                commentRepository.findById(commentId).orElseThrow(() -> new DomainException(COMMENT_NOT_FOUND));
+
+        // TODO : Comment 접근 권한 검증
+
+        Report report = Report.comment(request.reportType(), request.description(), associationMember, comment);
 
         reportRepository.save(report);
     }
