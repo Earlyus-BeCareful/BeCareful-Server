@@ -4,8 +4,11 @@ import com.becareful.becarefulserver.domain.community.dto.request.CommentCreateR
 import com.becareful.becarefulserver.domain.community.dto.request.CommentUpdateRequest;
 import com.becareful.becarefulserver.domain.community.dto.response.CommentResponse;
 import com.becareful.becarefulserver.domain.community.service.CommentService;
+import com.becareful.becarefulserver.domain.report.dto.request.ReportCreateRequest;
+import com.becareful.becarefulserver.domain.report.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
 
     private final CommentService commentService;
+    private final ReportService reportService;
 
     @Operation(summary = "댓글 작성")
     @PostMapping
@@ -55,5 +59,16 @@ public class CommentController {
             @PathVariable String boardType, @PathVariable Long postId, @PathVariable Long commentId) {
         commentService.deleteComment(boardType, postId, commentId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "댓글 신고")
+    @PutMapping("/{commentId}/report")
+    public ResponseEntity<Void> reportComment(
+            @PathVariable String boardType,
+            @PathVariable Long postId,
+            @PathVariable Long commentId,
+            @Valid @RequestBody ReportCreateRequest request) {
+        reportService.reportComment(boardType, postId, commentId, request);
+        return ResponseEntity.ok().build();
     }
 }

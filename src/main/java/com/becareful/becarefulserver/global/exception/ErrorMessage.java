@@ -79,6 +79,8 @@ public class ErrorMessage {
 
     public static final String USER_CREATE_INVALID_GENDER_CODE = "유효하지 않은 성별 번호입니다.";
 
+    public static final String CHAT_ROOM_NOT_EXISTS = "채팅방이 존재하지 않습니다.";
+
     public static final String ASSOCIATION_MEMBER_NOT_EXISTS = "협회 회원이 존재하지 않습니다.";
     public static final String ASSOCIATION_MEMBER_ALREADY_LEAVED = "이미 탈퇴한 협회 회원입니다.";
 
