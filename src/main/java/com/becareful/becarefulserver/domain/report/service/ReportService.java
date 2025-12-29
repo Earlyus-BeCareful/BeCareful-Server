@@ -59,7 +59,7 @@ public class ReportService {
     }
 
     @Transactional
-    public void reportPost(Long postId, ReportCreateRequest request) {
+    public void reportPost(String boardType, Long postId, ReportCreateRequest request) {
         AssociationMember associationMember = authUtil.getLoggedInAssociationMember();
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new DomainException(POST_NOT_FOUND));

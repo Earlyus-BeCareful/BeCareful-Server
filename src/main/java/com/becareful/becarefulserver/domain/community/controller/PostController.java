@@ -5,8 +5,11 @@ import com.becareful.becarefulserver.domain.community.dto.*;
 import com.becareful.becarefulserver.domain.community.dto.request.*;
 import com.becareful.becarefulserver.domain.community.dto.response.*;
 import com.becareful.becarefulserver.domain.community.service.*;
+import com.becareful.becarefulserver.domain.report.dto.request.ReportCreateRequest;
+import com.becareful.becarefulserver.domain.report.service.ReportService;
 import io.swagger.v3.oas.annotations.*;
 import io.swagger.v3.oas.annotations.tags.*;
+import jakarta.validation.Valid;
 import java.net.*;
 import java.util.*;
 import lombok.*;
@@ -22,6 +25,7 @@ public class PostController {
 
     private final PostService postService;
     private final PostMediaService postMediaService;
+    private final ReportService reportService;
 
     @Operation(summary = "게시글 작성", description = "original url 필드의 경우, 협회 공지 게시판 이외에는 비워둡니다.")
     @PostMapping("/board/{boardType}/post")
@@ -57,6 +61,16 @@ public class PostController {
     @DeleteMapping("/board/{boardType}/post/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable String boardType, @PathVariable Long postId) {
         postService.deletePost(boardType, postId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "게시글 신고")
+    @PostMapping("/board/{boardType}/post/{postId}/report")
+    public ResponseEntity<Void> deletePost(
+            @PathVariable String boardType,
+            @PathVariable Long postId,
+            @Valid @RequestBody ReportCreateRequest request) {
+        reportService.reportPost(boardType, postId, request);
         return ResponseEntity.noContent().build();
     }
 
