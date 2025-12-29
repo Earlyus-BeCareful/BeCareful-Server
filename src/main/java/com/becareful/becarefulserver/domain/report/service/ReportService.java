@@ -10,6 +10,7 @@ import com.becareful.becarefulserver.domain.community.repository.PostRepository;
 import com.becareful.becarefulserver.domain.report.domain.Report;
 import com.becareful.becarefulserver.domain.report.dto.request.ReportCreateRequest;
 import com.becareful.becarefulserver.domain.report.repository.ReportRepository;
+import com.becareful.becarefulserver.domain.socialworker.domain.SocialWorker;
 import com.becareful.becarefulserver.global.exception.exception.DomainException;
 import com.becareful.becarefulserver.global.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class ReportService {
     private final ChatRoomRepository chatRoomRepository;
 
     @Transactional
-    public void reportChatRoom(Long chatRoomId, ReportCreateRequest request) {
+    public void reportChatRoomByCaregiver(Long chatRoomId, ReportCreateRequest request) {
         Caregiver caregiver = authUtil.getLoggedInCaregiver();
 
         ChatRoom chatRoom =
@@ -36,6 +37,21 @@ public class ReportService {
         // TODO : 채팅방 검증 필요 - 채팅방에서 요양보호사를 알아올 수 없는 문제가 있음
 
         Report report = Report.chatRoomCaregiver(request.reportType(), request.description(), caregiver, chatRoom);
+
+        reportRepository.save(report);
+    }
+
+    @Transactional
+    public void reportChatRoomBySocialWorker(Long chatRoomId, ReportCreateRequest request) {
+        SocialWorker loggedInSocialWorker = authUtil.getLoggedInSocialWorker();
+
+        ChatRoom chatRoom =
+                chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new DomainException(CHAT_ROOM_NOT_EXISTS));
+
+        // TODO : 채팅방 검증 필요 - 채팅방에서 요양보호사를 알아올 수 없는 문제가 있음
+
+        Report report = Report.chatRoomSocialWorker(
+                request.reportType(), request.description(), loggedInSocialWorker, chatRoom);
 
         reportRepository.save(report);
     }

@@ -46,7 +46,7 @@ public class CaregiverChatController {
     @PostMapping("/{chatRoomId}/report")
     public ResponseEntity<Void> reportChatRoom(
             @PathVariable Long chatRoomId, @RequestBody @Valid ReportCreateRequest reportCreateRequest) {
-        reportService.reportChatRoom(chatRoomId, reportCreateRequest);
+        reportService.reportChatRoomByCaregiver(chatRoomId, reportCreateRequest);
         return ResponseEntity.ok().build();
     }
 }
