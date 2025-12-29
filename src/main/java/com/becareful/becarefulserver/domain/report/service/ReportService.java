@@ -2,9 +2,11 @@ package com.becareful.becarefulserver.domain.report.service;
 
 import static com.becareful.becarefulserver.global.exception.ErrorMessage.*;
 
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.chat.domain.ChatRoom;
 import com.becareful.becarefulserver.domain.chat.repository.ChatRoomRepository;
+import com.becareful.becarefulserver.domain.community.domain.Post;
 import com.becareful.becarefulserver.domain.community.repository.CommentRepository;
 import com.becareful.becarefulserver.domain.community.repository.PostRepository;
 import com.becareful.becarefulserver.domain.report.domain.Report;
@@ -52,6 +54,19 @@ public class ReportService {
 
         Report report = Report.chatRoomSocialWorker(
                 request.reportType(), request.description(), loggedInSocialWorker, chatRoom);
+
+        reportRepository.save(report);
+    }
+
+    @Transactional
+    public void reportPost(Long postId, ReportCreateRequest request) {
+        AssociationMember associationMember = authUtil.getLoggedInAssociationMember();
+
+        Post post = postRepository.findById(postId).orElseThrow(() -> new DomainException(POST_NOT_FOUND));
+
+        // TODO : Post 접근 권한 검증
+
+        Report report = Report.post(request.reportType(), request.description(), associationMember, post);
 
         reportRepository.save(report);
     }

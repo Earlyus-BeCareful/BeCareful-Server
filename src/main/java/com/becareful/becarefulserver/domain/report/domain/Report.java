@@ -1,5 +1,6 @@
 package com.becareful.becarefulserver.domain.report.domain;
 
+import com.becareful.becarefulserver.domain.association.domain.AssociationMember;
 import com.becareful.becarefulserver.domain.caregiver.domain.Caregiver;
 import com.becareful.becarefulserver.domain.chat.domain.ChatRoom;
 import com.becareful.becarefulserver.domain.common.domain.BaseEntity;
@@ -49,6 +50,10 @@ public class Report extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private SocialWorker socialWorker;
 
+    @JoinColumn(name = "reporter_association_member_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private AssociationMember associationMember;
+
     @Builder(access = AccessLevel.PRIVATE)
     public Report(
             ReportType reportType,
@@ -57,7 +62,8 @@ public class Report extends BaseEntity {
             Comment comment,
             ChatRoom chatRoom,
             Caregiver caregiver,
-            SocialWorker socialWorker) {
+            SocialWorker socialWorker,
+            AssociationMember associationMember) {
         this.reportType = reportType;
         this.description = description;
         this.post = post;
@@ -65,23 +71,25 @@ public class Report extends BaseEntity {
         this.chatRoom = chatRoom;
         this.caregiver = caregiver;
         this.socialWorker = socialWorker;
+        this.associationMember = associationMember;
     }
 
-    public static Report post(ReportType reportType, String description, SocialWorker socialWorker, Post post) {
+    public static Report post(
+            ReportType reportType, String description, AssociationMember associationMember, Post post) {
         return Report.builder()
                 .reportType(reportType)
                 .description(description)
-                .socialWorker(socialWorker)
+                .associationMember(associationMember)
                 .post(post)
                 .build();
     }
 
     public static Report comment(
-            ReportType reportType, String description, SocialWorker socialWorker, Comment comment) {
+            ReportType reportType, String description, AssociationMember associationMember, Comment comment) {
         return Report.builder()
                 .reportType(reportType)
                 .description(description)
-                .socialWorker(socialWorker)
+                .associationMember(associationMember)
                 .comment(comment)
                 .build();
     }
