@@ -62,7 +62,7 @@ public class CommentController {
     }
 
     @Operation(summary = "댓글 신고")
-    @PutMapping("/{commentId}")
+    @PutMapping("/{commentId}/report")
     public ResponseEntity<Void> reportComment(
             @PathVariable String boardType,
             @PathVariable Long postId,
