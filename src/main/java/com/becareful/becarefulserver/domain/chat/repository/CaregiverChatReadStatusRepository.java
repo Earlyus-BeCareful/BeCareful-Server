@@ -2,6 +2,7 @@ package com.becareful.becarefulserver.domain.chat.repository;
 
 import com.becareful.becarefulserver.domain.caregiver.domain.*;
 import com.becareful.becarefulserver.domain.chat.domain.*;
+import com.becareful.becarefulserver.domain.matching.domain.Recruitment;
 import java.util.*;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.*;
@@ -17,6 +18,15 @@ public interface CaregiverChatReadStatusRepository extends JpaRepository<Caregiv
            AND c.createDate > r.lastReadAt
     """)
     boolean existsUnreadChat(Caregiver caregiver);
+
+    @Query(
+            """
+        SELECT s.chatRoom.id
+          FROM CaregiverChatReadStatus s
+         WHERE s.caregiver = :caregiver
+           AND s.chatRoom.recruitment = :recruitment
+    """)
+    Optional<Long> findChatRoomIdByCaregiverAndRecruitment(Caregiver caregiver, Recruitment recruitment);
 
     Optional<CaregiverChatReadStatus> findByChatRoom(ChatRoom chatRoom);
 
