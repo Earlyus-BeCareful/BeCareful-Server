@@ -12,7 +12,6 @@ import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultSta
 import java.util.List;
 
 public record MatchingCaregiverDetailResponse(
-        Long matchingId, // TODO : 필드 제거
         MatchingResultStatus matchingResultStatus,
         MatchingResultReasonType workLocationMatchingResultReason,
         MatchingResultReasonType workDaysMatchingResultReason,
@@ -21,7 +20,8 @@ public record MatchingCaregiverDetailResponse(
         WorkApplicationDto workApplicationInfo,
         CareerDto careerInfo,
         List<MediationType> mediationTypes,
-        String mediationDescription) {
+        String mediationDescription,
+        Long chatRoomId) {
 
     public static MatchingCaregiverDetailResponse of(
             WorkApplication workApplication,
@@ -30,9 +30,9 @@ public record MatchingCaregiverDetailResponse(
             Career career,
             List<CareerDetail> careerDetails,
             List<MediationType> mediationTypes,
-            String mediationDescription) {
+            String mediationDescription,
+            Long chatRoomId) {
         return new MatchingCaregiverDetailResponse(
-                0L, // TODO : 필드 제거
                 matchingResultStatus,
                 matchingResultInfo.isWorkLocationMatched()
                         ? MatchingResultReasonType.MATCHED_ALL
@@ -49,7 +49,8 @@ public record MatchingCaregiverDetailResponse(
                 WorkApplicationDto.from(workApplication),
                 career != null ? CareerDto.of(career, careerDetails) : null,
                 mediationTypes,
-                mediationDescription);
+                mediationDescription,
+                chatRoomId);
     }
 
     private enum MatchingResultReasonType {

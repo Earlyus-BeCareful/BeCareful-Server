@@ -171,6 +171,10 @@ public class SocialWorkerMatchingService {
         MatchingResultStatus matchingResultStatus =
                 matchingDomainService.calculateMatchingStatus(workApplication, recruitment);
 
+        Long chatRoomId = caregiverChatReadStatusRepository
+                .findChatRoomIdByCaregiverAndRecruitment(caregiver, recruitment)
+                .orElse(null);
+
         return MatchingCaregiverDetailResponse.of(
                 workApplication,
                 matchingResultStatus,
@@ -178,7 +182,8 @@ public class SocialWorkerMatchingService {
                 career,
                 careerDetails,
                 mediationTypes,
-                mediationDescription);
+                mediationDescription,
+                chatRoomId);
     }
 
     /**
