@@ -18,7 +18,7 @@ public record SocialWorkerSimpleDto(
         return new SocialWorkerSimpleDto(
                 socialWorker.getName(),
                 socialWorker.getNickname(),
-                socialWorker.getNursingInstitution().getProfileImageUrl(),
+                socialWorker.getProfileImageUrl(),
                 socialWorker.getPhoneNumber(),
                 socialWorker.getAge(),
                 socialWorker.getGender(),
