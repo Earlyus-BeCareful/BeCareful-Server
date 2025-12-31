@@ -5,12 +5,17 @@ import com.becareful.becarefulserver.domain.matching.domain.vo.MatchingResultSta
 import java.time.LocalDate;
 
 public record CaregiverAppliedMatchingDetailResponse(
-        RecruitmentDetailResponse recruitmentDetailInfo, LocalDate applyDate) {
+        RecruitmentDetailResponse recruitmentDetailInfo, LocalDate applyDate, Long chatRoomId) {
 
     public static CaregiverAppliedMatchingDetailResponse of(
-            Application application, MatchingResultStatus result, boolean isHotRecruitment, boolean isHourlySalaryTop) {
+            Application application,
+            MatchingResultStatus result,
+            Long chatRoomId,
+            boolean isHotRecruitment,
+            boolean isHourlySalaryTop) {
         return new CaregiverAppliedMatchingDetailResponse(
                 RecruitmentDetailResponse.of(application.getRecruitment(), result, isHotRecruitment, isHourlySalaryTop),
-                application.getCreateDate().toLocalDate());
+                application.getCreateDate().toLocalDate(),
+                chatRoomId);
     }
 }
